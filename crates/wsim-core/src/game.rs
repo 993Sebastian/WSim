@@ -260,6 +260,10 @@ impl Game {
             start_setup(&mut state, &catalog, id, (form, country, capital))?;
         }
         crate::population::populate(&mut state, &catalog);
+        for i in 0..state.companies.len() {
+            let id = CompanyId(u32::try_from(i).expect("company count fits u32"));
+            crate::product_research::grant_running(&mut state, &catalog, id);
+        }
         state.events = events;
         crate::events::start(&mut state);
         crate::stock::list_at_start(&mut state, &catalog);
@@ -838,6 +842,8 @@ pub(crate) fn push_player_company(
         rng: SimRng::for_stream(state.settings.seed, Stream::Company(index)),
         ledger: Ledger::new(date, capital),
         technologies: BTreeSet::new(),
+        known_products: Default::default(),
+        product_points: Default::default(),
         bankrupt: false,
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,
@@ -1053,6 +1059,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            research_mandatory: false,
             found_at_start: true,
             person: Default::default(),
         };

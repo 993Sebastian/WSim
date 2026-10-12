@@ -639,6 +639,8 @@ pub enum CommandError {
     NotResearchable(String),
     /// The product is known already or one of its inputs does not exist yet (Q6).
     NotResearchableProduct(String),
+    /// Mandatory research: the company has not researched the product yet (FW1).
+    ProductUnknown(String),
     /// Trim levels are off or the product is no end product (MN2).
     NoTrim,
     /// The tender is unknown or no longer takes bids (MN2).
@@ -985,6 +987,8 @@ impl CommandError {
             CommandError::NotResearchable(t) => e(keys::COMMAND_NOT_RESEARCHABLE)
                 .with("technologie", Param::TextKey(format!("technologie.{t}"))),
             CommandError::NotResearchableProduct(p) => e(keys::COMMAND_NOT_RESEARCHABLE_PRODUCT)
+                .with("produkt", Param::TextKey(format!("produkt.{p}"))),
+            CommandError::ProductUnknown(p) => e(keys::COMMAND_PRODUCT_UNKNOWN)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NoTrim => e(keys::COMMAND_NO_TRIM),
             CommandError::TenderClosed => e(keys::COMMAND_TENDER_CLOSED),
@@ -1788,6 +1792,11 @@ fn run(
                 }
                 if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
                     return Err(unknown_technology(catalog, t));
+                }
+                if !state.knows_product(catalog, actor, r.product) {
+                    return Err(CommandError::ProductUnknown(
+                        catalog.products.key(r.product).to_owned(),
+                    ));
                 }
                 if let Some(t) =
                     crate::patents::blocked_recipe(state, catalog, actor, *recipe, s.country)

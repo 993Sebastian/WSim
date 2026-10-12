@@ -7,7 +7,7 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawAiModel, RawBank, RawBonds, RawCentral, RawChannel, RawContracts, RawCountry,
+    RawAiModel, RawBank, RawBonds, RawBranch, RawCentral, RawChannel, RawContracts, RawCountry,
     RawCountryCurrencies, RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent,
     RawEventModel, RawFacility, RawFinanceModel, RawInventor, RawLife, RawLogistics, RawManagement,
     RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex,
@@ -160,7 +160,7 @@ pub(crate) struct RawData {
     pub research_model: Vec<Entry<RawResearchModel>>,
     pub units: Vec<Entry<RawUnit>>,
     pub continents: Vec<Entry<RawSimple>>,
-    pub branches: Vec<Entry<RawSimple>>,
+    pub branches: Vec<Entry<RawBranch>>,
     pub goods_groups: Vec<Entry<RawSimple>>,
     pub transport_classes: Vec<Entry<RawTransportClass>>,
     pub qualifications: Vec<Entry<RawQualification>>,

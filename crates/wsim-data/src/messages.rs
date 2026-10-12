@@ -856,3 +856,13 @@ pub fn ban_without_products() -> String {
 pub fn range_order(lower: &str, upper: &str) -> String {
     format!("„{lower}“ muss mindestens 1 sein und darf nicht über „{upper}“ liegen.")
 }
+
+pub fn basic_product_branch(product: &str, actual: &str, branch: &str) -> String {
+    format!(
+        "Grundprodukt „{product}“ gehört zur Branche „{actual}“, nicht zu „{branch}“; jede Branche nennt ein eigenes Produkt."
+    )
+}
+
+pub fn basic_product_no_recipe(product: &str) -> String {
+    format!("Grundprodukt „{product}“ hat kein Rezept; es könnte nie hergestellt werden.")
+}

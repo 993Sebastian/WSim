@@ -22,6 +22,7 @@ fn request() -> NewGameRequest {
         startups: None,
         tariffs: None,
         event_effects: true,
+        research_mandatory: false,
         found_at_start: true,
         person_name: String::new(),
         birth_year: None,
@@ -968,4 +969,44 @@ fn make_or_buy_lists_the_inputs_of_the_workshop() {
         assert!((0.0..=1.0).contains(&row.supply));
         assert!(["halten", "puffer", "zukauf_pruefen"].contains(&row.advice.as_str()));
     }
+}
+
+/// Mandatory research (FW1) with the shipped data: the player may make the basic product
+/// of each branch, the raw materials and what the start set makes – nothing else; the
+/// world with its AI companies keeps running.
+#[test]
+fn mandatory_research_with_the_shipped_data() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let mut free = request();
+    free.research_mandatory = false;
+    session.new_game(&free).unwrap();
+    let all: std::collections::BTreeSet<String> = session
+        .production()
+        .unwrap()
+        .recipes
+        .into_iter()
+        .filter(|r| !r.extraction)
+        .map(|r| r.product)
+        .collect();
+    let mut mandatory = request();
+    mandatory.research_mandatory = true;
+    session.new_game(&mandatory).unwrap();
+    let known: std::collections::BTreeSet<String> = session
+        .production()
+        .unwrap()
+        .recipes
+        .into_iter()
+        .filter(|r| !r.extraction)
+        .map(|r| r.product)
+        .collect();
+    eprintln!("{} of {} products: {known:?}", known.len(), all.len());
+    // One basic product per branch (16 have one) and the start set's products.
+    assert!(known.len() <= 20, "{known:?}");
+    assert!(known.contains("stahl") && known.contains("mehl"));
+    assert!(!known.contains("blech") && !known.contains("wurst"));
+    assert!(all.len() > 100);
+    let report = session.end_round("monat", |_| {}).unwrap();
+    assert!(report.days >= 28);
+    assert!(session.overview().unwrap().competitors_active > 0);
 }

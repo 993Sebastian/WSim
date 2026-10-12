@@ -110,7 +110,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | 🔄 |
 | MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
-| FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ⏳ (Vorschläge zur Abnahme: OFFENE_PUNKTE U) |
+| FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ Teil 1 (Forschungspflicht, Grundprodukte; Annahmen OFFENE_PUNKTE U) – Werksbranchen und Anlagenkauf nach Produkt offen |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏸ zurückgestellt bis zur Aufforderung (Wunsch vom 12.10.2026) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft

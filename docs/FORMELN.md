@@ -5820,3 +5820,33 @@ Wege R₀ (Vorjahresumsatz · g / P_vorher) und nimmt schrittweise den Weg, der 
 
 am stärksten erhöht, solange er steigt (Mitte der Einkommensfünftel). Wege außerhalb der
 neuen Wahl gibt sie auf.
+
+## FW1 – Forschungspflicht (Wunsch vom 12.10.2026, offener Punkt U)
+
+Schalter je Spiel (`research_mandatory`, Dialog „Neues Spiel“, Vorgabe an). Ohne ihn gilt
+alles wie bisher.
+
+- **Darf herstellen:** Eine Firma darf ein Produkt herstellen, wenn sie das Produkt kennt
+  und die Technologien seines Rezepts und seiner Anlage.
+  - Das Produkt kennt sie, wenn es das Grundprodukt seiner Branche ist
+    (`branchen[].grundprodukt`), ein Rohstoff ist, oder wenn sie es erforscht, übernommen
+    oder beim Start hergestellt hat.
+  - Technologien kennt sie aus eigener Forschung, Lizenz oder Übernahme, oder wenn sie zu
+    einem Grundprodukt oder einer Förderung gehören und erfunden sind
+    (Erfindungsjahr ≤ laufendes Jahr).
+  - Gemeinfreiheit (`gemeinfrei_nach_jahren`) und „bekannt vor Spielbeginn“ gelten unter
+    der Pflicht nicht.
+- **Produkt lernen:** Ein Forschungszentrum, das ein Produkt erforscht, arbeitet zuerst die
+  fehlenden Technologien ab (wie bisher). Danach sammelt es Punkte für das Produkt selbst:
+  - Punkte je Tag = Forscher des Fachgebiets × freier Anteil des Zentrums × Effizienz des
+    Landes. Material wird gebucht wie bei der Technologieforschung.
+  - Benötigt: A = Grundaufwand des Produkts × `weiterentwicklung.aufwand.anteil`, also so
+    viel wie die erste Weiterentwicklungsstufe.
+  - Das Fachgebiet kommt aus der Technologie des Rezepts oder sonst aus der Branche.
+- **Start:** Spieler, Startbesetzung und historische Firmen kennen die Produkte ihrer
+  Startstandorte samt Technologien.
+- **Neue KI-Firmen** finden ihre Gelegenheiten wie ohne Pflicht: Technologien, die
+  gemeinfrei sind oder eine Firma kennt. Sie bringen das Wissen für das Gründungsprodukt
+  mit.
+- **Tochterfirmen** erben das Wissen der Mutter. Wer Standorte übernimmt, kennt deren
+  Produkte.

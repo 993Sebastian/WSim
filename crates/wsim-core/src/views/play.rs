@@ -691,7 +691,9 @@ pub fn production(game: &Game) -> ProductionView {
         .recipes
         .iter()
         .filter(|(_, r)| {
-            knows(r.technology) && knows(catalog.facilities.get(r.facility).technology)
+            knows(r.technology)
+                && knows(catalog.facilities.get(r.facility).technology)
+                && state.knows_product(catalog, player, r.product)
         })
         .map(|(id, r)| RecipeOption {
             key: catalog.recipes.key(id).to_owned(),
@@ -3533,6 +3535,7 @@ mod explain_tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            research_mandatory: false,
             found_at_start: true,
             person: Default::default(),
         };

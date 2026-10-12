@@ -158,6 +158,9 @@ struct RunArgs {
     /// Historische Ereignisse ohne Folgen für Märkte, Handel und Firmen (H1)
     #[arg(long)]
     ohne_folgen: bool,
+    /// Forschungspflicht (FW1): neue Firmen kennen nur das Grundprodukt je Branche
+    #[arg(long)]
+    forschungspflicht: bool,
     /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
     #[arg(long)]
     welt: bool,
@@ -507,6 +510,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 ventures: venture_factor(&catalog, args)?,
                 tariff_dynamics: tariff_factor(&catalog, args)?,
                 event_effects: !args.ohne_folgen,
+                research_mandatory: args.forschungspflicht,
                 found_at_start: !args.als_person && !args.nur_welt,
                 person: Default::default(),
             };
@@ -696,6 +700,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         startups: None,
         tariffs: None,
         event_effects: true,
+        research_mandatory: false,
         found_at_start: true,
         person_name: String::new(),
         birth_year: None,
@@ -1046,6 +1051,7 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         startups: None,
         tariffs: None,
         event_effects: true,
+        research_mandatory: false,
         found_at_start: true,
         person_name: String::new(),
         birth_year: None,

@@ -155,6 +155,7 @@ pub mod keys {
     pub const PRODUCT_RESEARCHED: &str = "meldung.produkt_erforscht";
     pub const COMMAND_NOT_RESEARCHABLE: &str = "fehler.befehl.nicht_erforschbar";
     pub const COMMAND_NOT_RESEARCHABLE_PRODUCT: &str = "fehler.befehl.produkt_nicht_erforschbar";
+    pub const COMMAND_PRODUCT_UNKNOWN: &str = "fehler.befehl.produkt_unbekannt";
     pub const COMMAND_NO_TRIM: &str = "fehler.befehl.keine_ausstattung";
     pub const COMMAND_TENDER_CLOSED: &str = "fehler.befehl.ausschreibung_geschlossen";
     pub const COMMAND_NO_CHANNEL: &str = "fehler.befehl.kein_vertriebsweg";
@@ -591,6 +592,7 @@ pub mod keys {
         PRODUCT_RESEARCHED,
         COMMAND_NOT_RESEARCHABLE,
         COMMAND_NOT_RESEARCHABLE_PRODUCT,
+        COMMAND_PRODUCT_UNKNOWN,
         COMMAND_NO_TRIM,
         COMMAND_TENDER_CLOSED,
         COMMAND_NO_CHANNEL,

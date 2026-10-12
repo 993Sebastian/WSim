@@ -49,6 +49,7 @@ export function NeuesSpielAnsicht({
           startups: o.default_startups,
           tariffs: o.default_tariffs ?? null,
           event_effects: true,
+          research_mandatory: true,
           person_name: "",
           married: true,
           children: 0,
@@ -273,6 +274,16 @@ export function NeuesSpielAnsicht({
               {t("neu.folgen")}
             </label>
             <small className="feld-hilfe">{t("neu.folgen_hilfe")}</small>
+            <label className="auswahl">
+              <input
+                id="forschungspflicht"
+                type="checkbox"
+                checked={werte.research_mandatory ?? true}
+                onChange={(e) => setze("research_mandatory", e.target.checked)}
+              />
+              {t("neu.forschungspflicht")}
+            </label>
+            <small className="feld-hilfe">{t("neu.forschungspflicht_hilfe")}</small>
           </div>
         </details>
         <FehlerText fehler={fehler} />

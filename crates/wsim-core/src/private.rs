@@ -472,6 +472,7 @@ pub(crate) fn found(
     let id = crate::game::push_player_company(state, name, country, capital);
     crate::game::start_setup(state, catalog, id, (form, country, capital))
         .map_err(|_| CommandError::CapitalTooLow { min })?;
+    crate::product_research::grant_running(state, catalog, id);
     // Further foundings (PE5): the first stays the main company, and the person leads
     // only one company.
     if state.main_company.is_none() {

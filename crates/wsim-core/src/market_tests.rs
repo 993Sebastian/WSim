@@ -38,6 +38,7 @@ fn game_with(catalog: crate::catalog::Catalog) -> Game {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        research_mandatory: false,
         found_at_start: true,
         person: Default::default(),
     };
@@ -155,6 +156,8 @@ fn competitor(game: &mut Game) -> CompanyId {
         rng: SimRng::for_stream(1, Stream::Company(id.0)),
         ledger: Ledger::new(date, usd(1_000_000.0)),
         technologies: BTreeSet::new(),
+        known_products: Default::default(),
+        product_points: Default::default(),
         bankrupt: false,
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,

@@ -64,6 +64,9 @@ pub struct NewGameRequest {
     /// Whether the historical events act on markets, trade and companies (H1).
     #[serde(default = "yes")]
     pub event_effects: bool,
+    /// Mandatory research (FW1): a new company knows only the basic products.
+    #[serde(default = "yes")]
+    pub research_mandatory: bool,
     /// The player as a person (PE2): name (empty: drawn), year of birth (none: the
     /// default age), married, children at the start.
     #[serde(default)]
@@ -294,6 +297,7 @@ impl<S: SaveStore> Session<S> {
             ventures,
             tariff_dynamics,
             event_effects: request.event_effects,
+            research_mandatory: request.research_mandatory,
             found_at_start: request.found_at_start,
             person: wsim_core::state::PersonSettings {
                 name: request.person_name.clone(),

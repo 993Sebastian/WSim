@@ -5693,3 +5693,38 @@ fn vertriebswege_werden_geprueft() {
     );
     nur_fehler(&outcome, 3);
 }
+
+#[test]
+fn grundprodukt_wird_geprueft() {
+    let g = "grundlagen.yaml";
+    let data = Daten::neu()
+        .ersetze(
+            g,
+            "  - id: metallurgie\n",
+            "  - id: metallurgie\n    grundprodukt: eisen\n",
+        )
+        .laden()
+        .data
+        .unwrap();
+    let c = &data.catalog;
+    assert_eq!(c.basic_products, vec![c.products.id("eisen").unwrap()]);
+
+    // The basic product of the mining branch belongs to metallurgy.
+    let d = Daten::neu().ersetze(
+        g,
+        "  - id: bergbau\n",
+        "  - id: bergbau\n    grundprodukt: eisen\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Grundprodukt „eisen“ gehört zur Branche „metallurgie“, nicht zu „bergbau“",
+    );
+    assert_ort(
+        f,
+        g,
+        d.zeile(g, "grundprodukt:"),
+        "branchen[0].grundprodukt",
+    );
+    nur_fehler(&outcome, 1);
+}

@@ -301,6 +301,22 @@ pub fn technology_share(site: &Site) -> f64 {
     (1.0 - products).max(0.0)
 }
 
+/// Whether a research center learns a product under mandatory research (FW1): it
+/// researches a product whose technologies the company knows.
+pub fn learning(state: &crate::state::GameState, site: &Site) -> bool {
+    state.settings.research_mandatory && site.research.is_none() && site.research_product.is_some()
+}
+
+/// Share of a research center's researchers not given to developed products.
+pub fn free_share(site: &Site) -> f64 {
+    let products: f64 = site_shares(site)
+        .iter()
+        .chain(site_process_shares(site).iter())
+        .map(|(_, s)| s)
+        .sum();
+    (1.0 - products).max(0.0)
+}
+
 /// Whether a research center has nothing to work on.
 pub fn idle(site: &Site) -> bool {
     site.research.is_none() && site_shares(site).is_empty() && site_process_shares(site).is_empty()
@@ -348,6 +364,7 @@ pub fn can_develop(
     product: ProductId,
 ) -> bool {
     basis(catalog, product).is_some()
+        && state.knows_product(catalog, company, product)
         && catalog.recipes.values().any(|r| {
             r.product == product
                 && r.technology
@@ -412,6 +429,10 @@ pub fn project_field(
     match (s.research, site_shares(s).first()) {
         (Some(t), _) => Some(catalog.technologies.get(t).field),
         (None, Some(&(p, _))) => basis(catalog, p).map(|(field, _)| field),
+        (None, None) if learning(state, s) => s
+            .research_product
+            .and_then(|p| basis(catalog, p))
+            .map(|(field, _)| field),
         (None, None) => None,
     }
 }

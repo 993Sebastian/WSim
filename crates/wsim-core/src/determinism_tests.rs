@@ -27,6 +27,7 @@ fn settings(seed: u64) -> GameSettings {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        research_mandatory: false,
         found_at_start: true,
         person: Default::default(),
     }

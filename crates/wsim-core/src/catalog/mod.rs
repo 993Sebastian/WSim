@@ -28,6 +28,12 @@ pub struct Catalog {
     pub units: Table<UnitId, Unit>,
     pub continents: Table<ContinentId, Continent>,
     pub branches: Table<BranchId, Branch>,
+    /// The basic product of each branch that has one (FW1): with mandatory research a new
+    /// company knows only these and the raw materials.
+    pub basic_products: Vec<ProductId>,
+    /// Technologies of the basic products and of extraction, prerequisites included (FW1;
+    /// derived with `product_research::basic_technologies`).
+    pub basic_technologies: std::collections::BTreeSet<TechnologyId>,
     pub goods_groups: Table<GoodsGroupId, GoodsGroup>,
     pub transport_classes: Table<TransportClassId, TransportClass>,
     pub qualifications: Table<QualificationId, Qualification>,

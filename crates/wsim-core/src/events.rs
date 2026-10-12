@@ -654,6 +654,12 @@ pub(crate) fn expropriate(
             }
         }
         state.companies[to.index()].technologies.extend(known);
+        let products: Vec<ProductId> = state.sites[site.index()]
+            .slots
+            .iter()
+            .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r).product))
+            .collect();
+        state.companies[to.index()].known_products.extend(products);
 
         let s = &mut state.sites[site.index()];
         s.owner = to;

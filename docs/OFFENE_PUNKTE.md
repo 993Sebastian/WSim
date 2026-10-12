@@ -2243,7 +2243,29 @@ Zu Spielbeginn ist pro Branche nur ein Grundprodukt verfügbar und nicht mehr.�
 Eingereiht nach WG5. Baut auf Q6 (Forschung je Produkt) und der Werksansicht (M18c) auf;
 berührt MN5 (Anzeige) und P6 (reale Firmen, Startbesetzung).
 
-Vorschläge zur Abnahme, bevor umgesetzt wird:
+**Stand 12.10.2026 abends (auf Wunsch vorgezogen, Teil 1 umgesetzt):** Punkte 1–3 und 6
+sind umgesetzt, 4 und 5 folgen. Annahmen zur Abnahme:
+
+- **U-a ✅ Schalter je Spiel:** „Forschungspflicht“ im Dialog „Neues Spiel“, Vorgabe an.
+  Alte Spielstände und Läufe ohne Oberfläche (CLI: `--forschungspflicht`) bleiben ohne.
+- **U-b 🟡 Grundprodukte:** Stahl, Schwefelsäure, Strom, Schnittholz, Garn, Mehl,
+  Mauerziegel, Nägel, Fahrrad, Frachtschiff, Luftschiff, Höhenforschungsrakete,
+  Kupferdraht, Möbel, Pharmagrundstoffe, Munition; Bergbau braucht keins (Rohstoffe sind
+  frei). Ein Grundprodukt gilt erst ab seiner Erfindung (1900: 14 von 206 Produkten).
+- **U-c 🟡 Wissen je Produkt:** Viele Produkte brauchen keine Technologie (Zink, Leder,
+  Wurst …). Deshalb gilt die Pflicht je Produkt: Eine Firma darf ein Produkt erst
+  herstellen, wenn sie es kennt – zusätzlich zu seinen Technologien. Erforscht wird es im
+  Forschungszentrum wie bisher (Forschung → Produkt); fehlen keine Technologien, lernt das
+  Zentrum das Produkt selbst. Aufwand = Aufwand der ersten Weiterentwicklungsstufe
+  (Grundaufwand × Anteil). Offen: eigener Abschlag für lange bekannte Produkte (Punkt 6
+  gilt bisher nur für die Technologien über den Nachzüglerrabatt).
+- **U-d 🟡 KI:** Startbesetzung und historische Firmen kennen, was sie herstellen. Eine neu
+  gegründete KI-Firma bringt das Wissen für das Produkt mit, für das sie gegründet wird
+  (sonst gäbe es keine Neugründungen); weitere Produkte erforscht die KI noch nicht –
+  das kommt mit der KI-Forschung je Produkt (nächster Schritt). Tochterfirmen erben das
+  Wissen der Mutter, Übernahmen bringen die Produkte der Standorte mit.
+
+Vorschläge zur Abnahme, bevor umgesetzt wird (Stand vor der Umsetzung):
 
 1. **Grundprodukt je Branche:** neues Datenfeld `grundprodukt` je Branche
    (`data/grundlagen.yaml`), z. B. Metallurgie → Roheisen, Textil → Garn, Lebensmittel →

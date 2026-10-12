@@ -869,6 +869,10 @@ Frage: „Wie viel vom Gewinn behält die Firma, wie viel bekommen ihre Eigner �
   beide ohne Standort und ohne Kosten; die Einführung bis zum ersten Verkauf entfällt.
 - H1: Unter „Weitere Einstellungen“ das Kästchen „Folgen historischer Ereignisse“
   (Vorgabe: an). Ohne Haken erscheinen die Ereignisse nur als Nachricht.
+- FW1: Darunter das Kästchen „Forschungspflicht“ (Vorgabe: an). Die Firma kennt dann je
+  Branche nur das Grundprodukt, die Rohstoffe und was ihr Startbetrieb herstellt; alle
+  anderen Produkte erscheinen erst nach der Forschung im Forschungszentrum (Forschung →
+  Produkt erforschen) in der Rezeptauswahl der Werke. Zukaufen lässt sich jedes Produkt.
 
 ### Einführung (M20)
 

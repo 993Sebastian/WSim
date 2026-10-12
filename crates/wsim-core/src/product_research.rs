@@ -47,6 +47,57 @@ fn recipe_technologies(catalog: &Catalog, recipe: RecipeId) -> Vec<TechnologyId>
     out
 }
 
+/// Technologies every company knows under mandatory research (FW1): those of the basic
+/// products' main recipes and of all extraction recipes, prerequisites included.
+pub fn basic_technologies(catalog: &Catalog) -> std::collections::BTreeSet<TechnologyId> {
+    let mut out = std::collections::BTreeSet::new();
+    for &p in &catalog.basic_products {
+        out.extend(technologies(catalog, p));
+    }
+    for r in catalog.recipes.ids() {
+        if catalog.recipes.get(r).extraction {
+            out.extend(recipe_technologies(catalog, r));
+        }
+    }
+    out
+}
+
+/// The technologies of a recipe and its facility a company still lacks.
+pub fn recipe_missing(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    recipe: RecipeId,
+) -> Vec<TechnologyId> {
+    recipe_technologies(catalog, recipe)
+        .into_iter()
+        .filter(|&t| !state.knows(catalog, company, t))
+        .collect()
+}
+
+/// Under mandatory research (FW1) a company keeps the know-how for what its sites make
+/// when it starts: the start set, the start cast and historical companies.
+pub(crate) fn grant_running(state: &mut GameState, catalog: &Catalog, company: CompanyId) {
+    if !state.settings.research_mandatory {
+        return;
+    }
+    let recipes: Vec<RecipeId> = state
+        .sites
+        .iter()
+        .filter(|s| s.held_by(company))
+        .flat_map(|s| &s.slots)
+        .filter_map(|sl| sl.recipe)
+        .collect();
+    let mut known = Vec::new();
+    for &r in &recipes {
+        known.extend(recipe_technologies(catalog, r));
+    }
+    let c = &mut state.companies[company.index()];
+    c.technologies.extend(known);
+    c.known_products
+        .extend(recipes.iter().map(|&r| catalog.recipes.get(r).product));
+}
+
 /// The technologies a product needs (its main recipe), prerequisites first.
 pub fn technologies(catalog: &Catalog, product: ProductId) -> Vec<TechnologyId> {
     main_recipe(catalog, product).map_or_else(Vec::new, |r| recipe_technologies(catalog, r))
@@ -68,17 +119,18 @@ pub fn missing(
 /// Whether a company may make a product: it knows a recipe for it and the recipe's
 /// facility.
 pub fn known(catalog: &Catalog, state: &GameState, company: CompanyId, product: ProductId) -> bool {
-    catalog.recipes.ids().any(|r| {
-        let recipe = catalog.recipes.get(r);
-        recipe.product == product
-            && [
-                catalog.facilities.get(recipe.facility).technology,
-                recipe.technology,
-            ]
-            .into_iter()
-            .flatten()
-            .all(|t| state.knows(catalog, company, t))
-    })
+    state.knows_product(catalog, company, product)
+        && catalog.recipes.ids().any(|r| {
+            let recipe = catalog.recipes.get(r);
+            recipe.product == product
+                && [
+                    catalog.facilities.get(recipe.facility).technology,
+                    recipe.technology,
+                ]
+                .into_iter()
+                .flatten()
+                .all(|t| state.knows(catalog, company, t))
+        })
 }
 
 /// Whether a technology exists in the world on `date`: its historical year has come or a
@@ -121,7 +173,8 @@ pub fn can_research(
     product: ProductId,
 ) -> bool {
     !known(catalog, state, company, product)
-        && !missing(catalog, state, company, product).is_empty()
+        && (!missing(catalog, state, company, product).is_empty()
+            || own_effort(catalog, state, company, product).is_some())
         && missing_inputs(catalog, state, product).is_empty()
 }
 
@@ -138,6 +191,25 @@ pub fn next(
         .find(|&t| crate::research::can_research(catalog, state, company, t))
 }
 
+/// Under mandatory research (FW1): the research field and the points a company needs to
+/// learn a product it may not make yet, once its technologies are known – as much as the
+/// first development level. `None` when there is nothing of that kind to learn.
+pub fn own_effort(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    product: ProductId,
+) -> Option<(crate::ids::SpecializationId, f64)> {
+    if state.knows_product(catalog, company, product) {
+        return None;
+    }
+    let (field, base) = crate::development::basis(catalog, product)?;
+    Some((
+        field,
+        base * catalog.research_model.development.effort_share,
+    ))
+}
+
 /// Research points a product takes in all and those collected for it so far.
 pub fn effort(
     catalog: &Catalog,
@@ -152,12 +224,17 @@ pub fn effort(
             .map(|t| c.research.get(t).copied().unwrap_or(0.0))
             .sum()
     });
-    let needed = missing(catalog, state, company, product)
+    let needed: f64 = missing(catalog, state, company, product)
         .into_iter()
         .filter_map(|t| crate::research::effort(catalog, state, t, date))
         .map(|e| e.points)
         .sum();
-    (needed, collected)
+    let own = own_effort(catalog, state, company, product).map_or(0.0, |(_, e)| e);
+    let own_collected = state
+        .company(company)
+        .and_then(|c| c.product_points.get(&product).copied())
+        .unwrap_or(0.0);
+    (needed + own, collected + own_collected)
 }
 
 /// Every day before the research: a center that researches a product works on its next

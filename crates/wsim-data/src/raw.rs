@@ -21,6 +21,15 @@ pub struct RawSimple {
     pub id: String,
 }
 
+/// A branch with its basic product (FW1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBranch {
+    pub id: String,
+    #[serde(rename = "grundprodukt", default)]
+    pub basic_product: Option<String>,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RawUnit {

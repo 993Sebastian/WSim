@@ -9,7 +9,7 @@ use crate::catalog::{Catalog, FacilitySize, Provenance, Recipe, SiteType, test_s
 use crate::command::{Command, CommandError};
 use crate::development;
 use crate::game::Game;
-use crate::ids::ProductId;
+use crate::ids::{Id, ProductId};
 use crate::message::keys;
 use crate::money::Money;
 use crate::product_research;
@@ -71,6 +71,7 @@ fn new_game(catalog: Catalog) -> Game {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        research_mandatory: false,
         found_at_start: true,
         person: Default::default(),
     };
@@ -220,5 +221,119 @@ fn a_center_splits_between_development_and_manufacturing() {
     assert!(
         (d - p).abs() < 1e-6 * d,
         "equal shares, equal points: {d} {p}"
+    );
+}
+
+/// Mandatory research (FW1): nails from iron need no technology, iron is the basic
+/// product of the branch.
+fn mandatory_catalog() -> Catalog {
+    let mut c = catalog();
+    let iron = c.products.id("eisen").unwrap();
+    let template = c.products.get(iron).clone();
+    let nails = c.products.insert("naegel", template).unwrap();
+    let base = c
+        .recipes
+        .get(c.recipes.id("eisen_schmelzen").unwrap())
+        .clone();
+    c.recipes
+        .insert(
+            "naegel_machen",
+            Recipe {
+                product: nails,
+                technology: None,
+                inputs: vec![(iron, 1.0)],
+                ..base
+            },
+        )
+        .unwrap();
+    let field = c.research_model.development.fields.len();
+    let spec = crate::ids::SpecializationId::from_index(0);
+    c.research_model.development.fields = vec![Some(spec); c.branches.len().max(field)];
+    c.basic_products = vec![iron];
+    c.basic_technologies = product_research::basic_technologies(&c);
+    c
+}
+
+fn mandatory_game() -> Game {
+    let catalog = Arc::new(mandatory_catalog());
+    let mut settings = new_game(catalog.as_ref().clone()).state().settings.clone();
+    settings.research_mandatory = true;
+    Game::new(catalog, settings).unwrap()
+}
+
+#[test]
+fn mandatory_research_starts_with_the_basic_products_only() {
+    let game = mandatory_game();
+    let player = game.player();
+    let (iron, nails, steel) = (
+        product(&game, "eisen"),
+        product(&game, "naegel"),
+        product(&game, "stahl"),
+    );
+    let (c, s) = (game.catalog().clone(), game.state());
+    assert!(product_research::known(&c, s, player, iron));
+    assert!(!product_research::known(&c, s, player, nails));
+    assert!(!product_research::known(&c, s, player, steel));
+    assert!(product_research::can_research(&c, s, player, nails));
+    // What the start set makes stays known.
+    for r in s
+        .sites
+        .iter()
+        .filter(|x| x.held_by(player))
+        .flat_map(|x| &x.slots)
+        .filter_map(|sl| sl.recipe)
+    {
+        assert!(s.knows_product(&c, player, c.recipes.get(r).product));
+    }
+    // Without mandatory research nails are free as before.
+    let free = new_game(mandatory_catalog());
+    let p = free.player();
+    assert!(product_research::known(&c, free.state(), p, nails));
+}
+
+#[test]
+fn a_product_without_technology_is_learned_in_the_research_center() {
+    let mut game = mandatory_game();
+    let lab = research_center(&mut game);
+    let player = game.player();
+    let nails = product(&game, "naegel");
+    let c = game.catalog().clone();
+    let (needed, collected) =
+        product_research::effort(&c, game.state(), player, nails, game.state().date);
+    assert!(needed > 0.0 && collected == 0.0, "{needed} {collected}");
+    game.apply(Command::SetProductResearch {
+        site: lab,
+        product: Some(nails),
+    })
+    .unwrap();
+    assert_eq!(game.state().sites[lab.index()].research, None);
+    let cash = game.state().companies[player.index()].ledger.cash();
+    let mut done = false;
+    for _ in 0..2000 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        done |= report
+            .messages
+            .iter()
+            .any(|m| m.key == keys::PRODUCT_RESEARCHED);
+        if done {
+            break;
+        }
+    }
+    let co = &game.state().companies[player.index()];
+    let site = &game.state().sites[lab.index()];
+    assert!(
+        done,
+        "nails get learned: needed {needed}, points {:?}, research {:?}/{:?}, staff {:?}",
+        co.product_points, site.research, site.research_product, site.workforce
+    );
+    let s = game.state();
+    assert!(product_research::known(&c, s, player, nails));
+    assert!(s.companies[player.index()].ledger.cash() < cash);
+    assert!(s.companies[player.index()].ledger.is_balanced());
+    // The journal replays to the same knowledge.
+    let replay = Game::replay(game.catalog().clone(), s.settings.clone(), game.journal()).unwrap();
+    assert_eq!(
+        replay.state().companies[player.index()].known_products,
+        s.companies[player.index()].known_products
     );
 }

@@ -83,7 +83,8 @@ Pflichtfelder sind unten **fett** gesetzt, alle anderen sind optional.
 | Abschnitt | Felder |
 | --- | --- |
 | `einheiten` | **id**, gewicht_kg (Gewicht einer Einheit; fehlt es, braucht jedes Produkt mit dieser Einheit ein eigenes `gewicht_kg`). Vorhanden: `t`, `kg`, `l` (Liter, 1 kg; P1), `stueck`, `mwh`, `m3`, `m2`, `kwh`, `kwp`, `km` (Länge; P4b) |
-| `kontinente`, `branchen`, `warengruppen`, `fachrichtungen` | **id** |
+| `kontinente`, `warengruppen`, `fachrichtungen` | **id** |
+| `branchen` | **id**, grundprodukt (FW1: das eine Produkt der Branche, das jede Firma bei Forschungspflicht ohne Forschung herstellen darf; muss zur Branche gehören und ein Rezept haben) |
 | `transportklassen` | **id**, kostenfaktor (Transportkosten gegenüber Schüttgut, Standard 1) |
 | `qualifikationen` | **id**, **stufe** (1–255, höher = qualifizierter), **mit_fachrichtung** (true/false) |
 

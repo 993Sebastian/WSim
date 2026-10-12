@@ -183,6 +183,8 @@ pub(crate) fn found(
         rng: SimRng::for_stream(state.settings.seed, Stream::Company(index)),
         ledger: Ledger::new(date, capital),
         technologies: Default::default(),
+        known_products: Default::default(),
+        product_points: Default::default(),
         bankrupt: false,
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,
@@ -199,6 +201,8 @@ pub(crate) fn found(
     // The subsidiary knows what its parent knows.
     let known = state.companies[actor.index()].technologies.clone();
     state.companies[id.index()].technologies = known;
+    let products = state.companies[actor.index()].known_products.clone();
+    state.companies[id.index()].known_products = products;
     if focus == SubsidiaryFocus::Bank {
         state.companies[id.index()].bank = Some(crate::bank::BankSettings::start(catalog));
     }

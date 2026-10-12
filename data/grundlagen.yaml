@@ -25,24 +25,42 @@ kontinente:
   - id: ozeanien
 
 # Branchen nach Lastenheft §6.2
+# grundprodukt (FW1): das eine Produkt, das jede Firma bei Forschungspflicht ohne
+# Forschung herstellen darf (Rohstoffe sind immer frei).
 branchen:
   - id: bergbau
   - id: metallurgie
+    grundprodukt: stahl
   - id: chemie
+    grundprodukt: schwefelsaeure
   - id: energie
+    grundprodukt: strom
   - id: holz_papier
+    grundprodukt: schnittholz
   - id: textil
+    grundprodukt: garn
   - id: lebensmittel
+    grundprodukt: mehl
   - id: bau
+    grundprodukt: mauerziegel
   - id: maschinenbau
+    grundprodukt: naegel
   - id: fahrzeuge
+    grundprodukt: fahrrad
   - id: schiffbau
+    grundprodukt: frachtschiff
   - id: luftfahrt
+    grundprodukt: luftschiff
   - id: raumfahrt
+    grundprodukt: hoehenforschungsrakete
   - id: elektro
+    grundprodukt: kupferdraht
   - id: konsumgueter
+    grundprodukt: moebel
   - id: pharma
+    grundprodukt: pharmagrundstoffe
   - id: ruestung
+    grundprodukt: munition
 
 # Warengruppen für Zölle und Handelsbeschränkungen (ab Stufe 2)
 warengruppen:

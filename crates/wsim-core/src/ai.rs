@@ -1131,6 +1131,7 @@ fn best_recipe(
         .filter(|&(_, r)| {
             r.product == product
                 && facility.is_none_or(|f| f == r.facility)
+                && state.knows_product(catalog, id, product)
                 && r.technology.is_none_or(|t| state.knows(catalog, id, t))
                 && catalog
                     .facilities
@@ -2674,6 +2675,7 @@ fn newcomers(
         let knows = |state: &GameState, id: CompanyId| {
             catalog.recipes.values().any(|r| {
                 r.product == product
+                    && state.knows_product(catalog, id, product)
                     && r.technology.is_none_or(|t| state.knows(catalog, id, t))
                     && catalog
                         .facilities
@@ -3703,8 +3705,10 @@ pub(crate) fn found_from_venture(
 
 /// Whether some active company knows a technology.
 fn usable_tech(state: &GameState, catalog: &Catalog, t: TechnologyId) -> bool {
-    (0..state.companies.len())
-        .any(|i| !state.companies[i].bankrupt && state.knows(catalog, company_id(i), t))
+    // Under mandatory research a newcomer brings the know-how of common technologies (FW1).
+    (state.settings.research_mandatory && state.common_knowledge(catalog, t))
+        || (0..state.companies.len())
+            .any(|i| !state.companies[i].bankrupt && state.knows(catalog, company_id(i), t))
 }
 
 /// Wanted capacity in units of the data size and the most a concession allows (M36;
@@ -3875,12 +3879,7 @@ fn concession_capacity(
 /// Whether some active company could use a recipe: it knows the technologies of the
 /// recipe and of its facility.
 fn usable_somewhere(state: &GameState, catalog: &Catalog, recipe: &Recipe) -> bool {
-    let known = |t: Option<TechnologyId>| {
-        t.is_none_or(|t| {
-            (0..state.companies.len())
-                .any(|i| !state.companies[i].bankrupt && state.knows(catalog, company_id(i), t))
-        })
-    };
+    let known = |t: Option<TechnologyId>| t.is_none_or(|t| usable_tech(state, catalog, t));
     known(recipe.technology) && known(catalog.facilities.get(recipe.facility).technology)
 }
 
@@ -4418,6 +4417,8 @@ pub(crate) fn push_company(
         rng,
         ledger: Ledger::new(date, capital),
         technologies: Default::default(),
+        known_products: Default::default(),
+        product_points: Default::default(),
         bankrupt: false,
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,
@@ -4489,6 +4490,12 @@ fn found_one(
     }
     if let Some(t) = known {
         state.companies[id.index()].technologies.insert(t);
+    }
+    if state.settings.research_mandatory {
+        // FW1: a company is founded with the know-how for what it is founded to make.
+        let missing = crate::product_research::recipe_missing(catalog, state, id, recipe);
+        state.companies[id.index()].technologies.extend(missing);
+        state.companies[id.index()].known_products.insert(product);
     }
     let place = (country, f.site_type);
     let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
@@ -4661,6 +4668,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            research_mandatory: false,
             found_at_start: true,
             person: Default::default(),
         };
@@ -4716,6 +4724,8 @@ mod tests {
             rng: SimRng::for_stream(3, Stream::Company(u32::try_from(index).expect("small"))),
             ledger,
             technologies: Default::default(),
+            known_products: Default::default(),
+            product_points: Default::default(),
             bankrupt: false,
             loans: Vec::new(),
             loss_carryforward: Money::ZERO,

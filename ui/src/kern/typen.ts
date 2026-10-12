@@ -51,6 +51,8 @@ export interface NeuesSpiel {
   tariffs?: string | null;
   /** Whether the historical events act on markets, trade and companies (H1). */
   event_effects?: boolean;
+  /** Mandatory research (FW1): a new company knows only the basic product per branch. */
+  research_mandatory?: boolean;
   /** The player as a person (PE2): name (empty: drawn), year of birth, family. */
   person_name?: string;
   birth_year?: number | null;

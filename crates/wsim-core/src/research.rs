@@ -80,7 +80,9 @@ pub(crate) fn wanted_researchers(
     date: Date,
 ) -> f64 {
     let s = &state.sites[site.index()];
-    if s.kind != SiteType::ResearchCenter || development::idle(s) {
+    if s.kind != SiteType::ResearchCenter
+        || (development::idle(s) && !development::learning(state, s))
+    {
         return 0.0;
     }
     s.slots
@@ -136,6 +138,8 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         );
         *company.research.entry(technology).or_default() += researchers * efficiency;
     }
+
+    learn_products(state, catalog);
 
     for c in 0..state.companies.len() {
         let done: Vec<TechnologyId> = state.companies[c]
@@ -412,5 +416,61 @@ fn manufacture(state: &mut GameState, catalog: &Catalog, index: usize) {
             material,
         );
         development::add_process_points(state, owner, product, researchers * efficiency);
+    }
+}
+
+/// Mandatory research (FW1): a center researching a product whose technologies the company
+/// knows learns the product itself; the product is known once its points are reached.
+fn learn_products(state: &mut GameState, catalog: &Catalog) {
+    if !state.settings.research_mandatory {
+        return;
+    }
+    let model = &catalog.research_model;
+    for index in 0..state.sites.len() {
+        let s = &state.sites[index];
+        let (Some(product), None) = (s.research_product, s.research) else {
+            continue;
+        };
+        let owner = s.owner;
+        if state.companies[owner.index()].bankrupt
+            || !crate::product_research::missing(catalog, state, owner, product).is_empty()
+        {
+            continue;
+        }
+        let Some((field, needed)) =
+            crate::product_research::own_effort(catalog, state, owner, product)
+        else {
+            continue;
+        };
+        let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
+            continue;
+        };
+        let researchers = *s.workforce.get(group) * development::free_share(s);
+        if researchers <= 0.0 {
+            continue;
+        }
+        let country = state.countries.get(s.country);
+        let efficiency = country
+            .research_efficiency
+            .get(field.index())
+            .copied()
+            .unwrap_or(1.0);
+        let material =
+            Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
+                .unwrap_or(Money::ZERO);
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        let company = &mut state.companies[owner.index()];
+        company.ledger.expense(
+            CostType::Research,
+            CostCenter::site(site),
+            Account::Cash,
+            material,
+        );
+        let points = company.product_points.entry(product).or_default();
+        *points += researchers * efficiency;
+        if *points >= needed {
+            company.product_points.remove(&product);
+            company.known_products.insert(product);
+        }
     }
 }

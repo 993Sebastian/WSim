@@ -54,6 +54,7 @@ info.ausschreibung: "Ausschreibung in {land}: Der Staat sucht {menge} {produkt} 
 erfolg.ausschreibung_gewonnen: "Zuschlag in {land}: Ihr liefert ein Jahr lang {menge} {produkt} je Tag an den Staat."
 info.ausschreibung_verloren: "Die Ausschreibung für {produkt} in {land} ging an einen Wettbewerber."
 warnung.staatsauftrag_fehlmenge: "Staatsauftrag {produkt}: {menge} Einheiten fehlten im letzten Monat – Vertragsstrafe {kosten}."
+fehler.befehl.produkt_unbekannt: "„{produkt}“ kann deine Firma noch nicht herstellen: Erforsche das Produkt zuerst in einem Forschungszentrum."
 fehler.befehl.produkt_nicht_erforschbar: "„{produkt}“ lässt sich jetzt nicht erforschen: Es ist schon bekannt oder ein Vorprodukt gibt es noch nicht."
 
 meldung.weiterentwicklung.erreicht: "{produkt}: Generation {stufe} erreicht. Die Forschung läuft weiter – dein Niveau gegenüber dem Führenden bestimmt Qualität und Kosten."

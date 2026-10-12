@@ -590,6 +590,31 @@ pub(crate) fn build(
         b.catalog.recipes.insert(&e.value.id, recipe);
     }
 
+    // Basic products of the branches (FW1).
+    for e in &branches {
+        let Some(key) = &e.value.basic_product else {
+            continue;
+        };
+        let l = e.loc.field("grundprodukt");
+        let product: ProductId = resolve(b.ctx, &product_keys, key, &l);
+        if !product_keys.index.contains_key(key) {
+            continue;
+        }
+        let branch = b
+            .catalog
+            .branches
+            .key(b.catalog.products.get(product).branch);
+        if branch != e.value.id {
+            b.ctx
+                .error(&l, messages::basic_product_branch(key, branch, &e.value.id));
+        } else if wsim_core::product_research::main_recipe(&b.catalog, product).is_none() {
+            b.ctx.error(&l, messages::basic_product_no_recipe(key));
+        } else {
+            b.catalog.basic_products.push(product);
+        }
+    }
+    b.catalog.basic_technologies = wsim_core::product_research::basic_technologies(&b.catalog);
+
     for e in &deposits {
         let v = &e.value;
         let l = &e.loc;

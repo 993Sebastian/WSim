@@ -310,6 +310,13 @@ pub struct Company {
     pub ledger: Ledger,
     /// Technologies the company acquired after the start (research, later licences).
     pub technologies: BTreeSet<TechnologyId>,
+    /// Products the company may make under mandatory research (FW1), besides the basic
+    /// products and the raw materials.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub known_products: BTreeSet<ProductId>,
+    /// Research points collected per product not yet known (FW1).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub product_points: BTreeMap<ProductId, f64>,
     /// Bankrupt companies keep their history but no longer act.
     pub bankrupt: bool,
     #[serde(default)]
@@ -1877,6 +1884,10 @@ pub struct GameSettings {
     /// Whether the historical events act on markets, trade and companies (H1).
     #[serde(default = "yes")]
     pub event_effects: bool,
+    /// Mandatory research (FW1): a new company knows only the basic product of each
+    /// branch and the raw materials. Off for games from before FW1.
+    #[serde(default)]
+    pub research_mandatory: bool,
     /// The player as a person (PE2).
     #[serde(default)]
     pub person: PersonSettings,
@@ -2399,11 +2410,38 @@ impl GameState {
     /// game or common knowledge by now (docs/FORMELN.md, M9), or acquired by the company.
     pub fn knows(&self, catalog: &Catalog, company: CompanyId, technology: TechnologyId) -> bool {
         let year = catalog.technologies.get(technology).invention_year;
-        year <= self.settings.start_year
-            || year.saturating_add(catalog.research_model.public_domain_years) <= self.date.year()
+        if self.settings.research_mandatory {
+            // FW1: only the basic products and extraction come free, once invented.
+            return (catalog.basic_technologies.contains(&technology) && year <= self.date.year())
+                || self
+                    .company(company)
+                    .is_some_and(|c| c.technologies.contains(&technology));
+        }
+        self.common_knowledge(catalog, technology)
             || self
                 .company(company)
                 .is_some_and(|c| c.technologies.contains(&technology))
+    }
+
+    /// Whether a company may make a product at all (FW1): always without mandatory
+    /// research; with it the basic products, the raw materials and what it researched,
+    /// licensed or took over.
+    pub fn knows_product(&self, catalog: &Catalog, company: CompanyId, product: ProductId) -> bool {
+        !self.settings.research_mandatory
+            || catalog.basic_products.contains(&product)
+            || catalog.products.get(product).kind == crate::catalog::ProductKind::RawMaterial
+            || self
+                .company(company)
+                .is_some_and(|c| c.known_products.contains(&product))
+    }
+
+    /// Whether a technology is common knowledge without mandatory research: known at the
+    /// start of the game or past its protection (docs/FORMELN.md, M9). Under mandatory
+    /// research (FW1) newly founded AI companies still find their opportunities by it.
+    pub fn common_knowledge(&self, catalog: &Catalog, technology: TechnologyId) -> bool {
+        let year = catalog.technologies.get(technology).invention_year;
+        year <= self.settings.start_year
+            || year.saturating_add(catalog.research_model.public_domain_years) <= self.date.year()
     }
 
     /// Recomputes the derived country values. They change monthly: the values of the

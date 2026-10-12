@@ -2103,7 +2103,8 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
                 Unit::Site(site) => {
                     let s = &state.sites[site.index()];
                     let lab = s.kind == SiteType::ResearchCenter;
-                    let idle = crate::development::idle(s);
+                    let idle =
+                        crate::development::idle(s) && !crate::development::learning(state, s);
                     let lab_due = lab && ((check && idle) || first_of_year);
                     if !(lab_due || (!lab && (check || quarter_end))) {
                         continue;

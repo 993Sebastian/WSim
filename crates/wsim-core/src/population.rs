@@ -1140,6 +1140,8 @@ fn found_company(
         rng,
         ledger,
         technologies: Default::default(),
+        known_products: Default::default(),
+        product_points: Default::default(),
         bankrupt: false,
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,
