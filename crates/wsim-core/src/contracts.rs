@@ -552,7 +552,13 @@ pub(crate) fn renegotiate(
         return Err(CommandError::NotPossible);
     }
     if ai_partner {
-        ai_answer_freeing(state, catalog, &t, partner, c.per_day).map_err(declined)?;
+        // The quality stays as agreed and cannot be set here, so the partner does not
+        // answer for it again (the contract's deliveries are held to it as before).
+        let asked = Terms {
+            min_quality: 0.0,
+            ..t
+        };
+        ai_answer_freeing(state, catalog, &asked, partner, c.per_day).map_err(declined)?;
     }
     let c = &mut state.contracts[i];
     c.per_day = per_day;
