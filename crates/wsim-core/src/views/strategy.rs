@@ -97,7 +97,6 @@ pub struct SalesChannelView {
     pub product: Option<String>,
     pub country: Option<String>,
     pub allowed: bool,
-    pub min_price_usd: Option<f64>,
     pub max_per_month: Option<f64>,
     /// Text key of the product's unit (`einheit.<key>`).
     pub unit: Option<String>,
@@ -245,7 +244,6 @@ fn sales_channels(
                 product: product.map(|p| c.products.key(p).to_owned()),
                 country: country.map(|k| c.countries.key(k).to_owned()),
                 allowed: r.rule.allowed,
-                min_price_usd: r.rule.min_price.map(usd),
                 max_per_month: r.rule.max_per_month,
                 unit: product.map(|p| unit_text(c, p)),
             }

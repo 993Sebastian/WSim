@@ -611,14 +611,11 @@ function wegScope(product: string, country: string) {
 
 const KAEUFER = { haendler: "Traders", firmen: "Companies" } as const;
 
-/** What a rule allows: "erlaubt, ab 12 $/t, höchstens 500 t im Monat" or "gesperrt". */
+/** What a rule allows: "erlaubt, höchstens 500 t im Monat" or "gesperrt". */
 function wegRegel(w: Verkaufsweg): string {
   if (!w.allowed) return t("verkaufswege.gesperrt");
   const einheit = w.unit ? t(w.unit) : "";
   const teile = [t("verkaufswege.erlaubt")];
-  if (w.min_price_usd !== null) {
-    teile.push(t("verkaufswege.ab", { preis: `${formatGeld(w.min_price_usd)}/${einheit}` }));
-  }
   if (w.max_per_month !== null) {
     teile.push(
       t("verkaufswege.hoechstens", { menge: `${formatMenge(w.max_per_month)} ${einheit}` }),
@@ -638,18 +635,13 @@ function Verkaufswege({ daten }: { daten: Strategie }) {
   const [land, setLand] = useState("");
   const [produkt, setProdukt] = useState("");
   const [erlaubt, setErlaubt] = useState("ja");
-  const [mindestpreis, setMindestpreis] = useState("");
   const [menge, setMenge] = useState("");
   const [fehler, setFehler] = useState<string | null>(null);
   const einheit = daten.sale_products.find((p) => p.product === produkt)?.unit;
   const festlegen = (ev: FormEvent) => {
     ev.preventDefault();
-    const preis = mindestpreis.trim() === "" ? null : zahlLesen(mindestpreis);
     const hoechst = menge.trim() === "" ? null : zahlLesen(menge);
-    if (
-      (mindestpreis.trim() !== "" && (preis === null || preis < 0)) ||
-      (menge.trim() !== "" && (hoechst === null || hoechst < 0))
-    ) {
+    if (menge.trim() !== "" && (hoechst === null || hoechst < 0)) {
       setFehler(t("verkaufswege.grenzen"));
       return;
     }
@@ -663,7 +655,6 @@ function Verkaufswege({ daten }: { daten: Strategie }) {
             scope: wegScope(produkt, land),
             rule: {
               allowed: erlaubt === "ja",
-              min_price: preis === null ? null : geld(ausAnzeige(preis)),
               max_per_month: hoechst,
             },
           },
@@ -788,17 +779,11 @@ function Verkaufswege({ daten }: { daten: Strategie }) {
         {erlaubt === "ja" && (
           <div className="formular-zeile">
             <ZahlFeld
-              name={t("verkaufswege.mindestpreis")}
-              einheit={einheit ? `${geldEinheit()}/${t(einheit)}` : geldEinheit()}
-              wert={mindestpreis}
-              onWert={setMindestpreis}
-              hilfe={t("verkaufswege.leer_heisst")}
-            />
-            <ZahlFeld
               name={t("verkaufswege.hoechstmenge")}
               einheit={einheit ? t(einheit) : undefined}
               wert={menge}
               onWert={setMenge}
+              hilfe={t("verkaufswege.leer_heisst")}
             />
           </div>
         )}

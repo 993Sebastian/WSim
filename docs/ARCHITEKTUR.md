@@ -98,7 +98,7 @@ Manager (Stufe 2) nur Befehle. Schwierigkeit verändert die KI-Entscheider, nie 
 Regeln.
 
 **Vorgaben mit Vererbung (§5.6) – Gerüst ab Stufe 1.** Einstellungen wie
-„KI-Händler dürfen kaufen, Mindestpreis X“ werden als `Vorgabe` an einer *Stelle*
+„KI-Händler dürfen kaufen, höchstens X im Monat“ werden als `Vorgabe` an einer *Stelle*
 (Konzern, später Kontinent/Land/Werk/Tochter) gespeichert. Die Abfrage
 „welche Vorgabe gilt hier und woher stammt sie“ existiert von Anfang an; Stufe 1
 nutzt nur Konzern- und Produktebene.
@@ -287,7 +287,7 @@ mit dem Meilenstein freigegeben.
 | M5 | Rohstoffe und Produktion | Lagerstätten, Erschließung, Abbau, Erschöpfung; Standorte (Mine, Werk, Lager); Rezepte, Arbeitskräftepool, Energiebezug, Qualität, Lagerbestände | Szenario-Tests mit exakt berechnetem Ergebnis |
 | M6 | Buchführung und Grundfinanzen | Doppelte Buchführung, Kostenarten/-stellen, GuV, Bilanz, Kapitalfluss, Bankkredit, Gewinnsteuer, Zahlungsunfähigkeit | Bilanz immer ausgeglichen (Eigenschaftstest); Beispielrechnungen |
 | M7 | Markt und Preise (ein Land) | Endkunden-Nachfrage aus Einkommensfünfteln (Verbrauchs-/Gebrauchsgüter, Besitzquote, Kaufkraftgrenze), Industrie- und Staatsnachfrage, Anbieterwahl, Preisbildung | Preis konvergiert; Preissenkung erschließt neue Schichten |
-| M8 | Handel zwischen Ländern | Entfernungen, epochengerechte Transportkosten und -dauer (vereinfacht), KI-Händler, Verkaufswege je Produkt (Mindestpreis, Höchstmenge) | Preisunterschiede ≤ Transportkosten; Verkaufssperre wirkt |
+| M8 | Handel zwischen Ländern | Entfernungen, epochengerechte Transportkosten und -dauer (vereinfacht), KI-Händler, Verkaufswege je Produkt (erlaubt/gesperrt, Höchstmenge) | Preisunterschiede ≤ Transportkosten; Verkaufssperre wirkt |
 | M9 | Alle 12 Ketten + Forschung | Daten der Ketten 2–12; Technologiebaum Stufe 1; Forschungsprojekte, Kostenaufschlag für Vorgriffe, Nachzügler-Rabatt; Verdrängung (Glühlampe, Automobil) | Jede Kette im Kopflos-Szenario vom Rohstoff bis zum Endprodukt; Verdrängungskurve |
 | M10 | KI-Firmen | Startbesetzung, Grundverhalten (produzieren, Preise, investieren, forschen, expandieren, pleitegehen) über dieselben Befehle; Leistungstest | Welt läuft 1900–1930 ohne Spieler mit plausiblen Größen; Benchmark 1 000 Firmen |
 | M11 | Rundenbericht und Meldungen | Finanzergebnis und Vergleich, Weltereignisse, Wettbewerberaktionen, Warnungen, Forschung; Autospeichern, manuelle Spielstände | Kern-Tests; Bericht aus Kopflos-Lauf |

@@ -2062,7 +2062,6 @@ export interface Verkaufsweg {
   product: string | null;
   country: string | null;
   allowed: boolean;
-  min_price_usd: number | null;
   max_per_month: number | null;
   /** Text key of the product's unit. */
   unit: string | null;

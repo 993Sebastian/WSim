@@ -2226,6 +2226,16 @@ Vorschlag für die Prüfung, bevor etwas geändert wird:
 
 Ergebnis: ein Bericht mit Messwerten und konkreten Änderungsvorschlägen zur Abnahme.
 
+## V Ein Preis je Werk (Wunsch vom 12.10.2026)
+
+- **V1 ✅ Kein Mindestpreis in den Verkaufswegen:** KI-Händler und andere Firmen kaufen zum
+  einen Verkaufspreis des Werks; die Regel „ab X USD“ je Käufergruppe ist entfernt (alte
+  Spielstände laden, der Wert wird ignoriert). Es bleiben erlaubt/gesperrt und die
+  Höchstmenge im Monat. Eigene Preise gibt es nur in Lieferverträgen.
+- **V2 🟡 Gebote auf Ausschreibungen (MN2):** Auch das Gebot an den Staat ist ein eigener
+  Preis. Vorschlag: Es zählt wie ein Liefervertrag (fester Auftrag über ein Jahr) und bleibt.
+  Alternative: Das Gebot nimmt automatisch den Verkaufspreis des Standorts.
+
 ## U FW1: Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026)
 
 Vorgabe (Auszug, die Nachricht kam gekürzt an): „Der Produktionszugang wird neu geregelt:

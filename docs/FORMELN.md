@@ -377,9 +377,10 @@ Ein wettbewerblicher Händlermarkt verbindet die Länder (Gewinne verlassen das 
 ### Verkaufswege (Vorgaben)
 
 Je Abnehmergruppe (KI-Händler, andere Firmen) und Geltungsbereich (pauschal, Land,
-Produkt, Produkt im Land; der genaueste gilt): erlaubt ja/nein, Mindestpreis,
-Höchstmenge je Angebot und Monat. Ohne Vorgabe dürfen alle kaufen. Endkunden und
-Staaten kaufen immer.
+Produkt, Produkt im Land; der genaueste gilt): erlaubt ja/nein, Höchstmenge je Angebot
+und Monat. Ohne Vorgabe dürfen alle kaufen. Endkunden und Staaten kaufen immer. Alle
+kaufen zum einen Verkaufspreis des Standorts; einen eigenen Preis gibt es nur in
+Lieferverträgen (Mindestpreis je Käufergruppe entfernt am 12.10.2026).
 
 ## M9 – Alle Ketten, Forschung, Eigenstrom
 
@@ -2769,8 +2770,8 @@ Thema des Felds (Preis – `verkauf`, Lager – `einkauf`, Personal – `lohn`, 
 selbst.
 
 Darunter stehen die **Verkaufswege** (M8) mit ihren eigenen Geltungsbereichen (Firma,
-Land, Produkt, Produkt im Land): je Käufergruppe erlaubt oder gesperrt, Mindestpreis und
-Höchstmenge; die allgemeinen Regeln zuerst.
+Land, Produkt, Produkt im Land): je Käufergruppe erlaubt oder gesperrt und Höchstmenge;
+die allgemeinen Regeln zuerst.
 
 ### Spielstände
 

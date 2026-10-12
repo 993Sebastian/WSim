@@ -994,13 +994,13 @@ fn example_organisation(session: &mut wsim_session::Session) -> Result<Organisat
             "Traders",
             serde_json::json!({"Product": "naegel"}),
             serde_json::json!({
-                "allowed": true, "min_price": 17_000_000_i64, "max_per_month": 500.0
+                "allowed": true, "max_per_month": 500.0
             }),
         ),
         (
             "Companies",
             serde_json::json!("Company"),
-            serde_json::json!({"allowed": false, "min_price": null, "max_per_month": null}),
+            serde_json::json!({"allowed": false, "max_per_month": null}),
         ),
     ] {
         session

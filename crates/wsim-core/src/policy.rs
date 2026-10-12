@@ -1,12 +1,12 @@
 //! Policies (Vorgaben) of a company, inherited from general to specific scopes
 //! (docs/ARCHITEKTUR.md §2.2). Stage 1 has the sales channels of Lastenheft §9.2:
-//! whether traders and other companies may buy, with minimum price and maximum
-//! quantity, per product, per country or for the whole company.
+//! whether traders and other companies may buy, with a maximum quantity, per product,
+//! per country or for the whole company. They buy at the site's one asking price
+//! (12.10.2026: no second price to keep up besides supply contracts).
 
 use serde::{Deserialize, Serialize};
 
 use crate::ids::{CountryId, ProductId};
-use crate::money::Money;
 use crate::state::Company;
 
 /// Who buys from a sale offer, besides consumers and governments.
@@ -51,8 +51,6 @@ impl Scope {
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SalesRule {
     pub allowed: bool,
-    /// Sells only at this price or higher.
-    pub min_price: Option<Money>,
     /// At most this quantity per sale offer and month.
     pub max_per_month: Option<f64>,
 }
@@ -62,17 +60,15 @@ impl Default for SalesRule {
     fn default() -> Self {
         Self {
             allowed: true,
-            min_price: None,
             max_per_month: None,
         }
     }
 }
 
 impl SalesRule {
-    /// How much of `available` a buyer group may take at `price`, given what it bought
-    /// this month already.
-    pub fn allowance(&self, price: Money, bought_this_month: f64) -> f64 {
-        if !self.allowed || self.min_price.is_some_and(|min| price < min) {
+    /// How much a buyer group may take, given what it bought this month already.
+    pub fn allowance(&self, bought_this_month: f64) -> f64 {
+        if !self.allowed {
             return 0.0;
         }
         self.max_per_month

@@ -137610,7 +137610,6 @@
         "buyer": "firmen",
         "country": null,
         "max_per_month": null,
-        "min_price_usd": null,
         "product": null,
         "unit": null
       },
@@ -137619,7 +137618,6 @@
         "buyer": "haendler",
         "country": null,
         "max_per_month": 500.0,
-        "min_price_usd": 1700.0,
         "product": "naegel",
         "unit": "einheit.t"
       }

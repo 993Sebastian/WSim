@@ -908,7 +908,7 @@ fn clear_market(
                         country,
                     );
                     let month = state.sites[s.index()].offers[&product].to_companies_month;
-                    rule.allowance(o.price, month + o.to_companies)
+                    rule.allowance(month + o.to_companies)
                 }
                 Seller::StateMarket | Seller::Importer => f64::INFINITY,
             };

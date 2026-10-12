@@ -217,7 +217,7 @@ export type Befehl =
           | { Country: string }
           | { Product: string }
           | { ProductInCountry: [string, string] };
-        rule: { allowed: boolean; min_price: number | null; max_per_month: number | null } | null;
+        rule: { allowed: boolean; max_per_month: number | null } | null;
       };
     }
   | {

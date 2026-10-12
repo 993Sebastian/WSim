@@ -512,13 +512,12 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   Firma „Auf Standard zurücksetzen“). Werte außerhalb der Grenzen meldet die Karte vor dem
   Senden.
 - **Verkaufswege (M8, in der Strategie):** Abschnitt „Verkaufswege“ unter den Karten
-  (ⓘ: genaueste Regel gilt, ohne Regel dürfen alle kaufen, Mindestpreis und Höchstmenge je
-  Angebot und Monat): Tabelle „Regeln“ (Käufer, Gilt für – ganze Firma, Land, Produkt
-  oder „Produkt in Land“ –, Regel „erlaubt, ab 1.700 USD/t, höchstens 500 t im Monat“ oder
-  „gesperrt“) mit „Entfernen“; Formular „Regel festlegen“ mit Käufer (KI-Händler, andere
-  Firmen), Land und Produkt (je „alle“ oder eines der eigenen), Kaufen erlaubt/gesperrt,
-  Mindestpreis in der angezeigten Währung je Einheit und Höchstmenge im Monat (leer: keine
-  Grenze).
+  (ⓘ: genaueste Regel gilt, ohne Regel dürfen alle kaufen, alle zahlen den Verkaufspreis
+  des Werks, Höchstmenge je Angebot und Monat): Tabelle „Regeln“ (Käufer, Gilt für – ganze
+  Firma, Land, Produkt oder „Produkt in Land“ –, Regel „erlaubt, höchstens 500 t im
+  Monat“ oder „gesperrt“) mit „Entfernen“; Formular „Regel festlegen“ mit Käufer
+  (KI-Händler, andere Firmen), Land und Produkt (je „alle“ oder eines der eigenen), Kaufen
+  erlaubt/gesperrt und Höchstmenge im Monat (leer: keine Grenze).
 - **Beteiligungen (ZA2, in der Strategie):** Abschnitt „Beteiligungen“ (ⓘ: wofür Budget
   und Freigabegrenzen gelten, Risikobereitschaft für Start-ups) mit „In diesem Jahr gekauft:
   …; offene Gebote: …. Übrig: …“ und einem Formular: „Budget im Jahr“ (leer: ohne

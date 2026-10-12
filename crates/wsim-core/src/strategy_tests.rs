@@ -749,7 +749,6 @@ fn sales_channels_show_in_the_strategy_view() {
             Scope::ProductInCountry(iron, aaa),
             SalesRule {
                 allowed: true,
-                min_price: Some(usd(40.0)),
                 max_per_month: Some(500.0),
             },
         ),
@@ -758,7 +757,6 @@ fn sales_channels_show_in_the_strategy_view() {
             Scope::Company,
             SalesRule {
                 allowed: false,
-                min_price: None,
                 max_per_month: None,
             },
         ),
@@ -792,7 +790,6 @@ fn sales_channels_show_in_the_strategy_view() {
         ]
     );
     let narrow = &v.sales[1];
-    assert_eq!(narrow.min_price_usd, Some(40.0));
     assert_eq!(narrow.max_per_month, Some(500.0));
     assert!(
         narrow

@@ -2358,15 +2358,11 @@ fn run(
             s.staffing_due = true;
         }
         Command::SetSalesPolicy { buyer, scope, rule } => {
-            if let Some(r) = rule {
-                if r.min_price.is_some_and(|p| p.is_negative()) {
-                    return Err(CommandError::InvalidPrice);
-                }
-                if r.max_per_month
+            if let Some(r) = rule
+                && r.max_per_month
                     .is_some_and(|m| !(m.is_finite() && m >= 0.0))
-                {
-                    return Err(CommandError::InvalidQuantity);
-                }
+            {
+                return Err(CommandError::InvalidQuantity);
             }
             let company = state.company_mut(actor).expect("checked above");
             policy::set(company, *buyer, *scope, *rule);

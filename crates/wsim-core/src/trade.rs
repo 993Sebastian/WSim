@@ -148,7 +148,7 @@ pub(crate) fn plan(
             };
             let owner = &state.companies[s.owner.index()];
             let (rule, _) = policy::sales_rule(owner, BuyerGroup::Traders, product, s.country);
-            let allowance = rule.allowance(offer.price, offer.to_traders_month);
+            let allowance = rule.allowance(offer.to_traders_month);
             let stock = s.inventory.get(&product).map_or(0.0, |st| st.quantity);
             let available = (stock - offer.keep).max(0.0).min(allowance);
             if available > 1e-9 {

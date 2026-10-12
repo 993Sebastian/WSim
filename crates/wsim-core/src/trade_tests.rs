@@ -405,27 +405,6 @@ fn sales_ban_stops_traders() {
 }
 
 #[test]
-fn minimum_price_applies_to_traders() {
-    let (mut game, site) = export_setup();
-    game.apply(Command::SetSalesPolicy {
-        buyer: BuyerGroup::Traders,
-        scope: Scope::Company,
-        rule: Some(SalesRule {
-            min_price: Some(usd(60.0)),
-            ..SalesRule::default()
-        }),
-    })
-    .unwrap();
-    assert_eq!(
-        exported_over(&mut game, 60),
-        0.0,
-        "offer is below the minimum"
-    );
-    sell_fixed(&mut game, site, 60.0);
-    assert!(exported_over(&mut game, 30) > 0.0);
-}
-
-#[test]
 fn sales_ban_stops_other_companies() {
     let mut game = new_game(test_support::trading());
     let player = game.player();
