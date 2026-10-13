@@ -123,6 +123,16 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MG7 | Stil, Lieblingsbegründung, Einwand (§7) | ⏳ nach MG2 |
 | MG8 | Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung, Personalbedarf aller Zentralabteilungen (§8) | ⏳ nach MG2 |
 | MG9 | Strategieabteilung als Denkstelle: ein Typ mit MG6, Fallarten inkl. Abwehr und Verkauf, Arbeitslast und Branchenschwerpunkt, Strategieklausur, zwei Trefferquoten, Konkurrenzbeobachtung (§9) | ⏳ nach MG6 |
+| PD1 | Produktentwicklung: Labor-Rollen, Pools, PL als Person, Entfall der 20 Ingenieure (`docs/PRODUKTENTWICKLUNG.md` §1; Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE PD) | ⏳ |
+| PD2 | Neuentwicklung PM0–PM7 ersetzt Forschung, Personalbedarf mit Szenarien | ⏳ |
+| PD3 | Meilensteinberichte, Kennzahlen, Review gegen PM2, Delegation | ⏳ |
+| PD4 | Ereigniskatalog, Kennzahlenstreuung, versteckte Mängel, Rückrufe | ⏳ |
+| PD5 | Weiterentwicklung WM0–WM3 mit Stufen und Restertrag | ⏳ |
+| PD6 | Produktvorschläge im Strategiesystem (mit MG6/MG9), Nachkalkulation, Bilanz PL/Strategieabteilung | ⏳ |
+| PD7 | Gate-Gremium, Fast-Track, Pilotserie | ⏳ |
+| PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle | ⏳ |
+| PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ⏳ |
+| PD10 | Balancing und Gleichstellungstests KI/Spieler | ⏳ |
 | MG10 | Branchenfreigabe je Ebene mit Matrix, Vererbung, Freigabe-Vorschlägen (§10) | ⏳ nach MG2 |
 | LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ✅ 13.10.2026 (Commit 917ae41) |
 | AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ✅ 13.10.2026 |

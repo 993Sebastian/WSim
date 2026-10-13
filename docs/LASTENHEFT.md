@@ -126,6 +126,8 @@ Anfangs steuert der Spieler alles selbst; mit wachsender Größe delegiert er an
 
 ### 5.5 Manager
 
+> Projektleiter der Produktentwicklung sind Personen wie Manager (Alter, Charakter, Bilanz, abwerbbar): `docs/PRODUKTENTWICKLUNG.md` §1.
+
 - Es gibt jederzeit ein Kontingent an verfügbaren und abwerbbaren Managern mit unterschiedlichen Fähigkeiten und Gehaltserwartungen.
 - Manager sind in Version 1 alterslos; sie können kündigen oder abgeworben werden.
 - Rollen auf Standortebene: Einkauf, Produktion, Vertrieb und Marketing, Logistik, HR, Forschung.
@@ -139,6 +141,8 @@ Anfangs steuert der Spieler alles selbst; mit wachsender Größe delegiert er an
 Jede Ebene führt die darunterliegende nach den Vorgaben von oben; wo noch kein Manager sitzt, entscheidet der Spieler selbst.
 
 ### 5.6 Strategievorgaben
+
+> Die Strategieabteilung schlägt auch Produktentwicklungen vor und empfiehlt den Laborpersonalbedarf (ein gemeinsames Strategiesystem mit MG6/MG9): `docs/PRODUKTENTWICKLUNG.md` §1, §5.
 
 In einer eigenen Strategieansicht trifft der Spieler strategische Entscheidungen auf jeder Ebene vom Werk bis weltweit; alle Manager richten ihr Handeln danach aus.
 
@@ -204,6 +208,8 @@ Bergbau und Rohstoffe, Metallurgie, Chemie, Energie, Holz und Papier, Textil, Le
 
 ## 7 Forschung, Patente und Lizenzen
 
+> Produktentwicklung (Projekte mit Meilensteinen, Laborrollen, Projektleiter): `docs/PRODUKTENTWICKLUNG.md` (Wunsch vom 13.10.2026); sie ersetzt das einfache „Produkt erforschen“.
+
 Der Technologiebaum bildet die reale Entwicklung ab; wer der Geschichte vorauseilen will, zahlt dafür so viel, dass extreme Vorgriffe praktisch in die Pleite führen.
 
 ### 7.1 Technologiebaum
@@ -211,7 +217,7 @@ Der Technologiebaum bildet die reale Entwicklung ab; wer der Geschichte vorausei
 - Realistischer Baum mit Abhängigkeiten über alle Branchen, jede Technologie mit ihrem historischen Erfindungsjahr.
 - Forschung vor dem historischen Jahr ist möglich. Die Kosten steigen mit jedem Jahr Vorsprung stark an (z. B. exponentiell).
 - Balancing-Vorgabe: Ein Smartphone 1960 ist technisch erreichbar, aber so teuer, dass ein Konzern daran normalerweise zerbricht. Der Kostenfaktor ist in den Daten einstellbar.
-- Forschungsstandorte arbeiten je nach Land und Fachgebiet unterschiedlich effizient (siehe 3.2).
+- Forschungsstandorte arbeiten je nach Land und Fachgebiet unterschiedlich effizient (siehe 3.2). Das Labor arbeitet mit Personalrollen statt pauschaler Ingenieure (`docs/PRODUKTENTWICKLUNG.md` §1).
 - KI-Firmen forschen ebenfalls. Ohne Zutun des Spielers entwickelt sich die Welt ungefähr historisch.
 - Ist eine Technologie einmal erfunden, wird sie für Nachzügler günstiger.
 - Ab 2026 kommen keine neuen Technologien hinzu. Verbesserungen bestehender Technologien durch Start-ups bleiben möglich (`docs/BETEILIGUNGEN.md`).

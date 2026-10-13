@@ -2615,3 +2615,25 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
 - Die Gebote auf Ausschreibungen laufen über den vorhandenen Befehl `BidTender`; die KI-Gebote und die
   Zuschlagsregeln blieben unverändert (V2 aus MN2).
 
+
+### PD: Produktentwicklung – Aufnahme der Vorgabe 13.10.2026, bitte abnehmen
+Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRITT.md`).
+🟡 Entscheidungen bei der Aufnahme:
+- **Name PD statt PE:** Der Auftraggeber nannte die Meilensteine PE1–PE10. PE1–PE6 sind bereits
+  Lebenszyklus/Spielerfigur (`docs/PERSON.md`, erledigt); zur Unterscheidung heißen die neuen PD1–PD10
+  („Produktentwicklung“). Vorschlag: so lassen; sonst umbenennen.
+- **Reihenfolge:** Die PD-Meilensteine stehen am Ende der Kette. Vorschlag: nach den laufenden MN6, MG6–MG10
+  und WG; PD6 gemeinsam mit MG6/MG9 (ein Strategiesystem).
+- **Alte Spielstände** dürfen ungültig werden (Formatversion erhöhen, Meldung statt Absturz); die Pflicht
+  zur Fixture-Umwandlung aus CLAUDE.md entfällt für diesen Schritt, der Ladefehler braucht einen Textschlüssel.
+🟡 Vorläufige Werte (alle als Parameter in YAML, später justieren):
+- Überbesetzung beschleunigt höchstens um ca. 30 % mit abnehmendem Ertrag (§2).
+- Verteilung Kosten/Dauer: PM0→1 5 %/10 %, PM1→2 10 %/10 %, PM2→3 10 %/10 %, PM4→5 30 %/30 %, PM5→6 25 %/25 %,
+  PM6→7 15 %/15 %; Hauptbudget bei PM4 ca. 70 %; Gesamtkosten und -dauer zunächst aus den bisherigen
+  Forschungswerten abgeleitet (§3).
+- Streuung der Endkennzahlen bei PM6 höchstens ±10 % (§3).
+- Nachkalkulation 2 Jahre nach PM7 (§5).
+- Ereignisse mit hohem Schweregrad gehen im Standard an den Spieler, leichte an den PL (§7).
+- Unbeantwortete Entscheidungen entscheidet der PL zum Rundenende mit seiner Empfehlung (§7).
+- Umrüstung der Anlagen nach WM3 dauert ein Viertel der Bauzeit (§8).
+- Restertrag der Weiterentwicklung nach der dritten Stufe: 20 % der dritten Stufe (§8).

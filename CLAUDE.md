@@ -9,6 +9,8 @@ Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEIL
 Lebenszyklus, Spielerfigur, Privatvermögen (PE1–PE6): `docs/PERSON.md`.
 Welt und Geschichte, Markt und Nachfrage, Betrieb und Lernkurve (BP1–BP5, MN1–MN6,
 WG1–WG5, nach PE6): `docs/WELT_MARKT_BETRIEB.md`.
+Produktentwicklung (Projekte mit Meilensteinen PM0–PM7/WM0–WM3, Laborrollen, PD1–PD10; ersetzt
+„Produkt erforschen“, Wunsch vom 13.10.2026): `docs/PRODUKTENTWICKLUNG.md`.
 
 ## Umfang und Arbeitsweise
 
