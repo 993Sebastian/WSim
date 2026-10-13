@@ -350,6 +350,19 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         ),
         scale_min,
         scale_max,
+        ramp_from_year: m.market_ramp.from_year,
+        ramp_start_factor: in_range(
+            ctx,
+            m.market_ramp.start_factor,
+            0.001,
+            1.0,
+            &l.field("markt_aufbau").field("faktor_start"),
+        ),
+        ramp_years: positive(
+            ctx,
+            m.market_ramp.years,
+            &l.field("markt_aufbau").field("jahre"),
+        ),
         min_labor_pool: non_negative(ctx, m.min_labor_pool, &l.field("arbeitskraefte_min")),
         plants_per_concession: positive(
             ctx,

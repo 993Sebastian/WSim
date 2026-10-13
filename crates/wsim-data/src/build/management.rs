@@ -310,11 +310,21 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             1.0,
             &ml.field("personal_schaerfe"),
         ),
+        proposals_per_quarter: v.mandate.proposals_per_quarter,
+        proposal_postpone_days: v.mandate.proposal_postpone_days.max(1),
+        proposal_branch_weight: in_range(
+            ctx,
+            v.mandate.proposal_branch_weight,
+            0.0,
+            1.0,
+            &ml.field("vorschlag_branche_gewicht"),
+        ),
     };
     for (value, field) in [
         (v.mandate.proposals_max, "antraege_max"),
         (v.mandate.chances_risks, "chancen_risiken"),
         (v.mandate.reviews_kept, "ruecksprachen_behalten"),
+        (v.mandate.proposal_postpone_days, "vorschlag_aufschub_tage"),
     ] {
         if value == 0 {
             ctx.error(&ml.field(field), messages::not_positive(0.0));

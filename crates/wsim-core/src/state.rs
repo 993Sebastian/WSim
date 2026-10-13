@@ -2635,7 +2635,7 @@ impl GameState {
     pub(crate) fn refresh_countries(&mut self, catalog: &Catalog) {
         let month = self.date.first_of_month();
         let mut values = crate::country_model::compute_all(catalog, month).into_iter();
-        let scale = self.settings.market_scale;
+        let scale = self.settings.market_scale * catalog.ai_model.ramp(month);
         let min_pool = catalog.ai_model.min_labor_pool;
         let effects = self.settings.event_effects;
         if self.events.month() != Some(month) {

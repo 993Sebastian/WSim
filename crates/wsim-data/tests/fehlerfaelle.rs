@@ -3327,6 +3327,19 @@ fn management_wird_geprueft() {
     );
     let d = basis().ersetze(
         datei,
+        "vorschlag_aufschub_tage: 30",
+        "vorschlag_aufschub_tage: 0",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "vorschlag_aufschub_tage: 0"),
+        "management.strategieauftrag.vorschlag_aufschub_tage",
+    );
+    let d = basis().ersetze(
+        datei,
         "kaufangebot, antwort, startup]",
         "kaufangebot, antwrt, startup]",
     );

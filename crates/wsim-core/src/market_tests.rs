@@ -1679,3 +1679,20 @@ fn the_product_market_view_shows_reputation_used_market_and_the_open_lot() {
     assert_eq!(lot.sites.len(), 1, "the warehouse offers the product");
     assert!((0.0..=1.0).contains(&v.own_reputation));
 }
+
+#[test]
+fn the_market_scale_builds_up_geometrically_from_the_start_factor() {
+    let mut m = crate::catalog::AiModel {
+        ramp_from_year: 1900,
+        ramp_start_factor: 0.1,
+        ramp_years: 50.0,
+        ..Default::default()
+    };
+    let at = |y: i32| crate::calendar::Date::new(y, 1, 1).expect("valid");
+    assert!((m.ramp(at(1900)) - 0.1).abs() < 1e-9);
+    assert!((m.ramp(at(1925)) - 0.1f64.sqrt()).abs() < 1e-9);
+    assert!((m.ramp(at(1950)) - 1.0).abs() < 1e-9);
+    assert!((m.ramp(at(2000)) - 1.0).abs() < 1e-9);
+    m.ramp_start_factor = 1.0;
+    assert!((m.ramp(at(1900)) - 1.0).abs() < 1e-12);
+}

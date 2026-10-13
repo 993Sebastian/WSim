@@ -462,6 +462,17 @@ Marktbevölkerung (Verbrauchernachfrage), Staatsnachfrage, Arbeitskräfte (nie u
 Erschließungskosten. Preise, Löhne, Einkommen je Kopf und Anlagengrößen bleiben real.
 Ohne KI-Firmen gilt *s* = 1.
 
+**Marktaufbau (Wunsch vom 13.10.2026):** Nachfrage (Marktbevölkerung, Staatsnachfrage) und
+Arbeitskräfte rechnen im Maßstab *s* · *a*(*t*) mit dem Aufbaufaktor
+
+    a(t) = faktor_start ^ (1 − clamp((Jahr − jahr_start + (Monat − 1)/12) / jahre, 0, 1)),
+
+also *faktor_start* (vorläufig 0,1) im Jahr `jahr_start` (1900), geometrisch wachsend auf 1
+nach `jahre` (vorläufig 50) Jahren. Hinzu kommt weiter das eingebaute Wachstum von
+Bevölkerung und BIP je Land. Förderung, Vorrat und Erschließungskosten der Lagerstätten
+bleiben im Maßstab *s*. Die Länderwerte werden monatlich neu abgeleitet, es wird nichts
+gespeichert. `faktor_start: 1` schaltet den Aufbau aus.
+
 ### Konzessionen
 
 Eine Lagerstätte hat *n* = clamp(⌊Förderung_max · *s* / (`anlagen_je_konzession` ·

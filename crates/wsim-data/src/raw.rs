@@ -1459,6 +1459,18 @@ pub struct RawLatecomer {
     pub min: f64,
 }
 
+/// Build-up of the markets from a start year (`markt_aufbau`).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMarketRamp {
+    #[serde(rename = "jahr_start")]
+    pub from_year: i32,
+    #[serde(rename = "faktor_start")]
+    pub start_factor: f64,
+    #[serde(rename = "jahre")]
+    pub years: f64,
+}
+
 /// `data/parameter/kimodell.yaml`
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -1471,6 +1483,8 @@ pub struct RawAiModel {
     pub companies_for_real_size: f64,
     #[serde(rename = "massstab")]
     pub scale: RawLimits,
+    #[serde(rename = "markt_aufbau")]
+    pub market_ramp: RawMarketRamp,
     #[serde(rename = "arbeitskraefte_min")]
     pub min_labor_pool: f64,
     #[serde(rename = "anlagen_je_konzession")]
@@ -2033,6 +2047,12 @@ pub struct RawMandateModel {
     pub reviews_kept: u32,
     #[serde(rename = "personal_schaerfe")]
     pub personnel_sharpness: f64,
+    #[serde(rename = "vorschlaege_je_quartal")]
+    pub proposals_per_quarter: u32,
+    #[serde(rename = "vorschlag_aufschub_tage")]
+    pub proposal_postpone_days: u32,
+    #[serde(rename = "vorschlag_branche_gewicht")]
+    pub proposal_branch_weight: f64,
 }
 
 /// The living market of managers (MA6).

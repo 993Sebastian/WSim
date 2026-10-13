@@ -137,6 +137,12 @@ management:
     chancen_risiken: 3
     ruecksprachen_behalten: 8
     personal_schaerfe: 0.8
+    # Strategievorschläge (MG6): höchstens so viele Vorschläge außer der Reihe je Quartal
+    # (zusätzlich zur Rücksprache); so viele Tage rückt die Frist beim Zurückstellen vor.
+    vorschlaege_je_quartal: 1
+    vorschlag_aufschub_tage: 30
+    # Wie viel der fehlenden Fachkompetenz die volle Branchenstärke des Vorschlagenden ausgleicht (0–1).
+    vorschlag_branche_gewicht: 0.5
 
   # Lebendiger Managermarkt (MA6). Erfahrung: je Monat auf einer Stelle mit dieser
   # Wahrscheinlichkeit ein Punkt Fachkompetenz im Bereich der Stelle, bis zur persönlichen

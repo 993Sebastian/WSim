@@ -10,6 +10,10 @@ kimodell:
   # Verhältnis (Marktmaßstab); Preise, Löhne und Anlagengrößen bleiben real.
   firmen_bei_realer_groesse: 1000
   massstab: {minimum: 0.01, maximum: 1}
+  # Aufbau der Märkte: Im Jahr jahr_start gelten Nachfrage und Arbeitskräfte nur mit dem Faktor
+  # faktor_start des Maßstabs und wachsen gleichmäßig (geometrisch) über so viele Jahre auf
+  # den vollen Maßstab. faktor_start 1 schaltet den Aufbau aus.
+  markt_aufbau: {jahr_start: 1900, faktor_start: 0.1, jahre: 50}
   # Kein Arbeitsmarkt schrumpft unter so viele Personen je Gruppe.
   arbeitskraefte_min: 2000
   # Eine Lagerstätte wird in Konzessionen für je so viele Förderanlagen geteilt.

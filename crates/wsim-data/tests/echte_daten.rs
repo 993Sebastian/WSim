@@ -383,7 +383,10 @@ fn government_demand_for_steel_bars() {
     use wsim_core::state::{GameSettings, StartForm};
 
     let data = load_dir(&data_dir()).data.expect("data loads");
-    let c = Arc::new(data.catalog);
+    let mut catalog = data.catalog;
+    // Calibrated at the full market scale: without the build-up of the markets.
+    catalog.ai_model.ramp_start_factor = 1.0;
+    let c = Arc::new(catalog);
     let gbr = c.countries.id("GBR").unwrap();
     let game = Game::new(
         c.clone(),
@@ -914,7 +917,10 @@ fn world_stays_plausible_in_the_first_year() {
     use wsim_core::state::{AiSettings, GameSettings, StartForm};
 
     let data = load_dir(&data_dir()).data.expect("data loads");
-    let c = Arc::new(data.catalog);
+    let mut catalog = data.catalog;
+    // Calibrated at the full market scale: without the build-up of the markets.
+    catalog.ai_model.ramp_start_factor = 1.0;
+    let c = Arc::new(catalog);
     let capital = 100_000.0;
     let settings = GameSettings {
         seed: 1,

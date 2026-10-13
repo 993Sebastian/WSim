@@ -2643,3 +2643,16 @@ Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRIT
 ✅ Der Auftraggeber hat angewiesen, zu allen offenen Punkten („bitte abnehmen“) erst einmal die Einschätzung
 des Entwicklers zu übernehmen. Alle mit 🟡 gekennzeichneten Annahmen und Vorschläge gelten ab jetzt als
 angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit das Ergebnis ändert.
+
+### Marktaufbau – Testversion 13.10.2026 (Wunsch: Märkte 1900 um Faktor 10 kleiner)
+🟡 Umsetzung und Annahmen:
+- Nachfrage und Arbeitskräfte rechnen im Maßstab *s* mal einem Aufbaufaktor, der 1900 bei 0,1 liegt und geometrisch in
+  50 Jahren auf 1 wächst (`markt_aufbau` in `kimodell.yaml`, FORMELN „Marktaufbau“). „Wie bereits eingebaut steigen
+  lassen“ ist so verstanden, dass das vorhandene Wachstum von Bevölkerung und BIP zusätzlich weiterläuft und die Märkte
+  bis 1950 die volle Größe erreichen. Vorschlag: nach dem Test des Auftraggebers entscheiden (Faktor, Jahre).
+- Lagerstätten (Vorrat, Förderung, Erschließungskosten) bleiben im Maßstab *s*: Rohstoffe sind in den frühen Jahren im
+  Verhältnis zur Nachfrage reichlich.
+- Die zwei auf volle Marktgröße geeichten Tests auf echten Daten (`government_demand_for_steel_bars`,
+  `world_stays_plausible_in_the_first_year`) schalten den Aufbau ab; ein Weltlauf-Protokoll 1900–1930 mit Aufbau steht
+  noch aus. Beobachtung vorab: Mit Faktor 0,1 meldet die Plausibilitätsprüfung 1900 mehrere Produkte mit niedriger
+  Versorgung (Dünger, Schienenfahrzeuge, Frachtschiff, Gase, Nickel) – Ursache noch offen.

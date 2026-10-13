@@ -390,6 +390,11 @@ pub struct MandateModel {
     pub reviews_kept: u32,
     /// How much a personnel board member with full expertise sharpens the impression.
     pub personnel_sharpness: f64,
+    /// Proposals out of turn per quarter and the days a postponed one gains (MG6).
+    pub proposals_per_quarter: u32,
+    pub proposal_postpone_days: u32,
+    /// Share of the missing expertise full branch strength of the proposer makes up for.
+    pub proposal_branch_weight: f64,
 }
 
 /// Headquarters and central departments (ZA1–ZA3, docs/FORMELN.md).
@@ -1908,6 +1913,10 @@ pub struct AiModel {
     pub companies_for_real_size: f64,
     pub scale_min: f64,
     pub scale_max: f64,
+    /// Build-up of the markets: year, factor of the scale then, years to the full scale.
+    pub ramp_from_year: i32,
+    pub ramp_start_factor: f64,
+    pub ramp_years: f64,
     /// Labor pools never shrink below this many persons per group.
     pub min_labor_pool: f64,
     /// Extraction facilities a concession is sized for, and the most concessions.
@@ -2039,6 +2048,9 @@ impl Default for AiModel {
             companies_for_real_size: 1000.0,
             scale_min: 0.01,
             scale_max: 1.0,
+            ramp_from_year: 1900,
+            ramp_start_factor: 1.0,
+            ramp_years: 1.0,
             min_labor_pool: 2000.0,
             plants_per_concession: 2.0,
             max_concessions: 12,
@@ -2126,6 +2138,18 @@ impl Default for AiModel {
 }
 
 impl AiModel {
+    /// Factor of the market scale in a month: `faktor_start` from `jahr_start`, growing
+    /// geometrically to 1 over `jahre` years (docs/FORMELN.md, Marktaufbau).
+    pub fn ramp(&self, month: crate::calendar::Date) -> f64 {
+        if self.ramp_start_factor >= 1.0 || self.ramp_years <= 0.0 {
+            return 1.0;
+        }
+        let elapsed =
+            f64::from(month.year() - self.ramp_from_year) + f64::from(month.month() - 1) / 12.0;
+        let t = (elapsed / self.ramp_years).clamp(0.0, 1.0);
+        crate::math::pow(self.ramp_start_factor, 1.0 - t)
+    }
+
     /// Market scale for a number of AI companies.
     pub fn market_scale(&self, companies: u32) -> f64 {
         (f64::from(companies) / self.companies_for_real_size).clamp(self.scale_min, self.scale_max)

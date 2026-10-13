@@ -303,23 +303,82 @@ pub fn report(
     }
 }
 
-/// The CEO's proposals (docs/FORMELN.md, MA5): new chains or countries and the best
-/// offer, up to `antraege_max`, each with the CEO's recommendation; none about what an
-/// open concern already asks.
+/// Who raises a proposal for a place (docs/FORMELN.md, MG6): the head of the country, else
+/// of its continent, else the CEO.
+fn proposer(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    place: Option<Unit>,
+    ceo: ManagerId,
+) -> (Position, ManagerId) {
+    let country = match place {
+        Some(Unit::Country(c)) => Some(c),
+        Some(Unit::Site(s)) => state.sites.get(s.index()).map(|x| x.country),
+        _ => None,
+    };
+    let mut units = Vec::new();
+    if let Some(c) = country {
+        units.push(Unit::Country(c));
+        units.push(Unit::Continent(catalog.countries.get(c).continent));
+    }
+    if let Some(Unit::Continent(k)) = place {
+        units.push(Unit::Continent(k));
+    }
+    for unit in units {
+        let position = Position::new(unit, Role::Head);
+        if let Some(manager) = management::holder(state, company, &position) {
+            return (position, manager);
+        }
+    }
+    (Position::new(Unit::Board, Role::Head), ceo)
+}
+
+/// Expertise of a proposer for a decision (docs/FORMELN.md, MG6): his expertise in the
+/// function of the topic – the CEO's cut by the head discount – and his strength in the
+/// branch of the product making up for a share of what is missing.
+pub(crate) fn proposer_skill(
+    catalog: &Catalog,
+    state: &GameState,
+    (manager, board): (ManagerId, bool),
+    d: &Decision,
+) -> f64 {
+    let m = &catalog.management;
+    let x = &state.managers[&manager];
+    let base = management::function_of(catalog, d.topic).map_or(0.0, |f| {
+        let e = f64::from(management::expertise(x, &m.functions[f].key));
+        if board {
+            e * (1.0 - m.head_discount)
+        } else {
+            e
+        }
+    });
+    let strength = d.product.map_or(0.0, |p| {
+        crate::branch_skill::strength(catalog, x, catalog.products.get(p).branch)
+    });
+    base + (100.0 - base) * strength * m.mandate.proposal_branch_weight
+}
+
+/// The proposals of the CEO and of the heads of countries and continents (docs/FORMELN.md,
+/// MA5, MG6): new chains or countries and – at the review – the best offer, up to `max`,
+/// each by the position of its place with its recommendation; none about what an open
+/// concern already asks. `salt` separates the draws of a review from those out of turn.
 fn proposals(
     catalog: &Catalog,
     state: &GameState,
     company: CompanyId,
-    (manager, next): (ManagerId, Date),
+    (ceo, next): (ManagerId, Date),
+    (max, with_offer, salt): (usize, bool, u32),
 ) -> Vec<Concern> {
     let m = &catalog.management;
-    let max = usize::try_from(m.mandate.proposals_max).unwrap_or(0);
     if max == 0 {
         return Vec::new();
     }
     let c = &state.companies[company.index()];
-    let offer = crate::deals::best_deal_for(state, catalog, company, Some(&c.mandate)).map(
-        |(object, seller, price)| {
+    let offer = with_offer
+        .then(|| crate::deals::best_deal_for(state, catalog, company, Some(&c.mandate)))
+        .flatten()
+        .map(|(object, seller, price)| {
             Decision::new(
                 crate::deals::deal_topic(object),
                 company,
@@ -332,8 +391,7 @@ fn proposals(
                     },
                 ),
             )
-        },
-    );
+        });
     let mut decisions =
         crate::ai::opportunities(state, catalog, company, max - usize::from(offer.is_some()));
     decisions.extend(offer);
@@ -349,25 +407,24 @@ fn proposals(
             )
         })
         .collect();
-    let x = &state.managers[&manager];
     let mut rng = SimRng::for_stream(
         state.settings.seed,
         Stream::Review {
             company: company.0,
-            month: u32::try_from(next.year()).unwrap_or(0) * 12 + next.month(),
+            month: u32::try_from(next.year()).unwrap_or(0) * 12 + next.month() + salt,
         },
     );
-    let ceo = Position::new(Unit::Board, Role::Head);
     let mut out = Vec::new();
     for d in decisions {
-        let key = (d.topic, management::place_of(state, &d), d.product);
+        let place = management::place_of(state, &d);
+        let key = (d.topic, place, d.product);
         if open.contains(&key) {
             continue;
         }
+        let (position, manager) = proposer(catalog, state, company, place, ceo);
+        let x = &state.managers[&manager];
+        let skill = proposer_skill(catalog, state, (manager, position.unit == Unit::Board), &d);
         let assessments = decision::assess(catalog, state, &d);
-        let skill = management::function_of(catalog, d.topic).map_or(0.0, |f| {
-            f64::from(management::expertise(x, &m.functions[f].key)) * (1.0 - m.head_discount)
-        });
         let recommended = management::recommend_with(
             &m.concerns,
             &mut rng,
@@ -386,7 +443,7 @@ fn proposals(
         out.push(Concern {
             id: 0,
             company,
-            position: ceo.clone(),
+            position,
             manager,
             decision: d,
             recommended,
@@ -405,6 +462,45 @@ fn proposals(
     out
 }
 
+/// Proposals out of turn (MG6): in the months that close a quarter without a review, up to
+/// `vorschlaege_je_quartal` proposals of the companies with a CEO.
+fn quarterly_proposals(state: &mut GameState, catalog: &Catalog, next: Date) -> usize {
+    let m = &catalog.management.mandate;
+    let max = usize::try_from(m.proposals_per_quarter).unwrap_or(0);
+    let closed = if next.month() == 1 {
+        12
+    } else {
+        next.month() - 1
+    };
+    if max == 0 || !closed.is_multiple_of(3) {
+        return 0;
+    }
+    let due: Vec<(CompanyId, ManagerId)> = (0..state.companies.len())
+        .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+        .filter(|&id| {
+            let c = &state.companies[id.index()];
+            !c.bankrupt && c.ai.is_none() && !period_ends(c.mandate.review, next)
+        })
+        .filter_map(|id| management::ceo_of(state, id).map(|m| (id, m)))
+        .collect();
+    let mut count = 0;
+    for (company, ceo) in due {
+        for mut concern in proposals(
+            catalog,
+            state,
+            company,
+            (ceo, next),
+            (max, false, 1_000_000),
+        ) {
+            concern.id = state.next_concern;
+            state.next_concern += 1;
+            state.concerns.push(concern);
+            count += 1;
+        }
+    }
+    count
+}
+
 /// The reviews due after a month end, once the books of the month are closed and the
 /// places recorded: for every company with a CEO whose period ended. Returns the
 /// messages for the player.
@@ -421,10 +517,12 @@ pub fn month_end(state: &mut GameState, catalog: &Catalog, next: Date) -> Vec<Me
         .filter_map(|id| management::ceo_of(state, id).map(|m| (id, m)))
         .collect();
     let mut news = Vec::new();
+    quarterly_proposals(state, catalog, next);
     let kept = usize::try_from(catalog.management.mandate.reviews_kept).unwrap_or(0);
     for (company, manager) in due {
         let mut review = report(catalog, state, company, (manager, next));
-        let concerns = proposals(catalog, state, company, (manager, next));
+        let max = usize::try_from(catalog.management.mandate.proposals_max).unwrap_or(0);
+        let concerns = proposals(catalog, state, company, (manager, next), (max, true, 0));
         let count = concerns.len();
         for mut concern in concerns {
             concern.id = state.next_concern;
