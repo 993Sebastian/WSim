@@ -2429,10 +2429,9 @@ das Wachstum der Welt deutlich verändert hätte:
 
 ## MG Manager mit Geschichte (Vorgabe vom 13.10.2026, `docs/MANAGER_2.md`)
 
-### MG-a: Einordnung in den Gesamtplan – Vorschlag, bitte bestätigen
-🟡 Vorschlag: MG1 jetzt (die Vorgabe verlangt es vor allem anderen), danach MG2, danach MG3, MG4,
-MG5, MG6 und die von MG2 abhängigen MG7, MG8, MG10; MG9 nach MG6. LB1, LV2, AKT, EC1 und die
-Gesamtprüfung E2E folgen nach MG6 (oder, wenn Sie das lieber haben, LB1–EC1 zuerst und MG danach).
+### MG-a: Einordnung in den Gesamtplan – entschieden
+✅ Entscheidung des Auftraggebers (13.10.2026): erst LB1, LV2, AKT und EC1, danach alle übrigen
+MG-Meilensteine (MG2–MG10; MG9 nach MG6, MG7/MG8/MG10 nach MG2), zuletzt die Gesamtprüfung E2E.
 MAA ist mit Schritt 4 abgeschlossen. Die Vorgabe selbst nennt als Reihenfolge nur: MG1 zuerst,
 MG7/MG8/MG10 nach MG2, MG9 nach MG6.
 
