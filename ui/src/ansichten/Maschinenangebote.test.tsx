@@ -66,9 +66,9 @@ describe("Maschinenangebote (MAA)", () => {
     );
     expect(screen.getByText(/Tag 18 von 28/)).toBeTruthy();
     expect(screen.getByText("+19 %")).toBeTruthy();
-    expect(screen.getByText(/45 Tage, fertig am 31\.08\.1907/)).toBeTruthy();
-    expect(screen.getByText(/240 m² je Anlage, 480 m² insgesamt/)).toBeTruthy();
-    expect(screen.getByText(/vorher 1\.000 m², danach 520 m²/)).toBeTruthy();
+    expect(screen.getByText("45 Tage")).toBeTruthy();
+    expect(screen.getByText(/gesamt 480 m²/)).toBeTruthy();
+    expect(screen.getByText("1.000 m² → 520 m²")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Annehmen" }));
     expect(senden).toHaveBeenCalledWith("angebot/7/1", expect.any(String), [
       { AcceptMachineOffer: { tender: 7, offer: 1 } },
@@ -88,6 +88,6 @@ describe("Maschinenangebote (MAA)", () => {
     expect((screen.getByRole("button", { name: "Annehmen" }) as HTMLButtonElement).disabled).toBe(
       true,
     );
-    expect(screen.getByText(/danach reicht nicht/)).toBeTruthy();
+    expect(screen.getByText(/→ reicht nicht/)).toBeTruthy();
   });
 });

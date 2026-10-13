@@ -688,7 +688,7 @@ pub fn offer_area(
     let unit = crate::plots::unit_area(catalog, b.facility, b.size) * offer.factors.area;
     let plot = site.plot.map(|p| state.plots[p.index()].area_ha);
     let after = match tender.kind {
-        TenderKind::Build { .. } => crate::plots::site_area_with(
+        TenderKind::Build { .. } => crate::plots::used_area_with(
             catalog,
             site,
             Some((b.facility, b.size, b.count)),
@@ -698,10 +698,10 @@ pub fn offer_area(
             let (probe, _) = probe_slot(state, catalog, tender, Some(offer.factors), offer.price)?;
             let mut changed = site.clone();
             *changed.slots.get_mut(slot)? = probe;
-            crate::plots::site_area(catalog, &changed, None)
+            crate::plots::used_area_with(catalog, &changed, None, 1.0)
         }
     };
-    let before = crate::plots::site_area(catalog, site, None);
+    let before = crate::plots::used_area_with(catalog, site, None, 1.0);
     Some(OfferArea {
         unit_ha: unit,
         total_ha: unit * f64::from(b.count),

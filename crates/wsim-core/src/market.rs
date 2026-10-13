@@ -79,8 +79,9 @@ fn competitors_present(
 }
 
 /// What a relative price starts from (`PriceMode::Relative`): the market price in the
-/// country as shown to the player, once a competitor offers the product; alone in the
-/// market the guide price (Richtpreis).
+/// country as shown to the player. Alone in the market the index follows the own price,
+/// so a deviation would compound day by day; there the guide price (Richtpreis) is a
+/// lower bound for the base, but a higher market price still counts.
 pub fn relative_base(
     catalog: &Catalog,
     state: &GameState,
@@ -88,10 +89,11 @@ pub fn relative_base(
     country: CountryId,
     product: ProductId,
 ) -> Money {
+    let market = market_price(catalog, state, country, product);
     if competitors_present(state, owner, country, product) {
-        market_price(catalog, state, country, product)
+        market
     } else {
-        local_reference(catalog, state, country, product)
+        market.max(local_reference(catalog, state, country, product))
     }
 }
 

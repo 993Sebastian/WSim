@@ -5601,7 +5601,9 @@ Parameter: `produktionsmodell.betrieb`, `vertraege` (alle Werte geschätzt).
 - **Preis relativ zum Marktpreis:** Preismodus `Relative { abweichung, untergrenze }`
   ersetzt die ±5-%-Knöpfe. Jeden Tag gilt Preis = Bezug · (1 + Abweichung), begrenzt auf
   den Höchstpreis und die Untergrenze; Bezug = mengengewichteter Preis der Angebote
-  anderer Eigentümer im Land, sonst der Preisindex, sonst der Richtpreis. Der Preis geht
+  anderer Eigentümer im Land, sonst der Preisindex, sonst der Richtpreis (allein am Markt
+  mindestens der Richtpreis, aber ein höherer Preisindex gilt: die Abweichung richtet sich
+  immer nach dem angezeigten Marktpreis, 13.10.2026). Der Preis geht
   so mit dem Markt mit, ohne dem eigenen Preis nachzulaufen.
 - **Gehalt je Firma:** Die Person bezieht von jeder Firma, in der sie eine Rolle hat, ein
   eigenes Gehalt (`Person::salaries`); Vorschlag und Höchstwert wie bisher je Firma. Ein

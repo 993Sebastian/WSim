@@ -2704,9 +2704,23 @@ ausschreibung.angebote: "{anzahl} Angebot(e)"
 ausschreibung.noch_keine: Noch kein Angebot eingegangen. Maschinenbauer melden sich im Laufe der Ausschreibung.
 ausschreibung.abbrechen: Ausschreibung abbrechen
 ausschreibung.abgebrochen: Ausschreibung beendet.
+angebot.hersteller: Hersteller
+angebot.k_preis: Preis
+angebot.k_bauzeit: Bauzeit / fertig
+angebot.k_ausstoss: Ausstoß
+angebot.k_arbeit: Personal
+angebot.k_material: Material
+angebot.k_ausschuss: Ausschuss
+angebot.k_flaeche: Fläche je Anlage
+angebot.k_frei: Freie Fläche (jetzt → danach)
+angebot.k_stueckkosten: Stückkosten
+angebot.k_gueltig: Gültig bis
+angebot.gueltig: Gültig bis
+angebot.aktion: Entscheidung
 angebot.preis: Preis (gegenüber Katalog)
 angebot.bauzeit: Bauzeit
-angebot.bauzeit_wert: "{tage} Tage, fertig am {datum}"
+angebot.bauzeit_wert: "{tage} Tage"
+angebot.flaeche_gesamt: "gesamt {gesamt}"
 angebot.ausstoss: Ausstoß
 angebot.arbeit: Arbeitskräfte
 angebot.vorprodukte: Vorprodukte
@@ -2714,13 +2728,13 @@ angebot.ausschuss: Ausschuss
 angebot.flaeche: Platzbedarf
 angebot.flaeche_wert: "{je} je Anlage, {gesamt} insgesamt"
 angebot.frei: Freie Fläche des Werks
-angebot.frei_wert: "vorher {vorher}, danach {nachher}"
+angebot.frei_wert: "{vorher} → {nachher}"
 angebot.zu_klein: reicht nicht
 angebot.stueckkosten: Stückkosten gesamt
 angebot.material: "Materialkosten je Stück: {betrag}"
+angebot.material_kurz: Material
 angebot.material_zeile: "{produkt}: {menge} × {preis}"
 angebot.material_hinweis: Marktpreise des Tages, an dem das Angebot einging; sie bleiben für das Angebot fest.
-angebot.gueltig_bis: "Gültig bis {datum}"
 angebot.annehmen: Annehmen
 angebot.ablehnen: Ablehnen
 angebot.angenommen: "Angebot angenommen, Bauzeit {bauzeit} Tage."

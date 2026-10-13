@@ -1067,6 +1067,34 @@ fn a_relative_price_starts_from_the_guide_price_alone_and_from_the_market_with_a
 }
 
 #[test]
+fn a_relative_price_alone_follows_a_market_price_above_the_guide_price() {
+    let mut game = new_game();
+    let player = game.player();
+    let mine = warehouse(&mut game, player, "brot", 1e9, 50.0);
+    let p = product(&game, "brot");
+    let country = aaa(&game);
+    let c = game.catalog().clone();
+    let guide = crate::market::local_reference(&c, game.state(), country, p);
+    // The index stands 12 % above the guide price.
+    game.state_mut().markets.get_mut(p).get_mut(country).price = guide.scale(1.12);
+    sell(
+        &mut game,
+        mine,
+        "brot",
+        PriceMode::Relative {
+            deviation: -0.02,
+            floor: Money::ZERO,
+        },
+    );
+    let price = game.state().sites[mine.index()].offers[&p].price.to_usd();
+    let market = crate::market::market_price(&c, game.state(), country, p).to_usd();
+    assert!(
+        (price - market * 0.98).abs() < 0.01,
+        "price {price} market {market}"
+    );
+}
+
+#[test]
 fn the_demand_of_an_offer_learns_only_on_days_with_goods() {
     let mut catalog = crate::catalog::test_support::trading();
     catalog.logistics.supply_learn_rate = 0.1;

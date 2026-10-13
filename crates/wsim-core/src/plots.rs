@@ -55,12 +55,22 @@ pub fn site_area_with(
     extra: Option<(FacilityId, FacilitySize, u32)>,
     area_factor: f64,
 ) -> f64 {
-    let m = &catalog.plot_model;
+    used_area_with(catalog, site, extra, area_factor).max(catalog.plot_model.min_site_area_ha)
+}
+
+/// Land the units of a site actually occupy, with overhead but without the minimum site
+/// area: what the player sees as used and free land.
+pub fn used_area_with(
+    catalog: &Catalog,
+    site: &Site,
+    extra: Option<(FacilityId, FacilitySize, u32)>,
+    area_factor: f64,
+) -> f64 {
     let units = units_area(catalog, site)
         + extra.map_or(0.0, |(f, size, n)| {
             unit_area(catalog, f, size) * f64::from(n) * area_factor
         });
-    (units * (1.0 + m.overhead)).max(m.min_site_area_ha)
+    units * (1.0 + catalog.plot_model.overhead)
 }
 
 /// Land a new site needs for `count` units of a facility of a size (ha).

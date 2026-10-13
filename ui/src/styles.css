@@ -2869,3 +2869,37 @@ th[aria-sort="descending"]::after {
   content: " ▼";
   font-size: 0.75em;
 }
+
+/* Machine offers: compact comparison table that fits without horizontal scrolling. */
+table.angebote {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+table.angebote th,
+table.angebote td {
+  padding: 0.35rem 0.4rem;
+  white-space: normal;
+  vertical-align: top;
+}
+
+table.angebote th {
+  line-height: 1.15;
+}
+
+table.angebote .block {
+  display: block;
+}
+
+table.angebote td .knopfreihe {
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+table.angebote td button {
+  padding: 0.25rem 0.5rem;
+}
+
+table.angebote details.material {
+  margin-top: 0.2rem;
+}

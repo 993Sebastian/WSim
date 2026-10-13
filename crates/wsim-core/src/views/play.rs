@@ -1351,7 +1351,7 @@ pub fn production(game: &Game) -> ProductionView {
                     SitePlotView {
                         location: p.location.key().to_owned(),
                         area_ha: p.area_ha,
-                        used_ha: crate::plots::site_area(catalog, s, None),
+                        used_ha: crate::plots::used_area_with(catalog, s, None, 1.0),
                         owned: !leased,
                         value_usd: value,
                         rent_usd_year: leased.then(|| value * catalog.plot_model.rent_share),

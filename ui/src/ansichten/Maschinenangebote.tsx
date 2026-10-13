@@ -1,6 +1,6 @@
 /** Machine tenders (MAA): asking for offers, comparing them, taking or turning them down. */
 
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 import { formatDatum, formatGeld, formatPreis, formatZahl } from "../format";
 import type { MaschinenAngebot, MaschinenAusschreibung, Produktion } from "../kern";
 import { t } from "../texte";
@@ -22,23 +22,6 @@ function farbe(faktor: number, hoeherIstGut: boolean): string {
   return p > 0 === hoeherIstGut ? "positiv" : "negativ";
 }
 
-function Kennzahl({
-  name,
-  wert,
-  klasse,
-}: {
-  name: string;
-  wert: ReactNode;
-  klasse?: string;
-}): ReactNode {
-  return (
-    <div className="kennzahl">
-      <dt>{name}</dt>
-      <dd className={klasse}>{wert}</dd>
-    </div>
-  );
-}
-
 function qm(wert: number): string {
   return `${formatZahl(wert, wert < 100 ? 1 : 0)} m²`;
 }
@@ -47,134 +30,121 @@ function Angebot({
   a,
   ausschreibung,
   produktion,
+  hatFlaeche,
 }: {
   a: MaschinenAngebot;
   ausschreibung: MaschinenAusschreibung;
   produktion: Produktion;
+  hatFlaeche: boolean;
 }) {
   const { los, antwort } = useAktion(`angebot/${ausschreibung.id}/${a.id}`);
   const einheit = t(`einheit.${produktion.units[ausschreibung.product] ?? "t"}`);
   const preis = a.catalog_price_usd > 0 ? a.price_usd / a.catalog_price_usd : 1;
   const kosten = a.catalog_unit_cost_usd > 0 ? a.unit_cost_usd / a.catalog_unit_cost_usd : 1;
   const passt = a.free_after_m2 === null || a.free_after_m2 >= 0;
+  const zelle = (name: string, klasse?: string) => ({
+    "data-spalte": name,
+    className: klasse ? `zahl ${klasse}` : "zahl",
+  });
   return (
-    <li className="angebot" aria-label={t(`maschinenbauer.${a.builder}`)}>
-      <h4>
+    <tr aria-label={t(`maschinenbauer.${a.builder}`)}>
+      <td>
         {t(`maschinenbauer.${a.builder}`)}
-        <small className="gedaempft"> · {t(`land.${a.builder_country}`)}</small>
-      </h4>
-      <dl className="kennzahlen">
-        <Kennzahl
-          name={t("angebot.preis")}
-          wert={
-            <>
-              {formatGeld(a.price_usd)} <small>({abweichung(preis)})</small>
-            </>
-          }
-          klasse={farbe(preis, false)}
-        />
-        <Kennzahl
-          name={t("angebot.bauzeit")}
-          wert={t("angebot.bauzeit_wert", {
-            tage: a.build_days,
-            datum: formatDatum(a.ready),
-          })}
-          klasse={farbe(a.catalog_build_days > 0 ? a.build_days / a.catalog_build_days : 1, false)}
-        />
-        <Kennzahl
-          name={t("angebot.ausstoss")}
-          wert={abweichung(a.factors.output)}
-          klasse={farbe(a.factors.output, true)}
-        />
-        <Kennzahl
-          name={t("angebot.arbeit")}
-          wert={abweichung(a.factors.labor)}
-          klasse={farbe(a.factors.labor, false)}
-        />
-        <Kennzahl
-          name={t("angebot.vorprodukte")}
-          wert={abweichung(a.factors.inputs)}
-          klasse={farbe(a.factors.inputs, false)}
-        />
-        <Kennzahl
-          name={t("angebot.ausschuss")}
-          wert={abweichung(a.factors.scrap)}
-          klasse={farbe(a.factors.scrap, false)}
-        />
-        <Kennzahl
-          name={t("angebot.flaeche")}
-          wert={
-            <>
-              {t("angebot.flaeche_wert", { je: qm(a.area_unit_m2), gesamt: qm(a.area_total_m2) })}{" "}
-              <small>({abweichung(a.factors.area)})</small>
-            </>
-          }
-          klasse={farbe(a.factors.area, false)}
-        />
-        {a.free_before_m2 !== null && a.free_after_m2 !== null && (
-          <Kennzahl
-            name={t("angebot.frei")}
-            wert={t("angebot.frei_wert", {
-              vorher: qm(Math.max(a.free_before_m2, 0)),
-              nachher: passt ? qm(a.free_after_m2) : t("angebot.zu_klein"),
-            })}
-            klasse={passt ? "" : "negativ"}
-          />
+        <small className="block gedaempft">{t(`land.${a.builder_country}`)}</small>
+      </td>
+      <td {...zelle(t("angebot.preis"), farbe(preis, false))}>
+        {formatGeld(a.price_usd)} <small>({abweichung(preis)})</small>
+      </td>
+      <td
+        {...zelle(
+          t("angebot.bauzeit"),
+          farbe(a.catalog_build_days > 0 ? a.build_days / a.catalog_build_days : 1, false),
         )}
-        <Kennzahl
-          name={t("angebot.stueckkosten")}
-          wert={
-            <>
-              {formatPreis(a.unit_cost_usd, einheit)} <small>({abweichung(kosten)})</small>
-            </>
-          }
-          klasse={farbe(kosten, false)}
-        />
-      </dl>
-      <details className="material">
-        <summary>{t("angebot.material", { betrag: formatPreis(a.material_usd, einheit) })}</summary>
-        <ul>
-          {a.materials.map((m) => (
-            <li key={m.product}>
-              {t("angebot.material_zeile", {
-                produkt: produktName(m.product),
-                menge: formatZahl(m.quantity, 3),
-                preis: formatGeld(m.price_usd),
-              })}
-            </li>
-          ))}
-        </ul>
-        <p className="erklaerung">{t("angebot.material_hinweis")}</p>
-      </details>
-      <p className="gedaempft">{t("angebot.gueltig_bis", { datum: formatDatum(a.valid_until) })}</p>
-      <div className="knopfreihe links">
-        <button
-          type="button"
-          className="haupt"
-          disabled={!passt}
-          onClick={() =>
-            void los(
-              [{ AcceptMachineOffer: { tender: ausschreibung.id, offer: a.id } }],
-              t("angebot.angenommen", { bauzeit: a.build_days }),
-            )
-          }
-        >
-          {t("angebot.annehmen")}
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            void los(
-              [{ DeclineMachineOffer: { tender: ausschreibung.id, offer: a.id } }],
-              t("angebot.abgelehnt"),
-            )
-          }
-        >
-          {t("angebot.ablehnen")}
-        </button>
-      </div>
-      <Rueckmeldung meldung={antwort} />
-    </li>
+      >
+        {t("angebot.bauzeit_wert", { tage: a.build_days })}
+        <small className="block gedaempft">{formatDatum(a.ready)}</small>
+      </td>
+      <td {...zelle(t("angebot.ausstoss"), farbe(a.factors.output, true))}>
+        {abweichung(a.factors.output)}
+      </td>
+      <td {...zelle(t("angebot.arbeit"), farbe(a.factors.labor, false))}>
+        {abweichung(a.factors.labor)}
+      </td>
+      <td {...zelle(t("angebot.vorprodukte"), farbe(a.factors.inputs, false))}>
+        {abweichung(a.factors.inputs)}
+      </td>
+      <td {...zelle(t("angebot.ausschuss"), farbe(a.factors.scrap, false))}>
+        {abweichung(a.factors.scrap)}
+      </td>
+      <td {...zelle(t("angebot.flaeche"), farbe(a.factors.area, false))}>
+        {qm(a.area_unit_m2)} <small>({abweichung(a.factors.area)})</small>
+        {ausschreibung.count > 1 && (
+          <small className="block gedaempft">
+            {t("angebot.flaeche_gesamt", { gesamt: qm(a.area_total_m2) })}
+          </small>
+        )}
+      </td>
+      {hatFlaeche && (
+        <td {...zelle(t("angebot.frei"), passt ? "" : "negativ")}>
+          {a.free_before_m2 !== null && a.free_after_m2 !== null
+            ? t("angebot.frei_wert", {
+                vorher: qm(Math.max(a.free_before_m2, 0)),
+                nachher: passt ? qm(a.free_after_m2) : t("angebot.zu_klein"),
+              })
+            : "–"}
+        </td>
+      )}
+      <td {...zelle(t("angebot.stueckkosten"), farbe(kosten, false))}>
+        {formatPreis(a.unit_cost_usd, einheit)} <small>({abweichung(kosten)})</small>
+        <details className="material">
+          <summary>
+            {t("angebot.material", { betrag: formatPreis(a.material_usd, einheit) })}
+          </summary>
+          <ul>
+            {a.materials.map((m) => (
+              <li key={m.product}>
+                {t("angebot.material_zeile", {
+                  produkt: produktName(m.product),
+                  menge: formatZahl(m.quantity, 3),
+                  preis: formatGeld(m.price_usd),
+                })}
+              </li>
+            ))}
+          </ul>
+          <p className="erklaerung">{t("angebot.material_hinweis")}</p>
+        </details>
+      </td>
+      <td data-spalte={t("angebot.gueltig")}>{formatDatum(a.valid_until)}</td>
+      <td data-spalte={t("angebot.aktion")}>
+        <div className="knopfreihe links">
+          <button
+            type="button"
+            className="haupt"
+            disabled={!passt}
+            onClick={() =>
+              void los(
+                [{ AcceptMachineOffer: { tender: ausschreibung.id, offer: a.id } }],
+                t("angebot.angenommen", { bauzeit: a.build_days }),
+              )
+            }
+          >
+            {t("angebot.annehmen")}
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              void los(
+                [{ DeclineMachineOffer: { tender: ausschreibung.id, offer: a.id } }],
+                t("angebot.abgelehnt"),
+              )
+            }
+          >
+            {t("angebot.ablehnen")}
+          </button>
+        </div>
+        <Rueckmeldung meldung={antwort} />
+      </td>
+    </tr>
   );
 }
 
@@ -190,6 +160,7 @@ function Ausschreibung({ a, produktion }: { a: MaschinenAusschreibung; produktio
         })
       : t("ausschreibung.umbauen", { produkt: produktName(a.product) });
   const laeuft = a.day <= a.days;
+  const hatFlaeche = a.offers.some((o) => o.free_before_m2 !== null && o.free_after_m2 !== null);
   return (
     <section className="karte ausschreibung" aria-labelledby={id}>
       <h3 id={id}>{titel}</h3>
@@ -201,11 +172,39 @@ function Ausschreibung({ a, produktion }: { a: MaschinenAusschreibung; produktio
         {t("ausschreibung.angebote", { anzahl: a.offers.length })}
       </p>
       {a.offers.length === 0 && <p className="gedaempft">{t("ausschreibung.noch_keine")}</p>}
-      <ul className="angebote">
-        {a.offers.map((o) => (
-          <Angebot key={o.id} a={o} ausschreibung={a} produktion={produktion} />
-        ))}
-      </ul>
+      {a.offers.length > 0 && (
+        <div className="tabelle">
+          <table className="mobil-karten angebote" aria-label={titel}>
+            <thead>
+              <tr>
+                <th>{t("angebot.hersteller")}</th>
+                <th className="zahl">{t("angebot.k_preis")}</th>
+                <th className="zahl">{t("angebot.k_bauzeit")}</th>
+                <th className="zahl">{t("angebot.k_ausstoss")}</th>
+                <th className="zahl">{t("angebot.k_arbeit")}</th>
+                <th className="zahl">{t("angebot.k_material")}</th>
+                <th className="zahl">{t("angebot.k_ausschuss")}</th>
+                <th className="zahl">{t("angebot.k_flaeche")}</th>
+                {hatFlaeche && <th className="zahl">{t("angebot.k_frei")}</th>}
+                <th className="zahl">{t("angebot.k_stueckkosten")}</th>
+                <th>{t("angebot.k_gueltig")}</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {a.offers.map((o) => (
+                <Angebot
+                  key={o.id}
+                  a={o}
+                  ausschreibung={a}
+                  produktion={produktion}
+                  hatFlaeche={hatFlaeche}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="knopfreihe links">
         <button
           type="button"
