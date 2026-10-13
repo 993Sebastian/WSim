@@ -117800,6 +117800,7 @@
         ]
       }
     ],
+    "machine_tenders_enabled": true,
     "products": [
       "eisenerz",
       "kohle",
@@ -136114,6 +136115,7 @@
         "workers": 1.3290850917777925
       }
     ],
+    "tenders": [],
     "units": {
       "abgaskatalysator": "stueck",
       "akkuschrauber": "stueck",

@@ -34,3 +34,23 @@ describe("laufendeDauern", () => {
     expect(laufendeDauern(s, "1907-07-18")).toEqual([]);
   });
 });
+
+describe("laufendeDauern mit Ausschreibung (MAA)", () => {
+  it("zeigt Tag X von 28 und offene Angebote", () => {
+    const s = { index: 2, deposit_ready: null, slots: [] } as unknown as StandortDetail;
+    const lauf = {
+      site: 2,
+      kind: "bauen",
+      product: "stahl",
+      count: 2,
+      day: 5,
+      days: 28,
+      ends: "1907-08-10",
+      offers: [],
+    } as never;
+    const fertig = { ...(lauf as object), day: 29, offers: [{}, {}] } as never;
+    expect(laufendeDauern(s, "1907-07-18", [lauf])[0]).toContain("Tag 5 von 28, bis 10.08.1907");
+    expect(laufendeDauern(s, "1907-07-18", [fertig])[0]).toContain("2 Angebot(e) warten");
+    expect(laufendeDauern({ ...s, index: 3 } as StandortDetail, "1907-07-18", [lauf])).toEqual([]);
+  });
+});

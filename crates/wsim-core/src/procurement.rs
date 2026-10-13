@@ -649,3 +649,47 @@ pub fn offer_costs(
         catalog_unit_cost_usd: at_catalog,
     })
 }
+
+/// Land an offer takes (MAA §8), in ha.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct OfferArea {
+    /// One unit with the offer's land factor, and all units of the tender.
+    pub unit_ha: f64,
+    pub total_ha: f64,
+    /// Free land of the plot before and after the offer is built; `None` without a plot.
+    pub free_before_ha: Option<f64>,
+    pub free_after_ha: Option<f64>,
+}
+
+pub fn offer_area(
+    state: &GameState,
+    catalog: &Catalog,
+    tender: &MachineTender,
+    offer: &MachineOffer,
+) -> Option<OfferArea> {
+    let site = state.site(tender.site)?;
+    let b = base(state, catalog, tender.site, tender.kind).ok()?;
+    let unit = crate::plots::unit_area(catalog, b.facility, b.size) * offer.factors.area;
+    let plot = site.plot.map(|p| state.plots[p.index()].area_ha);
+    let after = match tender.kind {
+        TenderKind::Build { .. } => crate::plots::site_area_with(
+            catalog,
+            site,
+            Some((b.facility, b.size, b.count)),
+            offer.factors.area,
+        ),
+        TenderKind::Switch { slot, .. } => {
+            let (probe, _) = probe_slot(state, catalog, tender, Some(offer.factors), offer.price)?;
+            let mut changed = site.clone();
+            *changed.slots.get_mut(slot)? = probe;
+            crate::plots::site_area(catalog, &changed, None)
+        }
+    };
+    let before = crate::plots::site_area(catalog, site, None);
+    Some(OfferArea {
+        unit_ha: unit,
+        total_ha: unit * f64::from(b.count),
+        free_before_ha: plot.map(|a| a - before),
+        free_after_ha: plot.map(|a| a - after),
+    })
+}

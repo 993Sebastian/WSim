@@ -435,6 +435,9 @@ werk.dauer.im_bau: "{anlage}: im Bau bis {datum} – noch {tage} Tage"
 werk.dauer.ueberholung: "{anlage}: Überholung bis {datum} – noch {tage} Tage"
 werk.dauer.stoerung: "{anlage}: Stillstand durch Störung bis {datum} – noch {tage} Tage"
 werk.dauer.wiederanlauf: "{anlage}: Wiederanlauf bis {datum} – noch {tage} Tage"
+werk.dauer.ausschreibung: "Ausschreibung {was}: Tag {tag} von {tage}, bis {ende}"
+werk.dauer.angebote_offen: "Ausschreibung {was}: {anzahl} Angebot(e) warten auf Entscheidung"
+werk.dauer.umbau_auf: "Umbau auf {produkt}"
 werk.dauer.lagerstaette: "Lagerstätte wird erschlossen bis {datum} – noch {tage} Tage"
 werk.gruenden_hinweis: Ein Werk verarbeitet Vorprodukte, eine Förderstätte baut Rohstoffe ab, ein Kraftwerk erzeugt Strom; im Forschungszentrum entstehen neue Verfahren. Danach baust du im neuen Standort seine Anlagen.
 werk.gegruendet: "{art} in {land} gegründet. Öffne ihn, um Anlagen zu bauen."
@@ -2590,3 +2593,40 @@ werk.niederlassungen_haken: "Eigene Niederlassungen zu Selbstkosten beliefern ({
 werk.niederlassungen_hilfe: "Die Niederlassungen beziehen das Produkt nach Bedarf von hier, zum Lagerwert (Herstellkosten) statt zum Marktpreis; Fracht und Zoll kommen hinzu. Betrifft: {liste}."
 werk.niederlassungen_an: "Die Niederlassungen beziehen {produkt} jetzt zu Selbstkosten von hier."
 werk.niederlassungen_aus: "Die Niederlassungen beziehen {produkt} nicht mehr von hier."
+
+# Maschinenangebote (MAA)
+ausschreibung.bauen: "Ausschreibung: {anzahl} × {produkt} ({groesse})"
+ausschreibung.umbauen: "Ausschreibung Umbau auf {produkt}"
+ausschreibung.laeuft: "Ausschreibung läuft – Tag {tag} von {tage}, bis {ende}"
+ausschreibung.beendet: Ausschreibung beendet, die Angebote gelten noch bis zu ihrem Ablauf
+ausschreibung.angebote: "{anzahl} Angebot(e)"
+ausschreibung.noch_keine: Noch kein Angebot eingegangen. Maschinenbauer melden sich im Laufe der Ausschreibung.
+ausschreibung.abbrechen: Ausschreibung abbrechen
+ausschreibung.abgebrochen: Ausschreibung beendet.
+angebot.preis: Preis (gegenüber Katalog)
+angebot.bauzeit: Bauzeit
+angebot.bauzeit_wert: "{tage} Tage, fertig am {datum}"
+angebot.ausstoss: Ausstoß
+angebot.arbeit: Arbeitskräfte
+angebot.vorprodukte: Vorprodukte
+angebot.ausschuss: Ausschuss
+angebot.flaeche: Platzbedarf
+angebot.flaeche_wert: "{je} je Anlage, {gesamt} insgesamt"
+angebot.frei: Freie Fläche des Werks
+angebot.frei_wert: "vorher {vorher}, danach {nachher}"
+angebot.zu_klein: reicht nicht
+angebot.stueckkosten: Stückkosten gesamt
+angebot.material: "Materialkosten je Stück: {betrag}"
+angebot.material_zeile: "{produkt}: {menge} × {preis}"
+angebot.material_hinweis: Marktpreise des Tages, an dem das Angebot einging; sie bleiben für das Angebot fest.
+angebot.gueltig_bis: "Gültig bis {datum}"
+angebot.annehmen: Annehmen
+angebot.ablehnen: Ablehnen
+angebot.angenommen: "Angebot angenommen, Bauzeit {bauzeit} Tage."
+angebot.abgelehnt: Angebot abgelehnt.
+werk.angebote_einholen: Angebote einholen
+werk.umbau_anfragen: Umbau anfragen
+werk.angebote_hinweis: Maschinenbauer schicken über 28 Tage Angebote. Sie unterscheiden sich in Leistung, Preis und Bauzeit.
+werk.platzbedarf: "Platzbedarf je Anlage: {je}; freie Fläche des Werks: {frei}"
+werk.angebote_angefragt: Ausschreibung gestartet. Die ersten Angebote kommen in den nächsten Tagen.
+werk.umbau_angefragt: Ausschreibung für den Umbau gestartet.

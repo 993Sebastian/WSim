@@ -807,6 +807,10 @@ export interface Produktion {
   products: string[];
   /** Unit key of each product (einheit.<key>). */
   units: Record<string, string>;
+  /** The player's running machine tenders (MAA). */
+  tenders?: MaschinenAusschreibung[];
+  /** Facilities are asked for in tenders instead of bought directly. */
+  machine_tenders_enabled?: boolean;
 }
 
 export interface Markt {
@@ -2887,4 +2891,41 @@ export interface Verlegeziel {
   country: string;
   company: string;
   same_company: boolean;
+}
+
+export interface MaschinenAngebot {
+  id: number;
+  builder: string;
+  builder_country: string;
+  received: string;
+  valid_until: string;
+  price_usd: number;
+  catalog_price_usd: number;
+  build_days: number;
+  catalog_build_days: number;
+  ready: string;
+  factors: { output: number; labor: number; inputs: number; scrap: number; area: number };
+  area_unit_m2: number;
+  area_total_m2: number;
+  free_before_m2: number | null;
+  free_after_m2: number | null;
+  materials: { product: string; quantity: number; price_usd: number }[];
+  material_usd: number;
+  unit_cost_usd: number;
+  catalog_unit_cost_usd: number;
+}
+
+export interface MaschinenAusschreibung {
+  id: number;
+  site: number;
+  kind: "bauen" | "umbauen";
+  product: string;
+  size: string;
+  count: number;
+  slot: number | null;
+  start: string;
+  day: number;
+  days: number;
+  ends: string;
+  offers: MaschinenAngebot[];
 }

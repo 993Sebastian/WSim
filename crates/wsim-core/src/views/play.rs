@@ -686,6 +686,166 @@ pub struct ProductionView {
     pub products: Vec<String>,
     /// Unit of each product (key of `einheit.<key>`).
     pub units: BTreeMap<String, String>,
+    /// The player's running machine tenders with their offers (MAA).
+    #[serde(default)]
+    pub tenders: Vec<MachineTenderView>,
+    /// Facilities are asked for in tenders instead of bought directly (MAA).
+    #[serde(default)]
+    pub machine_tenders_enabled: bool,
+}
+
+/// A tender for machines: a build or a changeover, with the offers received so far.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MachineTenderView {
+    pub id: u32,
+    pub site: u32,
+    /// `bauen` or `umbauen`.
+    pub kind: String,
+    pub product: String,
+    /// Key of the size (`anlagengroesse.<key>`) and the number of units.
+    pub size: String,
+    pub count: u32,
+    /// The unit changed over, for a changeover.
+    pub slot: Option<usize>,
+    pub start: String,
+    /// Day of the tender today, the days it runs, and its last day.
+    pub day: i32,
+    pub days: u32,
+    pub ends: String,
+    pub offers: Vec<MachineOfferView>,
+}
+
+/// What an offer would make of one facility, as factors on the catalog values.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MachineFactorsView {
+    pub output: f64,
+    pub labor: f64,
+    pub inputs: f64,
+    pub scrap: f64,
+    pub area: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MaterialLineView {
+    pub product: String,
+    pub quantity: f64,
+    pub price_usd: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MachineOfferView {
+    pub id: u32,
+    /// Key of the builder (`maschinenbauer.<key>`) and of its country.
+    pub builder: String,
+    pub builder_country: String,
+    pub received: String,
+    pub valid_until: String,
+    pub price_usd: f64,
+    /// What the same units cost at the catalog.
+    pub catalog_price_usd: f64,
+    pub build_days: u32,
+    /// Build time at the catalog, for the comparison.
+    pub catalog_build_days: u32,
+    /// Day the units are ready when the offer is taken today.
+    pub ready: String,
+    pub factors: MachineFactorsView,
+    /// Land of one unit and of all, and the free land of the plot before and after (m²).
+    pub area_unit_m2: f64,
+    pub area_total_m2: f64,
+    pub free_before_m2: Option<f64>,
+    pub free_after_m2: Option<f64>,
+    /// Material at the market prices of the day the offer came in, per unit made.
+    pub materials: Vec<MaterialLineView>,
+    pub material_usd: f64,
+    /// All costs per unit made with the offer, and with the facility at the catalog.
+    pub unit_cost_usd: f64,
+    pub catalog_unit_cost_usd: f64,
+}
+
+fn machine_tenders(game: &Game) -> Vec<MachineTenderView> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let player = game.player();
+    let model = &catalog.machine_offers;
+    state
+        .machine_tenders
+        .iter()
+        .filter(|t| t.company == player)
+        .filter_map(|t| {
+            let base = crate::procurement::base(state, catalog, t.site, t.kind).ok()?;
+            let (kind, product, slot) = match t.kind {
+                crate::procurement::TenderKind::Build { product, .. } => ("bauen", product, None),
+                crate::procurement::TenderKind::Switch { slot, product } => {
+                    ("umbauen", product, Some(slot))
+                }
+            };
+            let m2 = |ha: f64| ha * 10_000.0;
+            let offers = t
+                .offers
+                .iter()
+                .filter_map(|o| {
+                    let costs = crate::procurement::offer_costs(state, catalog, t, o)?;
+                    let area = crate::procurement::offer_area(state, catalog, t, o)?;
+                    Some(MachineOfferView {
+                        id: o.id,
+                        builder: catalog.machine_builders.key(o.builder).to_owned(),
+                        builder_country: catalog
+                            .countries
+                            .key(catalog.machine_builders.get(o.builder).country)
+                            .to_owned(),
+                        received: iso(o.received),
+                        valid_until: iso(o.valid_until),
+                        price_usd: usd(o.price),
+                        catalog_price_usd: usd(base.price()),
+                        build_days: o.build_days,
+                        catalog_build_days: base.days,
+                        ready: iso(state
+                            .date
+                            .add_days(i32::try_from(o.build_days).unwrap_or(0))),
+                        factors: MachineFactorsView {
+                            output: o.factors.output,
+                            labor: o.factors.labor,
+                            inputs: o.factors.inputs,
+                            scrap: o.factors.scrap,
+                            area: o.factors.area,
+                        },
+                        area_unit_m2: m2(area.unit_ha),
+                        area_total_m2: m2(area.total_ha),
+                        free_before_m2: area.free_before_ha.map(m2),
+                        free_after_m2: area.free_after_ha.map(m2),
+                        materials: costs
+                            .materials
+                            .iter()
+                            .map(|l| MaterialLineView {
+                                product: catalog.products.key(l.product).to_owned(),
+                                quantity: l.quantity,
+                                price_usd: l.price_usd,
+                            })
+                            .collect(),
+                        material_usd: costs.material_usd,
+                        unit_cost_usd: costs.unit_cost_usd,
+                        catalog_unit_cost_usd: costs.catalog_unit_cost_usd,
+                    })
+                })
+                .collect();
+            Some(MachineTenderView {
+                id: t.id,
+                site: t.site.0,
+                kind: kind.to_owned(),
+                product: catalog.products.key(product).to_owned(),
+                size: base.size.key().to_owned(),
+                count: base.count,
+                slot,
+                start: iso(t.start),
+                day: t.day(state.date),
+                days: model.tender_days,
+                ends: iso(t
+                    .start
+                    .add_days(i32::try_from(model.tender_days).unwrap_or(0) - 1)),
+                offers,
+            })
+        })
+        .collect()
 }
 
 pub fn production(game: &Game) -> ProductionView {
@@ -1269,6 +1429,8 @@ pub fn production(game: &Game) -> ProductionView {
             .map(|(p, _)| catalog.products.key(p).to_owned())
             .collect(),
         units: units(catalog),
+        tenders: machine_tenders(game),
+        machine_tenders_enabled: catalog.machine_offers.enabled,
     }
 }
 

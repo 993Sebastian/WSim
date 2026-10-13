@@ -2,7 +2,14 @@
 // month's result, staff, bottlenecks – and the plant view behind it.
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatDatum, formatGeld, landName } from "../format";
-import type { Befehl, Kern, Produktion, StandortDetail, Uebersicht } from "../kern";
+import type {
+  Befehl,
+  Kern,
+  MaschinenAusschreibung,
+  Produktion,
+  StandortDetail,
+  Uebersicht,
+} from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Befehle, Rueckmeldung, useAktion, useBefehl, useSicht } from "./gemeinsam";
@@ -70,6 +77,7 @@ export function ProduktionAnsicht({
                             key={s.index}
                             s={s}
                             heute={uebersicht.date}
+                            ausschreibungen={daten.tenders ?? []}
                             onOeffnen={() => onWerk(s.index)}
                           />
                         ))}
@@ -134,7 +142,11 @@ function restTage(heute: string, bis: string): number {
 }
 
 /** What is still running on a site and until when: construction, overhaul, restart, deposit. */
-export function laufendeDauern(s: StandortDetail, heute: string): string[] {
+export function laufendeDauern(
+  s: StandortDetail,
+  heute: string,
+  ausschreibungen: MaschinenAusschreibung[] = [],
+): string[] {
   const zeile = (anlage: string | null, schluessel: string, bis: string) =>
     t(schluessel, {
       anlage: anlage ?? "",
@@ -158,6 +170,22 @@ export function laufendeDauern(s: StandortDetail, heute: string): string[] {
       zeilen.push(zeile(name, "werk.dauer.wiederanlauf", a.operation_date));
     }
   }
+  for (const x of ausschreibungen.filter((x) => x.site === s.index)) {
+    const was =
+      x.kind === "bauen"
+        ? `${x.count} × ${t(`produkt.${x.product}`)}`
+        : t("werk.dauer.umbau_auf", { produkt: t(`produkt.${x.product}`) });
+    zeilen.push(
+      x.day <= x.days
+        ? t("werk.dauer.ausschreibung", {
+            was,
+            tag: x.day,
+            tage: x.days,
+            ende: formatDatum(x.ends),
+          })
+        : t("werk.dauer.angebote_offen", { was, anzahl: x.offers.length }),
+    );
+  }
   if (s.deposit_ready && s.deposit_ready > heute) {
     zeilen.push(zeile(null, "werk.dauer.lagerstaette", s.deposit_ready));
   }
@@ -167,17 +195,19 @@ export function laufendeDauern(s: StandortDetail, heute: string): string[] {
 function StandortKarte({
   s,
   heute,
+  ausschreibungen,
   onOeffnen,
 }: {
   s: StandortDetail;
   heute: string;
+  ausschreibungen: MaschinenAusschreibung[];
   onOeffnen: () => void;
 }) {
   const titel = standortTitel(s);
   const probleme = s.slots.filter((a) => a.cause && a.cause.key !== "ursache.im_bau");
   const imBau = s.slots.filter((a) => a.cause?.key === "ursache.im_bau").length;
   const produkte = [...new Set(s.slots.map((a) => a.product).filter((p): p is string => !!p))];
-  const dauern = laufendeDauern(s, heute);
+  const dauern = laufendeDauern(s, heute, ausschreibungen);
   const benoetigt = s.staff.reduce((summe, l) => summe + l.needed, 0);
   const m = s.last_month;
   return (

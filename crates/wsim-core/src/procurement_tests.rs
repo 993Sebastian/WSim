@@ -230,3 +230,28 @@ fn a_larger_purchase_gets_a_volume_discount() {
     assert!(d2 > 0.0 && d4 > d2);
     assert!((d4 - d2) < d2, "{d2} {d4}");
 }
+
+#[test]
+fn the_production_view_lists_tenders_with_costs_and_land() {
+    let mut g = game();
+    let site = factory(&mut g);
+    request(&mut g, site, 2).unwrap();
+    // Before any offer the tender shows its day and last day.
+    let early = crate::views::production(&g);
+    assert_eq!(early.tenders.len(), 1);
+    assert_eq!(early.tenders[0].day, 1);
+    assert_eq!(early.tenders[0].days, 28);
+    assert_eq!(early.tenders[0].count, 2);
+    assert!(early.tenders[0].offers.is_empty());
+    days(&mut g, 28);
+    let view = crate::views::production(&g);
+    let tender = &view.tenders[0];
+    assert!(!tender.offers.is_empty());
+    for o in &tender.offers {
+        assert!(o.price_usd > 0.0 && o.catalog_price_usd > 0.0);
+        assert!(o.build_days > 0 && o.ready > view.date);
+        assert!(o.area_total_m2 > 0.0, "land of the units is shown");
+        assert!(o.unit_cost_usd >= o.material_usd && o.material_usd >= 0.0);
+        assert!(o.catalog_unit_cost_usd > 0.0);
+    }
+}

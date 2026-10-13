@@ -40,6 +40,11 @@ export type Befehl =
   | { BuildFacility: { site: number; facility: string; count: number; size?: string } }
   | { BuildForProduct: { site: number; product: string; count: number; size?: string } }
   | { SwitchProduct: { site: number; slot: number; product: string } }
+  | { RequestMachineOffers: { site: number; product: string; count: number; size?: string } }
+  | { RequestSwitchOffers: { site: number; slot: number; product: string } }
+  | { AcceptMachineOffer: { tender: number; offer: number } }
+  | { DeclineMachineOffer: { tender: number; offer: number } }
+  | { CancelMachineTender: { tender: number } }
   | { DevelopDeposit: { site: number; deposit: string } }
   | { SetProduction: { site: number; slot: number; recipe: string | null; utilization: number } }
   | { SetAutomation: { site: number; slot: number; level: number } }

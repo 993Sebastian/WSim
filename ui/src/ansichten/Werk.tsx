@@ -52,6 +52,7 @@ import {
 import { fehlerText } from "./fehler";
 import { Verlauf } from "./Grafik";
 import { ForschungImWerk } from "./Forschung";
+import { MaschinenAusschreibungen } from "./Maschinenangebote";
 import { fortgeschrieben } from "./Markt";
 import { standortName } from "./stellen";
 
@@ -986,7 +987,12 @@ function GrundstueckKarte({
 /** Under mandatory research a works buys products (FW1); otherwise facilities. */
 function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
   if ((s.buy_products ?? []).length > 0) {
-    return <ProduktBauen s={s} produktion={produktion} />;
+    return (
+      <>
+        <ProduktBauen s={s} produktion={produktion} />
+        <MaschinenAusschreibungen site={s.index} produktion={produktion} />
+      </>
+    );
   }
   return <AnlageNachBauen s={s} produktion={produktion} />;
 }
@@ -3417,6 +3423,7 @@ function ProduktBauen({ s, produktion }: { s: StandortDetail; produktion: Produk
   const sizes = f?.sizes ?? [];
   const g = sizes.find((x) => x.size === groesse) ?? sizes[0];
   const zahl = Math.floor(zahlLesen(anzahl) ?? 0);
+  const ausschreibung = produktion.machine_tenders_enabled === true;
   return (
     <form
       className="karte bauen"
@@ -3424,6 +3431,22 @@ function ProduktBauen({ s, produktion }: { s: StandortDetail; produktion: Produk
       onSubmit={(e) => {
         e.preventDefault();
         if (zahl < 1 || !g) return;
+        if (ausschreibung) {
+          void los(
+            [
+              {
+                RequestMachineOffers: {
+                  site: s.index,
+                  product: produkt,
+                  count: zahl,
+                  size: g.size,
+                },
+              },
+            ],
+            t("werk.angebote_angefragt"),
+          );
+          return;
+        }
         void los(
           [{ BuildForProduct: { site: s.index, product: produkt, count: zahl, size: g.size } }],
           t("werk.bau_begonnen", { anlage: t(`anlage.${f?.key ?? ""}`), tage: g.build_days }),
@@ -3468,8 +3491,19 @@ function ProduktBauen({ s, produktion }: { s: StandortDetail; produktion: Produk
         <ZahlFeld name={t("produktion.anzahl")} ganzzahlig wert={anzahl} onWert={setAnzahl} />
       </div>
       <p className="erklaerung">{t("werk.groesse_hinweis")}</p>
+      {g && g.area_ha > 0 && (
+        <p className="erklaerung">
+          {t("werk.platzbedarf", {
+            je: `${formatZahl(g.area_ha * 10_000, 0)} m²`,
+            frei: s.plot
+              ? `${formatZahl(Math.max(s.plot.area_ha - s.plot.used_ha, 0) * 10_000, 0)} m²`
+              : "–",
+          })}
+        </p>
+      )}
+      {ausschreibung && <p className="erklaerung">{t("werk.angebote_hinweis")}</p>}
       <button type="submit" disabled={zahl < 1 || !g}>
-        {t("produktion.bauen_knopf")}
+        {ausschreibung ? t("werk.angebote_einholen") : t("produktion.bauen_knopf")}
       </button>
       <Rueckmeldung meldung={antwort} />
     </form>
@@ -3501,6 +3535,13 @@ function UmstellenKarte({
       onSubmit={(e) => {
         e.preventDefault();
         if (!produkt) return;
+        if (produktion.machine_tenders_enabled) {
+          void los(
+            [{ RequestSwitchOffers: { site: s.index, slot: a.index, product: produkt } }],
+            t("werk.umbau_angefragt"),
+          );
+          return;
+        }
         void los(
           [{ SwitchProduct: { site: s.index, slot: a.index, product: produkt } }],
           t("werk.umgestellt_meldung", { produkt: produktName(produkt) }),
@@ -3518,7 +3559,9 @@ function UmstellenKarte({
             onWahl={setProdukt}
           />
         </div>
-        <button type="submit">{t("werk.umstellen")}</button>
+        <button type="submit">
+          {produktion.machine_tenders_enabled ? t("werk.umbau_anfragen") : t("werk.umstellen")}
+        </button>
       </div>
       <p className="erklaerung">{t("werk.umstellen_hinweis")}</p>
       <Rueckmeldung meldung={antwort} />
