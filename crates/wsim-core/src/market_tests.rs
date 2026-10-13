@@ -1610,3 +1610,44 @@ fn the_generator_creates_a_wave_from_its_year_with_its_chance() {
         game.state().generated_trends
     );
 }
+
+/// MN5: The market view names the factors of the choice of seller, the used market of a
+/// durable and the open lot of the government with the sites that can bid.
+#[test]
+fn the_product_market_view_shows_reputation_used_market_and_the_open_lot() {
+    let mut catalog = test_support::production();
+    catalog.market_model.obsolescence_points = 5.0;
+    catalog.market_model.used = crate::catalog::UsedModel {
+        enabled: true,
+        pass_on: 0.6,
+        life_share: 0.5,
+        first_share: 0.5,
+    };
+    let rad = catalog.products.id("rad").unwrap();
+    catalog.products.get_mut(rad).used_market = true;
+    let mut game = game_with(catalog);
+    let player = game.player();
+    let site = warehouse(&mut game, player, "rad", 1e6, 50.0);
+    sell(&mut game, site, "rad", PriceMode::Fixed(usd(60.0)));
+    let country = aaa(&game);
+    let today = game.state().date;
+    game.state_mut().tenders.push(crate::tenders::Tender {
+        id: 5,
+        country,
+        product: rad,
+        per_day: 20.0,
+        opened: today,
+        deadline: today.add_days(30),
+        bids: Vec::new(),
+        closed: false,
+        winner: None,
+    });
+    let v = crate::views::product_market(&game, "AAA", "rad").unwrap();
+    assert!(v.choice_factors.iter().any(|f| f == "veralterung"));
+    assert!(v.choice_factors.iter().any(|f| f == "preis"));
+    assert!(v.used.is_some());
+    let lot = v.tender.expect("the open lot");
+    assert_eq!((lot.id, lot.bids), (5, 0));
+    assert_eq!(lot.sites.len(), 1, "the warehouse offers the product");
+    assert!((0.0..=1.0).contains(&v.own_reputation));
+}

@@ -886,6 +886,43 @@ markt.einfuhr: Einfuhr durch Händler
 markt.ausfuhr: Ausfuhr durch Händler
 markt.staatsmarkt: Staatlicher Markt
 markt.deine_bekanntheit: Deine Bekanntheit
+markt.ruf: Dein Ruf
+markt.ruf_hilfe: Der Ruf steigt mit Qualität über dem Marktdurchschnitt und sinkt durch Unfälle und Rückrufe; er wirkt in der Anbieterwahl wie die Marke.
+markt.ruf.gut: gut
+markt.ruf.mittel: mittel
+markt.ruf.schlecht: schlecht
+markt.vertrieb: Deine Vertriebswege
+markt.vertrieb_hilfe: Welche Haushalte deine Ware erreichen. Ohne eigene Wege erreichst du nur den allgemeinen Handel.
+markt.vertrieb_allgemein: allgemeiner Handel
+markt.reichweite: "Reichweite {anteil}"
+markt.gebraucht: Gebrauchtmarkt
+markt.gebraucht_hilfe: Gebrauchte Geräte, die obere Einkommensgruppen weitergeben und die ärmere Gruppen statt neuer kaufen. Sie bringen den Firmen keinen Umsatz.
+markt.gebraucht_wert: "Bestand {bestand}, im Monat genutzt {genutzt}"
+markt.anbieterwahl: So wählen die Käufer ihren Anbieter
+markt.anbieterwahl_einleitung: Jede Einkommensgruppe wägt die folgenden Punkte unterschiedlich stark ab; wer mehr Anziehung hat, bekommt mehr Käufer.
+erklaerung.faktor.preis: Preis
+erklaerung.faktor.preis.text: Der Preis im Verhältnis zum üblichen Preis im Land; ärmere Gruppen achten stärker darauf.
+erklaerung.faktor.qualitaet: Qualität
+erklaerung.faktor.qualitaet.text: Die Qualität der Ware; wohlhabendere Gruppen achten stärker darauf.
+erklaerung.faktor.marke: Marke
+erklaerung.faktor.marke.text: Die Bekanntheit der Firma in der Warengruppe; sie wächst mit Werbung und Absatz.
+erklaerung.faktor.praesenz: Präsenz
+erklaerung.faktor.praesenz.text: Wie viel Ware die Firma vor Ort bereithält (Erzeugung und Lager) im Vergleich zu den anderen.
+erklaerung.faktor.ruf: Ruf
+erklaerung.faktor.ruf.text: Der Ruf der Firma im Land; Rückrufe und Unfälle senken ihn.
+erklaerung.faktor.vertrieb: Vertriebswege
+erklaerung.faktor.vertrieb.text: Wie viele Haushalte der einzelnen Einkommensgruppen die Firma über ihre Verkaufswege erreicht.
+erklaerung.faktor.veralterung: Veralterung
+erklaerung.faktor.veralterung.text: Bei Gebrauchsgütern verliert ein Angebot Qualitätspunkte für jede Entwicklungsstufe, die der Führer im Land voraus ist.
+markt.ausschreibung_titel: Ausschreibung des Staates
+markt.ausschreibung_text: "Der Staat sucht {menge} je Tag. Gebote bis {frist}; bisher {gebote} Gebote. Den Zuschlag erhält das beste Angebot aus Preis, Qualität, Ruf und Heimatbonus."
+markt.ausschreibung_kein_standort: Du hast hier keinen Standort, der das Produkt anbietet. Biete es zuerst im Verkauf eines Werks an.
+markt.ausschreibung_standort: Liefern ab
+markt.ausschreibung_preis: "Gebot je {einheit}"
+markt.ausschreibung_geboten: "Gebot abgegeben: {preis}."
+markt.ausschreibung_dein_gebot: "Dein Gebot: {preis}. Ein neues Gebot ersetzt das alte."
+markt.bieten: Bieten
+markt.gebot_aendern: Gebot ändern
 markt.nachfrage_titel: Wer kauft?
 markt.foerderlage: Förderlage weltweit
 markt.foerderlage_hilfe: Ernten, Streiks und Funde verschieben die mögliche Förderung dieses Rohstoffs von Monat zu Monat. Weniger Förderung treibt den Preis und über die Kosten auch die Preise der Erzeugnisse daraus; Lieferverträge sichern dagegen ab.

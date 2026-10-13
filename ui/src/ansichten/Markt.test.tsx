@@ -140,3 +140,75 @@ describe("Produktnamen", () => {
     expect(await screen.findByRole("table", { name: "Anbieter im Vormonat" })).toBeTruthy();
   });
 });
+
+describe("Ruf, Vertrieb, Gebrauchtmarkt und Ausschreibung (MN5)", () => {
+  afterEach(cleanup);
+
+  it("zeigt Ruf, Vertriebswege, Gebrauchtmarkt und die Faktoren der Anbieterwahl und bietet auf ein Los", async () => {
+    const vorschau = vorschauKern(0);
+    const uebersicht = await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      produktmarkt: async (land, produkt) => {
+        const m = await vorschau.produktmarkt(land, produkt);
+        return {
+          ...m,
+          own_reputation: 0.7,
+          reputation_counts: true,
+          own_channels: ["kaufhaus"],
+          own_reach: 0.8,
+          used: { stock: 1200, taken_per_month: 300 },
+          choice_factors: ["preis", "qualitaet", "marke", "praesenz", "ruf", "vertrieb"],
+          tender: {
+            id: 7,
+            per_day: 40,
+            deadline: "1914-02-01",
+            bids: 2,
+            own_price_usd: null,
+            own_site: null,
+            sites: [{ site: 3, kind_text: "standort.fabrik", name: null }],
+          },
+        };
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return uebersicht;
+      },
+    };
+    render(<MarktAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={() => {}} />);
+    const tabelle = await screen.findByRole("table", { name: /Markt/ });
+    const moebel = within(tabelle)
+      .getAllByRole("button")
+      .find((b) => b.textContent === t("produkt.moebel"));
+    fireEvent.click(moebel as HTMLElement);
+    expect(await screen.findByText("Dein Ruf")).toBeTruthy();
+    expect(screen.getByText(/70 % \(gut\)/)).toBeTruthy();
+    expect(screen.getByText(/Kaufhaus · Reichweite 80 %/)).toBeTruthy();
+    expect(screen.getByText(/Bestand 1\.200 .*im Monat genutzt 300/)).toBeTruthy();
+    // The explanation names every factor.
+    const wie = screen.getByLabelText("Wie entsteht: So wählen die Käufer ihren Anbieter?");
+    wie.closest("details")?.setAttribute("open", "");
+    fireEvent(wie.closest("details") as Element, new Event("toggle"));
+    for (const f of ["Preis", "Qualität", "Marke", "Präsenz", "Ruf", "Vertriebswege"]) {
+      expect(screen.getAllByText(f).length).toBeGreaterThan(0);
+    }
+    // Bidding for the lot.
+    const los = screen.getByRole("region", { name: "Ausschreibung des Staates" });
+    expect(within(los).getByText(/bisher 2 Gebote/)).toBeTruthy();
+    fireEvent.change(within(los).getByLabelText(/Gebot je/), { target: { value: "50" } });
+    fireEvent.click(within(los).getByRole("button", { name: "Bieten" }));
+    await within(los).findByText(/Gebot abgegeben/);
+    expect(gesendet.at(-1)).toMatchObject({ BidTender: { tender: 7, site: 3 } });
+  });
+});

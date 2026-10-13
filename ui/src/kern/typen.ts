@@ -939,6 +939,30 @@ export interface ProduktMarkt {
   name_suggestions?: string[];
   /** Raw materials: swing of the world's output from the commodity cycle (0.1 = +10 %). */
   supply_cycle?: number | null;
+  /** The player's reputation here, 0–1; 0.5 is the middle (MN2). */
+  own_reputation?: number;
+  /** Whether the reputation counts in the choice of seller. */
+  reputation_counts?: boolean;
+  /** The player's sales channels for the goods group and their mean reach (MN3). */
+  own_channels?: string[];
+  own_reach?: number | null;
+  /** The used market of a durable (MN4). */
+  used?: { stock: number; taken_per_month: number } | null;
+  /** The open lot of the government with the player's bid (MN2). */
+  tender?: Ausschreibungslos | null;
+  /** What households weigh in choosing a seller (text `erklaerung.faktor.<key>`). */
+  choice_factors?: string[];
+}
+
+/** An open lot of a government (MN2). */
+export interface Ausschreibungslos {
+  id: number;
+  per_day: number;
+  deadline: string;
+  bids: number;
+  own_price_usd: number | null;
+  own_site: number | null;
+  sites: { site: number; kind_text: string; name: string | null }[];
 }
 
 /** One closed month of a market (M24). */

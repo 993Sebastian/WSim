@@ -1,8 +1,9 @@
 // Markets (docs/BEDIENUNG.md): which products sell where at what price, where a
 // newcomer has a chance, and who rules each market. A click opens one product market.
-import { useId, useState } from "react";
+import { Fragment, useId, useState } from "react";
 import {
   ausAnzeige,
+  formatDatum,
   formatGeld,
   formatPreis,
   formatProzent,
@@ -32,6 +33,7 @@ import {
   ZahlFeld,
 } from "./gemeinsam";
 import { LAENDER } from "./laender";
+import { standortName } from "./stellen";
 
 type Zeile = Markt["lines"][number];
 type Marke = Markt["brands"][number];
@@ -369,9 +371,10 @@ function ProduktmarktAnsicht({
   stand: string;
   onZurueck: () => void;
 }) {
+  const [zaehler, setZaehler] = useState(0);
   const { daten, fehler } = useSicht(
     () => kern.produktmarkt(land, produkt),
-    `${stand}/${land}/${produkt}`,
+    `${stand}/${land}/${produkt}/${zaehler}`,
   );
   const name = t(`produkt.${produkt}`);
   const titel = t("markt.produktmarkt_titel", { produkt: name, land: landName(land) });
@@ -383,7 +386,11 @@ function ProduktmarktAnsicht({
         </button>
         <h2>{titel}</h2>
       </div>
-      {!daten ? <FehlerText fehler={fehler} /> : <Produktmarkt m={daten} />}
+      {!daten ? (
+        <FehlerText fehler={fehler} />
+      ) : (
+        <Produktmarkt m={daten} onNeu={() => setZaehler((z) => z + 1)} />
+      )}
     </section>
   );
 }
@@ -575,7 +582,145 @@ function MarktVerlauf({ m, einheit }: { m: ProduktMarkt; einheit: string }) {
   );
 }
 
-function Produktmarkt({ m }: { m: ProduktMarkt }) {
+/** Reputation, sales channels and used market of the player here (MN5). */
+function RufVertrieb({ m }: { m: ProduktMarkt }) {
+  const e = m.unit;
+  const ruf = m.own_reputation ?? 0.5;
+  const wort = ruf >= 0.6 ? "gut" : ruf <= 0.4 ? "schlecht" : "mittel";
+  const kanaele = m.own_channels ?? [];
+  if (!m.reputation_counts && m.own_reach == null && !m.used) return null;
+  return (
+    <dl className="werte">
+      {m.reputation_counts && (
+        <>
+          <dt title={t("markt.ruf_hilfe")}>{t("markt.ruf")}</dt>
+          <dd>
+            {formatProzent(ruf)} ({t(`markt.ruf.${wort}`)})
+          </dd>
+        </>
+      )}
+      {m.own_reach != null && (
+        <>
+          <dt title={t("markt.vertrieb_hilfe")}>{t("markt.vertrieb")}</dt>
+          <dd>
+            {kanaele.length === 0
+              ? t("markt.vertrieb_allgemein")
+              : kanaele.map((k) => t(`vertriebsweg.${k}`)).join(", ")}{" "}
+            · {t("markt.reichweite", { anteil: formatProzent(m.own_reach) })}
+          </dd>
+        </>
+      )}
+      {m.used && (
+        <>
+          <dt title={t("markt.gebraucht_hilfe")}>{t("markt.gebraucht")}</dt>
+          <dd>
+            {t("markt.gebraucht_wert", {
+              bestand: `${formatZahl(m.used.stock, 0)} ${e}`,
+              genutzt: `${formatZahl(m.used.taken_per_month, 0)} ${e}`,
+            })}
+          </dd>
+        </>
+      )}
+    </dl>
+  );
+}
+
+/** How households choose a seller: every factor that counts here (MN5). */
+function Anbieterwahl({ m }: { m: ProduktMarkt }) {
+  const faktoren = m.choice_factors ?? [];
+  if (faktoren.length === 0) return null;
+  return (
+    <Erklaerung wert={t("markt.anbieterwahl")}>
+      <p>{t("markt.anbieterwahl_einleitung")}</p>
+      <dl className="werte">
+        {faktoren.map((f) => (
+          <Fragment key={f}>
+            <dt>{t(`erklaerung.faktor.${f}`)}</dt>
+            <dd>{t(`erklaerung.faktor.${f}.text`)}</dd>
+          </Fragment>
+        ))}
+      </dl>
+    </Erklaerung>
+  );
+}
+
+/** The open lot of the government: bid for it from one of the own sites (MN5). */
+function Ausschreibung({ m, onNeu }: { m: ProduktMarkt; onNeu: () => void }) {
+  const lot = m.tender;
+  const [standort, setStandort] = useState(lot?.own_site ?? lot?.sites[0]?.site ?? 0);
+  const [preis, setPreis] = useState(geldFeld(lot?.own_price_usd ?? m.price_usd));
+  const { los, antwort } = useAktion(`ausschreibung/${lot?.id ?? 0}`);
+  const id = useId();
+  if (!lot) return null;
+  const e = m.unit;
+  const gebot = zahlLesen(preis);
+  return (
+    <section className="karte" aria-label={t("markt.ausschreibung_titel")}>
+      <h3>{t("markt.ausschreibung_titel")}</h3>
+      <p>
+        {t("markt.ausschreibung_text", {
+          menge: `${formatZahl(lot.per_day, 0)} ${e}`,
+          frist: formatDatum(lot.deadline),
+          gebote: formatZahl(lot.bids, 0),
+        })}
+      </p>
+      {lot.sites.length === 0 ? (
+        <p className="feld-hilfe">{t("markt.ausschreibung_kein_standort")}</p>
+      ) : (
+        <div className="formular-zeile">
+          <div className="feld">
+            <label htmlFor={`${id}-standort`}>{t("markt.ausschreibung_standort")}</label>
+            <select
+              id={`${id}-standort`}
+              value={standort}
+              onChange={(ev) => setStandort(Number(ev.target.value))}
+            >
+              {lot.sites.map((s) => (
+                <option key={s.site} value={s.site}>
+                  {standortName(s.kind_text, m.country, s.name)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <ZahlFeld
+            name={t("markt.ausschreibung_preis", { einheit: e })}
+            einheit={geldEinheit()}
+            wert={preis}
+            onWert={setPreis}
+          />
+          <button
+            type="button"
+            disabled={gebot === null || gebot <= 0}
+            onClick={() =>
+              void los(
+                [
+                  {
+                    BidTender: {
+                      tender: lot.id,
+                      site: standort,
+                      price: geld(ausAnzeige(gebot ?? 0)),
+                    },
+                  },
+                ],
+                t("markt.ausschreibung_geboten", { preis: formatPreis(ausAnzeige(gebot ?? 0), e) }),
+              ).then((ok) => ok && onNeu())
+            }
+          >
+            {lot.own_price_usd === null ? t("markt.bieten") : t("markt.gebot_aendern")}
+          </button>
+        </div>
+      )}
+      {lot.own_price_usd !== null && (
+        <p className="feld-hilfe">
+          {t("markt.ausschreibung_dein_gebot", { preis: formatPreis(lot.own_price_usd, e) })}
+        </p>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+function Produktmarkt({ m, onNeu }: { m: ProduktMarkt; onNeu: () => void }) {
   const e = t(`einheit.${m.unit}`);
   const menge = (q: number) => `${formatZahl(q, q < 10 ? 1 : 0)} ${e}`;
   const verbraucher = m.consumers_per_month.reduce((s, q) => s + q, 0);
@@ -642,6 +787,8 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
       <MarktVerlauf m={m} einheit={e} />
 
       {m.nameable && <Produktname m={m} />}
+
+      <Ausschreibung m={m} onNeu={onNeu} />
 
       <section className="karte" aria-label={t("markt.anbieter_titel")}>
         <h3>{t("markt.anbieter_titel")}</h3>
@@ -731,6 +878,10 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
             {formatProzent(m.own_awareness)} ({t(`warengruppe.${m.group}`)})
           </dd>
         </dl>
+        <RufVertrieb m={m} />
+        <p className="feld-hilfe">
+          <Anbieterwahl m={m} />
+        </p>
       </section>
 
       <section className="karte" aria-label={t("markt.nachfrage_titel")}>

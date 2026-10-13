@@ -168104,6 +168104,14 @@
       "chances": [
         "wenige_anbieter"
       ],
+      "choice_factors": [
+        "preis",
+        "qualitaet",
+        "marke",
+        "praesenz",
+        "ruf",
+        "vertrieb"
+      ],
       "consumers_per_month": [
         0.0,
         0.0,
@@ -168167,7 +168175,10 @@
       "nameable": false,
       "outside_demand_last_month": 0.0,
       "own_awareness": 0.0,
+      "own_channels": [],
       "own_name": null,
+      "own_reach": 1.0,
+      "own_reputation": 0.49474430841405836,
       "price_last_month_usd": 1695.1242674628547,
       "price_parts": {
         "import_share": 0.0,
@@ -168186,6 +168197,7 @@
       "price_usd": 1694.7709,
       "product": "draht",
       "reference_usd": 1467.3687,
+      "reputation_counts": true,
       "sellers": [
         {
           "company": "Barker & Fletcher Corporation",
@@ -168217,11 +168229,22 @@
       "state_price_usd": null,
       "supply": null,
       "supply_cycle": null,
+      "tender": null,
       "unit": "t",
-      "unmet_last_month": 0.0
+      "unmet_last_month": 0.0,
+      "used": null
     },
     "moebel": {
       "chances": [],
+      "choice_factors": [
+        "preis",
+        "qualitaet",
+        "marke",
+        "praesenz",
+        "ruf",
+        "vertrieb",
+        "veralterung"
+      ],
       "consumers_per_month": [
         2496.8440326096434,
         3158.3274141903994,
@@ -168335,7 +168358,10 @@
       "nameable": true,
       "outside_demand_last_month": 34870.84554321378,
       "own_awareness": 0.0,
+      "own_channels": [],
       "own_name": null,
+      "own_reach": 1.0,
+      "own_reputation": 0.49474430841405836,
       "price_last_month_usd": 160.56929996656834,
       "price_parts": {
         "import_share": 0.0,
@@ -168354,6 +168380,7 @@
       "price_usd": 160.5785,
       "product": "moebel",
       "reference_usd": 183.1563,
+      "reputation_counts": true,
       "sellers": [
         {
           "company": "Hartmann & Hoffmann & Co.",
@@ -168373,12 +168400,25 @@
       "state_price_usd": null,
       "supply": 1.0000000000000002,
       "supply_cycle": null,
+      "tender": null,
       "unit": "stueck",
-      "unmet_last_month": 0.0
+      "unmet_last_month": 0.0,
+      "used": {
+        "stock": 100823.79877202975,
+        "taken_per_month": 430.4292937240121
+      }
     },
     "naegel": {
       "chances": [
         "wenige_anbieter"
+      ],
+      "choice_factors": [
+        "preis",
+        "qualitaet",
+        "marke",
+        "praesenz",
+        "ruf",
+        "vertrieb"
       ],
       "consumers_per_month": [
         95.58764994987895,
@@ -168489,7 +168529,10 @@
       "nameable": false,
       "outside_demand_last_month": 1052.8854034445162,
       "own_awareness": 0.0,
+      "own_channels": [],
       "own_name": null,
+      "own_reach": 1.0,
+      "own_reputation": 0.49474430841405836,
       "price_last_month_usd": 2034.1910879827144,
       "price_parts": {
         "import_share": 0.016269039025107235,
@@ -168508,6 +168551,7 @@
       "price_usd": 2032.3487,
       "product": "naegel",
       "reference_usd": 1760.8424,
+      "reputation_counts": true,
       "sellers": [
         {
           "company": "Pittsburgh Machine Works & Sons",
@@ -168539,8 +168583,10 @@
       "state_price_usd": null,
       "supply": 1.0,
       "supply_cycle": null,
+      "tender": null,
       "unit": "t",
-      "unmet_last_month": 0.0
+      "unmet_last_month": 0.0,
+      "used": null
     }
   },
   "ruecksprache": {

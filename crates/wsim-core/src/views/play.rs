@@ -1962,6 +1962,55 @@ pub struct ProductMarketView {
     /// Raw materials: the commodity cycle's swing of the world's output (0.1 = 10 % more).
     #[serde(default)]
     pub supply_cycle: Option<f64>,
+    /// The player's reputation here, 0–1 (MN2); 0.5 is the middle.
+    #[serde(default)]
+    pub own_reputation: f64,
+    /// Whether the reputation counts in the choice of seller.
+    #[serde(default)]
+    pub reputation_counts: bool,
+    /// The player's sales channels for the goods group here, and the mean reach (MN3).
+    #[serde(default)]
+    pub own_channels: Vec<String>,
+    #[serde(default)]
+    pub own_reach: Option<f64>,
+    /// The used market of a durable (MN4).
+    #[serde(default)]
+    pub used: Option<UsedMarketView>,
+    /// The open lot of the government for the product, with the player's bid (MN2).
+    #[serde(default)]
+    pub tender: Option<TenderLotView>,
+    /// What the households weigh in choosing a seller here (text `erklaerung.faktor.<key>`).
+    #[serde(default)]
+    pub choice_factors: Vec<String>,
+}
+
+/// The used units of a durable on offer in a country (MN4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct UsedMarketView {
+    pub stock: f64,
+    /// Used units that found a buyer in the running month.
+    pub taken_per_month: f64,
+}
+
+/// An open lot of a government (MN2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TenderLotView {
+    pub id: u32,
+    pub per_day: f64,
+    pub deadline: String,
+    pub bids: u32,
+    /// The player's bid per unit and the site it delivers from.
+    pub own_price_usd: Option<f64>,
+    pub own_site: Option<u32>,
+    /// The player's sites here that offer the product and can bid.
+    pub sites: Vec<TenderSiteView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TenderSiteView {
+    pub site: u32,
+    pub kind_text: String,
+    pub name: Option<String>,
 }
 
 /// The market price as reference price × price level factor × market situation (M27).
@@ -2185,6 +2234,65 @@ fn market_history(state: &crate::state::GameState, m: &Market) -> Vec<MarketMont
 /// Days of a month for demand per month at daily rates.
 const DAYS_PER_MONTH: f64 = 30.0;
 
+/// The factors households weigh in choosing a seller of a product (MN5).
+fn choice_factors(catalog: &Catalog, product: ProductId) -> Vec<String> {
+    let model = &catalog.market_model;
+    let durable = matches!(
+        catalog
+            .products
+            .get(product)
+            .consumer_demand
+            .as_ref()
+            .map(|d| d.consumption),
+        Some(crate::catalog::ConsumptionType::Durable { .. })
+    );
+    let mut out = vec!["preis", "qualitaet", "marke", "praesenz"];
+    if model.reputation.enabled {
+        out.push("ruf");
+    }
+    if model.channels.base_reach > 0.0 {
+        out.push("vertrieb");
+    }
+    if durable && model.obsolescence_points > 0.0 {
+        out.push("veralterung");
+    }
+    out.into_iter().map(str::to_owned).collect()
+}
+
+/// The open lot of the government for a product, with the player's bid (MN5).
+fn tender_lot(game: &Game, country: CountryId, product: ProductId) -> Option<TenderLotView> {
+    let state = game.state();
+    let player = game.player();
+    let t = state
+        .tenders
+        .iter()
+        .find(|t| t.country == country && t.product == product && t.open_on(state.date))?;
+    let own = t.bids.iter().find(|b| b.company == player);
+    let sites = state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| {
+            s.owner == player && s.country == country && s.offers.contains_key(&product)
+        })
+        .map(|(i, s)| TenderSiteView {
+            // Few sites; the cast is exact.
+            site: i as u32,
+            kind_text: site_type_key(s.kind),
+            name: s.name.clone(),
+        })
+        .collect();
+    Some(TenderLotView {
+        id: t.id,
+        per_day: t.per_day,
+        deadline: iso(t.deadline),
+        bids: u32::try_from(t.bids.len()).unwrap_or(u32::MAX),
+        own_price_usd: own.map(|b| usd(b.price)),
+        own_site: own.map(|b| b.site.0),
+        sites,
+    })
+}
+
 pub fn product_market(game: &Game, country: &str, product: &str) -> Option<ProductMarketView> {
     let state = game.state();
     let catalog = game.catalog();
@@ -2305,6 +2413,30 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
             .get(&p)
             .map(|_| crate::production::cycle_factor(state, p) - 1.0),
         history: market_history(state, m),
+        own_reputation: state.companies[game.player().index()].reputation(c),
+        reputation_counts: catalog.market_model.reputation.enabled,
+        own_channels: crate::channels::chosen(&state.companies[game.player().index()], c, group)
+            .iter()
+            .map(|&ch| catalog.channels.key(ch).to_owned())
+            .collect(),
+        own_reach: {
+            let e = crate::channels::effect(
+                catalog,
+                &state.companies[game.player().index()],
+                (c, group),
+                state.date.year(),
+            );
+            (catalog.market_model.channels.base_reach > 0.0)
+                .then(|| e.reach.iter().sum::<f64>() / 5.0)
+        },
+        used: (catalog.market_model.used.enabled && catalog.products.get(p).used_market).then_some(
+            UsedMarketView {
+                stock: m.used,
+                taken_per_month: m.used_sold,
+            },
+        ),
+        tender: tender_lot(game, c, p),
+        choice_factors: choice_factors(catalog, p),
         price_parts: Some(price_parts(game, c, p)),
         demand_parts: demand_parts(game, c, p),
         nameable: catalog.product_naming.style(catalog, p).is_some(),

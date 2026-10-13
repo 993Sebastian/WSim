@@ -108,7 +108,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN2 | Ausstattungsstufen, Ruf mit Rückrufen, Ausschreibungen | ✅ |
 | MN3 | Vertriebswege mit Reichweite und Kosten | ✅ |
 | MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | ✅ 13.10.2026 (Ersatzteile als Datenpflege offen, OFFENE_PUNKTE MN4) |
-| MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
+| MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ✅ 13.10.2026 (Einführung nicht ergänzt, OFFENE_PUNKTE MN5) |
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ (Forschungspflicht, Grundprodukte, KI-Produktforschung, Werksbranche, Kauf nach Produkt, Umstellen; Annahmen OFFENE_PUNKTE U) |
 | MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | 🔄 Schritt 1–3 erledigt (Daten, Kern, Anzeige); Schritt 4 (KI/Manager: bestes Angebot am selben Tag, Rest siehe OFFENE_PUNKTE W-s) in Arbeit |

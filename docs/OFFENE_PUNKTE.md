@@ -2601,3 +2601,17 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
 - Der Trend-Generator wählt die Warengruppe gleichverteilt unter denen mit Endkundennachfrage und gilt in
   allen Ländern; Faktor und Dauer wie in `docs/WELT_MARKT_BETRIEB.md` 12.4.
 
+### MN5: Anzeige Markt – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen:
+- Im Produktmarkt stehen jetzt: dein Ruf im Land (mit Wort gut/mittel/schlecht), deine Vertriebswege der
+  Warengruppe mit mittlerer Reichweite, der Gebrauchtmarkt (Bestand und im Monat genutzt), die Erklärung „So wählen
+  die Käufer ihren Anbieter“ (alle Faktoren, die im Land zählen: Preis, Qualität, Marke, Präsenz, Ruf, Vertriebswege,
+  Veralterung) und – wenn der Staat ein Los offen hat – ein Formular zum Bieten (Standort, Gebot je Einheit; ein
+  neues Gebot ersetzt das alte).
+- „Segmente“ (Einkommensfünftel) zeigt weiter die bestehende Nachfrageanzeige; eine eigene Segmentansicht der
+  Anbieterwahl (Gewichte je Fünftel) wurde nicht gebaut.
+- **Die Einführung (Tutorial) ist nicht ergänzt:** sie endet beim ersten Verkauf; Ruf, Vertriebswege und Gebote
+  sind Themen für später. Vorschlag: auf Wunsch eine zweite Einführung „Markt vertiefen“.
+- Die Gebote auf Ausschreibungen laufen über den vorhandenen Befehl `BidTender`; die KI-Gebote und die
+  Zuschlagsregeln blieben unverändert (V2 aus MN2).
+
