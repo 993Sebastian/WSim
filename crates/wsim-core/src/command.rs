@@ -1676,16 +1676,14 @@ pub(crate) fn switch_product(
         return Err(CommandError::NotEnoughCash { needed: cost });
     }
     let today = state.date;
+    // The changeover is capitalized like an upgrade: it raises the book value and is
+    // depreciated with the facility (AKT).
     let company = state.company_mut(actor).expect("checked above");
-    company.ledger.expense(
-        CostType::Overhead,
-        CostCenter::site(site),
-        Account::Cash,
-        cost,
-    );
+    pay(&mut company.ledger, Account::FixedAssets, cost)?;
     let s = state.site_mut(site).expect("checked above");
     s.branch = Some(branch);
     let sl = &mut s.slots[slot];
+    sl.cost += cost;
     sl.facility = r.facility;
     sl.recipe = Some(recipe);
     sl.utilization = 1.0;

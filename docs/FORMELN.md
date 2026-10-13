@@ -5889,8 +5889,9 @@ alles wie bisher.
     Anlage begrenzt.
   - Die Fläche wird geprüft: Gesamtfläche des Werks ohne die alte Anlage plus die neue
     muss auf das Grundstück passen.
-  - Der Buchwert in der Bilanz bleibt vorerst; die Anzeige rechnet die Anlage aus dem
-    Katalog der neuen Anlage neu. Das Aktivieren der Kosten folgt als Aufgabe AKT nach MAA.
+  - Die Umstellungskosten werden aktiviert (AKT, 13.10.2026): Konto Sachanlagen steigt um die
+    Kosten, ebenso die Abschreibungsbasis der Anlage (`Slot.cost`); sie werden mit der Anlage
+    nach deren Nutzungsdauer abgeschrieben und nicht mehr als Aufwand gebucht.
 
 ## MG1 Managermarkt: Abwerben sichtbar, fairer Zugriff (docs/MANAGER_2.md §1)
 

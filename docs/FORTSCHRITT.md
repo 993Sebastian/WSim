@@ -124,8 +124,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MG8 | Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung, Personalbedarf aller Zentralabteilungen (§8) | ⏳ nach MG2 |
 | MG9 | Strategieabteilung als Denkstelle: ein Typ mit MG6, Fallarten inkl. Abwehr und Verkauf, Arbeitslast und Branchenschwerpunkt, Strategieklausur, zwei Trefferquoten, Konkurrenzbeobachtung (§9) | ⏳ nach MG6 |
 | MG10 | Branchenfreigabe je Ebene mit Matrix, Vererbung, Freigabe-Vorschlägen (§10) | ⏳ nach MG2 |
-| LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | 🔄 13.10.2026: Kern, Sicht und Oberfläche fertig; Prüfungen laufen |
-| AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ⏳ |
+| LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ✅ 13.10.2026 (Commit 917ae41) |
+| AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ✅ 13.10.2026 |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏸ zurückgestellt bis zur Aufforderung (Wunsch vom 12.10.2026) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft

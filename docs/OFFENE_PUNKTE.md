@@ -2305,9 +2305,9 @@ sind umgesetzt, 4 und 5 folgen. Annahmen zur Abnahme:
   Ein Branchenwechsel kostet ein neues Werk (das „Umbau“-Kostenmodell des Vorschlags
   entfällt, weil das Umstellen innerhalb der Branche schon vorgesehen ist).
 - **U-f 🟡 Umstellen:** Nur an fertigen Anlagen. Kosten 50 % des Katalogpreises der
-  Größe (W3), als Aufwand; die Bilanz behält vorerst den alten Buchwert. ✅ Wunsch vom
-  12.10. nachts: **Aktivieren der Umstellungskosten** (Buchwert steigt, Abschreibung
-  folgt) über Nacht **nach MAA** (Aufgabe AKT). Stillstand halbe Katalog-Bauzeit.
+  Größe (W3), als Aufwand; die Bilanz behielt zunächst den alten Buchwert. ✅ Wunsch vom
+  12.10. nachts umgesetzt am 13.10. (AKT): **Die Umstellungskosten werden aktiviert**
+  (Buchwert und Abschreibungsbasis steigen, Abschreibung folgt mit der Anlage). Stillstand halbe Katalog-Bauzeit.
   ✅ Wunsch vom 12.10. nachts umgesetzt: **Der Flächenbedarf der neuen Anlage wird
   geprüft** (Gesamtfläche des Werks ohne die alte Anlage plus die neue; sonst
   „Grundstück zu klein“).

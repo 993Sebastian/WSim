@@ -9,6 +9,7 @@ use crate::catalog::{
 };
 use crate::command::{Command, CommandError};
 use crate::game::Game;
+use crate::ledger::CostType;
 use crate::money::Money;
 use crate::product_research;
 use crate::state::{GameSettings, SiteId, StartForm};
@@ -202,6 +203,14 @@ fn switching_keeps_the_size_and_costs_half_the_unit_at_half_the_build_time() {
     let slot = game.state().sites[site.index()].slots.len() - 1;
     let cash = game.state().companies[game.player().index()].ledger.cash();
     let today = game.state().date;
+    let (assets, cost_before, expenses) = {
+        let l = &game.state().companies[game.player().index()].ledger;
+        (
+            l.balance(crate::ledger::Account::FixedAssets),
+            game.state().sites[site.index()].slots[slot].cost,
+            l.year.by_type.get(&CostType::Overhead).copied(),
+        )
+    };
     game.apply(Command::SwitchProduct {
         site,
         slot,
@@ -219,6 +228,15 @@ fn switching_keeps_the_size_and_costs_half_the_unit_at_half_the_build_time() {
         .scale(c.production_model.sizes.investment(FacilitySize::Large) * 2.0 * 0.5);
     let paid = cash - s.companies[game.player().index()].ledger.cash();
     assert_eq!(paid, expected);
+    // The cost is capitalized (AKT): the book value and the depreciation basis rise by it,
+    // and nothing is expensed.
+    let l = &s.companies[game.player().index()].ledger;
+    assert_eq!(
+        l.balance(crate::ledger::Account::FixedAssets) - assets,
+        expected
+    );
+    assert_eq!(sl.cost - cost_before, expected);
+    assert_eq!(l.year.by_type.get(&CostType::Overhead).copied(), expenses);
     // Half the catalog build time of the size, counted from today.
     let full = c.production_model.sizes.build_days(FacilitySize::Large, 20);
     let until = sl.down.expect("stands still during the changeover").until;
