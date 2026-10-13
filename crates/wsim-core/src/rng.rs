@@ -153,6 +153,16 @@ pub enum Stream {
         tender: u32,
         index: u32,
     },
+    /// The industry experience a manager starts with (MG5); a stream of its own so that
+    /// the other traits of the candidates stay as they are.
+    ManagerBranch {
+        id: u32,
+    },
+    /// A manager's gains of industry experience at a month start (MG5).
+    ManagerBranchMonth {
+        id: u32,
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -224,6 +234,10 @@ impl Stream {
             }
             Stream::Procurement { tender, index } => {
                 (31 << 56) | (u64::from(tender & 0xFF_FFFF) << 32) | u64::from(index)
+            }
+            Stream::ManagerBranch { id } => (32 << 56) | u64::from(id),
+            Stream::ManagerBranchMonth { id, month } => {
+                (33 << 56) | (u64::from(id) << 24) | u64::from(month)
             }
         }
     }

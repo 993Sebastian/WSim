@@ -864,6 +864,9 @@ pub struct Manager {
     /// Whether his company was asked about his succession (PE1).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub succession_asked: bool,
+    /// Industry experience 0–100 per branch (MG5); missing: none.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub branch: BTreeMap<crate::ids::BranchId, u8>,
     /// Whether he turned down staying longer (PE1).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub extension_refused: bool,
@@ -1629,6 +1632,10 @@ pub struct Site {
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
+    /// Branch strength 0–1 of the manager responsible for production, as of the last month
+    /// start (MG5); the effect in the works.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub branch_strength: f64,
     /// Training level reached, 0–1 (W1).
     #[serde(default, skip_serializing_if = "is_zero")]
     pub training: f64,

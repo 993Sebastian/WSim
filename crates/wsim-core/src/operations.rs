@@ -36,15 +36,29 @@ pub fn scrap_rate_for(
     if base <= 0.0 {
         return 0.0;
     }
+    let b = &catalog.management.branch;
+    let factors = scrap_factors(catalog, state, site, sl, recipe);
+    // All factors together fall to a floor of the base value only (MG5).
+    (base * factors.max(b.floor_scrap)).clamp(m.scrap_min, m.scrap_max)
+}
+
+/// The product of all factors on the scrap rate against its base value (MG5).
+pub fn scrap_factors(
+    catalog: &Catalog,
+    state: &GameState,
+    site: &Site,
+    sl: &crate::state::Slot,
+    recipe: &Recipe,
+) -> f64 {
+    let m = &catalog.production_model.operations;
     let learning = crate::learning::factor(catalog, site, recipe);
-    (base
-        * (1.0 - m.scrap_training * site.training.clamp(0.0, 1.0))
+    (1.0 - m.scrap_training * site.training.clamp(0.0, 1.0))
         * (1.0 - m.scrap_development * developed(catalog, state, site, recipe))
         * (1.5 - 0.5 * sl.condition.clamp(0.0, 1.0))
         * libm::sqrt(learning)
         * (1.0 - 0.3 * sl.automation.clamp(0.0, 1.0))
-        * sl.machine.map_or(1.0, |m| m.scrap))
-    .clamp(m.scrap_min, m.scrap_max)
+        * sl.machine.map_or(1.0, |m| m.scrap)
+        * crate::branch_skill::scrap_factor(catalog, site.branch_strength)
 }
 
 /// How far the site's owner developed the product (0–1): its level against the leader

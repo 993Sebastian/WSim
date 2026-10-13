@@ -1471,6 +1471,8 @@ export interface Manager {
   /** Function the manager is best at. */
   focus: string;
   skills: Faehigkeit[];
+  /** Industry experience as a level, the best first (MG5); the key is the branch. */
+  branches?: Faehigkeit[];
   /** Estimates of targets judged so far, and the hit rate (null before the first; ZA3). */
   judged: number;
   hit_rate: number | null;
@@ -1989,6 +1991,8 @@ export interface Managermarkt {
   site_name?: string | null;
   country: string | null;
   continent: string;
+  /** The branch of the works the position is at (MG5). */
+  branch?: string | null;
   /** Free candidates, those of the site's continent first. */
   candidates: Kandidat[];
   /** The company's managers on other positions. */

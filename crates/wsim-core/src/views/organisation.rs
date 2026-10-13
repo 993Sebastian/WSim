@@ -36,6 +36,10 @@ pub struct ManagerView {
     /// Function the manager is best at.
     pub focus: String,
     pub skills: Vec<SkillView>,
+    /// Industry experience as a level, the best first; branches without any left out
+    /// (MG5). The key is the branch key.
+    #[serde(default)]
+    pub branches: Vec<SkillView>,
     /// Estimates of targets judged so far and the hit rate with the prior (ZA3); the rate
     /// is none before the first judgment.
     pub judged: u32,
@@ -400,6 +404,9 @@ pub struct ManagerMarketView {
     pub site_name: Option<String>,
     pub country: Option<String>,
     pub continent: String,
+    /// The branch of the works the position is at, for the order of the candidates (MG5).
+    #[serde(default)]
+    pub branch: Option<String>,
     /// Free candidates, those of the unit's continent first.
     pub candidates: Vec<CandidateView>,
     /// The company's managers on other positions.
@@ -640,7 +647,18 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
             }
         })
         .collect();
+    let mut branches: Vec<SkillView> = m
+        .branch
+        .iter()
+        .map(|(&b, &value)| SkillView {
+            key: c.branches.key(b).to_owned(),
+            level: shown_level(value, 0),
+        })
+        .filter(|s| s.level > 0)
+        .collect();
+    branches.sort_by(|a, b| b.level.cmp(&a.level).then_with(|| a.key.cmp(&b.key)));
     ManagerView {
+        branches,
         id: id.0,
         name: m.name.clone(),
         home: c.countries.key(m.home).to_owned(),
@@ -1176,6 +1194,14 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
             _ => Some(c.countries.key(seat).to_owned()),
         },
         continent: c.continents.key(continent).to_owned(),
+        branch: match unit {
+            Unit::Site(s) => state
+                .sites
+                .get(s.index())
+                .and_then(|x| crate::branch_skill::site_branch(c, x))
+                .map(|b| c.branches.key(b).to_owned()),
+            _ => None,
+        },
         candidates,
         cash_usd: usd(cash),
         own,

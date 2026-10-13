@@ -200,4 +200,27 @@ management:
     allgemein: {mittel: 50, streuung: 15}
     eindruck_unschaerfe: 15
 
+  # Branchenerfahrung der Manager (MG5, docs/MANAGER_2.md 5): 0–100 je Branche. Beim
+  # Erzeugen eine Heimatbranche, mit Chance eine zweite, in allen übrigen höchstens
+  # uebrige_max. Je Monat in einer Stelle, deren Einheit Werke der Branche hat, mit
+  # wachstum_chance +1 bis zum Potenzial. Stärke = (Erfahrung − schwelle) / (100 − schwelle).
+  # Wirkung im Werk bei voller Stärke (Fachstelle Produktion; ohne sie die Werksleitung mit
+  # leitung_anteil): weniger Arbeitsstunden und Ausschuss um den Anteil, Materialeinsatz
+  # um den Materialanteil. Untergrenzen: das Produkt aller Produktionsfaktoren (Lernkurve,
+  # Schulung, Anlagengröße, Maschinenkennzahlen, Weiterentwicklung, Branchenstärke) fällt
+  # nicht unter diesen Anteil des Grundwerts.
+  branchenstaerke:
+    heimat: {mittel: 55, streuung: 15}
+    zweite_chance: 0.3
+    zweite: {mittel: 35, streuung: 15}
+    uebrige_max: 10
+    wachstum_chance: 0.3
+    schwelle: 50
+    leitung_anteil: 0.5
+    wirkung: {stunden: 0.10, ausschuss: 0.10, material: 0.03}
+    untergrenzen: {stunden: 0.40, material: 0.80, ausschuss: 0.30}
+    # Punkte, die eine KI-Firma bei voller Stärke in der Branche des Werks zur Bewertung eines
+    # Bewerbers für Produktionsstellen addiert.
+    ki_gewicht: 20
+
   annaeherung: true

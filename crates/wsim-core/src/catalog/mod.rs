@@ -214,7 +214,46 @@ pub struct ManagementModel {
     pub severance_months: f64,
     pub pool: ManagerPoolModel,
     pub skills: SkillModel,
+    /// Industry experience of managers and its effect in the works (MG5).
+    pub branch: BranchSkillModel,
     pub provenance: Provenance,
+}
+
+/// Industry experience of managers (MG5, docs/MANAGER_2.md 5).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct BranchSkillModel {
+    /// Mean and spread of the experience in the home industry.
+    pub home: (f64, f64),
+    /// Chance of a second industry and its mean and spread.
+    pub second_chance: f64,
+    pub second: (f64, f64),
+    /// Largest experience in every other industry.
+    pub other_max: u8,
+    /// Chance per month and industry of the unit to gain a point.
+    pub growth_chance: f64,
+    /// Experience from which the strength starts (0 below).
+    pub threshold: f64,
+    /// Share of the strength the head of a works has instead of a missing specialist.
+    pub head_share: f64,
+    /// Effect of full strength: fewer labour hours, less scrap, less material.
+    pub hours: f64,
+    pub scrap: f64,
+    pub material: f64,
+    /// Least value of the product of all production factors against the base value:
+    /// labour hours, material, scrap.
+    pub floor_hours: f64,
+    pub floor_material: f64,
+    pub floor_scrap: f64,
+    /// Points an AI company adds to a candidate's rating at full strength in the branch
+    /// of the works (production positions).
+    pub ai_weight: f64,
+}
+
+impl BranchSkillModel {
+    /// Strength 0–1 of an experience.
+    pub fn strength(&self, experience: u8) -> f64 {
+        ((f64::from(experience) - self.threshold) / (100.0 - self.threshold)).clamp(0.0, 1.0)
+    }
 }
 
 impl ManagementModel {

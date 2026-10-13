@@ -376,6 +376,61 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             &kl.field("eindruck_unschaerfe"),
         ),
     };
+    let bl = l.field("branchenstaerke");
+    let b = &v.branch;
+    let threshold = in_range(ctx, b.threshold, 0.0, 99.0, &bl.field("schwelle"));
+    let branch = wsim_core::catalog::BranchSkillModel {
+        home: spread(ctx, &b.home, &bl.field("heimat")),
+        second_chance: in_range(ctx, b.second_chance, 0.0, 1.0, &bl.field("zweite_chance")),
+        second: spread(ctx, &b.second, &bl.field("zweite")),
+        other_max: b.other_max.min(100),
+        growth_chance: in_range(ctx, b.growth_chance, 0.0, 1.0, &bl.field("wachstum_chance")),
+        threshold,
+        head_share: in_range(ctx, b.head_share, 0.0, 1.0, &bl.field("leitung_anteil")),
+        hours: in_range(
+            ctx,
+            b.effect.hours,
+            0.0,
+            0.5,
+            &bl.field("wirkung").field("stunden"),
+        ),
+        scrap: in_range(
+            ctx,
+            b.effect.scrap,
+            0.0,
+            0.5,
+            &bl.field("wirkung").field("ausschuss"),
+        ),
+        material: in_range(
+            ctx,
+            b.effect.material,
+            0.0,
+            0.5,
+            &bl.field("wirkung").field("material"),
+        ),
+        floor_hours: in_range(
+            ctx,
+            b.floors.hours,
+            0.05,
+            1.0,
+            &bl.field("untergrenzen").field("stunden"),
+        ),
+        floor_material: in_range(
+            ctx,
+            b.floors.material,
+            0.05,
+            1.0,
+            &bl.field("untergrenzen").field("material"),
+        ),
+        ai_weight: in_range(ctx, b.ai_weight, 0.0, 100.0, &bl.field("ki_gewicht")),
+        floor_scrap: in_range(
+            ctx,
+            b.floors.scrap,
+            0.05,
+            1.0,
+            &bl.field("untergrenzen").field("ausschuss"),
+        ),
+    };
     ManagementModel {
         functions,
         levels,
@@ -400,6 +455,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         severance_months: non_negative(ctx, v.severance_months, &l.field("abfindung_monate")),
         pool,
         skills,
+        branch,
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

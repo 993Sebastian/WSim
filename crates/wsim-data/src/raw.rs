@@ -1880,6 +1880,8 @@ pub struct RawManagement {
     pub pool: RawManagerPool,
     #[serde(rename = "faehigkeiten")]
     pub skills: RawSkills,
+    #[serde(rename = "branchenstaerke")]
+    pub branch: RawBranchSkill,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -2127,6 +2129,55 @@ pub struct RawSkills {
     pub general: RawSpread,
     #[serde(rename = "eindruck_unschaerfe")]
     pub impression_blur: f64,
+}
+
+/// Industry experience of managers (MG5).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBranchSkill {
+    #[serde(rename = "heimat")]
+    pub home: RawSpread,
+    #[serde(rename = "zweite_chance")]
+    pub second_chance: f64,
+    #[serde(rename = "zweite")]
+    pub second: RawSpread,
+    #[serde(rename = "uebrige_max")]
+    pub other_max: u8,
+    #[serde(rename = "wachstum_chance")]
+    pub growth_chance: f64,
+    #[serde(rename = "schwelle")]
+    pub threshold: f64,
+    #[serde(rename = "leitung_anteil")]
+    pub head_share: f64,
+    #[serde(rename = "wirkung")]
+    pub effect: RawBranchEffect,
+    #[serde(rename = "untergrenzen")]
+    pub floors: RawProductionFloors,
+    #[serde(rename = "ki_gewicht")]
+    pub ai_weight: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBranchEffect {
+    #[serde(rename = "stunden")]
+    pub hours: f64,
+    #[serde(rename = "ausschuss")]
+    pub scrap: f64,
+    #[serde(rename = "material")]
+    pub material: f64,
+}
+
+/// Least values of the product of all production factors (MG5).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProductionFloors {
+    #[serde(rename = "stunden")]
+    pub hours: f64,
+    #[serde(rename = "material")]
+    pub material: f64,
+    #[serde(rename = "ausschuss")]
+    pub scrap: f64,
 }
 
 #[derive(Debug, Deserialize)]

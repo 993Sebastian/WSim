@@ -118,7 +118,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MG2 | Entscheidungsakte, Nachbetrachtung, Trefferquote für alle Manager (§2) | ✅ 13.10.2026 |
 | MG3 | Gedächtnis und Chronik (§3) | ✅ 13.10.2026: Gedächtnis je Anliegen, Lernen, Chronik in der Organisation |
 | MG4 | Tiefe und Vielfalt der Anliegen: 2–4 Optionen, neue Anlässe (§4) | ✅ 13.10.2026: Abwägung je Option (Risiko, Wirkzeit, laufende Kosten), Widerspruch mit Fürsprechern; neue Anlässe als Daten nur teilweise (OFFENE_PUNKTE MG4) |
-| MG5 | Branchenstärke je Manager, Wirkung höchstens 10 %, Gesamtdeckel, CLI „produktionsfaktoren“ (§5) | ⏳ |
+| MG5 | Branchenstärke je Manager, Wirkung höchstens 10 %, Gesamtdeckel, CLI „produktionsfaktoren“ (§5) | ✅ 13.10.2026: Branchenerfahrung, Wirkung im Werk, Gesamtdeckel, CLI `produktionsfaktoren` |
 | MG6 | Strategievorschläge von CEO, Kontinent und Land, ein System mit den Zentralabteilungen (§6, §9) | ⏳ |
 | MG7 | Stil, Lieblingsbegründung, Einwand (§7) | ⏳ nach MG2 |
 | MG8 | Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung, Personalbedarf aller Zentralabteilungen (§8) | ⏳ nach MG2 |

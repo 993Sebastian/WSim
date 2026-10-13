@@ -1030,6 +1030,7 @@ fn found_company(
             development: None,
             development_shares: std::collections::BTreeMap::new(),
             wage_premium: 0.0,
+            branch_strength: 0.0,
             training: 0.0,
             training_target: None,
             overhaul_below: None,

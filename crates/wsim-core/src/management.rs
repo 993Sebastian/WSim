@@ -784,6 +784,12 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
             let home = pick_country(&mut rng, &countries, total);
             let mut manager = draw(catalog, &mut rng, home, &mut names);
             manager.entered = Some(date);
+            assign_branches(
+                catalog,
+                state.settings.seed,
+                ManagerId(state.next_manager),
+                &mut manager,
+            );
             note_market(state, continent, |c| c.appeared += 1);
             state
                 .managers
@@ -905,6 +911,7 @@ pub(crate) fn draw(
         .collect();
     let name = manager_name(catalog, rng, home, names);
     Manager {
+        branch: BTreeMap::new(),
         name,
         home,
         focus: m.functions[focus].key.clone(),
@@ -928,6 +935,53 @@ pub(crate) fn draw(
         extension_refused: false,
         family: false,
     }
+}
+
+/// Gives a new candidate his industry experience (MG5), from a stream of its own.
+pub(crate) fn assign_branches(catalog: &Catalog, seed: u64, id: ManagerId, manager: &mut Manager) {
+    let mut rng = SimRng::for_stream(seed, Stream::ManagerBranch { id: id.0 });
+    manager.branch = draw_branches(catalog, &mut rng);
+}
+
+/// The industry experience of a new candidate (MG5): a home industry, with a chance a
+/// second, a few points in the others.
+fn draw_branches(catalog: &Catalog, rng: &mut SimRng) -> BTreeMap<crate::ids::BranchId, u8> {
+    let b = &catalog.management.branch;
+    let keys: Vec<crate::ids::BranchId> = (0..catalog.branches.keys().len())
+        .map(<crate::ids::BranchId as crate::ids::Id>::from_index)
+        .collect();
+    if keys.is_empty() {
+        return BTreeMap::new();
+    }
+    let normal = |rng: &mut SimRng, (mean, spread): (f64, f64)| -> u8 {
+        let u = rng.next_f64().clamp(1e-9, 1.0 - 1e-9);
+        // Within 0–100; the cast is exact.
+        (mean + spread * math::normal_inverse(u))
+            .round()
+            .clamp(0.0, 100.0) as u8
+    };
+    let n = u64::try_from(keys.len()).unwrap_or(1);
+    let home = usize::try_from(rng.below(n)).unwrap_or(0);
+    let second = if keys.len() > 1 && rng.chance(b.second_chance) {
+        let pick = usize::try_from(rng.below(n - 1)).unwrap_or(0);
+        Some(if pick >= home { pick + 1 } else { pick })
+    } else {
+        None
+    };
+    keys.iter()
+        .enumerate()
+        .map(|(i, &k)| {
+            let value = if i == home {
+                normal(rng, b.home)
+            } else if Some(i) == second {
+                normal(rng, b.second)
+            } else {
+                // Within 0–100; the cast is exact.
+                rng.below(u64::from(b.other_max) + 1) as u8
+            };
+            (k, value)
+        })
+        .collect()
 }
 
 /// First and family name from the name group of the home country, not yet taken.

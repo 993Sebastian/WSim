@@ -29,6 +29,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Fachrichtung, Fachgebiet | `Specialization` |
 | Einheit | `Unit` |
 | Branche | `Branch` |
+| Branchenerfahrung / Branchenstärke (MG5) | `Manager.branch`, `Site.branch_strength`, `branch_skill` |
 | Warengruppe | `GoodsGroup` |
 | Transportklasse | `TransportClass` |
 | Staatsmarkt | `StateMarketOffer` |

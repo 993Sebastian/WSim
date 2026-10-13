@@ -50,6 +50,14 @@ enum Command {
         #[arg(long, default_value = "data")]
         daten: PathBuf,
     },
+    /// Verteilung der Produktionsfaktoren (Lernkurve, Schulung, Größe, Branchenstärke …)
+    /// über alle Werke eines Spielstands, mit Anzahl der Werke an den Untergrenzen.
+    Produktionsfaktoren {
+        /// Spielstand (.wsim)
+        spielstand: PathBuf,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
     /// Stückkosten und Margen aller Rezepte bei Richtpreisen (Markdown).
     Rezepte {
         /// Jahr der Löhne und Strompreise
@@ -241,6 +249,15 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        Command::Produktionsfaktoren { spielstand, daten } => {
+            match show_factors(&daten, &spielstand) {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(message) => {
+                    eprintln!("{message}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
         Command::Beispielsichten { datei, daten } => match example_views(&daten, &datei) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
@@ -348,6 +365,94 @@ fn load_data(directory: &Path) -> Result<GameData, String> {
 }
 
 /// Offers of a product in a save, for balancing: why a price stays where it is.
+/// The distribution of the production factors over all facility groups of a saved game
+/// (MG5): each factor alone and all together, with the number at the floors.
+fn show_factors(daten: &Path, path: &Path) -> Result<(), String> {
+    use wsim_core::branch_skill::{FactorRow, factor_rows};
+    let data = load_data(daten)?;
+    let catalog = Arc::new(data.catalog.clone());
+    let bytes = fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let game = save::decode(&bytes, catalog)
+        .map_err(|e| data.texts.render(&e.message()))?
+        .game;
+    let (state, c) = (game.state(), game.catalog());
+    let rows = factor_rows(c, state);
+    let b = &c.management.branch;
+    println!(
+        "Produktionsfaktoren am {}: {} Anlagengruppen in {} Werken",
+        format_date(state.date),
+        rows.len(),
+        state.sites.iter().filter(|s| !s.slots.is_empty()).count(),
+    );
+    let works = state.sites.iter().filter(|s| !s.slots.is_empty());
+    let (total, strong) = works.fold((0, 0), |(n, k), s| {
+        (n + 1, k + usize::from(s.branch_strength > 0.0))
+    });
+    let positions = state
+        .managers
+        .values()
+        .filter_map(|m| m.job.as_ref())
+        .filter(|j| matches!(j.position.unit, wsim_core::state::Unit::Site(_)))
+        .count();
+    let with_branch = state
+        .sites
+        .iter()
+        .filter(|s| wsim_core::branch_skill::site_branch(c, s).is_some())
+        .count();
+    let with_values = state
+        .managers
+        .values()
+        .filter(|m| !m.branch.is_empty())
+        .count();
+    println!(
+        "Werke mit Branchenstärke über der Schwelle: {strong} von {total}; Manager auf Werksstellen: {positions}; \
+         Werke mit Branche: {with_branch}; Manager mit Branchenerfahrung: {with_values} von {}",
+        state.managers.len()
+    );
+    println!(
+        "{:<26} {:>7} {:>7} {:>7} {:>7} {:>7}  an der Untergrenze",
+        "Faktor", "min", "10 %", "Median", "90 %", "max"
+    );
+    type Pick = fn(&FactorRow) -> f64;
+    let lines: [(&str, Pick, Option<f64>); 8] = [
+        ("Lernkurve", |r| r.learning, None),
+        ("Schulung", |r| r.training, None),
+        ("Anlagengröße", |r| r.size, None),
+        ("Weiterentw./Maschine", |r| r.development, None),
+        ("Branchenstärke (Stunden)", |r| r.branch, None),
+        ("Stunden gesamt", |r| r.hours, Some(b.floor_hours)),
+        ("Material gesamt", |r| r.material, Some(b.floor_material)),
+        ("Ausschuss gesamt", |r| r.scrap, Some(b.floor_scrap)),
+    ];
+    for (name, pick, floor) in lines {
+        let mut v: Vec<f64> = rows.iter().map(pick).collect();
+        if v.is_empty() {
+            continue;
+        }
+        v.sort_by(f64::total_cmp);
+        let at = |q: f64| v[((v.len() - 1) as f64 * q).round() as usize];
+        let capped = floor.map_or_else(
+            || "–".to_owned(),
+            |f| {
+                format!(
+                    "{} von {} (Grenze {f:.2})",
+                    v.iter().filter(|&&x| x < f).count(),
+                    v.len()
+                )
+            },
+        );
+        println!(
+            "{name:<26} {:>7.3} {:>7.3} {:>7.3} {:>7.3} {:>7.3}  {capped}",
+            v[0],
+            at(0.1),
+            at(0.5),
+            at(0.9),
+            v[v.len() - 1],
+        );
+    }
+    Ok(())
+}
+
 fn show_offers(daten: &Path, path: &Path, key: &str) -> Result<(), String> {
     use wsim_core::state::{CompanyId, PriceMode};
     let data = load_data(daten)?;

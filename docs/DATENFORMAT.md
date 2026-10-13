@@ -997,3 +997,15 @@ Empfehlungen am selben Standort einander widersprechen können.
 
 Spielstand: `concerns[].dissent` (`advocates`: zwei Einträge `position`, `manager`, `topic`) bei zusammengelegten
 Anliegen; die Optionen sind dann `[Weg A, Weg B, nichts tun]`.
+
+## management.branchenstaerke (MG5)
+
+`heimat` und `zweite` (`mittel`, `streuung`), `zweite_chance` (0–1), `uebrige_max` (0–100),
+`wachstum_chance` (0–1, je Monat und Branche), `schwelle` (0–99; Erfahrung, ab der die Stärke beginnt),
+`leitung_anteil` (0–1; Anteil der Wirkung, wenn die Werksleitung statt der Fachstelle Produktion maßgeblich ist),
+`wirkung` (`stunden`, `ausschuss`, `material`: Anteil bei voller Stärke, 0–0,5), `untergrenzen` (`stunden`,
+`material`, `ausschuss`: kleinster Wert des Produkts aller Produktionsfaktoren, 0,05–1) und `ki_gewicht`
+(Punkte für KI-Firmen bei der Bewerberwahl, 0–100).
+
+Spielstand: `managers.*.branch` (Zuordnung Branche → 0–100) und `sites[].branch_strength` (0–1, zum letzten
+Monatsanfang).

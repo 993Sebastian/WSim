@@ -1726,6 +1726,9 @@ person.ereignis.vorsitz_an: "Vorsitz von {firma} wieder übernommen"
 organisation.schwerpunkt: "Schwerpunkt {bereich}"
 organisation.schwerpunkt_kurz: Schwerpunkt
 organisation.faehigkeiten: Fähigkeiten
+organisation.branche_kurz: "Branche: {branche} ({stufe})"
+organisation.branche_wahl: Branche
+organisation.alle_branchen: Alle Branchen
 organisation.einschaetzung: Die Fähigkeiten sind eine Einschätzung aus Lebenslauf und Gespräch; sie kann um eine Stufe danebenliegen.
 organisation.zurueck: ← Organisation
 organisation.markt_titel: "{stelle} · {standort}"
@@ -2015,6 +2018,7 @@ verkaufswege.grenzen: Die Höchstmenge darf nicht negativ sein.
 verkaufswege.gesetzt: "Regel für {kaeufer} ({wo}) festgelegt."
 verkaufswege.entfernt: "Regel für {kaeufer} ({wo}) entfernt."
 faehigkeit.fach: "Fachkompetenz {bereich}"
+faehigkeit.branche: "Branchenerfahrung {branche}"
 faehigkeit.erkennen: Erkennen
 faehigkeit.urteil: Urteilsvermögen
 faehigkeit.fuehrung: Führung

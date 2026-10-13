@@ -746,6 +746,22 @@ pub fn management() -> Catalog {
             general: (50.0, 15.0),
             impression_blur: 15.0,
         },
+        branch: crate::catalog::BranchSkillModel {
+            home: (55.0, 15.0),
+            second_chance: 0.3,
+            second: (35.0, 15.0),
+            other_max: 10,
+            growth_chance: 0.3,
+            threshold: 50.0,
+            head_share: 0.5,
+            hours: 0.10,
+            scrap: 0.10,
+            material: 0.03,
+            floor_hours: 0.40,
+            floor_material: 0.80,
+            floor_scrap: 0.30,
+            ai_weight: 20.0,
+        },
         provenance: Provenance::default(),
     };
     // Central departments (ZA2, ZA3), headed by the board's specialists above.

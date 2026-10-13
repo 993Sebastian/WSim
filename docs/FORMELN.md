@@ -6061,3 +6061,38 @@ nur bestehende Anliegen zusammengelegt werden (nie mehr als vorher).
 **Neue Anlässe.** Lieferantenwechsel, Qualität gegen Menge, Lohnforderung, Preissenkung eines Konkurrenten,
 Großüberholung gegen Ersatzinvestition, Lageraufbau, Expansion ins Nachbarland und Konjunktureinbruch sind als
 eigene Themen noch nicht angelegt (siehe OFFENE_PUNKTE MG4).
+
+## MG5 Branchenstärke und Gesamtdeckel der Produktionsfaktoren (docs/MANAGER_2.md §5)
+
+**Merkmal.** Jeder Manager hat Branchenerfahrung `E` 0–100 je Branche (`Manager.branch`). Beim Erzeugen: eine
+Heimatbranche (Normalverteilung `heimat`), mit Chance `zweite_chance` eine zweite (`zweite`), in allen übrigen
+gleichverteilt 0 bis `uebrige_max`. Anzeige als Stufen (`shown_level`, ohne Eindruckunschärfe), nur Branchen mit
+Stufe ≥ 1.
+
+**Wachstum.** Im Monatslauf (mit der Fachkompetenz-Erfahrung): für jeden Manager mit Stelle und jede Branche, in
+der die Einheit der Stelle Werke hat (Standort: die Branche des Werks; Land/Kontinent/Vorstand: die Branchen der
+Werke der Firma in der Einheit), mit Chance `wachstum_chance` +1, bis zum Potenzial. Zufall aus dem Strom des
+Managers. Jede Branche würfelt einzeln.
+
+**Stärke.** `s = max(0, E − schwelle) / (100 − schwelle)` (0 bis 1; unter der Schwelle kein Malus, keine Wirkung).
+
+**Wirkung im Werk.** Maßgeblich ist die Fachstelle Produktion des Werks; ist sie leer, die Werksleitung mit dem
+Anteil `leitung_anteil`. Land, Kontinent und Vorstand haben keine Produktionswirkung. Die Stärke wird zu jedem
+Monatsanfang bestimmt und am Werk gespeichert (`Site.branch_strength`); Einstellen oder Entlassen wirkt daher ab dem
+nächsten Monatsanfang. Mit `s_w` der gespeicherten Stärke des Werks:
+- Arbeitsstunden je Durchlauf × `(1 − stunden · s_w)`
+- Ausschussquote × `(1 − ausschuss · s_w)`
+- Materialeinsatz × `(1 − material · s_w)`
+
+**Gesamtdeckel.** Das Produkt aller Faktoren fällt nicht unter eine Untergrenze (Anteil des Grundwerts):
+- Arbeitsstunden: Weiterentwicklung · Trimm · Maschinenangebot · Branchenstärke · Schulung · Lernkurve ·
+  Anlagengröße (und Fördereigenheit der Lagerstätte) ≥ `untergrenzen.stunden`; Automatisierung und
+  Landesproduktivität sind keine Faktoren des Deckels, sondern der Grundwert.
+- Material: Weiterentwicklung · Trimm · Maschinenangebot · Branchenstärke ≥ `untergrenzen.material`.
+- Ausschuss: Schulung · Weiterentwicklung · Zustand · Lernkurve (Wurzel) · Automatisierung · Maschinenangebot ·
+  Branchenstärke ≥ `untergrenzen.ausschuss` (dann wie bisher in [`scrap_min`, `scrap_max`]).
+Das CLI-Protokoll `wsim-cli produktionsfaktoren <spielstand>` zeigt die Verteilung jedes Einzelfaktors und der
+Gesamtprodukte über alle Anlagengruppen mit der Anzahl an den Untergrenzen.
+
+**KI.** Beim Besetzen von Produktionsstellen eines Werks (Fachstelle Produktion und Leitung) addiert eine
+KI-Firma `ki_gewicht · s` zur Bewertung eines Bewerbers (`s` seine Stärke in der Branche des Werks).

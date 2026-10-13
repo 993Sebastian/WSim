@@ -7,6 +7,7 @@ pub mod aging;
 pub mod ai;
 pub mod bank;
 pub mod bonds;
+pub mod branch_skill;
 pub mod brand;
 pub mod calendar;
 pub mod catalog;
@@ -90,6 +91,8 @@ mod bank_tests;
 mod board_tests;
 #[cfg(test)]
 mod bonds_tests;
+#[cfg(test)]
+mod branch_skill_tests;
 #[cfg(test)]
 mod central_tests;
 #[cfg(test)]

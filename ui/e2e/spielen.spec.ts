@@ -999,15 +999,17 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(page.getByLabel("Bewerber aus")).toHaveValue("europa");
   const bewerber = page.getByRole("table", { name: "Bewerber" });
   await expect(bewerber.getByRole("row").nth(0)).toContainText("Alter");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Manuel Ortega");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Spanien und Portugal");
+  // The best in the works' industry first (MG5), shown with the industry.
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Branche: Chemie");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("George Hughes");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Vereinigtes Königreich und Irland");
   await bild(page, "managermarkt");
   // Managers of other companies are one click away (MG1).
   await page.getByRole("button", { name: /^Manager anderer Firmen/ }).click();
   await expect(page.getByRole("table", { name: "Manager anderer Firmen" })).toBeVisible();
   await bild(page, "managermarkt_abwerben");
   await page.getByRole("button", { name: /^Freie Kandidaten/ }).click();
-  await bewerber.getByRole("button", { name: "Einstellen: Manuel Ortega" }).click();
+  await bewerber.getByRole("button", { name: "Einstellen: George Hughes" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     HireManager: {
       manager: 434,

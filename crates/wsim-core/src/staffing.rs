@@ -139,6 +139,24 @@ fn experience(state: &mut GameState, catalog: &Catalog, date: Date, streams: &mu
             *x += 1;
         }
     }
+    // Industry experience in the branches of the unit (MG5).
+    let growth = catalog.management.branch.growth_chance;
+    let month = management::month_number(date);
+    for (id, branches) in crate::branch_skill::growth_targets(catalog, state) {
+        let mut rng = SimRng::for_stream(
+            state.settings.seed,
+            Stream::ManagerBranchMonth { id: id.0, month },
+        );
+        for branch in branches {
+            let gains = rng.chance(growth);
+            let m = state.managers.get_mut(&id).expect("listed above");
+            let cap = m.potential.unwrap_or(100);
+            if let Some(x) = m.branch.get_mut(&branch).filter(|x| gains && **x < cap) {
+                *x += 1;
+            }
+        }
+    }
+    crate::branch_skill::refresh(state, catalog);
 }
 
 /// The result of a company's unit in the last twelve closed months: its sites' results.
@@ -1167,7 +1185,10 @@ fn fill(
     let mut pool: Vec<(ManagerId, f64)> = candidates(catalog, state, company, position.unit)
         .into_iter()
         .filter(|id| affordable(state, id))
-        .map(|id| (id, rated(catalog, &state.managers[&id])))
+        .map(|id| {
+            let bonus = branch_bonus(catalog, state, position, &state.managers[&id]);
+            (id, rated(catalog, &state.managers[&id]) + bonus)
+        })
         .collect();
     // The strongest first; on a tie the lower number.
     pool.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
@@ -1206,6 +1227,28 @@ fn fill(
         position: position.clone(),
     };
     command::execute(state, catalog, company, &hire).is_ok()
+}
+
+/// Points a company adds to a candidate for a production position of a works for his
+/// strength in the works' branch (MG5).
+fn branch_bonus(catalog: &Catalog, state: &GameState, position: &Position, m: &Manager) -> f64 {
+    let Unit::Site(site) = position.unit else {
+        return 0.0;
+    };
+    let produces = match &position.role {
+        Role::Specialist(f) => f == "produktion",
+        Role::Head => true,
+    };
+    let branch = state
+        .sites
+        .get(site.index())
+        .and_then(|s| crate::branch_skill::site_branch(catalog, s));
+    match (produces, branch) {
+        (true, Some(b)) => {
+            catalog.management.branch.ai_weight * crate::branch_skill::strength(catalog, m, b)
+        }
+        _ => 0.0,
+    }
 }
 
 /// A manager's strength as companies see it when they hire (ZA3): times the factor of his

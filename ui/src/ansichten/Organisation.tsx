@@ -78,6 +78,26 @@ function fachDerStelle(m: Manager, rolle: string): string {
   return stufe(m, `fach.${rolle === "leitung" ? m.focus : rolle}`);
 }
 
+/** The best industry of a manager, in words (MG5); nothing without one. */
+function Branchenmarke({ m }: { m: Manager }) {
+  const b = (m.branches ?? [])[0];
+  if (!b) return null;
+  return (
+    <small className="feld-hilfe">
+      {" "}
+      {t("organisation.branche_kurz", {
+        branche: t(`branche.${b.key}`),
+        stufe: stufeText("branche", b.level),
+      })}
+    </small>
+  );
+}
+
+/** Level of a manager in an industry; 0 without. */
+function brancheStufe(m: Manager, branche: string | null | undefined): number {
+  return (m.branches ?? []).find((b) => b.key === branche)?.level ?? 0;
+}
+
 /** All skills of a manager behind an ⓘ. */
 export function AlleFaehigkeiten({ m }: { m: Manager }) {
   return (
@@ -88,6 +108,12 @@ export function AlleFaehigkeiten({ m }: { m: Manager }) {
           <Fragment key={s.key}>
             <dt>{faehigkeitName(s.key)}</dt>
             <dd>{stufeText(s.key, s.level)}</dd>
+          </Fragment>
+        ))}
+        {(m.branches ?? []).map((b) => (
+          <Fragment key={`branche.${b.key}`}>
+            <dt>{t("faehigkeit.branche", { branche: t(`branche.${b.key}`) })}</dt>
+            <dd>{stufeText("branche", b.level)}</dd>
           </Fragment>
         ))}
         <dt>{t("organisation.trefferquote")}</dt>
@@ -1322,6 +1348,7 @@ function AbwerbeZeile({ k, rolle, onWahl }: { k: Kandidat; rolle: string; onWahl
     <tr>
       <td>
         <strong>{m.name}</strong> <Familienmarke m={m} />
+        <Branchenmarke m={m} />
         <AlleFaehigkeiten m={m} />
       </td>
       <td data-spalte={t("organisation.firma")}>{k.company ?? "–"}</td>
@@ -1378,6 +1405,7 @@ function KandidatZeile({
     <tr>
       <td>
         <strong>{m.name}</strong> <Familienmarke m={m} />
+        <Branchenmarke m={m} />
         {k.new && <span className="marke"> {t("organisation.neu")}</span>}
         {k.ai_days != null && k.ai_days > 0 && (
           <small className="feld-hilfe">
@@ -1437,6 +1465,7 @@ function Managermarkt({
   const [reiter, setReiter] = useState<MarktReiter>(anfang);
   const [land, setLand] = useState("alle");
   const [funktion, setFunktion] = useState("alle");
+  const [branche, setBranche] = useState("alle");
   const [nurBereit, setNurBereit] = useState(false);
   const [mindest, setMindest] = useState(0);
   const auswahlId = useId();
@@ -1445,8 +1474,26 @@ function Managermarkt({
   const standort = einheitName(daten);
   const gewaehlt = kontinent ?? daten.continent;
   const kontinente = [...new Set(daten.candidates.map((k) => k.manager.continent))];
-  const liste = daten.candidates.filter(
-    (k) => gewaehlt === "alle" || k.manager.continent === gewaehlt,
+  // The industry of the works first (MG5), else as the core ordered them.
+  const nachBranche = (l: Kandidat[]) =>
+    daten.branch
+      ? [...l].sort(
+          (x, y) => brancheStufe(y.manager, daten.branch) - brancheStufe(x.manager, daten.branch),
+        )
+      : l;
+  const hatBranche = (k: Kandidat) =>
+    branche === "alle" || (k.manager.branches ?? []).some((b) => b.key === branche);
+  const alleBranchen = [
+    ...new Set(
+      [...daten.candidates, ...(daten.others ?? []), ...daten.own].flatMap((k) =>
+        (k.manager.branches ?? []).map((b) => b.key),
+      ),
+    ),
+  ].sort((x, y) => t(`branche.${x}`).localeCompare(t(`branche.${y}`), "de"));
+  const liste = nachBranche(
+    daten.candidates.filter(
+      (k) => (gewaehlt === "alle" || k.manager.continent === gewaehlt) && hatBranche(k),
+    ),
   );
   const abwerben = async (k: Kandidat) => {
     const ok = await los(
@@ -1455,15 +1502,18 @@ function Managermarkt({
     );
     if (ok) onZurueck();
   };
-  const fremde = (daten.others ?? []).filter(
-    (k) =>
-      (gewaehlt === "alle" || k.manager.continent === gewaehlt) &&
-      (land === "alle" || k.manager.home === land) &&
-      (funktion === "alle" || k.manager.focus === funktion) &&
-      (!nurBereit || k.satisfaction === 0) &&
-      (k.manager.skills.find(
-        (s) => s.key === `fach.${rolle === "leitung" ? k.manager.focus : rolle}`,
-      )?.level ?? 0) >= mindest,
+  const fremde = nachBranche(
+    (daten.others ?? []).filter(
+      (k) =>
+        hatBranche(k) &&
+        (gewaehlt === "alle" || k.manager.continent === gewaehlt) &&
+        (land === "alle" || k.manager.home === land) &&
+        (funktion === "alle" || k.manager.focus === funktion) &&
+        (!nurBereit || k.satisfaction === 0) &&
+        (k.manager.skills.find(
+          (s) => s.key === `fach.${rolle === "leitung" ? k.manager.focus : rolle}`,
+        )?.level ?? 0) >= mindest,
+    ),
   );
   const nehmen = async (k: Kandidat) => {
     const position = stellenangabe(einheit, rolle);
@@ -1531,6 +1581,21 @@ function Managermarkt({
         ))}
         <option value="alle">{t("organisation.alle_kontinente")}</option>
       </select>
+      <div className="feld">
+        <label htmlFor={`${auswahlId}-branche`}>{t("organisation.branche_wahl")}</label>
+        <select
+          id={`${auswahlId}-branche`}
+          value={branche}
+          onChange={(e) => setBranche(e.target.value)}
+        >
+          <option value="alle">{t("organisation.alle_branchen")}</option>
+          {alleBranchen.map((b) => (
+            <option key={b} value={b}>
+              {t(`branche.${b}`)}
+            </option>
+          ))}
+        </select>
+      </div>
       {reiter === "frei" && (
         <>
           <h3>{t("organisation.bewerber")}</h3>

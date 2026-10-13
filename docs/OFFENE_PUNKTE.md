@@ -2570,3 +2570,20 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
 - Das Widerspruchspaar wirkt nur bei Anliegen derselben Firma am selben Standort aus verschiedenen Stellen; die
   Paare stehen in `widerspruch_themen` (Verkauf/Produktion, Werbung/Verkauf, Einkauf/Produktion). Da Verkauf und
   Produktion Routinethemen sind (die Stelle folgt der Regel), tritt der Fall praktisch erst mit weiteren Themen auf.
+
+### MG5: Branchenstärke – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen:
+- Die Stärke eines Werks wird zu jedem Monatsanfang bestimmt und am Werk gespeichert; Einstellen und Entlassen
+  wirken daher erst ab dem nächsten Monatsanfang (nötig, damit Speichern/Laden und Wiederholung dasselbe ergeben, und
+  damit die Produktion nicht je Aufruf nach Managern sucht). In einem neuen Spiel ist die Stärke im ersten Monat 0.
+- Wachstum: jede Branche der Einheit würfelt einzeln mit `wachstum_chance`; bei Land, Kontinent und Vorstand zählen
+  die Branchen aller Werke der Firma in der Einheit.
+- Der Gesamtdeckel der Arbeitsstunden umfasst Weiterentwicklung, Trimm, Maschinenangebot, Branchenstärke,
+  Schulung, Lernkurve, Anlagengröße und den Fördereigenheitsfaktor der Lagerstätte; Automatisierung und
+  Landesproduktivität sind der Grundwert. Das Produkt fällt nicht unter 0,40. Bestehende Spiele können dadurch
+  etwas weniger Überschwingen zeigen; Verteilung bitte mit `wsim-cli produktionsfaktoren` ansehen.
+- KI-Firmen werten die Branchenstärke bei der Auswahl für Produktionsstellen im freien Besetzen (`fill`) mit
+  (`ki_gewicht`); die Auswahl durch eine Leitung (`head_pick`) tut es noch nicht.
+- Die Sortierung „passende Branche zuerst“ gilt im Managermarkt für Werksstellen (Branche des Werks); ein
+  Filter „Branche“ steht in beiden Reitern.
+

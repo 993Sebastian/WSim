@@ -76,10 +76,10 @@ fn hours_per_run(
     (affinity, productivity): (f64, f64),
     cost_factor: f64,
 ) -> Vec<(LaborGroupId, f64)> {
-    let factor = labor_factor(catalog, automation, affinity)
-        * cost_factor
-        * catalog.production_model.sizes.labor(size)
-        / productivity.max(1e-9);
+    // All factors on the hours together fall to a floor only (MG5).
+    let reduction = (cost_factor * catalog.production_model.sizes.labor(size))
+        .max(catalog.management.branch.floor_hours);
+    let factor = labor_factor(catalog, automation, affinity) * reduction / productivity.max(1e-9);
     recipe
         .labor_hours
         .iter()
@@ -1150,11 +1150,28 @@ pub fn site_effect(
     site: &crate::state::Site,
     product: ProductId,
 ) -> development::Effect {
+    let mut e = site_effect_unfloored(catalog, state, site, product);
+    // The floor of the material factors together (MG5).
+    e.inputs = e.inputs.max(catalog.management.branch.floor_material);
+    e
+}
+
+/// `site_effect` before the floor of the production factors (MG5; the protocol of the
+/// factors shows what the floor cuts).
+pub fn site_effect_unfloored(
+    catalog: &Catalog,
+    state: &GameState,
+    site: &crate::state::Site,
+    product: ProductId,
+) -> development::Effect {
     let mut e = development::effect(catalog, state, site.owner, product);
     let t = catalog.production_model.trims.effect(trim(site, product));
     e.inputs *= t.material;
     e.labor *= t.labor;
     e.quality += t.quality;
+    // The industry experience of the manager for production (MG5).
+    e.labor *= crate::branch_skill::hours_factor(catalog, site.branch_strength);
+    e.inputs *= crate::branch_skill::material_factor(catalog, site.branch_strength);
     e
 }
 
@@ -1167,7 +1184,20 @@ pub fn slot_effect(
     slot: &crate::state::Slot,
     product: ProductId,
 ) -> development::Effect {
-    let mut e = site_effect(catalog, state, site, product);
+    let mut e = slot_effect_unfloored(catalog, state, site, slot, product);
+    e.inputs = e.inputs.max(catalog.management.branch.floor_material);
+    e
+}
+
+/// `slot_effect` before the floor of the production factors (MG5).
+pub fn slot_effect_unfloored(
+    catalog: &Catalog,
+    state: &GameState,
+    site: &crate::state::Site,
+    slot: &crate::state::Slot,
+    product: ProductId,
+) -> development::Effect {
+    let mut e = site_effect_unfloored(catalog, state, site, product);
     if let Some(m) = &slot.machine {
         e.output *= m.output;
         e.labor *= m.labor;
