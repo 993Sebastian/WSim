@@ -2616,7 +2616,8 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
   Zuschlagsregeln blieben unverändert (V2 aus MN2).
 
 
-### PD: Produktentwicklung – Aufnahme der Vorgabe 13.10.2026, bitte abnehmen
+### PD: Produktentwicklung – Aufnahme der Vorgabe 13.10.2026, angenommen
+✅ **Angenommen am 13.10.2026** („alles erstmal so annehmen, wie du es einschätzt“): Name PD, Reihenfolge am Ende der Kette, alle vorläufigen Werte wie unten. Weiter änderbar.
 Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRITT.md`).
 🟡 Entscheidungen bei der Aufnahme:
 - **Name PD statt PE:** Der Auftraggeber nannte die Meilensteine PE1–PE10. PE1–PE6 sind bereits
@@ -2637,3 +2638,8 @@ Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRIT
 - Unbeantwortete Entscheidungen entscheidet der PL zum Rundenende mit seiner Empfehlung (§7).
 - Umrüstung der Anlagen nach WM3 dauert ein Viertel der Bauzeit (§8).
 - Restertrag der Weiterentwicklung nach der dritten Stufe: 20 % der dritten Stufe (§8).
+
+### Sammelentscheidung 13.10.2026
+✅ Der Auftraggeber hat angewiesen, zu allen offenen Punkten („bitte abnehmen“) erst einmal die Einschätzung
+des Entwicklers zu übernehmen. Alle mit 🟡 gekennzeichneten Annahmen und Vorschläge gelten ab jetzt als
+angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit das Ergebnis ändert.
