@@ -536,15 +536,16 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
             needed[g.index()] += runs * h / worker_hours;
         }
     }
-    if let Some(field) = development::project_field(catalog, state, site)
-        && let Some(group) = catalog
+    for (field, posts) in crate::labs::posts(catalog, state, site, date) {
+        if let Some(group) = catalog
             .research_model
             .researchers
             .get(field.index())
             .copied()
             .flatten()
-    {
-        needed[group.index()] += crate::research::wanted_researchers(catalog, state, site, date);
+        {
+            needed[group.index()] += posts;
+        }
     }
     needed
 }

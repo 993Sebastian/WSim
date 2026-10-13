@@ -166,6 +166,13 @@ export type Befehl =
       };
     }
   | { SetProductResearch: { site: number; product: string | null } }
+  | {
+      SetLabWork: {
+        site: number;
+        slot: number;
+        work: { Technology: string } | { Product: string } | { Development: string } | null;
+      };
+    }
   | { SetAdvertising: { country: string; group: string; budget: number } }
   | { SetWagePremium: { site: number; premium: number } }
   | { SetPrice: { site: number; product: string; price: number } }

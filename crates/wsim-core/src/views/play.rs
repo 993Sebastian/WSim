@@ -2700,6 +2700,24 @@ pub struct LabView {
     pub count: u32,
     pub utilization: f64,
     pub ready: String,
+    /// The laboratory's own project (LB1); none: it works on the center's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub work: Option<LabWorkView>,
+    /// Share of the center's researchers working in this laboratory.
+    #[serde(default)]
+    pub share: f64,
+}
+
+/// The own project of a laboratory (LB1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LabWorkView {
+    /// `technologie`, `produkt` (researches a product) or `entwicklung`.
+    pub kind: String,
+    /// Key of the technology or product.
+    pub key: String,
+    /// The technology a product research works on now.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub technology: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -2729,6 +2747,30 @@ pub struct ResearchOverview {
     /// Countries to file patents in, largest markets first (P7; empty without patents).
     #[serde(default)]
     pub patent_countries: Vec<PatentCountryView>,
+}
+
+fn lab_work_view(catalog: &Catalog, work: crate::state::LabWork) -> LabWorkView {
+    use crate::state::LabWork;
+    match work {
+        LabWork::Technology(t) => LabWorkView {
+            kind: "technologie".into(),
+            key: catalog.technologies.key(t).to_owned(),
+            technology: None,
+        },
+        LabWork::Product {
+            product,
+            technology,
+        } => LabWorkView {
+            kind: "produkt".into(),
+            key: catalog.products.key(product).to_owned(),
+            technology: technology.map(|t| catalog.technologies.key(t).to_owned()),
+        },
+        LabWork::Development(p) => LabWorkView {
+            kind: "entwicklung".into(),
+            key: catalog.products.key(p).to_owned(),
+            technology: None,
+        },
+    }
 }
 
 /// The patent on a technology as the player sees it (P7).
@@ -3301,6 +3343,8 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                     count: sl.count,
                     utilization: sl.utilization,
                     ready: iso(sl.ready),
+                    work: sl.work.map(|w| lab_work_view(catalog, w)),
+                    share: crate::labs::lab_share(catalog, s, slot, state.date),
                 })
                 .collect(),
         })

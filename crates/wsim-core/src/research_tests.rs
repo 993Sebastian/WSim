@@ -13,7 +13,7 @@ use crate::money::Money;
 use crate::research;
 use crate::state::{GameSettings, SiteId, StartForm};
 
-fn new_game(catalog: Catalog) -> Game {
+pub(crate) fn new_game(catalog: Catalog) -> Game {
     let catalog = Arc::new(catalog);
     let settings = GameSettings {
         seed: 5,

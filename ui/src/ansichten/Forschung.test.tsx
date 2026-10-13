@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Befehl, Forschung, Kern } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
 import { ForschungAnsicht } from "./Forschung";
@@ -117,6 +117,33 @@ describe("Weiterentwicklung", () => {
       { SetResearch: { site: 99, technology: null } },
       { SetDevelopment: { site: 99, product: null } },
     ]);
+  });
+});
+
+describe("Projekt je Labor", () => {
+  afterEach(cleanup);
+
+  it("gibt einem Labor ein eigenes Projekt", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitLabor();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /^Forschungszentren/ }));
+    const wahl = (await screen.findByLabelText("Projekt von Labor 1")) as HTMLSelectElement;
+    expect(wahl.value).toBe("");
+    fireEvent.change(wahl, { target: { value: "p:naegel" } });
+    expect(await screen.findByText("Das Projekt des Labors ist gesetzt.")).toBeTruthy();
+    expect(gesendet).toEqual([
+      { SetLabWork: { site: 99, slot: 0, work: { Development: "naegel" } } },
+    ]);
+    fireEvent.change(wahl, { target: { value: "" } });
+    await vi.waitFor(() => expect(gesendet).toHaveLength(2));
+    expect(gesendet[1]).toEqual({ SetLabWork: { site: 99, slot: 0, work: null } });
   });
 });
 

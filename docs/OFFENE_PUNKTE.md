@@ -2485,6 +2485,18 @@ Heute gilt ein Projekt je Standort mit einer Auslastung je Labor.
 - KI-Firmen wählen je Labor ein Projekt; bei Engpässen bündeln sie bevorzugt.
 - Die Werksansicht zeigt je Labor Projekt, Fortschritt und Auslastung.
 
+✅ Umsetzung (13.10.2026, LB1) – Abweichungen von den Annahmen, bitte abnehmen:
+- Das Projekt eines Labors (Anlage) steht in `Slot.work`; ohne eigenes Projekt arbeitet das Labor
+  am Projekt des Standorts. So bleiben der Befehlssatz der KI und alle Altstände unverändert
+  (nur ein neues optionales Feld, das Spielstandformat bleibt bei 4). Der neue Befehl heißt
+  `SetLabWork { site, slot, work }`; `SetResearch`/`SetDevelopment`/… setzen weiter das
+  Standortprojekt (für alle Labore ohne eigenes).
+- Die KI vergibt weiter nur Standortprojekte (alle Labore gleich); eigene Laborprojekte setzt
+  der Spieler. Gebündelt wird dadurch ohnehin: gleiche Projekte addieren sich in der Firma.
+- Ein Labor „Produkt weiterentwickeln“ arbeitet zur Hälfte an der Entwicklung, zur Hälfte an der
+  Fertigungsforschung (wie das Einzelprodukt des Standorts).
+- Forscherstellen je Fachgruppe: jedes Labor in der Fachgruppe seines Projekts (FORMELN LB1).
+
 ## Z Einkaufscontrolling (Wunsch vom 13.10.2026)
 
 Wunsch: Im Bereich Controlling eine Auswertung des Einkaufs: welche Komponente in welcher

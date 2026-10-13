@@ -1151,7 +1151,16 @@ export interface Forschung {
     research_product?: string | null;
     ready: boolean;
     building_until: string | null;
-    labs: { slot: number; count: number; utilization: number; ready: string }[];
+    labs: {
+      slot: number;
+      count: number;
+      utilization: number;
+      ready: string;
+      /** The laboratory's own project (LB1); without one it follows the center. */
+      work?: { kind: "technologie" | "produkt" | "entwicklung"; key: string; technology?: string };
+      /** Share of the center's researchers working here. */
+      share?: number;
+    }[];
   }[];
   laboratory: string | null;
   laboratory_usd: number;

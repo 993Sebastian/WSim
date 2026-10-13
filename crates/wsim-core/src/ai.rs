@@ -4936,6 +4936,7 @@ mod tests {
             size: crate::catalog::FacilitySize::Medium,
             retrofit: 0,
             machine: None,
+            work: None,
         });
         // Ten furnaces make 500 t a day; last month sold the planned share.
         let price = reference.scale(0.5);
@@ -5858,6 +5859,7 @@ mod tests {
             size: crate::catalog::FacilitySize::Medium,
             retrofit: 0,
             machine: None,
+            work: None,
         });
         state.sites[mine.index()].offers.insert(
             ore,

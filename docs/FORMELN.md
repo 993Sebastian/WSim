@@ -5918,3 +5918,29 @@ an die Obergrenze (60).
 **Protokoll.** `wsim run --managermarkt` gibt je Kontinent und Jahr aus: Ziel und freie
 Kandidaten nach dem letzten Auffüllen des Jahres, neue Kandidaten, Einstellungen durch KI und
 Spieler, abgeworbene Manager (`GameState::manager_market_log`).
+
+## LB1 Forschungszentrum: Projekt je Labor (OFFENE_PUNKTE Y)
+
+**Labor.** Ein Labor ist eine Anlage (Slot) des Forschungszentrums. Sein Gewicht ist
+`g = Läufe · Auslastung` (wie die Forscherstellen, `wanted_researchers`), nur fertige Labore zählen.
+
+**Eigenes Projekt.** Ein Labor kann ein eigenes Projekt haben (`Slot.work`):
+Technologie, Produkt erforschen (Q6/FW1; die Technologie dazu wählt der Kern wie beim Standort)
+oder Produkt weiterentwickeln (Hälfte Entwicklung, Hälfte Fertigungsforschung wie beim Standort).
+Ohne eigenes Projekt arbeitet das Labor am Projekt des Standorts (bisheriges Verhalten).
+
+**Anteil.** Mit `G = Σ g` (alle fertigen Labore) und `G₀ = Σ g` (Labore ohne eigenes Projekt):
+- Das Standortprojekt (Technologie, Produktanteile Q1/Q6, Lernen) erhält den Anteil `w₀ = G₀ / G`
+  der Forscher; seine bisherigen Anteile werden mit `w₀` multipliziert. Ohne eigene Projekte ist
+  `w₀ = 1` – alles bleibt wie bisher.
+- Ein Labor mit eigenem Projekt erhält `w = g / G` der Forscher der Fachgruppe des Projekts.
+- Forscher, Material, Wirkungsgrad des Landes und Punkte werden je Projekt wie bisher gerechnet:
+  `Punkte = Forscher · w · Wirkungsgrad`, Material `Forscher · w · Materialkosten`.
+
+**Addieren.** Punkte gehören der Firma (je Technologie, Produkt), nicht dem Labor: Wählen mehrere
+Labore, auch an verschiedenen Standorten, dasselbe Projekt, addieren sich ihre Punkte ohne Abschlag.
+
+**Ende.** Ist eine Technologie erforscht, ein Produkt bekannt oder nicht mehr entwickelbar,
+wird das eigene Projekt des Labors gelöscht; es folgt dann wieder dem Standort.
+**Stellen.** Forscherstellen: ein Labor mit eigenem Projekt ist beschäftigt, die übrigen sind es,
+wenn das Standortprojekt Arbeit hat.

@@ -1342,6 +1342,23 @@ pub struct Slot {
     /// where there is none.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub machine: Option<crate::procurement::MachineFactors>,
+    /// The laboratory's own project (LB1); none: it works on its research center's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub work: Option<LabWork>,
+}
+
+/// The own project of a laboratory (LB1).
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub enum LabWork {
+    /// Researches a technology.
+    Technology(TechnologyId),
+    /// Researches a product (Q6/FW1); `technology` is the one the lab works on for it now.
+    Product {
+        product: ProductId,
+        technology: Option<TechnologyId>,
+    },
+    /// Develops a product: half development, half manufacturing research.
+    Development(ProductId),
 }
 
 /// A facility stands still until a day (BP2).

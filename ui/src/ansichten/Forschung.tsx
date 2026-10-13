@@ -1029,6 +1029,9 @@ function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschu
           site={z.site}
           labor={l}
           heute={daten.date}
+          erforschbar={erforschbar.map((x) => x.product)}
+          entwickelbar={entwickelbar.map((d) => d.product)}
+          nummer={i + 1}
           titel={t("forschung.labor_nr", { nummer: i + 1 })}
           name={
             z.labs.length === 1
@@ -1064,18 +1067,28 @@ function LaborAuslastung({
   site,
   labor,
   heute,
+  erforschbar,
+  entwickelbar,
+  nummer,
   titel,
   name,
 }: {
   site: number;
   labor: Forschung["centers"][number]["labs"][number];
   heute: string;
+  erforschbar: string[];
+  entwickelbar: string[];
+  nummer: number;
   titel: string;
   name: string;
 }) {
   const [prozent, setProzent] = useState(zahlFeld(labor.utilization * 100, 0));
   const [fehler, setFehler] = useState<string | null>(null);
   const { los, antwort } = useAktion(`labor/${site}/${labor.slot}`);
+  const projektAktion = useAktion(`labor-projekt/${site}/${labor.slot}`);
+  const eigenes = labor.work
+    ? `${{ technologie: "t", produkt: "r", entwicklung: "p" }[labor.work.kind]}:${labor.work.key}`
+    : "";
   if (labor.ready > heute) {
     const tage = Math.max(1, Math.round((Date.parse(labor.ready) - Date.parse(heute)) / 864e5));
     return (
@@ -1112,8 +1125,59 @@ function LaborAuslastung({
         gruppieren={false}
       />
       <button type="submit">{t("werk.uebernehmen")}</button>
+      <div className="feld">
+        <label htmlFor={`labor-projekt-${site}-${labor.slot}`}>
+          {t("forschung.labor_projekt", { nummer })}
+        </label>
+        <select
+          id={`labor-projekt-${site}-${labor.slot}`}
+          value={eigenes}
+          onChange={(e) => {
+            const [art, key] = [e.target.value.slice(0, 1), e.target.value.slice(2)];
+            const work =
+              art === "t"
+                ? { Technology: key }
+                : art === "r"
+                  ? { Product: key }
+                  : art === "p"
+                    ? { Development: key }
+                    : null;
+            void projektAktion.los(
+              [{ SetLabWork: { site, slot: labor.slot, work } }],
+              t("forschung.labor_projekt_gesetzt"),
+            );
+          }}
+        >
+          <option value="">{t("forschung.labor_wie_zentrum")}</option>
+          {labor.work?.kind === "technologie" && (
+            <option value={eigenes}>{technologieName(labor.work.key)}</option>
+          )}
+          <optgroup label={t("forschung.produkte_reiter")}>
+            {erforschbar.map((p) => (
+              <option key={p} value={`r:${p}`}>
+                {t("forschung.erforschen_option", { produkt: produktName(p) })}
+              </option>
+            ))}
+          </optgroup>
+          {entwickelbar.length > 0 && (
+            <optgroup label={t("forschung.entwicklung")}>
+              {entwickelbar.map((p) => (
+                <option key={p} value={`p:${p}`}>
+                  {t("forschung.labor_entwickeln_option", { produkt: produktName(p) })}
+                </option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+      </div>
+      {labor.work && labor.share !== undefined && (
+        <small className="gedaempft">
+          {t("forschung.labor_anteil", { anteil: formatProzent(labor.share) })}
+        </small>
+      )}
       {fehler && <p className="fehlertext">{fehler}</p>}
       <Rueckmeldung meldung={antwort} />
+      <Rueckmeldung meldung={projektAktion.antwort} />
     </form>
   );
 }

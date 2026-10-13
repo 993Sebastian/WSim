@@ -910,6 +910,7 @@ pub(crate) fn start_setup(
             size: crate::catalog::FacilitySize::Medium,
             retrofit: 0,
             machine: None,
+            work: None,
         })
         .collect();
     let offers = setup

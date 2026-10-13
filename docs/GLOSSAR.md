@@ -139,6 +139,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Weltkarte, Kartenebene | `WorldMap`, `Ebene` (UI) |
 | Länderdetail | `CountryDetail` |
 | Engpass, Ursache | `Slot::limit` (`Limit`), `Cause` |
+| Laborprojekt (eigenes Projekt eines Labors) | `Slot::work` (`LabWork`) |
 | Produktion, Markt, Forschung, Finanzen (Sichten) | `ProductionView`, `MarketView`, `ResearchOverview`, `FinanceView` |
 | Berichte (Meldungsarchiv) | `BerichteAnsicht` (UI) |
 | Lagerstätte erschließen, freie Lagerstätte | `DevelopDeposit`, `DepositOption` |

@@ -22,6 +22,14 @@ use crate::state::{
     SaleOffer, Site, SiteId, Slot, Tenure,
 };
 
+/// What a laboratory is given to work on (LB1).
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub enum LabTarget {
+    Technology(TechnologyId),
+    Product(ProductId),
+    Development(ProductId),
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Command {
     /// Renames the acting company.
@@ -252,6 +260,13 @@ pub enum Command {
     SetDevelopment {
         site: SiteId,
         product: Option<ProductId>,
+    },
+    /// Gives one laboratory of a research center a project of its own (LB1); `None`
+    /// lets it work on the center's project again.
+    SetLabWork {
+        site: SiteId,
+        slot: usize,
+        work: Option<LabTarget>,
     },
     /// Splits the researchers of a research center among products (Q1), each with its
     /// share (sum at most 1); the rest works on the center's technology. Empty clears.
@@ -1577,6 +1592,7 @@ pub(crate) fn build_facility(
             size,
             retrofit: 0,
             machine: offer.map(|o| o.factors),
+            work: None,
         });
     Ok(())
 }
@@ -2609,6 +2625,50 @@ fn run(
             if product.is_some() {
                 s.research = None;
             }
+            s.staffing_due = true;
+        }
+        Command::SetLabWork { site, slot, work } => {
+            let s = own_site(state, actor, *site)?;
+            if s.kind != SiteType::ResearchCenter {
+                return Err(CommandError::WrongSiteType {
+                    required: SiteType::ResearchCenter,
+                });
+            }
+            if *slot >= s.slots.len() {
+                return Err(CommandError::InvalidQuantity);
+            }
+            let new = match work {
+                None => None,
+                Some(LabTarget::Technology(t)) => {
+                    if !crate::research::can_research(catalog, state, actor, *t) {
+                        return Err(CommandError::NotResearchable(
+                            catalog.technologies.key(*t).to_owned(),
+                        ));
+                    }
+                    Some(crate::state::LabWork::Technology(*t))
+                }
+                Some(LabTarget::Product(p)) => {
+                    if !crate::product_research::can_research(catalog, state, actor, *p) {
+                        return Err(CommandError::NotResearchableProduct(
+                            catalog.products.key(*p).to_owned(),
+                        ));
+                    }
+                    Some(crate::state::LabWork::Product {
+                        product: *p,
+                        technology: crate::product_research::next(catalog, state, actor, *p),
+                    })
+                }
+                Some(LabTarget::Development(p)) => {
+                    if !crate::development::can_develop(catalog, state, actor, *p) {
+                        return Err(CommandError::NotDevelopable(
+                            catalog.products.key(*p).to_owned(),
+                        ));
+                    }
+                    Some(crate::state::LabWork::Development(*p))
+                }
+            };
+            let s = state.site_mut(*site).expect("checked above");
+            s.slots[*slot].work = new;
             s.staffing_due = true;
         }
         Command::SetResearchShares {

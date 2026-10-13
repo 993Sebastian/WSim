@@ -173,8 +173,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
             ));
         }
         let site = &state.sites[s.index.try_into().unwrap_or(usize::MAX)];
-        if research && crate::development::idle(site) && !crate::development::learning(state, site)
-        {
+        if research && crate::labs::all_idle(state, site) {
             let mut m = at(keys::HINT_NO_RESEARCH);
             m.kind = MessageKind::Info;
             let mut h = hint(m, Some(s.index), None);

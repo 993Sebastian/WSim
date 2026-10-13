@@ -1798,6 +1798,9 @@ pub(crate) fn spin_off(
     s.research = None;
     s.development = None;
     s.development_shares.clear();
+    for slot in &mut s.slots {
+        slot.work = None;
+    }
     if sell_share > 0.0 {
         sell(state, catalog, actor, id, sell_share)?;
     }

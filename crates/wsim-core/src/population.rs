@@ -901,6 +901,7 @@ fn found_company(
                 size: p.size,
                 retrofit: 0,
                 machine: None,
+                work: None,
             });
             let flows = slot_flows(
                 catalog,

@@ -585,6 +585,7 @@ fn probe_slot(
             size: b.size,
             retrofit: 0,
             machine,
+            work: None,
         },
         TenderKind::Switch { slot, .. } => {
             let mut sl = state.site(tender.site)?.slots.get(slot)?.clone();

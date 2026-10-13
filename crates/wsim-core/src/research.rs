@@ -6,7 +6,7 @@
 //! ahead of history or how long ago the technology was invented.
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, SiteType};
+use crate::catalog::Catalog;
 use crate::development;
 use crate::ids::{Id, ProductId, TechnologyId};
 use crate::ledger::{Account, CostCenter, CostType};
@@ -80,74 +80,57 @@ pub fn can_research(
             .all(|&p| state.knows(catalog, company, p))
 }
 
-/// Researchers a research center wants for its current project, by labor group.
-pub(crate) fn wanted_researchers(
-    catalog: &Catalog,
-    state: &GameState,
-    site: SiteId,
-    date: Date,
-) -> f64 {
-    let s = &state.sites[site.index()];
-    if s.kind != SiteType::ResearchCenter
-        || (development::idle(s) && !development::learning(state, s))
-    {
-        return 0.0;
-    }
-    s.slots
-        .iter()
-        .filter(|sl| sl.operating(date))
-        .map(|sl| sl.full_runs(catalog) * sl.utilization)
-        .sum()
-}
-
 /// One day of research for all companies. Returns messages for the player.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let model = &catalog.research_model;
     let mut messages = crate::product_research::steer(state, catalog);
+    messages.extend(crate::labs::steer(state, catalog));
     messages.extend(develop(state, catalog, date));
     for index in 0..state.sites.len() {
         let s = &state.sites[index];
-        let Some(technology) = s.research else {
-            continue;
-        };
         let owner = s.owner;
         if state.companies[owner.index()].bankrupt {
             continue;
         }
-        if state.knows(catalog, owner, technology) {
+        if let Some(technology) = s.research
+            && state.knows(catalog, owner, technology)
+        {
             state.sites[index].research = None;
-            continue;
         }
-        let field = catalog.technologies.get(technology).field;
-        let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
-            continue;
-        };
-        // The researchers not given to products work on the technology (Q1).
-        let researchers = *s.workforce.get(group) * development::technology_share(s);
-        if researchers <= 0.0 {
-            continue;
+        let s = &state.sites[index];
+        for (technology, share) in crate::labs::technology_shares(catalog, s, date) {
+            let s = &state.sites[index];
+            let field = catalog.technologies.get(technology).field;
+            let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
+                continue;
+            };
+            // The researchers not given to products work on the technology (Q1).
+            let researchers = *s.workforce.get(group) * share;
+            if researchers <= 0.0 {
+                continue;
+            }
+            let country = state.countries.get(s.country);
+            let efficiency = country
+                .research_efficiency
+                .get(field.index())
+                .copied()
+                .unwrap_or(1.0);
+            let material =
+                Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
+                    .unwrap_or(Money::ZERO);
+            let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+            let company = &mut state.companies[owner.index()];
+            company.ledger.expense(
+                CostType::Research,
+                CostCenter::site(site),
+                Account::Cash,
+                material,
+            );
+            *company.research.entry(technology).or_default() += researchers * efficiency;
         }
-        let country = state.countries.get(s.country);
-        let efficiency = country
-            .research_efficiency
-            .get(field.index())
-            .copied()
-            .unwrap_or(1.0);
-        let material =
-            Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
-                .unwrap_or(Money::ZERO);
-        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
-        let company = &mut state.companies[owner.index()];
-        company.ledger.expense(
-            CostType::Research,
-            CostCenter::site(site),
-            Account::Cash,
-            material,
-        );
-        *company.research.entry(technology).or_default() += researchers * efficiency;
     }
 
-    learn_products(state, catalog);
+    learn_products(state, catalog, date);
 
     for c in 0..state.companies.len() {
         let done: Vec<TechnologyId> = state.companies[c]
@@ -212,9 +195,9 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
     let mut working: Vec<(CompanyId, ProductId)> = Vec::new();
     let mut leading_before: Vec<(ProductId, bool)> = Vec::new();
     for index in 0..state.sites.len() {
-        manufacture(state, catalog, index);
+        manufacture(state, catalog, index, date);
         let s = &state.sites[index];
-        let shares = development::site_shares(s);
+        let shares = crate::labs::development_shares(catalog, s, date);
         if shares.is_empty() {
             continue;
         }
@@ -383,10 +366,10 @@ pub(crate) fn player_offers(state: &GameState, product: ProductId) -> bool {
 
 /// Manufacturing research of a center (Q6): each product's share of the researchers
 /// collects points as development does, material paid alike.
-fn manufacture(state: &mut GameState, catalog: &Catalog, index: usize) {
+fn manufacture(state: &mut GameState, catalog: &Catalog, index: usize, date: Date) {
     let model = &catalog.research_model;
     let s = &state.sites[index];
-    let shares = development::site_process_shares(s);
+    let shares = crate::labs::process_shares(catalog, s, date);
     let owner = s.owner;
     if shares.is_empty() || state.companies[owner.index()].bankrupt {
         return;
@@ -429,56 +412,54 @@ fn manufacture(state: &mut GameState, catalog: &Catalog, index: usize) {
 
 /// Mandatory research (FW1): a center researching a product whose technologies the company
 /// knows learns the product itself; the product is known once its points are reached.
-fn learn_products(state: &mut GameState, catalog: &Catalog) {
+fn learn_products(state: &mut GameState, catalog: &Catalog, date: Date) {
     if !state.settings.research_mandatory {
         return;
     }
     let model = &catalog.research_model;
     for index in 0..state.sites.len() {
         let s = &state.sites[index];
-        let (Some(product), None) = (s.research_product, s.research) else {
-            continue;
-        };
         let owner = s.owner;
-        if state.companies[owner.index()].bankrupt
-            || !crate::product_research::missing(catalog, state, owner, product).is_empty()
-        {
+        if state.companies[owner.index()].bankrupt {
             continue;
         }
-        let Some((field, needed)) =
-            crate::product_research::own_effort(catalog, state, owner, product)
-        else {
-            continue;
-        };
-        let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
-            continue;
-        };
-        let researchers = *s.workforce.get(group) * development::free_share(s);
-        if researchers <= 0.0 {
-            continue;
-        }
-        let country = state.countries.get(s.country);
-        let efficiency = country
-            .research_efficiency
-            .get(field.index())
-            .copied()
-            .unwrap_or(1.0);
-        let material =
-            Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
-                .unwrap_or(Money::ZERO);
-        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
-        let company = &mut state.companies[owner.index()];
-        company.ledger.expense(
-            CostType::Research,
-            CostCenter::site(site),
-            Account::Cash,
-            material,
-        );
-        let points = company.product_points.entry(product).or_default();
-        *points += researchers * efficiency;
-        if *points >= needed {
-            company.product_points.remove(&product);
-            company.known_products.insert(product);
+        for (product, share) in crate::labs::learn_shares(catalog, state, s, date) {
+            let s = &state.sites[index];
+            let Some((field, needed)) =
+                crate::product_research::own_effort(catalog, state, owner, product)
+            else {
+                continue;
+            };
+            let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
+                continue;
+            };
+            let researchers = *s.workforce.get(group) * share;
+            if researchers <= 0.0 {
+                continue;
+            }
+            let country = state.countries.get(s.country);
+            let efficiency = country
+                .research_efficiency
+                .get(field.index())
+                .copied()
+                .unwrap_or(1.0);
+            let material =
+                Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
+                    .unwrap_or(Money::ZERO);
+            let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+            let company = &mut state.companies[owner.index()];
+            company.ledger.expense(
+                CostType::Research,
+                CostCenter::site(site),
+                Account::Cash,
+                material,
+            );
+            let points = company.product_points.entry(product).or_default();
+            *points += researchers * efficiency;
+            if *points >= needed {
+                company.product_points.remove(&product);
+                company.known_products.insert(product);
+            }
         }
     }
 }

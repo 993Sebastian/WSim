@@ -950,3 +950,9 @@ Schlüssel `maschinenbauer.<id>`; erzeugt von `tools/daten/maschinenbauer.py`):
 | **id**, **land** | Schlüssel und Land (ISO oder Region) |
 | **tendenz** | −0,3 bis +0,3; verschiebt nur die Leistung L |
 | **ab**, bis | Jahre, in denen der Hersteller anbietet (`bis` nicht vor `ab`) |
+
+## Spielstand: Laborprojekte (LB1)
+
+`sites[].slots[].work` (optional): eigenes Projekt eines Labors – `{Technology: <id>}`,
+`{Product: {product: <id>, technology: <id>|null}}` oder `{Development: <id>}`. Fehlt es, arbeitet
+das Labor am Projekt des Standorts.

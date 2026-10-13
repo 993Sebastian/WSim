@@ -1070,6 +1070,11 @@ forschung.stand_zentrum: Stand
 forschung.projekt: Projekt
 forschung.labor_begonnen: Das Labor wird gebaut.
 forschung.labor_hilfe: Anteil der Forscherplätze, die besetzt werden.
+forschung.labor_projekt: "Projekt von Labor {nummer}"
+forschung.labor_wie_zentrum: Wie das Zentrum
+forschung.labor_entwickeln_option: "{produkt} weiterentwickeln"
+forschung.labor_projekt_gesetzt: Das Projekt des Labors ist gesetzt.
+forschung.labor_anteil: "{anteil} der Forscher des Zentrums arbeiten hier"
 forschung.gegruendet: "Forschungszentrum in {land} gegründet – baue dort ein Labor."
 forschung.keine_zentren: Noch kein Forschungszentrum.
 forschung.forscher_von: "{anzahl} Forscher auf {plaetze} Plätzen"
