@@ -1407,3 +1407,146 @@ fn positions_of_saves_before_ma3_are_site_positions() {
     let again: Position = rmp_serde::from_slice(&rmp_serde::to_vec_named(&new).unwrap()).unwrap();
     assert_eq!(again, new);
 }
+
+/// Answers the open concern of `asked` (delegated or with the option of a kind), then
+/// advances through the review and returns the messages of the reviews.
+fn answered_and_reviewed(
+    answer: impl Fn(&Game) -> management::ConcernAnswer,
+) -> (Game, SiteId, Vec<crate::message::Message>) {
+    let (mut game, works) = asked(cheap_furnaces());
+    let id = game.state().concerns[0].id;
+    let a = answer(&game);
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: a,
+    })
+    .unwrap();
+    let due = game.state().followups[0].due;
+    let mut reviews = Vec::new();
+    while game.date() <= due {
+        let report = game.advance(RoundLength::Day, |_| {});
+        reviews.extend(report.messages.into_iter().filter(|m| {
+            m.key == crate::message::keys::CONCERN_REVIEW
+                || m.key == crate::message::keys::CONCERN_REVIEW_DECLINED
+                || m.key == crate::message::keys::CONCERN_REVIEW_DECLINED_FORECAST
+        }));
+    }
+    (game, works, reviews)
+}
+
+#[test]
+fn an_answered_concern_gets_a_file_and_a_review_that_judges_the_manager() {
+    let (game, works, reviews) = answered_and_reviewed(|_| management::ConcernAnswer::Delegate);
+    assert_eq!(reviews.len(), 1, "one review of the file");
+    let f = game
+        .state()
+        .followups
+        .iter()
+        .find(|f| f.file.is_some())
+        .expect("the file stays after the review");
+    let file = f.file.as_ref().unwrap();
+    assert!(file.delegated);
+    assert_eq!(file.chosen, file.recommended);
+    assert!(file.options.len() >= 2);
+    assert_eq!(f.site, works);
+    let result = f.result.as_ref().expect("reviewed");
+    // The head who recommended is judged once and carries it along.
+    let head = &game.state().managers[&file.manager];
+    assert_eq!(head.judged, 1);
+    assert_eq!(head.hits, u32::from(result.hit));
+    // The review came 6 months (the test topic default) after the answer.
+    assert_eq!(f.due, file.created.add_months(6));
+}
+
+#[test]
+fn a_recommendation_that_was_not_followed_is_reviewed_against_the_forecast() {
+    use crate::decision::ChoiceKind;
+    let (game, _, reviews) = answered_and_reviewed(|game| {
+        let c = &game.state().concerns[0];
+        let other = c
+            .decision
+            .choices
+            .iter()
+            .position(|o| o.kind == ChoiceKind::Keep)
+            .expect("an option to keep things");
+        assert_ne!(other, c.recommended);
+        management::ConcernAnswer::Choose(other)
+    });
+    assert_eq!(reviews.len(), 1);
+    assert_eq!(
+        reviews[0].key,
+        crate::message::keys::CONCERN_REVIEW_DECLINED_FORECAST
+    );
+    let f = game
+        .state()
+        .followups
+        .iter()
+        .find(|f| f.file.is_some())
+        .unwrap();
+    let file = f.file.as_ref().unwrap();
+    assert_ne!(file.chosen, file.recommended);
+    assert!(f.result.is_some());
+    assert_eq!(game.state().managers[&file.manager].judged, 1);
+}
+
+#[test]
+fn a_declined_expansion_is_reviewed_by_the_unserved_demand() {
+    use crate::decision::ChoiceKind;
+    use crate::state::{DecisionFile, FileOption, Followup};
+    let (mut game, works, head_id) = weak_works(test_support::management());
+    let iron = game.catalog().products.id("eisen").unwrap();
+    let country = game.state().sites[works.index()].country;
+    // Demand of 600 against 100 sold a month; the works could serve at most its own output.
+    {
+        let m = &mut game
+            .state_mut()
+            .markets
+            .get_mut(iron)
+            .get_mut(country)
+            .last_month;
+        m.demand = 600.0;
+        m.sold = 100.0;
+    }
+    let player = game.player();
+    let date = game.date();
+    let option = |kind, forecast| FileOption {
+        kind,
+        forecast,
+        amount: Money::ZERO,
+    };
+    let file = DecisionFile {
+        concern: 1,
+        position: head(works),
+        manager: head_id,
+        created: date,
+        options: vec![
+            option(ChoiceKind::Keep, None),
+            option(ChoiceKind::Build, Some((usd(10_000.0), usd(30_000.0)))),
+        ],
+        recommended: 1,
+        chosen: 0,
+        delegated: false,
+    };
+    let followup = Followup {
+        company: player,
+        site: works,
+        topic: crate::decision::Topic::Expansion,
+        kind: ChoiceKind::Keep,
+        product: Some(iron),
+        forecast: Money::ZERO,
+        baseline: management::mean_result(game.state(), player, works),
+        due: date.add_months(12),
+        file: Some(file.clone()),
+        result: None,
+    };
+    let actual = Money::ZERO;
+    let result = management::review_file(game.state(), game.catalog(), &followup, &file, actual);
+    let unserved = result.unserved.expect("the rule counts unserved demand");
+    assert!(unserved > 0.0, "{result:?}");
+    // The works' output limits what an expansion could have served: not all 500 a month.
+    assert!(unserved <= 500.0 * 6.0, "{result:?}");
+    let lost = result.alternative.expect("the lost contribution");
+    assert!(lost > Money::ZERO, "{result:?}");
+    // Not building cost the lost contribution: the recommendation was the better one.
+    assert!(result.hit, "{result:?}");
+}

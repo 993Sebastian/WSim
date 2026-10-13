@@ -5988,3 +5988,33 @@ des Jahres.
 geschätzte Stückkostenzahl (`production::unit_costs`, der günstigste eigene Standort) neben dem
 Durchschnittspreis des Jahres, dazu `Eigenkosten / Preis − 1` in Prozent. Es ist eine Entscheidungshilfe;
 die Entscheidung bleibt beim Spieler.
+
+## MG2 Entscheidungsakte und Nachbetrachtung (docs/MANAGER_2.md §2)
+
+**Akte.** Beantwortet der Spieler ein Anliegen eines Standorts (`Choose`, `Delegate`), wird
+vor der Ausführung eine Akte angelegt, wenn die gewählte Option etwas bewirkt und eine Prognose
+hat, oder wenn die empfohlene Option nicht gewählt wurde und eine Prognose hat. Sie hält:
+Anliegen, Stelle, den fragenden Manager (bei Weiterleitung den der letzten Stelle), die Optionen
+mit Prognose (Spanne des Jahreseffekts) und Betrag, empfohlene und gewählte Option, ob
+delegiert wurde, die Ausgangslage `b` (mittleres Monatsergebnis des Standorts) und das
+Wiedervorlagedatum `heute + wirkzeit(Thema)` Monate (`anliegen.wirkzeit_monate`, 3–24 je Thema,
+`standard` sonst). Entscheidungen, die eine Stelle selbst trifft, behalten die einfache Rückmeldung
+nach `wirkzeit_tage` ohne Akte und ohne Wertung.
+
+**Nachbetrachtung.** Zum Wiedervorlagedatum misst der Kern den Jahreseffekt
+`a = 12 · (mittleres Monatsergebnis − b)`. Mit der Prognosemitte `f(o)` (Beibehalten ohne Prognose: 0):
+- Empfehlung gewählt: Alternative `alt = max f(o)` der übrigen Optionen; Treffer, wenn
+  `a ≥ alt − τ · max(|a|, |alt|)` (`τ` = `treffer_toleranz`, Vorschlag 10 %).
+- Empfehlung nicht gewählt: Gegenrechnung `g` für den nicht gegangenen Weg: bei Thema Ausbau oder
+  Engpass mit der Option „bauen“ `g = unbediente Nachfrage je Monat · 12 · Deckungsbeitrag je Stück`
+  (unbedient = Nachfrage − Absatz im Land im letzten Monat, höchstens die Monatsleistung des Standorts;
+  Deckungsbeitrag = Marktpreis − Stückkosten des Standorts), die seit der Entscheidung unbediente Menge
+  ist `unbedient je Monat · Monate bis zur Nachbetrachtung`; sonst `g = f(empfohlene Option)`.
+  Treffer, wenn `g ≥ a − τ · max(|g|, |a|)`.
+Die Meldung des Managers nennt Entscheidung, Datum, Zahlen und das Urteil.
+
+**Trefferquote für alle.** Jede Nachbetrachtung zählt für den fragenden Manager `judged += 1` und
+`hits += 1` bei einem Treffer (dieselben Felder wie die Schätzungen der Zentralabteilungen, ZA3). Quote
+mit Prior und der Faktor auf Gehaltsforderung und Eindruck (`hit_factor`) gelten damit für alle Manager;
+sie wandern mit dem Manager bei einem Stellenwechsel. Akten bleiben als Nachweis (je Firma höchstens
+`akten_behalten`, die ältesten Nachbetrachtungen zuerst entfallen).

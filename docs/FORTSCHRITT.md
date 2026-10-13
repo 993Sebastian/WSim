@@ -115,7 +115,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | LB1 | Forschungszentrum: Projekt je Labor statt eines Projekts je Standort; forschen mehrere Labore dasselbe Produkt bzw. dieselbe Technologie, addieren sich ihre Punkte (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE Y) | ✅ 13.10.2026 (Commit e700e86) |
 | EC1 | Einkaufscontrolling im Bereich Controlling: je Komponente Menge, Qualität, Preis und Ausgaben (letzter Monat, letztes Jahr) als Grundlage für die Frage, ob sich Eigenfertigung lohnt (Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE Z) | ✅ 13.10.2026 |
 | MG1 | Manager mit Geschichte: Abwerbemenü (Reiter „Manager anderer Firmen“), Pool-Prüfung, faire Zugriffszeit (KI-Wartetage), CLI-Protokoll „managermarkt“ (`docs/MANAGER_2.md` §1; sofort, vor allem anderen) | ⏳ |
-| MG2 | Entscheidungsakte, Nachbetrachtung, Trefferquote für alle Manager (§2) | ⏳ |
+| MG2 | Entscheidungsakte, Nachbetrachtung, Trefferquote für alle Manager (§2) | ✅ 13.10.2026 |
 | MG3 | Gedächtnis und Chronik (§3) | ⏳ |
 | MG4 | Tiefe und Vielfalt der Anliegen: 2–4 Optionen, neue Anlässe (§4) | ⏳ |
 | MG5 | Branchenstärke je Manager, Wirkung höchstens 10 %, Gesamtdeckel, CLI „produktionsfaktoren“ (§5) | ⏳ |

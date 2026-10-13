@@ -675,6 +675,9 @@ pub fn management() -> Catalog {
             estimate_error: 0.5,
             recommend_base: 0.5,
             bundle_from: 3,
+            effect_months: [6; crate::decision::Topic::ALL.len()],
+            hit_tolerance: 0.1,
+            files_kept: 120,
         },
         strategy: StrategyModel {
             premium: (1.35, 0.15),

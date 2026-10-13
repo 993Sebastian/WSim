@@ -17,8 +17,8 @@ use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
     BudgetRule, CompanyId, Concern, ConcernOption, ConcernPart, ConcernReason, ConcernStatus,
-    Followup, GameState, Hop, Job, Manager, ManagerId, Position, PositionKind, PositionLog,
-    PositionState, Role, RuleScope, SiteId, Unit, UnitLevel,
+    DecisionFile, FileOption, FileResult, Followup, GameState, Hop, Job, Manager, ManagerId,
+    Position, PositionKind, PositionLog, PositionState, Role, RuleScope, SiteId, Unit, UnitLevel,
 };
 use crate::strategy;
 
@@ -1754,6 +1754,8 @@ impl Decider for Staff<'_> {
                         due: self
                             .today
                             .add_days(i32::try_from(self.model.followup_days).unwrap_or(i32::MAX)),
+                        file: None,
+                        result: None,
                     });
                 }
                 if structural(d.topic) && kind != ChoiceKind::Keep {
@@ -2633,47 +2635,304 @@ fn expire_concerns(state: &mut GameState, catalog: &Catalog, today: Date, news: 
     }
 }
 
-/// Reports on the effects of decisions that are due (docs/FORMELN.md, MA2).
+/// Reports on the effects of decisions that are due (docs/FORMELN.md, MA2, MG2).
 fn report_followups(
     state: &mut GameState,
     catalog: &Catalog,
     today: Date,
     news: &mut Vec<Message>,
 ) {
-    let due: Vec<Followup> = state
+    let due: Vec<usize> = state
         .followups
         .iter()
-        .filter(|f| f.due <= today)
-        .cloned()
+        .enumerate()
+        .filter(|(_, f)| f.due <= today && f.result.is_none())
+        .map(|(i, _)| i)
         .collect();
-    state.followups.retain(|f| f.due > today);
-    for f in due {
+    let mut drop: Vec<usize> = Vec::new();
+    for i in due {
+        let f = state.followups[i].clone();
         let site = &state.sites[f.site.index()];
+        // Decisions a position took itself are reported once and forgotten.
+        if f.file.is_none() {
+            drop.push(i);
+        }
         if !state.is_main(f.company) || !site.held_by(f.company) {
+            // A file of a site that is gone cannot be judged.
+            if f.file.is_some() {
+                drop.push(i);
+            }
             continue;
         }
         let actual =
             Money::from_units((mean_result(state, f.company, f.site) - f.baseline).units() * 12);
-        let mut m = Message::new(MessageKind::Info, keys::CONCERN_EFFECT)
+        match &f.file {
+            None => {
+                let mut m = Message::new(MessageKind::Info, keys::CONCERN_EFFECT)
+                    .with(
+                        "massnahme",
+                        Param::TextKey(format!("option.{}", f.kind.key())),
+                    )
+                    .with("standort", crate::command::site_label(site))
+                    .with(
+                        "land",
+                        Param::Country(catalog.countries.key(site.country).to_owned()),
+                    )
+                    .with("prognose", Param::Money(f.forecast))
+                    .with("ist", Param::Money(actual));
+                if let Some(p) = f.product {
+                    m = m.with(
+                        "produkt",
+                        Param::TextKey(format!("produkt.{}", catalog.products.key(p))),
+                    );
+                }
+                news.push(m);
+            }
+            Some(file) => {
+                let review = review_file(state, catalog, &f, file, actual);
+                if let Some(m) = state.managers.get_mut(&file.manager) {
+                    m.judged += 1;
+                    m.hits += u32::from(review.hit);
+                }
+                news.push(review_message(state, catalog, &f, file, &review));
+                state.followups[i].result = Some(review);
+            }
+        }
+    }
+    drop.sort_unstable();
+    drop.dedup();
+    for i in drop.into_iter().rev() {
+        state.followups.remove(i);
+    }
+    // The files of a company are kept up to a number; the oldest reviews go first.
+    let cap = catalog.management.concerns.files_kept as usize;
+    let mut kept: std::collections::BTreeMap<usize, usize> = std::collections::BTreeMap::new();
+    for f in &state.followups {
+        if f.result.is_some() {
+            *kept.entry(f.company.index()).or_default() += 1;
+        }
+    }
+    for (company, count) in kept {
+        let mut excess = count.saturating_sub(cap);
+        state.followups.retain(|f| {
+            if excess > 0 && f.company.index() == company && f.result.is_some() {
+                excess -= 1;
+                false
+            } else {
+                true
+            }
+        });
+    }
+}
+
+/// The middle of a forecast; keeping things as they are changes nothing.
+fn forecast_mid(kind: ChoiceKind, forecast: Option<(Money, Money)>) -> Option<Money> {
+    match forecast {
+        Some((low, high)) => Some(Money::from_units((low.units() + high.units()) / 2)),
+        None if kind == ChoiceKind::Keep => Some(Money::ZERO),
+        None => None,
+    }
+}
+
+/// Whether result `x` is at least as good as `y` within the tolerance.
+fn at_least(catalog: &Catalog, x: Money, y: Money) -> bool {
+    let tol = catalog.management.concerns.hit_tolerance;
+    let scale = x.units().abs().max(y.units().abs());
+    (x.units() as f64) >= (y.units() as f64) - tol * scale as f64
+}
+
+/// Demand of a product left unserved per month in the country of a site, at most the
+/// site's own output (what an expansion could add), and the contribution per unit.
+fn unserved_rule(
+    state: &GameState,
+    catalog: &Catalog,
+    site: SiteId,
+    product: ProductId,
+) -> Option<(f64, f64)> {
+    let country = state.sites[site.index()].country;
+    let m = &state.markets.get(product).get(country).last_month;
+    let cap = crate::contracts::daily_output(state, catalog, site, product) * 30.0;
+    let unserved = (m.demand - m.sold).max(0.0).min(cap);
+    let price = crate::market::market_price(catalog, state, country, product).to_usd();
+    let cost = crate::production::unit_costs(catalog, state, site)
+        .iter()
+        .find(|u| u.product == product)
+        .map_or(price * 0.7, |u| u.total());
+    Some((unserved, (price - cost).max(0.0)))
+}
+
+/// Measures a decision file (docs/FORMELN.md, MG2): the effect after the months of the
+/// topic, what the path not taken would have brought, and whether the recommendation
+/// was at least as good as the alternative.
+pub(crate) fn review_file(
+    state: &GameState,
+    catalog: &Catalog,
+    f: &Followup,
+    file: &DecisionFile,
+    actual: Money,
+) -> FileResult {
+    let option = |i: usize| file.options.get(i);
+    let months = catalog.management.concerns.review_months(f.topic);
+    let mut unserved = None;
+    let (alternative, hit) = if file.chosen == file.recommended {
+        // Followed: against the best of the other options.
+        let best = file
+            .options
+            .iter()
+            .enumerate()
+            .filter(|&(i, _)| i != file.chosen)
+            .filter_map(|(_, o)| forecast_mid(o.kind, o.forecast))
+            .max();
+        (best, best.is_none_or(|alt| at_least(catalog, actual, alt)))
+    } else {
+        // Not followed: the recommendation as it would have turned out.
+        let rec = option(file.recommended);
+        let counter = match (f.topic, rec.map(|o| o.kind), f.product) {
+            (Topic::Expansion | Topic::Bottleneck, Some(ChoiceKind::Build), Some(p)) => {
+                unserved_rule(state, catalog, f.site, p).map(|(per_month, margin)| {
+                    unserved = Some(per_month * f64::from(months));
+                    Money::from_usd(per_month * 12.0 * margin).unwrap_or(Money::ZERO)
+                })
+            }
+            _ => rec.and_then(|o| forecast_mid(o.kind, o.forecast)),
+        };
+        (
+            counter,
+            counter.is_none_or(|g| at_least(catalog, g, actual)),
+        )
+    };
+    FileResult {
+        date: state.date,
+        actual,
+        alternative,
+        unserved,
+        hit,
+    }
+}
+
+/// The message of the manager on a reviewed file, with the numbers.
+fn review_message(
+    state: &GameState,
+    catalog: &Catalog,
+    f: &Followup,
+    file: &DecisionFile,
+    review: &FileResult,
+) -> Message {
+    let site = &state.sites[f.site.index()];
+    let who = state
+        .managers
+        .get(&file.manager)
+        .map_or_else(String::new, |m| m.name.clone());
+    let verdict = Param::TextKey(
+        if review.hit {
+            "anliegen.urteil.treffer"
+        } else {
+            "anliegen.urteil.fehlschlag"
+        }
+        .to_owned(),
+    );
+    let product = f
+        .product
+        .map(|p| Param::TextKey(format!("produkt.{}", catalog.products.key(p))));
+    let mut m = if file.chosen == file.recommended {
+        Message::new(MessageKind::Info, keys::CONCERN_REVIEW)
             .with(
                 "massnahme",
                 Param::TextKey(format!("option.{}", f.kind.key())),
             )
-            .with("standort", crate::command::site_label(site))
-            .with(
-                "land",
-                Param::Country(catalog.countries.key(site.country).to_owned()),
-            )
             .with("prognose", Param::Money(f.forecast))
-            .with("ist", Param::Money(actual));
-        if let Some(p) = f.product {
-            m = m.with(
-                "produkt",
-                Param::TextKey(format!("produkt.{}", catalog.products.key(p))),
-            );
+            .with("ist", Param::Money(review.actual))
+    } else {
+        let kind = file
+            .options
+            .get(file.recommended)
+            .map_or(ChoiceKind::Keep, |o| o.kind);
+        let key = if review.unserved.is_some() {
+            keys::CONCERN_REVIEW_DECLINED
+        } else {
+            keys::CONCERN_REVIEW_DECLINED_FORECAST
+        };
+        let mut m = Message::new(MessageKind::Info, key)
+            .with(
+                "massnahme",
+                Param::TextKey(format!("option.{}", kind.key())),
+            )
+            .with("datum", Param::Date(file.created))
+            .with("ist", Param::Money(review.actual));
+        if let Some(u) = review.unserved {
+            m = m.with("menge", Param::Number(u));
         }
-        news.push(m);
+        if let Some(alt) = review.alternative {
+            m = m.with("entgangen", Param::Money(alt));
+        }
+        m
+    };
+    m = m
+        .with("standort", crate::command::site_label(site))
+        .with(
+            "land",
+            Param::Country(catalog.countries.key(site.country).to_owned()),
+        )
+        .with("manager", Param::Text(who))
+        .with("urteil", verdict);
+    if let Some(p) = product {
+        m = m.with("produkt", p);
     }
+    m
+}
+
+/// Files the answer of the player to a concern (MG2): the options with their forecasts,
+/// the recommendation and the choice, to be measured after the months of the topic.
+fn file_for(
+    state: &GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    c: &Concern,
+    (choice, delegated): (usize, bool),
+) -> Option<Followup> {
+    let site = c.decision.site?;
+    let option = c.decision.choices.get(choice)?;
+    let rec = c.decision.choices.get(c.recommended)?;
+    let forecast = |i: usize| c.options.get(i).and_then(|o| o.forecast);
+    let acted = option.kind != ChoiceKind::Keep && forecast(choice).is_some();
+    let skipped = choice != c.recommended
+        && rec.kind != ChoiceKind::Keep
+        && forecast(c.recommended).is_some();
+    if !(acted || skipped) {
+        return None;
+    }
+    let months = catalog.management.concerns.review_months(c.decision.topic);
+    Some(Followup {
+        company: actor,
+        site,
+        topic: c.decision.topic,
+        kind: option.kind,
+        product: c.decision.product,
+        forecast: forecast_mid(option.kind, forecast(choice)).unwrap_or(Money::ZERO),
+        baseline: mean_result(state, actor, site),
+        due: state.date.add_months(months),
+        file: Some(DecisionFile {
+            concern: c.id,
+            position: asker(c).clone(),
+            manager: c.path.last().map_or(c.manager, |h| h.manager),
+            created: state.date,
+            options: c
+                .decision
+                .choices
+                .iter()
+                .zip(&c.options)
+                .map(|(ch, o)| FileOption {
+                    kind: ch.kind,
+                    forecast: o.forecast,
+                    amount: o.amount,
+                })
+                .collect(),
+            recommended: c.recommended,
+            chosen: choice,
+            delegated,
+        }),
+        result: None,
+    })
 }
 
 /// A followup on an option carried out at a site, with the middle of its forecast.
@@ -2698,6 +2957,8 @@ fn followup_for(
         forecast: Money::from_units((low.units() + high.units()) / 2),
         baseline: mean_result(state, actor, site),
         due: state.date.add_days(i32::try_from(days).unwrap_or(i32::MAX)),
+        file: None,
+        result: None,
     })
 }
 
@@ -2759,43 +3020,43 @@ pub(crate) fn answer(
         return Err(CommandError::ConcernClosed);
     }
     let today = state.date;
-    let decide = |state: &mut GameState, choice: usize| -> Result<(), CommandError> {
-        let option = c
-            .decision
-            .choices
-            .get(choice)
-            .ok_or(CommandError::UnknownOption)?;
-        if c.parts.is_empty() {
-            carry_out(state, catalog, actor, option)?;
-            let forecast = c.options.get(choice).and_then(|o| o.forecast);
-            if let Some(f) =
-                followup_for(state, catalog, actor, (&c.decision, option.kind, forecast))
-            {
-                state.followups.push(f);
+    let decide =
+        |state: &mut GameState, (choice, delegated): (usize, bool)| -> Result<(), CommandError> {
+            let option = c
+                .decision
+                .choices
+                .get(choice)
+                .ok_or(CommandError::UnknownOption)?;
+            if c.parts.is_empty() {
+                // The file is made before the option changes anything: the baseline is today's.
+                let file = file_for(state, catalog, actor, &c, (choice, delegated));
+                carry_out(state, catalog, actor, option)?;
+                if let Some(f) = file {
+                    state.followups.push(f);
+                }
+                return Ok(());
             }
-            return Ok(());
-        }
-        // A strategic concern: every part on its own, keeping things as they are does nothing.
-        if option.kind == ChoiceKind::Keep {
-            return Ok(());
-        }
-        for part in &c.parts {
-            let Some(o) = part.decision.choices.get(part.recommended) else {
-                continue;
-            };
-            if carry_out(state, catalog, actor, o).is_ok()
-                && let Some(f) = followup_for(
-                    state,
-                    catalog,
-                    actor,
-                    (&part.decision, o.kind, part.option.forecast),
-                )
-            {
-                state.followups.push(f);
+            // A strategic concern: every part on its own, keeping things as they are does nothing.
+            if option.kind == ChoiceKind::Keep {
+                return Ok(());
             }
-        }
-        Ok(())
-    };
+            for part in &c.parts {
+                let Some(o) = part.decision.choices.get(part.recommended) else {
+                    continue;
+                };
+                if carry_out(state, catalog, actor, o).is_ok()
+                    && let Some(f) = followup_for(
+                        state,
+                        catalog,
+                        actor,
+                        (&part.decision, o.kind, part.option.forecast),
+                    )
+                {
+                    state.followups.push(f);
+                }
+            }
+            Ok(())
+        };
     let who = asker(&c).clone();
     // Commands of the answer settle only the same question asked by others (same topic,
     // site and product); concerns about other things stay open even when an option of
@@ -2810,11 +3071,11 @@ pub(crate) fn answer(
         .collect();
     let status = match answer {
         ConcernAnswer::Choose(choice) => {
-            decide(state, choice)?;
+            decide(state, (choice, false))?;
             ConcernStatus::Chosen(choice)
         }
         ConcernAnswer::Delegate => {
-            decide(state, c.recommended)?;
+            decide(state, (c.recommended, true))?;
             ConcernStatus::Delegated(c.recommended)
         }
         ConcernAnswer::NeverAsk => {

@@ -6,6 +6,7 @@ import type { Anliegen, AnliegenGruppe, AnliegenOption, Anliegenantwort, Kern } 
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Rueckmeldung, useAktion, useSicht } from "./gemeinsam";
+import { trefferquote } from "./Organisation";
 import { einheitName, standortName, stellenName } from "./stellen";
 
 /** Where the answers appear: at the top of the list (an answered concern leaves it). */
@@ -75,6 +76,12 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
       </h3>
       <p className="feld-hilfe">
         {herkunft(a)} · {t("anliegen.fragt", { name: a.manager })} ·{" "}
+        {a.manager_judged ? (
+          <>
+            {t("organisation.trefferquote")}:{" "}
+            {trefferquote(a.manager_hit_rate ?? null, a.manager_judged)} ·{" "}
+          </>
+        ) : null}
         <strong>{t("anliegen.frist", { datum: formatDatum(a.deadline) })}</strong>
       </p>
       {a.site_kind_text && a.site_country && a.asker.level !== "standort" && (

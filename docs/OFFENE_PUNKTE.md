@@ -2531,3 +2531,17 @@ Erfassung in `purchasing.rs` (Markt: `market::trade`, Verträge: `contracts::shi
 additiv (`Company.purchases`, kein Versionssprung). Ausgaben ohne Fracht und Zoll. Offen
 bleibt: Werte je Konzernfirma (bisher nur die eigene Firma) und Einmalkäufe getrennt von
 Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
+
+### MG2: Entscheidungsakte und Nachbetrachtung – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen:
+- Akten gibt es für Anliegen mit Standortbezug (Standort der Entscheidung bekannt); Anliegen ohne
+  Standort (Kasse, Gehaltsrunde, Abwerbung, Nachfolge, Dividende) bekommen keine Nachbetrachtung, weil
+  es keine messbare Kennzahl gibt. Als Kennzahl gilt das Ergebnis des Standorts.
+- Wirkzeiten: Preis- und Einkaufsthemen 3 Monate, Lohn, Werbung, Engpass 6, Ausbau, Kraftwerk, Forschung 12,
+  Start-ups 24 (`management.yaml`).
+- Die Gegenrechnung für einen abgelehnten Ausbau zählt höchstens die Monatsleistung des Standorts als
+  unbediente Nachfrage (ein Ausbau kann den Standort höchstens verdoppeln) – sonst würde ein Markt mit
+  riesiger Nachfrage jede Ablehnung als Fehler werten.
+- Das Urteil „Treffer“ misst nur den Standortergebnis-Effekt; andere Gründe der Empfehlung (Risiko,
+  Liquidität) gehen nicht ein.
+- Die Trefferquote zählt für den fragenden Manager (bei Weiterleitung den der letzten Stelle).

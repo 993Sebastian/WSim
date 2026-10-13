@@ -664,6 +664,57 @@ pub struct Followup {
     /// Mean monthly result of the site before.
     pub baseline: Money,
     pub due: Date,
+    /// The decision file of a concern the player answered (MG2); none for decisions a
+    /// position took itself.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub file: Option<DecisionFile>,
+    /// What the review found once it was done (MG2).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub result: Option<FileResult>,
+}
+
+/// The file of a decision the player took on a concern (MG2): who asked, what the options
+/// were, what was recommended and what was chosen.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DecisionFile {
+    pub concern: u32,
+    pub position: Position,
+    /// The manager whose recommendation it is (the one who asked the player).
+    pub manager: ManagerId,
+    pub created: Date,
+    pub options: Vec<FileOption>,
+    pub recommended: usize,
+    pub chosen: usize,
+    /// The player let the position decide.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub delegated: bool,
+}
+
+/// An option as the file keeps it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileOption {
+    pub kind: ChoiceKind,
+    /// Forecast of the yearly effect as a range.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forecast: Option<(Money, Money)>,
+    pub amount: Money,
+}
+
+/// The review of a decision file (MG2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileResult {
+    pub date: Date,
+    /// Effect measured, per year.
+    pub actual: Money,
+    /// What the path not taken would have brought, per year (the recommendation when it
+    /// was not followed, else the best alternative); none without an estimate.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alternative: Option<Money>,
+    /// Demand left unserved since the decision (expansion not built).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unserved: Option<f64>,
+    /// The recommendation was at least as good as the alternative.
+    pub hit: bool,
 }
 
 /// Development of a company's products (Q1, before M37): all research points collected

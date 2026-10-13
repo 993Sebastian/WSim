@@ -274,6 +274,24 @@ pub struct ConcernModel {
     /// From this many alike concerns of different sites on a day the position above
     /// asks once (MA3).
     pub bundle_from: u32,
+    /// Months to the review of a decision file per topic (MG2), indexed by `Topic::ALL`.
+    pub effect_months: [u32; crate::decision::Topic::ALL.len()],
+    /// A recommendation is a hit when its result is at least that of the alternative
+    /// less this share of the larger amount (MG2).
+    pub hit_tolerance: f64,
+    /// Decision files kept per company (MG2).
+    pub files_kept: u32,
+}
+
+impl ConcernModel {
+    /// Months until the review of a decision on a topic.
+    pub fn review_months(&self, topic: crate::decision::Topic) -> u32 {
+        let i = crate::decision::Topic::ALL
+            .iter()
+            .position(|&t| t == topic)
+            .unwrap_or(0);
+        self.effect_months[i].max(1)
+    }
 }
 
 /// Strategies the player sets for the managers (MA4, docs/FORMELN.md).

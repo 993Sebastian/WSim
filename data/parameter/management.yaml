@@ -82,6 +82,16 @@ management:
     schaetzfehler: 0.5
     empfehlung_grund: 0.5
     buendel_ab: 3
+    # Entscheidungsakte (MG2): Nachbetrachtung je Thema nach so vielen Monaten (3–24),
+    # Toleranz beim Vergleich mit der Alternative (Anteil des größeren Betrags), so viele
+    # Akten je Firma bleiben gespeichert.
+    wirkzeit_monate: {standard: 6, produktion: 3, verkauf: 3, einkauf: 3, lohn: 6,
+                      eigenversorgung: 3, kasse: 3, werbung: 6, ueberkapazitaet: 6,
+                      stillgelegt: 6, wiederanfahren: 3, ausbau: 12, kraftwerk: 12,
+                      lagerstaette: 12, engpass: 6, forschung: 12, weiterentwicklung: 12,
+                      kaufangebot: 12, antwort: 12, lizenz: 12, umschuldung: 12, startup: 24}
+    treffer_toleranz: 0.1
+    akten_behalten: 120
 
   # Strategievorgaben (MA4): Premium und Kampfpreis setzen die Preisuntergrenze als
   # Vielfaches der Vollkosten je Stück und den Aufschlag, mit dem ein Angebot auf den

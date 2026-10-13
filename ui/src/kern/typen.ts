@@ -1861,6 +1861,9 @@ export interface Anliegen {
   parts: AnliegenTeil[];
   /** The manager who asks. */
   manager: string;
+  /** Recommendations of the manager who asks, judged so far and the hit rate (MG2). */
+  manager_judged?: number;
+  manager_hit_rate?: number | null;
   /** Topic (text `thema.<topic>`). */
   topic: string;
   product: string | null;

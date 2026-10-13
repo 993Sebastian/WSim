@@ -253,6 +253,19 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             &cl.field("empfehlung_grund"),
         ),
         bundle_from: c.bundle_from.max(1),
+        effect_months: effect_months(ctx, &c.effect_months, &cl),
+        hit_tolerance: in_range(
+            ctx,
+            if c.hit_tolerance > 0.0 {
+                c.hit_tolerance
+            } else {
+                0.1
+            },
+            0.0,
+            1.0,
+            &cl.field("treffer_toleranz"),
+        ),
+        files_kept: if c.files_kept > 0 { c.files_kept } else { 120 },
     };
 
     let strategy = strategy(ctx, catalog, &v.strategy, &l.field("strategie"));
@@ -541,4 +554,38 @@ pub(super) fn check_texts(
             ctx.warning(loc, messages::text_unused(text_key));
         }
     }
+}
+
+/// Months to the review of a decision per topic (MG2): `standard` for topics not named.
+fn effect_months(
+    ctx: &mut Ctx,
+    raw: &std::collections::BTreeMap<String, u32>,
+    l: &crate::read::Loc,
+) -> [u32; wsim_core::decision::Topic::ALL.len()] {
+    use wsim_core::decision::Topic;
+    let ml = l.field("wirkzeit_monate");
+    let standard = raw.get("standard").copied().unwrap_or(6);
+    in_range(ctx, f64::from(standard), 1.0, 60.0, &ml.field("standard"));
+    let mut out = [standard.clamp(1, 60); Topic::ALL.len()];
+    let keys: Vec<&str> = Topic::ALL.iter().map(|t| t.key()).collect();
+    for (key, &months) in raw {
+        if key == "standard" {
+            continue;
+        }
+        match Topic::from_key(key) {
+            Some(topic) => {
+                in_range(ctx, f64::from(months), 1.0, 60.0, &ml.field(key));
+                let i = Topic::ALL.iter().position(|&t| t == topic).unwrap_or(0);
+                out[i] = months.clamp(1, 60);
+            }
+            None => {
+                let suggested = crate::suggest::closest(key, keys.iter().copied());
+                ctx.error(
+                    &ml.field(key),
+                    messages::unknown_reference("Thema", key, suggested),
+                );
+            }
+        }
+    }
+    out
 }

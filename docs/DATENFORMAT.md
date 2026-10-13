@@ -969,3 +969,14 @@ bis zu 12 geschlossenen Monate, älteste zuerst).
 `companies[].purchases[]` (optional): `site`, `product`, `source` (`Market` oder `Contract`),
 `month` (laufender Monat) und `months` (bis zu 12 geschlossene Monate, älteste zuerst); jeder
 Monat hat `quantity`, `spent` und `quality_sum` (Menge mal Qualität).
+
+## management.anliegen: Entscheidungsakte (MG2)
+
+Zusätzlich zu den Feldern der Anliegen: `wirkzeit_monate` (Zuordnung Thema → Monate 1–60 bis zur
+Nachbetrachtung; `standard` für alle nicht genannten Themen), `treffer_toleranz` (0–1, Vorschlag
+0,1: Anteil des größeren Betrags, um den die Empfehlung schlechter sein darf und doch als Treffer
+gilt) und `akten_behalten` (Akten je Firma).
+
+Spielstand: `followups[]` kann `file` (Akte: `concern`, `position`, `manager`, `created`, `options`,
+`recommended`, `chosen`, `delegated`) und `result` (Nachbetrachtung: `date`, `actual`,
+`alternative`, `unserved`, `hit`) tragen.

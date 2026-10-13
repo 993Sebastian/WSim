@@ -354,6 +354,11 @@ meldung.anliegen.verfallen_kontinent: "Anliegen von {stelle} ({kontinent}) zu �
 meldung.anliegen.neu_vorstand: "{stelle} (Vorstand) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen_vorstand: "Anliegen von {stelle} (Vorstand) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.folge: "{massnahme} in {standort} ({land}): Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert; erwartet waren {prognose}."
+meldung.anliegen.nachbetrachtung: "Nachbetrachtung: {massnahme} in {standort} ({land}), empfohlen von {manager}: Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert; erwartet waren {prognose}. {urteil}"
+meldung.anliegen.nachbetrachtung_abgelehnt: "Nachbetrachtung: „{massnahme}“ in {standort} ({land}) wurde am {datum} abgelehnt, {manager} hatte sie empfohlen. Seitdem sind ca. {menge} {produkt} Nachfrage nicht bedient worden, entgangener Deckungsbeitrag ca. {entgangen} im Jahr. Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert. {urteil}"
+meldung.anliegen.nachbetrachtung_abgelehnt_prognose: "Nachbetrachtung: „{massnahme}“ in {standort} ({land}) wurde am {datum} abgelehnt, {manager} hatte sie empfohlen. Geschätzt hätte sie {entgangen} im Jahr gebracht; das Ergebnis des Standorts hat sich um {ist} im Jahr geändert. {urteil}"
+anliegen.urteil.treffer: Die Empfehlung war richtig.
+anliegen.urteil.fehlschlag: Die Empfehlung war nicht die bessere.
 meldung.ruecksprache: "Strategierücksprache: {name} ({stelle}) legt den Bericht für {von} bis {bis} vor – Anträge: {antraege}."
 schritt.stilllegen: "{anzahl} × {anlage} stilllegen"
 schritt.verkaufen: "{anzahl} × {anlage} verkaufen"

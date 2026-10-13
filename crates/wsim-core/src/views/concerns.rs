@@ -97,6 +97,12 @@ pub struct ConcernView {
     pub parts: Vec<ConcernPartView>,
     /// The manager who asks.
     pub manager: String,
+    /// How often the recommendations of the manager who asks were judged and how many
+    /// were right (MG2); the rate with the prior, none before the first.
+    #[serde(default)]
+    pub manager_judged: u32,
+    #[serde(default)]
+    pub manager_hit_rate: Option<f64>,
     /// Topic (text `thema.<topic>`).
     pub topic: String,
     /// Key of the product concerned.
@@ -746,6 +752,9 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
     let site = c.decision.site.and_then(|s| state.sites.get(s.index()));
     let (status, carried_out) = status_key(c.status);
     let holder = state.managers.get(&c.manager);
+    let asking = state
+        .managers
+        .get(&c.path.last().map_or(c.manager, |h| h.manager));
     let salary = holder
         .and_then(|m| m.job.as_ref())
         .map_or(Money::ZERO, |j| j.salary);
@@ -807,6 +816,10 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         path,
         parts,
         manager: name(c.manager),
+        manager_judged: asking.map_or(0, |m| m.judged),
+        manager_hit_rate: asking
+            .filter(|m| m.judged > 0)
+            .map(|m| crate::central::hit_rate(catalog, m)),
         topic: c.decision.topic.key().to_owned(),
         product: c
             .decision

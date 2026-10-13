@@ -419,6 +419,10 @@ pub mod keys {
     pub const CONCERN_NEW_BOARD: &str = "meldung.anliegen.neu_vorstand";
     pub const CONCERN_EXPIRED_BOARD: &str = "meldung.anliegen.verfallen_vorstand";
     pub const CONCERN_EFFECT: &str = "meldung.anliegen.folge";
+    pub const CONCERN_REVIEW: &str = "meldung.anliegen.nachbetrachtung";
+    pub const CONCERN_REVIEW_DECLINED: &str = "meldung.anliegen.nachbetrachtung_abgelehnt";
+    pub const CONCERN_REVIEW_DECLINED_FORECAST: &str =
+        "meldung.anliegen.nachbetrachtung_abgelehnt_prognose";
     /// The CEO's strategy review (MA5).
     pub const REVIEW: &str = "meldung.ruecksprache";
     // What the options of a concern do, and why a position recommends one (MA2).
@@ -843,6 +847,9 @@ pub mod keys {
         CONCERN_EXPIRED_COUNTRY,
         CONCERN_EXPIRED_CONTINENT,
         CONCERN_EFFECT,
+        CONCERN_REVIEW,
+        CONCERN_REVIEW_DECLINED,
+        CONCERN_REVIEW_DECLINED_FORECAST,
         REVIEW,
         STEP_MOTHBALL,
         STEP_SELL,

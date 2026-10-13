@@ -1940,6 +1940,13 @@ pub struct RawConcerns {
     pub recommend_base: f64,
     #[serde(rename = "buendel_ab")]
     pub bundle_from: u32,
+    /// Months to the review of a decision per topic key; `standard` for the rest (MG2).
+    #[serde(rename = "wirkzeit_monate", default)]
+    pub effect_months: std::collections::BTreeMap<String, u32>,
+    #[serde(rename = "treffer_toleranz", default)]
+    pub hit_tolerance: f64,
+    #[serde(rename = "akten_behalten", default)]
+    pub files_kept: u32,
 }
 
 /// Strategies of the managers (MA4).

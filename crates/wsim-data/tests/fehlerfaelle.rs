@@ -2942,6 +2942,17 @@ bereich.strategie: Strategie
 bereich.recht: Recht
 ";
 
+/// The concern model of the base data.
+fn outcome_ok_months<F: Fn() -> Daten>(basis: &F) -> wsim_core::catalog::ConcernModel {
+    basis()
+        .laden()
+        .data
+        .expect("loads")
+        .catalog
+        .management
+        .concerns
+}
+
 /// MA1: Positions, salaries and the market for managers.
 #[test]
 fn management_wird_geprueft() {
@@ -3143,6 +3154,43 @@ fn management_wird_geprueft() {
     let outcome = d.laden();
     let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
     assert_eq!(f.path.to_string(), "management.anliegen.buendel_ab");
+
+    // MG2: review months per topic and tolerance.
+    let m = outcome_ok_months(&basis);
+    assert_eq!(m.review_months(wsim_core::decision::Topic::Expansion), 12);
+    assert_eq!(m.review_months(wsim_core::decision::Topic::Production), 3);
+    assert_eq!(
+        m.review_months(wsim_core::decision::Topic::Dividend),
+        6,
+        "standard for topics not named"
+    );
+    let d = basis().ersetze(datei, "ausbau: 12,", "ausbau: 99,");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 99 liegt außerhalb des erlaubten Bereichs 1 bis 60.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "management.anliegen.wirkzeit_monate.ausbau"
+    );
+    let d = basis().ersetze(datei, "ausbau: 12,", "ausbao: 12,");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Thema „ausbao“ ist nicht definiert. Meinten Sie „ausbau“?",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "management.anliegen.wirkzeit_monate.ausbao"
+    );
+    let d = basis().ersetze(datei, "treffer_toleranz: 0.1", "treffer_toleranz: 2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "management.anliegen.treffer_toleranz");
 
     let d = basis().ersetze(datei, "frist_tage: 30", "frist_tage: 0");
     let outcome = d.laden();
