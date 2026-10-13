@@ -760,6 +760,7 @@ fn ask(
         deadline,
         status: ConcernStatus::Open,
         closed: None,
+        memory: None,
     });
     news.extend(message);
 }

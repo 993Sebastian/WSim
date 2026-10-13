@@ -35,6 +35,7 @@ import type {
 import { t } from "../texte";
 import { TochterfirmenAnsicht } from "./Tochterfirmen";
 import { AnliegenListe } from "./Anliegen";
+import { ChronikAnsicht } from "./Chronik";
 import { FehlerText } from "./Dialog";
 import {
   Befehle,
@@ -1692,7 +1693,7 @@ export function OrganisationAnsicht({
   const offen = uebersicht.concerns_open ?? 0;
   // Open concerns have a deadline: the inbox comes first while there are some.
   const [bereich, setBereich] = useState<
-    "stellen" | "anliegen" | "strategie" | "ruecksprache" | "tochterfirmen"
+    "stellen" | "anliegen" | "chronik" | "strategie" | "ruecksprache" | "tochterfirmen"
   >(offen > 0 ? "anliegen" : "stellen");
   const stand = `${uebersicht.date}/${zaehler}`;
   return (
@@ -1706,6 +1707,7 @@ export function OrganisationAnsicht({
               bereiche={[
                 { key: "stellen", text: t("organisation.reiter_stellen") },
                 { key: "anliegen", text: t("organisation.reiter_anliegen"), zaehler: offen },
+                { key: "chronik", text: t("organisation.reiter_chronik") },
                 { key: "strategie", text: t("organisation.reiter_strategie") },
                 { key: "ruecksprache", text: t("organisation.reiter_ruecksprache") },
                 { key: "tochterfirmen", text: t("organisation.reiter_tochterfirmen") },
@@ -1724,6 +1726,7 @@ export function OrganisationAnsicht({
               />
             )}
             {bereich === "anliegen" && <AnliegenListe kern={kern} stand={stand} />}
+            {bereich === "chronik" && <ChronikAnsicht kern={kern} stand={stand} />}
             {bereich === "strategie" && <StrategieAnsicht kern={kern} stand={stand} />}
             {bereich === "tochterfirmen" && <TochterfirmenAnsicht kern={kern} stand={stand} />}
             {bereich === "ruecksprache" && (

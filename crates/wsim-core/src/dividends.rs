@@ -375,6 +375,7 @@ pub(crate) fn year_start(state: &mut GameState, catalog: &Catalog, next: Date) -
             deadline: next.add_months(1).add_days(-2),
             status: ConcernStatus::Open,
             closed: None,
+            memory: None,
         };
         state.next_concern += 1;
         state.concerns.push(concern);

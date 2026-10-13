@@ -398,6 +398,7 @@ fn proposals(
             deadline: next.add_days(i32::try_from(m.concerns.deadline_days).unwrap_or(i32::MAX)),
             status: ConcernStatus::Open,
             closed: None,
+            memory: None,
         });
     }
     out

@@ -152,18 +152,17 @@ pub fn unit_result(catalog: &Catalog, state: &GameState, company: CompanyId, uni
         .sum()
 }
 
-/// Concerns of each manager closed in the last twelve months against his recommendation.
-fn overruled(state: &GameState, date: Date) -> BTreeMap<ManagerId, u32> {
+/// Decisions of the last twelve months that went against a manager's recommendation and
+/// proved him right in the review (MG3): only these count as being passed over.
+pub(crate) fn overruled(state: &GameState, date: Date) -> BTreeMap<ManagerId, u32> {
     let year_ago = date.add_days(-365);
     let mut out: BTreeMap<ManagerId, u32> = BTreeMap::new();
-    for c in &state.concerns {
-        let against = match c.status {
-            ConcernStatus::Chosen(i) => i != c.recommended,
-            ConcernStatus::Declined => true,
-            _ => false,
+    for f in &state.followups {
+        let (Some(file), Some(r)) = (&f.file, &f.result) else {
+            continue;
         };
-        if against && c.closed.is_some_and(|d| d >= year_ago) {
-            *out.entry(c.manager).or_default() += 1;
+        if file.chosen != file.recommended && r.hit && r.date >= year_ago {
+            *out.entry(file.manager).or_default() += 1;
         }
     }
     out
@@ -1000,6 +999,7 @@ fn ask(state: &mut GameState, catalog: &Catalog, offer: &PoachOffer, date: Date)
         deadline: offer.until,
         status: ConcernStatus::Open,
         closed: None,
+        memory: None,
     });
     vec![message]
 }

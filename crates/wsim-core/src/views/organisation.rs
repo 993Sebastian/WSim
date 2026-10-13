@@ -263,6 +263,95 @@ pub struct OrganisationView {
     pub former: Vec<FormerManagerView>,
     /// Holders who retire within two years, the earliest first (PE1).
     pub retiring: Vec<RetiringView>,
+    /// The decision files with their reviews, the latest first (MG3).
+    #[serde(default)]
+    pub chronicle: Vec<ChronicleEntryView>,
+}
+
+/// A decision file as the chronicle shows it (MG3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ChronicleEntryView {
+    pub created: String,
+    /// The day it was measured; none while the review is pending, with the day it is due.
+    pub reviewed: Option<String>,
+    pub due: String,
+    /// Topic (text `thema.<key>`).
+    pub topic: String,
+    pub site: u32,
+    pub site_name: Option<String>,
+    pub country: String,
+    pub product: Option<String>,
+    /// The unit of the position as in `UnitOrgView::key`.
+    pub unit: String,
+    pub manager_id: u32,
+    pub manager: String,
+    /// Kinds of the options recommended and chosen (text `option.<key>`).
+    pub recommended: String,
+    pub chosen: String,
+    /// The player decided against the recommendation.
+    pub against: bool,
+    pub delegated: bool,
+    /// Forecast (middle) of the chosen option per year, if it had one.
+    pub forecast_usd: Option<f64>,
+    pub actual_usd: Option<f64>,
+    /// What the path not taken would have brought (see FORMELN MG2).
+    pub alternative_usd: Option<f64>,
+    pub unserved: Option<f64>,
+    pub hit: Option<bool>,
+}
+
+/// The chronicle entry of a followup with a file.
+pub fn chronicle_entry(game: &Game, f: &crate::state::Followup) -> Option<ChronicleEntryView> {
+    let file = f.file.as_ref()?;
+    let (c, state) = (game.catalog(), game.state());
+    let site = state.sites.get(f.site.index())?;
+    let mid = |o: Option<&crate::state::FileOption>| {
+        o.and_then(|o| o.forecast)
+            .map(|(low, high)| usd(Money::from_units((low.units() + high.units()) / 2)))
+    };
+    let kind = |i: usize| {
+        file.options
+            .get(i)
+            .map_or_else(String::new, |o| o.kind.key().to_owned())
+    };
+    Some(ChronicleEntryView {
+        created: iso(file.created),
+        reviewed: f.result.as_ref().map(|r| iso(r.date)),
+        due: iso(f.due),
+        topic: f.topic.key().to_owned(),
+        site: f.site.0,
+        site_name: site.name.clone(),
+        country: c.countries.key(site.country).to_owned(),
+        product: f.product.map(|p| c.products.key(p).to_owned()),
+        unit: unit_key(c, file.position.unit),
+        manager_id: file.manager.0,
+        manager: state
+            .managers
+            .get(&file.manager)
+            .map_or_else(String::new, |m| m.name.clone()),
+        recommended: kind(file.recommended),
+        chosen: kind(file.chosen),
+        against: file.chosen != file.recommended,
+        delegated: file.delegated,
+        forecast_usd: mid(file.options.get(file.chosen)),
+        actual_usd: f.result.as_ref().map(|r| usd(r.actual)),
+        alternative_usd: f.result.as_ref().and_then(|r| r.alternative).map(usd),
+        unserved: f.result.as_ref().and_then(|r| r.unserved),
+        hit: f.result.as_ref().map(|r| r.hit),
+    })
+}
+
+fn chronicle(game: &Game) -> Vec<ChronicleEntryView> {
+    let me = game.player();
+    let mut entries: Vec<(crate::calendar::Date, ChronicleEntryView)> = game
+        .state()
+        .followups
+        .iter()
+        .filter(|f| f.company == me)
+        .filter_map(|f| Some((f.file.as_ref()?.created, chronicle_entry(game, f)?)))
+        .collect();
+    entries.sort_by_key(|(d, _)| std::cmp::Reverse(*d));
+    entries.into_iter().map(|(_, e)| e).take(200).collect()
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -921,6 +1010,7 @@ pub fn organisation(game: &Game) -> OrganisationView {
         kinds,
         central: super::central(game),
         retiring: retiring(game),
+        chronicle: chronicle(game),
         former: state.companies[game.player().index()]
             .former_managers
             .iter()

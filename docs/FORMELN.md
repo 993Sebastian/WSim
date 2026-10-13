@@ -6018,3 +6018,23 @@ Die Meldung des Managers nennt Entscheidung, Datum, Zahlen und das Urteil.
 mit Prior und der Faktor auf Gehaltsforderung und Eindruck (`hit_factor`) gelten damit für alle Manager;
 sie wandern mit dem Manager bei einem Stellenwechsel. Akten bleiben als Nachweis (je Firma höchstens
 `akten_behalten`, die ältesten Nachbetrachtungen zuerst entfallen).
+
+## MG3 Gedächtnis und Chronik (docs/MANAGER_2.md §3)
+
+**Gedächtnis.** Hat der Spieler gegen die Empfehlung eines Managers entschieden und die Nachbetrachtung
+(MG2) ergab einen Treffer für den Manager, verweist er beim nächsten Anliegen zum selben Thema darauf:
+das Anliegen trägt `memory` (Tag der Entscheidung und der Messung, empfohlene Option, Messung, Gegenrechnung).
+Es gilt die jüngste solche Akte desselben Managers zu diesem Thema.
+
+**Übergangen.** Der Zufriedenheitsabzug „übergangen“ (`uebergangen_abzug` je Fall) zählt nur noch die
+Akten der letzten 365 Tage, in denen gegen die Empfehlung entschieden wurde **und** der Manager recht hatte.
+Abgelehnte Fragen und Entscheidungen, bei denen der Spieler recht hatte, zählen nicht mehr.
+
+**Lernen.** Lag der Manager falsch (Entscheidung gegen die Empfehlung, kein Treffer), steigt sein
+Urteilsvermögen mit der Chance `lernchance` um 1 (höchstens 100); Zufall aus dem Strom des Managers am Tag
+der Nachbetrachtung (`Stream::Manager`). Die Angleichung der Risikoneigung an den Spieler entfällt: der
+Spieler hat keine Risikoneigung im Spiel.
+
+**Chronik.** Alle Akten der Firma, die jüngsten 200, mit Einheit, Manager, empfohlener und gewählter Option,
+Prognose, Messung, Gegenrechnung und Urteil; filterbar nach Thema, Manager, Zeitraum und „gegen die
+Empfehlung entschieden“. Jedes Anliegen zeigt außerdem die letzten drei Akten zum selben Thema am selben Standort.

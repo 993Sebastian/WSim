@@ -1726,9 +1726,44 @@ export interface Budgetvorgabe {
   shares: [number, number];
 }
 
+/** A decision file with its review as the chronicle shows it (MG3). */
+export interface ChronikEintrag {
+  created: string;
+  reviewed: string | null;
+  due: string;
+  topic: string;
+  site: number;
+  site_name: string | null;
+  country: string;
+  product: string | null;
+  unit: string;
+  manager_id: number;
+  manager: string;
+  recommended: string;
+  chosen: string;
+  against: boolean;
+  delegated: boolean;
+  forecast_usd: number | null;
+  actual_usd: number | null;
+  alternative_usd: number | null;
+  unserved: number | null;
+  hit: boolean | null;
+}
+
+/** What a manager remembers of an earlier decision he was right about (MG3). */
+export interface Erinnerung {
+  decided: string;
+  reviewed: string;
+  kind: string;
+  actual_usd: number;
+  alternative_usd: number | null;
+}
+
 export interface Organisation {
   /** False without manager data. */
   enabled: boolean;
+  /** The decision files with their reviews, the latest first (MG3). */
+  chronicle?: ChronikEintrag[];
   /** The board: CEO and members (MA5); null without a site. */
   board?: EinheitOrganisation | null;
   continents: {
@@ -1864,6 +1899,10 @@ export interface Anliegen {
   /** Recommendations of the manager who asks, judged so far and the hit rate (MG2). */
   manager_judged?: number;
   manager_hit_rate?: number | null;
+  /** An earlier decision on the topic in which the manager was right (MG3). */
+  memory?: Erinnerung | null;
+  /** The latest files on the same topic at the same site (MG3). */
+  earlier?: ChronikEintrag[];
   /** Topic (text `thema.<topic>`). */
   topic: string;
   product: string | null;

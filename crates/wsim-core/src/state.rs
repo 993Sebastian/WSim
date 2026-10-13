@@ -628,6 +628,24 @@ pub struct Concern {
     pub status: ConcernStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub closed: Option<Date>,
+    /// An earlier decision on the same topic in which the manager was right and the
+    /// player decided otherwise (MG3).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub memory: Option<Memory>,
+}
+
+/// What a manager remembers of an earlier decision he was right about (MG3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Memory {
+    /// Day of the decision and of its review.
+    pub decided: Date,
+    pub reviewed: Date,
+    /// What he had recommended.
+    pub kind: ChoiceKind,
+    /// Effect measured, per year, and what his way would have brought.
+    pub actual: Money,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alternative: Option<Money>,
 }
 
 /// A position a concern passed (MA3).

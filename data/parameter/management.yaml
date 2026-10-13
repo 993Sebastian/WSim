@@ -91,6 +91,9 @@ management:
                       lagerstaette: 12, engpass: 6, forschung: 12, weiterentwicklung: 12,
                       kaufangebot: 12, antwort: 12, lizenz: 12, umschuldung: 12, startup: 24}
     treffer_toleranz: 0.1
+    # Gedächtnis (MG3): Chance, dass ein Manager, dessen Empfehlung sich als falsch erwies,
+    # daraus lernt (Urteilsvermögen +1).
+    lernchance: 0.25
     akten_behalten: 120
 
   # Strategievorgaben (MA4): Premium und Kampfpreis setzen die Preisuntergrenze als

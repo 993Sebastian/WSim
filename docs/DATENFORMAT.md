@@ -980,3 +980,9 @@ gilt) und `akten_behalten` (Akten je Firma).
 Spielstand: `followups[]` kann `file` (Akte: `concern`, `position`, `manager`, `created`, `options`,
 `recommended`, `chosen`, `delegated`) und `result` (Nachbetrachtung: `date`, `actual`,
 `alternative`, `unserved`, `hit`) tragen.
+
+## management.anliegen: Gedächtnis (MG3)
+
+`lernchance` (0–1, Vorschlag 0,25): Chance, dass ein Manager, dessen Empfehlung die Nachbetrachtung widerlegt
+hat, daraus lernt (Urteilsvermögen +1). Spielstand: `concerns[].memory` (`decided`, `reviewed`, `kind`,
+`actual`, `alternative`) verweist auf eine frühere Akte, in der der Manager recht hatte.

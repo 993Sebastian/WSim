@@ -1421,6 +1421,29 @@ zentrale.ziel_option: "{land} – Steuer {steuer}, Lohn {lohn}"
 zentrale.kosten: "Kosten jetzt {betrag}; Dauer {monate} Monate; {anteil} der Angestellten der Zentrale ziehen mit."
 zentrale.verlegt: "Der Umzug nach {land} beginnt; er dauert {monate} Monate."
 organisation.trefferquote: Trefferquote
+organisation.reiter_chronik: Chronik
+chronik.titel: Chronik der Entscheidungen
+chronik.hilfe: Jede Entscheidung über ein Anliegen mit Prognose, Messung nach der Wirkzeit und dem Urteil, ob die Empfehlung die bessere war. Zeilen gegen die Empfehlung sind hervorgehoben.
+chronik.thema: Thema
+chronik.manager: Manager
+chronik.zeitraum: Zeitraum
+chronik.alle: Alle
+chronik.letzte_monate: "Letzte {monate} Monate"
+chronik.gegen: Gegen die Empfehlung entschieden
+chronik.leer: Noch keine Entscheidung in der Chronik.
+chronik.datum: Datum
+chronik.ort: Standort
+chronik.entscheidung: Entscheidung
+chronik.prognose: Prognose (Jahr)
+chronik.ist: Messung (Jahr)
+chronik.alternative: Anderer Weg (Jahr)
+chronik.urteil: Urteil
+chronik.statt: "{gewaehlt} statt {empfohlen}"
+chronik.offen: "Bewertung am {datum}"
+chronik.treffer: Empfehlung war richtig
+chronik.fehlschlag: Empfehlung war nicht besser
+anliegen.erinnerung: "{name} erinnert: Am {datum} hatte {name} „{option}“ empfohlen und du hast anders entschieden. Seitdem hat sich das Ergebnis um {ist} im Jahr geändert; der empfohlene Weg hätte {entgangen} gebracht."
+anliegen.fruehere: "Frühere Entscheidungen zu diesem Thema ({anzahl})"
 organisation.trefferquote_keine: noch nichts bewertet
 organisation.trefferquote_wert: "{anteil} ({anzahl} bewertet)"
 zentrale.abteilungen: Zentralabteilungen

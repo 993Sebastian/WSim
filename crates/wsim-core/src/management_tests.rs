@@ -1348,6 +1348,7 @@ fn alike_concerns_of_several_sites_become_one_strategic_concern() {
             deadline: game.date().add_days(30),
             status: ConcernStatus::Open,
             closed: None,
+            memory: None,
         }
     };
     let two = management::bundle(vec![concern(sites[0]), concern(sites[1])], 3);
@@ -1549,4 +1550,118 @@ fn a_declined_expansion_is_reviewed_by_the_unserved_demand() {
     assert!(lost > Money::ZERO, "{result:?}");
     // Not building cost the lost contribution: the recommendation was the better one.
     assert!(result.hit, "{result:?}");
+}
+
+/// A reviewed file of the head against whose recommendation the player decided.
+fn reviewed_file(
+    game: &Game,
+    works: SiteId,
+    head_id: ManagerId,
+    hit: bool,
+) -> crate::state::Followup {
+    use crate::decision::ChoiceKind;
+    use crate::state::{DecisionFile, FileOption, FileResult, Followup};
+    let date = game.date();
+    let option = |kind, forecast| FileOption {
+        kind,
+        forecast,
+        amount: Money::ZERO,
+    };
+    Followup {
+        company: game.player(),
+        site: works,
+        topic: crate::decision::Topic::Overcapacity,
+        kind: ChoiceKind::Keep,
+        product: None,
+        forecast: Money::ZERO,
+        baseline: Money::ZERO,
+        due: date,
+        file: Some(DecisionFile {
+            concern: 1,
+            position: head(works),
+            manager: head_id,
+            created: date,
+            options: vec![
+                option(ChoiceKind::Keep, None),
+                option(ChoiceKind::Mothball, Some((usd(1_000.0), usd(3_000.0)))),
+            ],
+            recommended: 1,
+            chosen: 0,
+            delegated: false,
+        }),
+        result: Some(FileResult {
+            date,
+            actual: Money::ZERO,
+            alternative: Some(usd(2_000.0)),
+            unserved: None,
+            hit,
+        }),
+    }
+}
+
+#[test]
+fn a_manager_remembers_being_right_and_the_passed_over_penalty_counts_only_then() {
+    use crate::decision::Topic;
+    let (mut game, works, head_id) = weak_works(test_support::management());
+    let date = game.date();
+    // Nothing reviewed yet: nothing to remember, nobody passed over.
+    assert!(
+        management::memory_of(game.state(), game.player(), (head_id, Topic::Overcapacity))
+            .is_none()
+    );
+    assert!(crate::staffing::overruled(game.state(), date).is_empty());
+    // The manager was wrong: no memory, no penalty.
+    let wrong = reviewed_file(&game, works, head_id, false);
+    game.state_mut().followups.push(wrong);
+    assert!(
+        management::memory_of(game.state(), game.player(), (head_id, Topic::Overcapacity))
+            .is_none()
+    );
+    assert!(crate::staffing::overruled(game.state(), date).is_empty());
+    // He was right and the player decided otherwise: he refers to it, and it counts.
+    let right = reviewed_file(&game, works, head_id, true);
+    game.state_mut().followups.push(right);
+    let memory = management::memory_of(game.state(), game.player(), (head_id, Topic::Overcapacity))
+        .expect("the manager remembers");
+    assert_eq!(memory.kind, crate::decision::ChoiceKind::Mothball);
+    assert_eq!(memory.alternative, Some(usd(2_000.0)));
+    assert_eq!(crate::staffing::overruled(game.state(), date)[&head_id], 1);
+    // Another topic is another matter.
+    assert!(management::memory_of(game.state(), game.player(), (head_id, Topic::Wage)).is_none());
+    // After a year it no longer counts.
+    assert!(crate::staffing::overruled(game.state(), date.add_days(400)).is_empty());
+}
+
+#[test]
+fn a_manager_the_player_proved_wrong_may_learn() {
+    let mut catalog = test_support::management();
+    catalog.management.concerns.learn_chance = 1.0;
+    let (mut game, works, head_id) = weak_works(catalog);
+    let before = game.state().managers[&head_id].judgment;
+    // Make room above: judgment is 100 in the test setup, so lower it first.
+    game.state_mut()
+        .managers
+        .get_mut(&head_id)
+        .unwrap()
+        .judgment = 50;
+    let mut file = reviewed_file(&game, works, head_id, false);
+    file.result = None;
+    // The recommended way was forecast to lose money, the chosen one kept things as they were.
+    if let Some(f) = file.file.as_mut() {
+        f.options[1].forecast = Some((usd(-1_500.0), usd(-500.0)));
+    }
+    file.baseline = management::mean_result(game.state(), game.player(), works);
+    let today = game.date();
+    game.state_mut().followups.push(file);
+    let mut news = Vec::new();
+    let catalog = game.catalog().clone();
+    management::report_followups(game.state_mut(), &catalog, today, &mut news);
+    let f = game.state().followups.last().unwrap();
+    let result = f.result.as_ref().expect("reviewed");
+    assert!(!result.hit, "{result:?}");
+    let m = &game.state().managers[&head_id];
+    assert_eq!(m.judged, 1);
+    assert_eq!(m.hits, 0);
+    assert_eq!(m.judgment, 51, "he learned (was 50, started at {before})");
+    assert_eq!(news.len(), 1);
 }

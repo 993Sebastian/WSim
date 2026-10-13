@@ -2545,3 +2545,12 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
 - Das Urteil „Treffer“ misst nur den Standortergebnis-Effekt; andere Gründe der Empfehlung (Risiko,
   Liquidität) gehen nicht ein.
 - Die Trefferquote zählt für den fragenden Manager (bei Weiterleitung den der letzten Stelle).
+
+### MG3: Gedächtnis und Chronik – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen:
+- Die „Angleichung der Risikoneigung“ eines irrenden Managers an den Spieler entfällt: der Spieler hat im Spiel
+  keine Risikoneigung. Es bleibt bei „Urteilsvermögen +1 mit Chance“.
+- Der Verweis im Anliegen zählt nur Akten desselben Managers zu demselben Thema (nicht derselben Stelle oder desselben
+  Standorts), damit er auch nach einem Stellenwechsel gilt.
+- Die Chronik zeigt die jüngsten 200 Akten der Firma in der Organisation (Reiter „Chronik“), die Filter laufen in der
+  Oberfläche; „je Einheit“ steht als Spalte Standort, „je Manager“ als Filter.

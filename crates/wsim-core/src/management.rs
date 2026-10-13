@@ -18,7 +18,8 @@ use crate::rng::{SimRng, Stream};
 use crate::state::{
     BudgetRule, CompanyId, Concern, ConcernOption, ConcernPart, ConcernReason, ConcernStatus,
     DecisionFile, FileOption, FileResult, Followup, GameState, Hop, Job, Manager, ManagerId,
-    Position, PositionKind, PositionLog, PositionState, Role, RuleScope, SiteId, Unit, UnitLevel,
+    Memory, Position, PositionKind, PositionLog, PositionState, Role, RuleScope, SiteId, Unit,
+    UnitLevel,
 };
 use crate::strategy;
 
@@ -1860,6 +1861,7 @@ impl Decider for Staff<'_> {
                 .add_days(i32::try_from(self.model.deadline_days).unwrap_or(i32::MAX)),
             status: ConcernStatus::Open,
             closed: None,
+            memory: memory_of(state, d.company, (top.manager, d.topic)),
         });
         Verdict::Hold
     }
@@ -2035,6 +2037,7 @@ pub(crate) fn bundle(concerns: Vec<Concern>, from: u32) -> Vec<Concern> {
             deadline: first.deadline,
             status: ConcernStatus::Open,
             closed: None,
+            memory: None,
         });
     }
     out
@@ -2635,8 +2638,34 @@ fn expire_concerns(state: &mut GameState, catalog: &Catalog, today: Date, news: 
     }
 }
 
+/// The latest decision on a topic in which the manager was right and the player decided
+/// otherwise (MG3): the manager refers to it when he asks again.
+pub(crate) fn memory_of(
+    state: &GameState,
+    company: CompanyId,
+    (manager, topic): (ManagerId, Topic),
+) -> Option<Memory> {
+    state
+        .followups
+        .iter()
+        .filter(|f| f.company == company && f.topic == topic)
+        .filter_map(|f| Some((f, f.file.as_ref()?, f.result.as_ref()?)))
+        .filter(|(_, file, r)| file.manager == manager && file.chosen != file.recommended && r.hit)
+        .max_by_key(|(_, _, r)| r.date)
+        .map(|(_, file, r)| Memory {
+            decided: file.created,
+            reviewed: r.date,
+            kind: file
+                .options
+                .get(file.recommended)
+                .map_or(ChoiceKind::Keep, |o| o.kind),
+            actual: r.actual,
+            alternative: r.alternative,
+        })
+}
+
 /// Reports on the effects of decisions that are due (docs/FORMELN.md, MA2, MG2).
-fn report_followups(
+pub(crate) fn report_followups(
     state: &mut GameState,
     catalog: &Catalog,
     today: Date,
@@ -2693,6 +2722,21 @@ fn report_followups(
                 if let Some(m) = state.managers.get_mut(&file.manager) {
                     m.judged += 1;
                     m.hits += u32::from(review.hit);
+                }
+                // A manager the player proved wrong may learn from it (MG3).
+                if !review.hit && file.chosen != file.recommended {
+                    let mut rng = SimRng::for_stream(
+                        state.settings.seed,
+                        Stream::Manager {
+                            id: file.manager.0,
+                            day: today.ordinal(),
+                        },
+                    );
+                    if rng.next_f64() < catalog.management.concerns.learn_chance
+                        && let Some(m) = state.managers.get_mut(&file.manager)
+                    {
+                        m.judgment = m.judgment.saturating_add(1).min(100);
+                    }
                 }
                 news.push(review_message(state, catalog, &f, file, &review));
                 state.followups[i].result = Some(review);

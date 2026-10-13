@@ -1945,6 +1945,8 @@ pub struct RawConcerns {
     pub effect_months: std::collections::BTreeMap<String, u32>,
     #[serde(rename = "treffer_toleranz", default)]
     pub hit_tolerance: f64,
+    #[serde(rename = "lernchance", default)]
+    pub learn_chance: f64,
     #[serde(rename = "akten_behalten", default)]
     pub files_kept: u32,
 }

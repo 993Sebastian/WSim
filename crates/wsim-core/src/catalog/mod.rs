@@ -281,6 +281,8 @@ pub struct ConcernModel {
     pub hit_tolerance: f64,
     /// Decision files kept per company (MG2).
     pub files_kept: u32,
+    /// Chance that a manager whose recommendation proved wrong learns from it (MG3).
+    pub learn_chance: f64,
 }
 
 impl ConcernModel {

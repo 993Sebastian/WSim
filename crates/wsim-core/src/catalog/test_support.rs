@@ -678,6 +678,7 @@ pub fn management() -> Catalog {
             effect_months: [6; crate::decision::Topic::ALL.len()],
             hit_tolerance: 0.1,
             files_kept: 120,
+            learn_chance: 0.25,
         },
         strategy: StrategyModel {
             premium: (1.35, 0.15),

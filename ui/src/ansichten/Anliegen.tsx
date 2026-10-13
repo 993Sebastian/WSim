@@ -6,6 +6,7 @@ import type { Anliegen, AnliegenGruppe, AnliegenOption, Anliegenantwort, Kern } 
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Rueckmeldung, useAktion, useSicht } from "./gemeinsam";
+import { entscheidungText, urteilText } from "./Chronik";
 import { trefferquote } from "./Organisation";
 import { einheitName, standortName, stellenName } from "./stellen";
 
@@ -84,6 +85,30 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
         ) : null}
         <strong>{t("anliegen.frist", { datum: formatDatum(a.deadline) })}</strong>
       </p>
+      {a.memory && (
+        <p className="erinnerung">
+          {t("anliegen.erinnerung", {
+            name: a.manager,
+            datum: formatDatum(a.memory.decided),
+            option: t(`option.${a.memory.kind}`),
+            ist: formatGeld(a.memory.actual_usd),
+            entgangen:
+              a.memory.alternative_usd == null ? "–" : formatGeld(a.memory.alternative_usd),
+          })}
+        </p>
+      )}
+      {(a.earlier?.length ?? 0) > 0 && (
+        <details className="fruehere">
+          <summary>{t("anliegen.fruehere", { anzahl: a.earlier?.length ?? 0 })}</summary>
+          <ul>
+            {a.earlier?.map((e) => (
+              <li key={`${e.created}/${e.manager_id}`}>
+                {formatDatum(e.created)}: {entscheidungText(e)} – {urteilText(e)}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
       {a.site_kind_text && a.site_country && a.asker.level !== "standort" && (
         <p className="feld-hilfe">
           {t("anliegen.ort", { ort: standortName(a.site_kind_text, a.site_country, a.site_name) })}

@@ -266,6 +266,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             &cl.field("treffer_toleranz"),
         ),
         files_kept: if c.files_kept > 0 { c.files_kept } else { 120 },
+        learn_chance: in_range(ctx, c.learn_chance, 0.0, 1.0, &cl.field("lernchance")),
     };
 
     let strategy = strategy(ctx, catalog, &v.strategy, &l.field("strategie"));

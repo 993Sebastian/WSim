@@ -79,6 +79,17 @@ pub struct ConcernPartView {
     pub option: ConcernOptionView,
 }
 
+/// What a manager remembers of an earlier decision he was right about (MG3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MemoryView {
+    pub decided: String,
+    pub reviewed: String,
+    /// What he had recommended (text `option.<key>`).
+    pub kind: String,
+    pub actual_usd: f64,
+    pub alternative_usd: Option<f64>,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ConcernView {
     pub id: u32,
@@ -103,6 +114,12 @@ pub struct ConcernView {
     pub manager_judged: u32,
     #[serde(default)]
     pub manager_hit_rate: Option<f64>,
+    /// An earlier decision on the topic in which the manager was right (MG3).
+    #[serde(default)]
+    pub memory: Option<MemoryView>,
+    /// The latest files on the same topic at the same site, newest first (MG3).
+    #[serde(default)]
+    pub earlier: Vec<super::organisation::ChronicleEntryView>,
     /// Topic (text `thema.<topic>`).
     pub topic: String,
     /// Key of the product concerned.
@@ -816,6 +833,25 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         path,
         parts,
         manager: name(c.manager),
+        memory: c.memory.as_ref().map(|m| MemoryView {
+            decided: iso(m.decided),
+            reviewed: iso(m.reviewed),
+            kind: m.kind.key().to_owned(),
+            actual_usd: usd(m.actual),
+            alternative_usd: m.alternative.map(usd),
+        }),
+        earlier: state
+            .followups
+            .iter()
+            .filter(|f| {
+                f.company == c.company
+                    && f.topic == c.decision.topic
+                    && Some(f.site) == c.decision.site
+            })
+            .filter_map(|f| super::organisation::chronicle_entry(game, f))
+            .rev()
+            .take(3)
+            .collect(),
         manager_judged: asking.map_or(0, |m| m.judged),
         manager_hit_rate: asking
             .filter(|m| m.judged > 0)
