@@ -1938,6 +1938,8 @@ pub struct RawManagement {
     pub branch: RawBranchSkill,
     #[serde(rename = "stil")]
     pub style: RawStyleModel,
+    #[serde(rename = "personal")]
+    pub staffing: RawStaffing,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -2191,6 +2193,14 @@ pub struct RawSkills {
     pub general: RawSpread,
     #[serde(rename = "eindruck_unschaerfe")]
     pub impression_blur: f64,
+}
+
+/// Hiring by the heads (MG8).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStaffing {
+    #[serde(rename = "einstellungen_monat")]
+    pub per_month: u32,
 }
 
 /// Style, favourite reasons and objections of managers (MG7).

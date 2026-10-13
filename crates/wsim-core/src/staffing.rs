@@ -9,7 +9,7 @@ use crate::catalog::Catalog;
 use crate::command::{self, Command, CommandError};
 use crate::decision::{Choice, ChoiceKind, Decision, Topic};
 use crate::ledger::CostType;
-use crate::management::{self, expertise, strength};
+use crate::management::{self, strength};
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
@@ -365,20 +365,19 @@ fn head_pick(
     catalog: &Catalog,
     state: &GameState,
     company: CompanyId,
-    (pool, function): (&[ManagerId], &str),
+    (pool, key): (&[ManagerId], &str),
     (judgment, rng): (u8, &mut SimRng),
 ) -> Option<ManagerId> {
     let base = catalog.management.concerns.recommend_base;
     let sees_true = rng.chance(base + (1.0 - base) * f64::from(judgment) / 100.0);
-    let key = management::expertise_key(function);
     let share = management::impression_share(catalog, state, company);
     let score = |id: &ManagerId| -> u8 {
         let m = &state.managers[id];
-        let value = expertise(m, function);
+        let value = management::skill(m, key).unwrap_or(0);
         if sees_true {
             value
         } else {
-            let offset = m.impression.get(&key).copied().unwrap_or(0);
+            let offset = m.impression.get(key).copied().unwrap_or(0);
             management::shown_level(value, management::shown_impression(offset, share))
         }
     };
@@ -414,11 +413,15 @@ fn heads_hire(
                 .map(move |p| (CompanyId(i as u32), p.position.clone()))
         })
         .collect();
+    let per_month = usize::try_from(catalog.management.staffing.per_month).unwrap_or(1);
     for (company, head) in heads {
         let Some(boss) = management::holder(state, company, &head) else {
             continue;
         };
-        let free: Vec<Position> = management::positions(catalog, state, company, head.unit)
+        let mut hired = 0;
+        // First the specialist positions of the unit with work; the heads of the units one
+        // level down only once the unit itself works (MG8).
+        let mut targets: Vec<Position> = management::positions(catalog, state, company, head.unit)
             .into_iter()
             .filter(|p| {
                 matches!(p.role, Role::Specialist(_))
@@ -427,23 +430,34 @@ fn heads_hire(
                     && !offered(state, company, p)
             })
             .collect();
-        for position in free {
-            let Role::Specialist(function) = &position.role else {
-                continue;
+        let own_free = !targets.is_empty();
+        if hired < per_month && !own_free {
+            targets = free_subordinate_heads(catalog, state, company, head.unit);
+        }
+        for position in targets {
+            if hired >= per_month {
+                break;
+            }
+            let key = match &position.role {
+                Role::Specialist(function) => management::expertise_key(function),
+                Role::Head => management::LEADERSHIP.to_owned(),
             };
             let all = candidates(catalog, state, company, head.unit);
-            let focused: Vec<ManagerId> = all
-                .iter()
-                .copied()
-                .filter(|id| state.managers[id].focus == *function)
-                .collect();
+            let focused: Vec<ManagerId> = match &position.role {
+                Role::Specialist(function) => all
+                    .iter()
+                    .copied()
+                    .filter(|id| state.managers[id].focus == *function)
+                    .collect(),
+                Role::Head => Vec::new(),
+            };
             let pool = if focused.is_empty() { all } else { focused };
             let judgment = state.managers[&boss].judgment;
             let Some(pick) = head_pick(
                 catalog,
                 state,
                 company,
-                (&pool, function),
+                (&pool, &key),
                 (judgment, streams.of(boss)),
             ) else {
                 continue;
@@ -471,6 +485,11 @@ fn heads_hire(
                 continue;
             }
             management::count_spent(state, company, &head, salary);
+            hired += 1;
+            // A head hired this way builds the organisation on (MG8).
+            if position.role == Role::Head {
+                management::position_state_mut(state, company, &position).hires = true;
+            }
             if state.is_main(company) {
                 news.push(
                     about(
@@ -484,9 +503,62 @@ fn heads_hire(
                     .with("gehalt", Param::Money(salary)),
                 );
             }
-            break;
         }
     }
+}
+
+/// The free heads of the units directly below a unit (CEO → continent → country → site),
+/// those with the most sites first (MG8).
+fn free_subordinate_heads(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    unit: Unit,
+) -> Vec<Position> {
+    let owned = |s: &crate::state::Site| s.held_by(company);
+    let mut below: Vec<(usize, Unit)> = match unit {
+        Unit::Board => {
+            let mut kinds = BTreeMap::new();
+            for s in state.sites.iter().filter(|s| owned(s)) {
+                *kinds
+                    .entry(catalog.countries.get(s.country).continent)
+                    .or_insert(0usize) += 1;
+            }
+            kinds
+                .into_iter()
+                .map(|(k, n)| (n, Unit::Continent(k)))
+                .collect()
+        }
+        Unit::Continent(k) => {
+            let mut kinds = BTreeMap::new();
+            for s in state
+                .sites
+                .iter()
+                .filter(|s| owned(s) && catalog.countries.get(s.country).continent == k)
+            {
+                *kinds.entry(s.country).or_insert(0usize) += 1;
+            }
+            kinds
+                .into_iter()
+                .map(|(c, n)| (n, Unit::Country(c)))
+                .collect()
+        }
+        Unit::Country(c) => state
+            .sites
+            .iter()
+            .enumerate()
+            .filter(|(_, s)| owned(s) && s.country == c)
+            // Few sites; the cast is exact.
+            .map(|(i, _)| (1, Unit::Site(crate::state::SiteId(i as u32))))
+            .collect(),
+        Unit::Site(_) => Vec::new(),
+    };
+    below.sort_by_key(|(n, _)| std::cmp::Reverse(*n));
+    below
+        .into_iter()
+        .map(|(_, u)| Position::new(u, Role::Head))
+        .filter(|p| management::holder(state, company, p).is_none() && !offered(state, company, p))
+        .collect()
 }
 
 /// `SetHiringByHead`: a head of the company fills the free positions of its unit itself.

@@ -248,4 +248,11 @@ management:
     # Manager mit dieser Chance (mal Stilfaktor) einen Einwand in der Akte fest.
     einwand: {schwelle_usd: 100000, chance: 0.5}
 
+  # Personalverantwortung der Leitungen (MG8): so viele Stellen besetzt eine Leitung mit dem
+  # Schalter „stellt ein“ höchstens je Monat – zuerst Fachstellen der eigenen Einheit, dann
+  # freie Leitungen der Einheiten darunter (CEO → Kontinent → Land → Standort); sie erben den
+  # Schalter.
+  personal:
+    einstellungen_monat: 2
+
   annaeherung: true

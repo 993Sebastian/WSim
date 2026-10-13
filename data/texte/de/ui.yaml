@@ -2793,3 +2793,14 @@ begruendung.sicherheit: Sicherheit
 begruendung.technologie: Technologie
 anliegen.stil: "Stil: {stil}"
 chronik.einwand: "Einwand des Managers: Seine Empfehlung hätte nach seiner Prognose {betrag} im Jahr mehr gebracht."
+menue.marktaufbau: "Einstellung dieser Version: Die Märkte haben {jahr} nur {anteil} % ihrer späteren Größe und wachsen gleichmäßig über {jahre} Jahre (bis {bis}) auf die volle Größe – zusätzlich zum Wachstum von Bevölkerung und Wirtschaft."
+freigabe.titel: Freigabe der Branchen
+freigabe.hilfe: "Wie weit dürfen die Stellen in einer Branche gehen? Frei: alles im Rahmen der Budgets. Mit Rückfrage: Betrieb frei, jede Erweiterung kommt als Anliegen zu Ihnen. Nur halten: Betrieb und Ersatz, keine Erweiterung. Gesperrt: keine Erweiterung, bestehende Werke laufen weiter. Eine leere Zelle erbt vom Konzern, „Übrige Branchen“ gilt für alle nicht genannten."
+freigabe.branche: Branche
+freigabe.konzern: Konzern
+freigabe.uebrige: Übrige Branchen
+freigabe.geerbt: – geerbt –
+freigabe.frei: Frei
+freigabe.rueckfrage: Mit Rückfrage
+freigabe.halten: Nur halten
+freigabe.gesperrt: Gesperrt

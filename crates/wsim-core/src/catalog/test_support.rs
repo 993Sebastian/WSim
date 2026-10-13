@@ -767,6 +767,7 @@ pub fn management() -> Catalog {
             ai_weight: 20.0,
         },
         style: crate::catalog::StyleModel::default(),
+        staffing: crate::catalog::StaffingModel::default(),
         provenance: Provenance::default(),
     };
     // Central departments (ZA2, ZA3), headed by the board's specialists above.

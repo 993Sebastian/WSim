@@ -8,7 +8,7 @@ use crate::command::site_type_key;
 use crate::game::Game;
 use crate::ids::{GoodsGroupId, Id};
 use crate::management;
-use crate::mandate::{Guideline, ReviewInterval};
+use crate::mandate::{Guideline, ReleaseScope, ReviewInterval};
 use crate::review::{self, Chance, GoalCheck, Risk};
 use crate::state::ConcernStatus;
 
@@ -102,8 +102,23 @@ pub struct MandateView {
     pub max_debt: Option<f64>,
     pub blocked_countries: Vec<String>,
     pub blocked_groups: Vec<String>,
+    /// The branch release cells (MG10).
+    pub release: Vec<ReleaseCellView>,
     /// `monatlich`, `quartalsweise`, `halbjaehrlich`, `jaehrlich`.
     pub review: String,
+}
+
+/// One cell of the branch release matrix as the form shows it (MG10).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ReleaseCellView {
+    /// `konzern`, `kontinent` or `land`.
+    pub scope: String,
+    /// Key of the continent or country; none for the company.
+    pub key: Option<String>,
+    /// Key of the branch; none for all other branches.
+    pub branch: Option<String>,
+    /// `frei`, `rueckfrage`, `halten` or `gesperrt`.
+    pub stage: String,
 }
 
 /// A guideline with the aggressiveness it gives the rules.
@@ -122,6 +137,9 @@ pub struct ReviewsView {
     /// Goods groups and countries to choose from.
     pub groups: Vec<String>,
     pub countries: Vec<String>,
+    /// Branches and continents of the release matrix (MG10).
+    pub branches: Vec<String>,
+    pub continents: Vec<String>,
     /// The CEO's name; `None` without a CEO (no reviews then).
     pub ceo: Option<String>,
     /// The next review with a CEO.
@@ -288,6 +306,25 @@ pub fn reviews(game: &Game) -> ReviewsView {
                 .iter()
                 .map(|&g| c.goods_groups.key(g).to_owned())
                 .collect(),
+            release: m
+                .release
+                .iter()
+                .map(|x| {
+                    let (scope, key) = match x.scope {
+                        ReleaseScope::Company => ("konzern", None),
+                        ReleaseScope::Continent(k) => {
+                            ("kontinent", Some(c.continents.key(k).to_owned()))
+                        }
+                        ReleaseScope::Country(k) => ("land", Some(c.countries.key(k).to_owned())),
+                    };
+                    ReleaseCellView {
+                        scope: scope.to_owned(),
+                        key,
+                        branch: x.branch.map(|b| c.branches.key(b).to_owned()),
+                        stage: x.stage.key().to_owned(),
+                    }
+                })
+                .collect(),
             review: m.review.key().to_owned(),
         },
         guidelines: if c.management.enabled() {
@@ -307,6 +344,8 @@ pub fn reviews(game: &Game) -> ReviewsView {
             .collect(),
         groups: c.goods_groups.keys().to_vec(),
         countries: c.countries.keys().to_vec(),
+        branches: c.branches.keys().to_vec(),
+        continents: c.continents.keys().to_vec(),
         ceo: ceo.map(|id| state.managers[&id].name.clone()),
         next_review: ceo.map(|_| iso(review::next_review(m.review, state.date))),
         goals_now: review::goals(state, player).iter().map(goal_view).collect(),

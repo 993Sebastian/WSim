@@ -20,6 +20,22 @@ describe("Hauptmenü", () => {
     expect(await screen.findByText(/Vorschau im Browser/)).toBeTruthy();
   });
 
+  it("vermerkt den Marktaufbau als Hinweis", async () => {
+    const basis = vorschauKern(0);
+    const optionen = await basis.optionen();
+    const kern: Kern = {
+      ...kernMit(async () => ({ version: "0.1.0" })),
+      optionen: async () => ({
+        ...optionen,
+        market_build_up: { from_year: 1900, start_share: 0.25, years: 50 },
+      }),
+    };
+    render(<App kern={kern} />);
+    const hinweis = await screen.findByTestId("marktaufbau");
+    expect(hinweis.textContent).toMatch(/1900 nur 25 % ihrer späteren Größe/);
+    expect(hinweis.textContent).toMatch(/50 Jahre \(bis 1950\)/);
+  });
+
   it("meldet einen nicht erreichbaren Kern und sperrt das neue Spiel", async () => {
     render(<App kern={kernMit(() => Promise.reject(new Error("weg")))} />);
     expect(await screen.findByText(/nicht erreichbar: Error: weg/)).toBeTruthy();

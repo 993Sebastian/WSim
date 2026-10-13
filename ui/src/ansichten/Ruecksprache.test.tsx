@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { Befehl, Kern } from "../kern";
+import type { Auftrag, Befehl, Kern } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
 import { hatText } from "../texte";
 import { OrganisationAnsicht } from "./Organisation";
@@ -134,6 +134,28 @@ describe("Vorstand und Rücksprache", () => {
           },
         },
       },
+    ]);
+  });
+
+  it("sendet die Branchenfreigabe in der Reihenfolge, die der Kern verlangt", async () => {
+    const { gesendet } = await ruecksprache();
+    const form = screen.getByRole("form", { name: "Strategieauftrag an den Vorstand" });
+    fireEvent.change(within(form).getByLabelText("Übrige Branchen, Europa"), {
+      target: { value: "gesperrt" },
+    });
+    fireEvent.change(within(form).getByLabelText("Chemie, Konzern"), {
+      target: { value: "rueckfrage" },
+    });
+    fireEvent.change(within(form).getByLabelText("Bergbau und Rohstoffe, Konzern"), {
+      target: { value: "frei" },
+    });
+    fireEvent.click(within(form).getByRole("button", { name: "Auftrag übernehmen" }));
+    await within(form).findByText("Der Strategieauftrag ist übernommen.");
+    const mandate = (gesendet[0] as { SetMandate: { mandate: Auftrag } }).SetMandate.mandate;
+    expect(mandate.release).toEqual([
+      { scope: "Company", branch: "bergbau", stage: "Free" },
+      { scope: "Company", branch: "chemie", stage: "Ask" },
+      { scope: { Continent: "europa" }, branch: null, stage: "Locked" },
     ]);
   });
 

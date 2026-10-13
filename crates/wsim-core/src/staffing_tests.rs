@@ -735,6 +735,45 @@ fn poaching_is_checked() {
 }
 
 #[test]
+fn a_ceo_with_the_switch_fills_the_heads_below_and_they_inherit_it() {
+    let mut c = test_support::management();
+    c.management.budget_floor = (500.0, 1000.0);
+    c.management.staffing.per_month = 20;
+    let mut game = new_game(c);
+    let (_, works) = mine_and_works(&mut game);
+    let ceo = Position::new(Unit::Board, Role::Head);
+    hire_sharp(&mut game, ceo.clone());
+    game.apply(Command::SetHiringByHead {
+        position: ceo.clone(),
+        enabled: true,
+    })
+    .unwrap();
+    for _ in 0..6 {
+        to_next_month(&mut game);
+    }
+    let player = CompanyId(0);
+    let state = game.state();
+    let country = state.sites[works.index()].country;
+    let continent = game.catalog().countries.get(country).continent;
+    let heads = [
+        Position::new(Unit::Continent(continent), Role::Head),
+        Position::new(Unit::Country(country), Role::Head),
+        head(works),
+    ];
+    for h in &heads {
+        assert!(
+            management::holder(state, player, h).is_some(),
+            "{h:?} stays free"
+        );
+        // Hired this way, the head builds the organisation on.
+        assert!(
+            management::position_state(state, player, h).is_some_and(|p| p.hires),
+            "{h:?} did not inherit the switch"
+        );
+    }
+}
+
+#[test]
 fn games_with_a_living_market_load_and_replay_identically() {
     let catalog = Arc::new({
         let mut c = test_support::management();

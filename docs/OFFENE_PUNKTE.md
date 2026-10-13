@@ -2684,3 +2684,18 @@ angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit d
   eigene Spalte im Managermarkt gibt es nicht.
 - Manager aus alten Spielständen bekommen ihren Stil beim nächsten Monatsanfang; bis dahin zeigt die Ansicht keinen.
 - In den Tests der Kerns ist die Stilliste leer (neutral); nur die MG7-Tests laden `test_support::styles()`.
+
+### MG10: Branchenfreigabe – Umsetzung (Teil 1) 13.10.2026, bitte abnehmen
+- Umgesetzt: Zellen `(Konzern | Kontinent | Land, Branche | „übrige“, Stufe)` im Strategieauftrag
+  (`Mandate.release`), Auflösung Land → Kontinent → Konzern (FORMELN „MG10“), Wirkung an der einen Stelle
+  `mandate::banned` (nur halten/gesperrt: Entscheidung zurückgehalten) und im Entscheidungsweg der Stellen
+  (mit Rückfrage: Anliegen auch bei ausreichendem Budget). Matrix „Freigabe der Branchen“ im Strategieauftrag
+  (Zeilen Branchen + „Übrige“, Spalten Konzern und Kontinente; leere Zelle = geerbt).
+- Abweichung vom Entwurf §10.3: keine Bitmasken und kein Zwischenspeicher – die Zellenliste ist kurz, die
+  Auflösung ein Durchlauf über wenige Zellen. Vorschlag: so lassen, solange der Leistungstest (100 KI-Firmen)
+  keinen Mehraufwand zeigt; KI-Firmen setzen keine Freigaben.
+- Die alten gesperrten Warengruppen bleiben daneben bestehen (nicht auf die Konzern-Ebene umgestellt), damit
+  alte Spielstände und Aufträge unverändert gelten. Vorschlag: bei Gelegenheit zusammenführen.
+- Noch offen: Spalten je Land in der Matrix (der Kern kennt Länderzellen, die Oberfläche lässt sie unberührt),
+  Kennzahlen je Zelle, Zeile „Aktiv in: …“ auf den Managerkarten, Freigabe-Vorschläge der Manager (§10.5),
+  Schalter „gilt auch für Beteiligungen“, Szenario-/Leistungstests §10.6 (bisher: Auflösung und Prüfung der Zellen).

@@ -218,7 +218,22 @@ pub struct ManagementModel {
     pub branch: BranchSkillModel,
     /// Style, favourite reasons and objections of managers (MG7).
     pub style: StyleModel,
+    /// Hiring by the heads (MG8).
+    pub staffing: StaffingModel,
     pub provenance: Provenance,
+}
+
+/// Hiring by the heads of units (MG8, docs/FORMELN.md).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct StaffingModel {
+    /// Positions a head with the switch fills at most per month.
+    pub per_month: u32,
+}
+
+impl Default for StaffingModel {
+    fn default() -> Self {
+        Self { per_month: 1 }
+    }
 }
 
 /// Style, favourite reasons and objections of managers (MG7, docs/FORMELN.md).

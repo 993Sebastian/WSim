@@ -6201,3 +6201,36 @@ Vorgabe `docs/MANAGER_2.md` §7. Daten: `management.yaml`, Abschnitt `stil`.
   `einwand.schwelle_usd` und hält die Prognose des Fragenden seine Option für besser, dann hält der Manager mit der
   Chance `einwand.chance` · `einwand`(Stil) einen Einwand in der Akte fest (Zufall `Stream::Objection`, je Anliegen):
   die Differenz der Prognosemitten je Jahr. Die Chronik und die früheren Entscheidungen im Anliegen zeigen ihn.
+
+
+## MG8 – Personalverantwortung der Manager, Teil 1: Kaskade (13.10.2026)
+
+Vorgabe `docs/MANAGER_2.md` §8.1. Daten: `management.yaml`, Abschnitt `personal`.
+
+- Eine Leitung mit dem Schalter „stellt ein“ besetzt je Monat bis zu `einstellungen_monat` Stellen, im Rahmen ihres
+  Jahresbudgets (Gehalt gegen Rest des Budgets, wie bisher).
+- **Reihenfolge:** zuerst die freien Fachstellen ihrer Einheit mit Arbeit; erst wenn es dort keine mehr gibt, die freien
+  **Leitungen der Einheiten darunter** (CEO → Kontinent → Land → Standort), die Einheiten mit den meisten Standorten zuerst
+  (Vorschlag für „Umsatz der Einheit“, OFFENE_PUNKTE MG8).
+- Für eine Fachstelle zählt die Fachkompetenz in ihrer Funktion, für eine Leitung die Führungsstärke; Eindruck und
+  Fehler wie bisher nach Urteilsvermögen der einstellenden Leitung.
+- **Vererbung:** Eine so besetzte Leitung bekommt den Schalter „stellt ein“ selbst (abschaltbar je Leitung). Der Schalter am
+  CEO baut damit die gesamte Organisation auf.
+
+## MG10 – Branchenfreigabe je Ebene (13.10.2026)
+
+Ein Strategieauftrag (`Mandate`) trägt Zellen `(Geltungsbereich, Branche oder „übrige“, Stufe)`:
+Stufen `frei` < `mit Rückfrage` < `nur halten` < `gesperrt`; Geltungsbereiche Konzern, Kontinent, Land.
+
+- **Auflösung** für eine Entscheidung am Ort (Land, sonst Kontinent) mit Branche b: in der Reihenfolge
+  Land → Kontinent des Landes → Konzern, in jedem Bereich zuerst die Zelle von b, dann die Zelle „übrige“;
+  die erste gefundene Stufe gilt, sonst `frei`. Spezieller schlägt allgemeiner.
+- **Branche der Entscheidung:** Branche des Produkts der Entscheidung (`product.branch`); ohne Produkt gilt
+  „übrige“.
+- **Wirkung** nur auf Entscheidungen der Themen Ausbau, Energie, Lagerstätte, Engpass (Expansion):
+  `nur halten`/`gesperrt` → die Stellen halten die Entscheidung zurück (an der Stelle von `mandate::banned`);
+  `mit Rückfrage` → die Stelle darf nicht selbst entscheiden, die Entscheidung geht als Anliegen nach oben
+  (bis zum Spieler), auch wenn das Budget reicht. Betrieb, Ersatz und Routine bleiben unberührt; bestehende
+  Werke laufen weiter (kein automatischer Rückzug). Der Spieler selbst darf weiter alles.
+- Zellen sind sortiert (Bereich, Ort, Branche; „übrige“ zuerst) und geprüft (Indizes, keine Doppel).
+- Die bisherigen gesperrten Warengruppen/Länder bleiben unverändert daneben bestehen.

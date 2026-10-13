@@ -30,6 +30,8 @@ export interface Optionen {
   start_money_min_usd?: number;
   /** Share of the account the founding dialog suggests as capital (PE3). */
   capital_suggestion?: number;
+  /** The build-up of the markets: start year, share of the full size then, years to full. */
+  market_build_up?: { from_year: number; start_share: number; years: number } | null;
 }
 
 export interface NeuesSpiel {
@@ -2214,6 +2216,12 @@ export interface Auftrag {
   max_debt?: number | null;
   blocked_countries?: string[];
   blocked_groups?: string[];
+  /** The release cells, sorted by scope and branch (MG10). */
+  release?: {
+    scope: "Company" | { Continent: string } | { Country: string };
+    branch: string | null;
+    stage: "Free" | "Ask" | "Hold" | "Locked";
+  }[];
   review: Ruecksprachetakt;
 }
 
@@ -2288,7 +2296,21 @@ export interface AuftragSicht {
   max_debt: number | null;
   blocked_countries: string[];
   blocked_groups: string[];
+  release: FreigabeZelle[];
   review: "monatlich" | "quartalsweise" | "halbjaehrlich" | "jaehrlich";
+}
+
+/** The stage of a branch in a scope of the release matrix (MG10). */
+export type Freigabestufe = "frei" | "rueckfrage" | "halten" | "gesperrt";
+
+/** One cell of the branch release matrix as the view shows it (MG10). */
+export interface FreigabeZelle {
+  scope: "konzern" | "kontinent" | "land";
+  /** Key of the continent or country; null for the company. */
+  key: string | null;
+  /** Key of the branch; null for all other branches. */
+  branch: string | null;
+  stage: Freigabestufe;
 }
 
 /** The mandate to the board and the CEO's strategy reviews (MA5). */
@@ -2299,6 +2321,9 @@ export interface Ruecksprachen {
   intervals: string[];
   groups: string[];
   countries: string[];
+  /** Branches and continents of the release matrix (MG10). */
+  branches: string[];
+  continents: string[];
   /** The CEO's name; null without a CEO. */
   ceo: string | null;
   next_review: string | null;

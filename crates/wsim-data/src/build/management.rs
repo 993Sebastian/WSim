@@ -467,6 +467,18 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         skills,
         branch,
         style: style(ctx, &v.style, &l.field("stil")),
+        staffing: wsim_core::catalog::StaffingModel {
+            per_month: {
+                let n = v.staffing.per_month;
+                if n == 0 {
+                    ctx.error(
+                        &l.field("personal").field("einstellungen_monat"),
+                        messages::not_positive(0.0),
+                    );
+                }
+                n.clamp(1, 20)
+            },
+        },
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

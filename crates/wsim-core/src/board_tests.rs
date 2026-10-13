@@ -15,7 +15,9 @@ use crate::management_tests::{
     cheap_furnaces, days, free, head, hire_sharp, mine_and_works, new_game, through_quarter_end,
     usd, weak_works,
 };
-use crate::mandate::{Goals, Guideline, Mandate};
+use crate::mandate::{
+    Goals, Guideline, Mandate, ReleaseCell, ReleaseScope, ReleaseStage, release_stage,
+};
 use crate::message::keys;
 use crate::money::Money;
 use crate::save;
@@ -1137,4 +1139,76 @@ fn a_new_site_answered_later_gets_its_steps() {
         sites[planned.index()].slots.is_empty(),
         "not on the warehouse"
     );
+}
+
+#[test]
+fn the_branch_release_resolves_from_special_to_general_and_is_checked() {
+    let mut game = new_game(test_support::management());
+    let catalog = game.catalog().clone();
+    let branch = catalog.branches.id("bergbau").unwrap();
+    let aaa = catalog.countries.id("AAA").unwrap();
+    let europe = catalog.countries.get(aaa).continent;
+    let cell = |scope, branch, stage| ReleaseCell {
+        scope,
+        branch,
+        stage,
+    };
+    let at = |cells: &[ReleaseCell], b| release_stage(&catalog, cells, Some(aaa), None, b);
+    assert_eq!(at(&[], Some(branch)), ReleaseStage::Free);
+    // "Only these branches": the branch free, all others locked, at the company.
+    let only = [
+        cell(ReleaseScope::Company, Some(branch), ReleaseStage::Free),
+        cell(ReleaseScope::Company, None, ReleaseStage::Locked),
+    ];
+    assert_eq!(at(&only, Some(branch)), ReleaseStage::Free);
+    assert_eq!(at(&only, None), ReleaseStage::Locked);
+    // A continent and a country cell beat the company; the special one wins.
+    let nested = [
+        cell(ReleaseScope::Company, Some(branch), ReleaseStage::Locked),
+        cell(
+            ReleaseScope::Continent(europe),
+            Some(branch),
+            ReleaseStage::Ask,
+        ),
+        cell(ReleaseScope::Country(aaa), Some(branch), ReleaseStage::Hold),
+    ];
+    assert_eq!(at(&nested, Some(branch)), ReleaseStage::Hold);
+    assert_eq!(
+        release_stage(&catalog, &nested, None, Some(europe), Some(branch)),
+        ReleaseStage::Ask
+    );
+    assert_eq!(
+        release_stage(&catalog, &nested[..2], Some(aaa), None, Some(branch)),
+        ReleaseStage::Ask
+    );
+    assert_eq!(
+        release_stage(&catalog, &nested[..1], None, None, Some(branch)),
+        ReleaseStage::Locked
+    );
+
+    // The mandate takes sorted, valid cells only.
+    let mandate = |release: Vec<ReleaseCell>| Mandate {
+        release,
+        ..Mandate::default()
+    };
+    assert_eq!(
+        game.apply(Command::SetMandate {
+            mandate: mandate(nested.to_vec())
+        }),
+        Ok(())
+    );
+    let unsorted = vec![nested[2], nested[0]];
+    let out_of_range = vec![cell(
+        ReleaseScope::Country(<crate::ids::CountryId as crate::ids::Id>::from_index(9_999)),
+        None,
+        ReleaseStage::Hold,
+    )];
+    for bad in [unsorted, out_of_range] {
+        assert_eq!(
+            game.apply(Command::SetMandate {
+                mandate: mandate(bad)
+            }),
+            Err(CommandError::InvalidMandate)
+        );
+    }
 }

@@ -12,7 +12,7 @@ use crate::catalog::Catalog;
 use crate::command::{Command, CommandError};
 use crate::deals::{self, DealObject};
 use crate::decision::{Choice, Decision, Topic};
-use crate::ids::{CountryId, GoodsGroupId, Id};
+use crate::ids::{BranchId, ContinentId, CountryId, GoodsGroupId, Id};
 use crate::money::Money;
 use crate::state::{CompanyId, GameState};
 
@@ -105,6 +105,82 @@ pub struct Goals {
     pub rank: Option<u32>,
 }
 
+/// How far the positions of a unit may go in a branch (MG10, docs/MANAGER_2.md 10.1).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ReleaseStage {
+    /// Everything within the budgets.
+    #[default]
+    Free,
+    /// Operation is free, every expansion goes to the player as a concern.
+    Ask,
+    /// Operation and replacement only, no expansion.
+    Hold,
+    /// No expansion; existing sites keep running.
+    Locked,
+}
+
+impl ReleaseStage {
+    /// The key the views and texts use.
+    pub fn key(self) -> &'static str {
+        match self {
+            ReleaseStage::Free => "frei",
+            ReleaseStage::Ask => "rueckfrage",
+            ReleaseStage::Hold => "halten",
+            ReleaseStage::Locked => "gesperrt",
+        }
+    }
+}
+
+/// Where a release applies; the more special scope wins.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ReleaseScope {
+    Company,
+    Continent(ContinentId),
+    Country(CountryId),
+}
+
+/// One cell of the branch release matrix: the stage of a branch (`None`: all other
+/// branches) in a scope.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct ReleaseCell {
+    pub scope: ReleaseScope,
+    pub branch: Option<BranchId>,
+    pub stage: ReleaseStage,
+}
+
+/// The stage that rules a branch in a place: the cell of the country, else of its
+/// continent, else of the company; in each scope the branch's own cell before the one for
+/// all other branches. Free when nothing is set.
+pub fn release_stage(
+    catalog: &Catalog,
+    cells: &[ReleaseCell],
+    country: Option<CountryId>,
+    continent: Option<ContinentId>,
+    branch: Option<BranchId>,
+) -> ReleaseStage {
+    if cells.is_empty() {
+        return ReleaseStage::Free;
+    }
+    let continent = continent.or_else(|| country.map(|c| catalog.countries.get(c).continent));
+    let scopes = [
+        country.map(ReleaseScope::Country),
+        continent.map(ReleaseScope::Continent),
+        Some(ReleaseScope::Company),
+    ];
+    for scope in scopes.into_iter().flatten() {
+        let find = |b: Option<BranchId>| {
+            cells
+                .iter()
+                .find(|c| c.scope == scope && c.branch == b)
+                .map(|c| c.stage)
+        };
+        if let Some(stage) = branch.and_then(|b| find(Some(b))).or_else(|| find(None)) {
+            return stage;
+        }
+    }
+    ReleaseStage::Free
+}
+
 /// A company's mandate to its board.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Mandate {
@@ -119,6 +195,9 @@ pub struct Mandate {
     pub blocked_countries: BTreeSet<CountryId>,
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub blocked_groups: BTreeSet<GoodsGroupId>,
+    /// The release of branches per scope (MG10); empty = everything free.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub release: Vec<ReleaseCell>,
     #[serde(default)]
     pub review: ReviewInterval,
 }
@@ -248,13 +327,19 @@ pub fn blocked_object(
 /// of a blocked goods group, or an offer for a blocked object.
 pub fn banned(catalog: &Catalog, state: &GameState, d: &Decision, choice: &Choice) -> bool {
     let mandate = &state.companies[d.company.index()].mandate;
+    let grows = grows(d.topic);
+    if grows
+        && !choice.steps.is_empty()
+        && matches!(
+            release_of(catalog, state, d),
+            ReleaseStage::Hold | ReleaseStage::Locked
+        )
+    {
+        return true;
+    }
     if mandate.blocked_countries.is_empty() && mandate.blocked_groups.is_empty() {
         return false;
     }
-    let grows = matches!(
-        d.topic,
-        Topic::Expansion | Topic::Power | Topic::Deposit | Topic::Bottleneck
-    );
     if grows
         && d.product.is_some_and(|p| {
             mandate
@@ -275,6 +360,34 @@ pub fn banned(catalog: &Catalog, state: &GameState, d: &Decision, choice: &Choic
         }
         _ => false,
     })
+}
+
+fn grows(topic: Topic) -> bool {
+    matches!(
+        topic,
+        Topic::Expansion | Topic::Power | Topic::Deposit | Topic::Bottleneck
+    )
+}
+
+/// The branch release that rules a decision: the branch of its product at its place.
+pub fn release_of(catalog: &Catalog, state: &GameState, d: &Decision) -> ReleaseStage {
+    let cells = &state.companies[d.company.index()].mandate.release;
+    if cells.is_empty() {
+        return ReleaseStage::Free;
+    }
+    let (country, continent) = match crate::management::place_of(state, d) {
+        Some(crate::state::Unit::Site(s)) => (state.sites.get(s.index()).map(|x| x.country), None),
+        Some(crate::state::Unit::Country(c)) => (Some(c), None),
+        Some(crate::state::Unit::Continent(c)) => (None, Some(c)),
+        _ => (None, None),
+    };
+    let branch = d.product.map(|p| catalog.products.get(p).branch);
+    release_stage(catalog, cells, country, continent, branch)
+}
+
+/// Whether a decision's expansion goes to the player although the budget allows it.
+pub fn must_ask(catalog: &Catalog, state: &GameState, d: &Decision) -> bool {
+    grows(d.topic) && release_of(catalog, state, d) == ReleaseStage::Ask
 }
 
 /// `SetMandate`: the company's mandate to its board, checked against the bounds of
@@ -307,4 +420,15 @@ fn valid(catalog: &Catalog, m: &Mandate) -> bool {
         && m.blocked_countries
             .iter()
             .all(|c| c.index() < catalog.countries.len())
+        && m.release.iter().all(|c| {
+            c.branch.is_none_or(|b| b.index() < catalog.branches.len())
+                && match c.scope {
+                    ReleaseScope::Company => true,
+                    ReleaseScope::Continent(x) => x.index() < catalog.continents.len(),
+                    ReleaseScope::Country(x) => x.index() < catalog.countries.len(),
+                }
+        })
+        && m.release
+            .windows(2)
+            .all(|w| (w[0].scope, w[0].branch) < (w[1].scope, w[1].branch))
 }

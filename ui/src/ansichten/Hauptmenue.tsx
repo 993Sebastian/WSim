@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { KernStatus } from "../App";
-import type { Kern, Uebersicht } from "../kern";
+import type { Kern, Optionen, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { LadenDialog } from "./SpeichernLaden";
 
@@ -19,6 +19,19 @@ export function Hauptmenue({
 }) {
   const [laden, setLaden] = useState(false);
   const bereit = status.art === "bereit";
+  const [optionen, setOptionen] = useState<Optionen | null>(null);
+  useEffect(() => {
+    if (!bereit) return;
+    let aktiv = true;
+    kern
+      .optionen()
+      .then((o) => aktiv && setOptionen(o))
+      .catch(() => undefined);
+    return () => {
+      aktiv = false;
+    };
+  }, [bereit, kern]);
+  const aufbau = optionen?.market_build_up;
 
   return (
     <main className="start">
@@ -41,6 +54,16 @@ export function Hauptmenue({
         {kernStatusText(status, kern.echt)}
       </p>
       {!kern.echt && <p className="hinweis">{t("menue.vorschau_hinweis")}</p>}
+      {aufbau && (
+        <p className="hinweis" data-testid="marktaufbau">
+          {t("menue.marktaufbau", {
+            jahr: aufbau.from_year,
+            anteil: Math.round(aufbau.start_share * 100),
+            jahre: Math.round(aufbau.years),
+            bis: aufbau.from_year + Math.round(aufbau.years),
+          })}
+        </p>
+      )}
       {laden && (
         <LadenDialog
           kern={kern}

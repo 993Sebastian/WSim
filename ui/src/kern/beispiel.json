@@ -168591,6 +168591,8 @@
   },
   "ruecksprache": {
     "ceo": "Alexei Kowalski",
+    "branches": ["bergbau", "metallurgie", "chemie", "energie", "holz_papier", "textil", "lebensmittel", "bau", "maschinenbau", "fahrzeuge", "schiffbau", "luftfahrt", "raumfahrt", "elektro", "konsumgueter", "pharma", "ruestung"],
+    "continents": ["afrika", "asien", "europa", "nordamerika", "suedamerika", "ozeanien"],
     "countries": [
       "ARG",
       "AUS",
@@ -168712,6 +168714,7 @@
         "RUS"
       ],
       "blocked_groups": [],
+      "release": [],
       "equity_ratio": null,
       "growth": 0.1,
       "guideline": "wachstum",

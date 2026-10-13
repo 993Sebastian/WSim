@@ -1841,6 +1841,7 @@ impl Decider for Staff<'_> {
         else {
             return Verdict::Hold;
         };
+        let ask = crate::mandate::must_ask(catalog, state, d);
         let done = (d.topic, country_of(state, place), d.product);
         if structural(d.topic) && self.done.contains(&done) {
             return Verdict::Hold;
@@ -1900,6 +1901,7 @@ impl Decider for Staff<'_> {
             if may_borrow
                 && !debt
                 && beyond.is_none()
+                && !(ask && kind_grows(option))
                 && !over_participations
                 && amount <= r.per_decision
                 && amount <= r.left
@@ -3716,4 +3718,9 @@ fn tidy_concerns(state: &mut GameState, catalog: &Catalog, today: Date) {
         let mut keep = keep.into_iter();
         company.positions.retain(|_| keep.next().unwrap_or(false));
     }
+}
+
+/// Whether an option does more than keep things as they are.
+fn kind_grows(option: &crate::decision::Choice) -> bool {
+    option.kind != ChoiceKind::Keep
 }

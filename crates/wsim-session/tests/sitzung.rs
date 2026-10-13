@@ -441,7 +441,8 @@ fn pay_and_a_head_that_hires() {
         .iter()
         .filter(|p| p.holder.is_some())
         .count();
-    assert_eq!(filled, 2);
+    // The head and the two positions with work it hired this month (personal.einstellungen_monat).
+    assert_eq!(filled, 3);
 }
 
 /// How many start-ups there are follows the choice of the new game (SU1).

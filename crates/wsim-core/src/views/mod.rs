@@ -157,6 +157,18 @@ pub struct NewGameOptions {
     #[serde(default)]
     pub capital_suggestion: f64,
     pub children_max: u32,
+    /// The build-up of the markets, if the data have one: the year it starts, the share of
+    /// the full size the markets have then and the years until they have all of it.
+    #[serde(default)]
+    pub market_build_up: Option<MarketBuildUp>,
+}
+
+/// The build-up of the markets (docs/FORMELN.md, Marktaufbau).
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MarketBuildUp {
+    pub from_year: i32,
+    pub start_share: f64,
+    pub years: f64,
 }
 
 pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
@@ -282,6 +294,11 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
             .flatten()
             .map(|l| l.0.clone()),
         start_money_min_usd,
+        market_build_up: (catalog.ai_model.ramp_start_factor < 1.0).then_some(MarketBuildUp {
+            from_year: catalog.ai_model.ramp_from_year,
+            start_share: catalog.ai_model.ramp_start_factor,
+            years: catalog.ai_model.ramp_years,
+        }),
         capital_suggestion: catalog.person.founding.capital_suggestion,
         person_age: Range {
             min: catalog.person.start_age[1],
