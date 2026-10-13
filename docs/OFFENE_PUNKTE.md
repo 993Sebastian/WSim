@@ -2427,6 +2427,20 @@ das Wachstum der Welt deutlich verändert hätte:
   Oberfläche nur noch die Ausschreibung; ohne Pflichtforschung bleibt der Direktkauf).
   Vorschlag: nach Sichtung des Weltlaufs entscheiden, ob die echte Wartezeit für die KI nötig ist.
 
+## MG Manager mit Geschichte (Vorgabe vom 13.10.2026, `docs/MANAGER_2.md`)
+
+### MG-a: Einordnung in den Gesamtplan – Vorschlag, bitte bestätigen
+🟡 Vorschlag: MG1 jetzt (die Vorgabe verlangt es vor allem anderen), danach MG2, danach MG3, MG4,
+MG5, MG6 und die von MG2 abhängigen MG7, MG8, MG10; MG9 nach MG6. LB1, LV2, AKT, EC1 und die
+Gesamtprüfung E2E folgen nach MG6 (oder, wenn Sie das lieber haben, LB1–EC1 zuerst und MG danach).
+MAA ist mit Schritt 4 abgeschlossen. Die Vorgabe selbst nennt als Reihenfolge nur: MG1 zuerst,
+MG7/MG8/MG10 nach MG2, MG9 nach MG6.
+
+### MG-b: Bestehende Teile
+🟡 Bereits vorhandene Teile (Trefferquote `judged`/`hits` der Zentralabteilungen, Abwerben mit
+`PoachManager`, Strategierücksprache, `SetHiringByHead`, `mandate::banned`) werden an die Vorgabe
+angeglichen, nicht doppelt gebaut. Jede Abweichung wird beim jeweiligen Meilenstein hier vermerkt.
+
 ## X Lieferverträge: Partnerschaft und Umsatzanteil (Wunsch vom 12.10.2026)
 
 Wunsch: Je Lieferant ein **Partnerschaftsgrad in %**, produktübergreifend. Er steigt mit

@@ -1,7 +1,3 @@
-<!-- ACHTUNG: Der Text der Vorgabe vom 13.10.2026 kam beim Auftrag abgeschnitten an: er bricht in
-     §7.2 mitten im Wort ab ("Sic…"). §7.2 bis §10 sowie die Beschreibung von MG8–MG10 fehlen
-     und werden vom Auftraggeber nachgeliefert; bis dahin wird nur umgesetzt, was hier steht. -->
-
 # Vorgabe Manager mit Geschichte
 
 Neue Vorgabe vom Auftraggeber (13.10.2026): Überarbeitung Manager-System „Manager mit Geschichte“
@@ -185,6 +181,251 @@ Neues Merkmal „Stil“ je Manager, beim Erzeugen gezogen (Anteile in den Daten
 Der Stil verschiebt nur, welche Option empfohlen wird, und die Spannen; er ersetzt keine
 Fähigkeit. Sichtbar im Managermarkt (beide Reiter), in der Organisation und im Anliegen.
 ### 7.2 Lieblingsbegründung
-Jeder Manager hat 1–2 bevorzugte Begründungsschlüssel (z. B. Rendite, Marktanteil, Sic
+Jeder Manager hat 1–2 bevorzugte Begründungsschlüssel (z. B. Rendite, Marktanteil, Sicherheit,
+Technologievorsprung), die er häufiger anführt. Texte je Stil unterschiedlich formuliert
+(Textschlüssel je Stil, mindestens 3 Varianten je Anlass).
+### 7.3 Einwand
+Entscheidet der Spieler bei einem Anliegen über einer Schwelle (Betrag, Parameter) gegen die
+Empfehlung, hält der Manager einen kurzen Einwand mit Zahl in der Akte fest („Ich halte das für
+falsch: ...“). Kein zusätzlicher Klick nötig; MG3 greift den Einwand später auf. Querdenker und
+Offensive erheben Einwände häufiger, Vorsichtige seltener.
+### 7.4 KI-Firmen
+Stil wirkt über ihre Kompetenz nicht; nur Anzeige im Abwerbereiter.
 
-<!-- [Text der Vorgabe an dieser Stelle abgeschnitten] -->
+## 8 MG8 Personalverantwortung der Manager (erweitert MANAGER.md 3 und FORMELN „Leitung stellt ein“)
+Befund (Stand GitHub 12.10.2026, gegen aktuellen Stand prüfen):
+- `SetHiringByHead` besetzt nur Fachstellen der eigenen Einheit, höchstens eine je Monat, ohne
+  Rückfrage, Meldung erst danach.
+- Der CEO besetzt damit nur Vorstandsressorts, keine Kontinent-, Landes- oder Standortleitungen;
+  der Schalter muss je Leitung einzeln gesetzt werden.
+- Die Zahl der Angestellten der Zentralabteilungen setzt nur der Spieler (`StaffDepartment`), ohne
+  Empfehlung; KI-Firmen rechnen n = ⌈Arbeitslast / faelle⌉ automatisch.
+- Die Zentralabteilung Personal wirkt laut BETEILIGUNGEN 4.1 bei der Managerauswahl mit, in
+  FORMELN ZA2/ZA3 aber nur über Schulung und Gehaltsrunde.
+
+### 8.1 Kaskade
+- Eine Leitung mit „stellt ein“ besetzt freie Fachstellen ihrer Einheit UND freie Leitungen der
+  direkt untergeordneten Einheiten (CEO → Kontinent → Land → Standort).
+- Eine so eingestellte Leitung erbt den Schalter (Vorgabe an), der Spieler kann ihn je Leitung
+  abschalten. Neuer Schalter am CEO: „gesamte Organisation selbst aufbauen“ setzt ihn für alle.
+- Reihenfolge: zuerst Stellen mit der größten Wirkung (Umsatz der Einheit); Leitungen der Ebene
+  darunter erst, wenn die eigene Einheit arbeitet.
+- Höchstens `einstellungen_monat` (Vorschlag 2) je Leitung und Monat; Gehalt muss ins
+  Jahresbudget der einstellenden Leitung passen (wie bisher).
+- Für Werksstellen zählt die Branchenstärke in der Werksbranche (MG5); für Land/Kontinent die
+  Branchenstärke in den dort freigegebenen Branchen (§10).
+
+### 8.2 Einstellen als Entscheidung mit Akte (nutzt MG2)
+- Die einstellende Leitung prüft 3 Kandidaten (mit arbeitender Personalabteilung bis zu
+  3 + ⌊K_Personal / 2⌋), freie Bewerber UND abwerbbare Manager fremder Firmen (MG1-Reiter),
+  bewertet nach Fachkompetenz, Branchenstärke, Stil, Trefferquote, Gehalt. Eindruck und Fehler
+  wie bisher nach Urteilsvermögen.
+- Unter der neuen Freigabegrenze „Personal“ (je Ebene, Maßstab Jahresgehalt, bei den übrigen
+  Freigabegrenzen in der Strategieansicht) stellt sie selbst ein und meldet mit Begründung
+  („gewählt wegen …, Alternativen: …“). Grenze 0 = jede Einstellung als Anliegen.
+- Darüber oder ohne Schalter entsteht ein Personalanliegen: 2–3 Kandidaten als Optionen, je
+  Option Gehalt, Stärken/Schwächen, Stil, Begründung der Leitung, ihre Empfehlung; dazu
+  „Stelle offen lassen“ mit Prognose (wer übernimmt die Aufgaben, mit welchem Abschlag).
+- Akte mit Wiedervorlage nach `personal_wirkzeit` (12 Monate): Wie hat sich der Eingestellte
+  gemacht (seine Trefferquote, Kennzahlen seiner Einheit gegen Vorjahr/Plan)? Meldung der
+  einstellenden Leitung. Das Ergebnis zählt in ihr neues Merkmal „Personalgespür“ (Trefferquote
+  nur aus Personalakten), sichtbar wie die Trefferquote.
+- Entlassungen durch Leitungen nur als Anliegen (nie still), Abfindung als Kosten sofort.
+
+### 8.3 Zentralabteilung Personal
+- Mit arbeitender Abteilung: mehr Kandidaten je Prüfung (8.2), genauerer Eindruck fremder und
+  freier Manager (Schätzfehler × (1 − genauigkeit · A)), und sie schlägt Abwerbeziele vor
+  (Manager fremder Firmen mit niedriger Zufriedenheit und passender Stärke) als Anliegen.
+
+### 8.4 Personalbedarf der Zentralabteilungen (alle fünf)
+- Die Leitung jeder Zentralabteilung schätzt ihre Arbeitslast (Schätzfehler nach
+  Urteilsvermögen) und empfiehlt eine Sollzahl:
+      n_empf = ⌈geschätzte Last / faelle⌉ · Stilfaktor (offensiv 1,2, vorsichtig 0,85, sonst 1)
+  begrenzt durch den freien Akademikerpool der Stadt (dann mit Hinweis „Stadt ausgeschöpft,
+  Umzug des Hauptsitzes würde helfen“).
+- Personalvorschlag mit: Ist, Soll, Kosten je Jahr (Lohn + Büro), was sich ändert (Abdeckung,
+  Genauigkeit in %, zusätzliche Fälle, Länder, Branchen) und was bei Abbau verloren geht; bei
+  der Strategie zusätzlich die empfohlene Verteilung je Branche (§9.2).
+- Wann: in jeder Strategierücksprache (MANAGER.md 8.2) immer, dazu außer der Reihe, wenn die
+  Abdeckung unter `unterdeckt_ab` (0,8) fällt oder die Last unter `ueberbesetzt_ab` (0,6 der
+  Kapazität) liegt.
+- Mit Schalter „Leitung stellt ein“ setzt die Leitung die Sollzahl selbst (`StaffDepartment`),
+  solange die Mehrkosten im Jahr unter ihrer Freigabegrenze liegen, sonst Anliegen. Ohne Schalter
+  immer Anliegen. In beiden Fällen Akte (Wiedervorlage 12 Monate: hat sich die Abteilung
+  gerechnet?).
+- Ohne Leitung meldet niemand Bedarf; die Organisationsansicht zeigt dann „ohne Leitung, kein
+  Bedarf bekannt“.
+
+## 9 MG9 Strategieabteilung als Denkstelle des Konzerns (ein System mit MG6)
+### 9.1 Rolle und Fallarten
+- Strategievorschläge (MG6) von CEO, Kontinent- und Landesleitungen sind Anstöße. Arbeitet die
+  Strategieabteilung, prüft sie jeden Anstoß als Fall, rechnet ihn mit ihrer Genauigkeit nach
+  (engere Spanne) und legt ihn vor; der Vorschlagende bleibt als Vertreter sichtbar, die
+  Leitung Strategie gibt eine Stellungnahme ab (unterstützt / rät ab, mit Begründung). Ohne
+  Abteilung kommen Vorschläge direkt mit der Genauigkeit des Vorschlagenden.
+- Eigene Fallarten der Abteilung (alle als Strategievorschlag, ein Datentyp, eine Ansicht):
+
+| Fall | Begründungen |
+|---|---|
+| Branche erschließen, ausbauen, verlassen | Versorgungslücke, Preis über Richtpreis, wenige Anbieter, Passung, Streuung |
+| Land betreten, verlassen | Nachfrage, Lohnniveau, Zölle, Konkurrenz |
+| Übernahme (Standort, Bereich, Firma über Börse) | Passung, Streuung, Abwehr |
+| Start-up: Zusage, Nachschießen, Aufstocken | Rendite, Passung (Technologie ergänzt eigene Ketten), Streuung |
+| Start-up/Beteiligung: Verkaufen, Ausstieg, Bieterverfahren | Gewinne sichern, Chance gesunken, Kapital für Besseres |
+| Abwehr: Konkurrent will zugreifen (Bieterverfahren, Runde, Übernahmeziel) | Abwehr eines Konkurrenten |
+
+  Die Begründung „Abwehr“ wird tatsächlich erzeugt, sobald eine fremde Firma auf ein Ziel bietet
+  oder eine Runde zeichnet, das die Abteilung beobachtet.
+
+### 9.2 Echte Arbeitslast, Analysten mit Branchenschwerpunkt
+- Arbeitslast Strategie = beobachtete Branchen + beobachtete Länder + laufende Beteiligungen +
+  Anstöße im Quartal / 3 (Gewichte als Parameter); nicht mehr fest 1.
+- Angestellte werden Branchen zugeteilt (`StaffDepartment` erhält optional eine Verteilung je
+  Branche; ohne Angabe gleichmäßig auf die freigegebenen Branchen mit eigenen Werken und die
+  Zielbranchen offener Fälle). Abdeckung und Genauigkeit gelten je Branche:
+      A_b = min(1, K_b / Last_b); Genauigkeit in Branche b aus Fachkompetenz und Branchenstärke
+      der Leitung in b (MG5) und A_b
+- Branchen ohne Analysten: Start-ups und Ziele dort nur als Stufe (gering/mittel/hoch), keine
+  eigenen Vorschläge der Abteilung, nur Anstöße der Linie.
+
+### 9.3 Strategieklausur (erweitert die Strategierücksprache MANAGER.md 8.2, kein neues Intervall)
+- Mit arbeitender Strategieabteilung wird die Rücksprache zur Klausur, Ablauf als eigene Ansicht:
+  1. Lagebild: je Branche eigene Stellung, Trend, Versorgungslücken; Beteiligungsportfolio mit
+     Wert und Entwicklung; größte Bewegungen der Konkurrenz; fällige Wiedervorlagen (MG2).
+  2. 2–4 Vorschläge mit echtem Zielkonflikt (MG4-Format), je mit Vertreter, Stellungnahme der
+     Leitung Strategie und ihrem Stil (MG7) erkennbar.
+  3. Personalvorschläge aller Zentralabteilungen (8.4).
+  4. Branchenfreigaben im Überblick mit Freigabe-Vorschlägen der Manager (§10.5).
+  5. Entscheidungen des Spielers mit Akte und Wiedervorlage.
+- Ohne Abteilung bleibt die bisherige Rücksprache mit den MG6-Vorschlägen (plus 3. und 4.).
+
+### 9.4 Trefferquote der Strategie: zwei Werte
+- Treffsicherheit: wie MG2 (Empfehlung mindestens so gut wie die Alternative) und bei Preisen
+  „nicht überzahlt“.
+- Spürsinn: Anteil der lohnenden Gelegenheiten im Blickfeld (beobachtete Branchen/Länder), die
+  die Abteilung empfohlen hat. Lohnend = Start-up erfolgreich bzw. Ziel nach Wirkzeit über dem
+  damals gebotenen Preis. Abgelehnte Empfehlungen, die sich gelohnt hätten, zählen als Treffer
+  der Leitung; nicht erkannte lohnende Gelegenheiten zählen gegen sie.
+- Gehaltsforderung (BETEILIGUNGEN 4.4) nach dem Mittel beider Werte. Damit ist behoben, dass zu
+  niedriges Bieten bisher immer als Treffer zählt.
+
+### 9.5 Konkurrenzbeobachtung
+- In beobachteten Ländern und Branchen meldet die Abteilung Bewegungen der Konkurrenz (Neubau,
+  Übernahme, Markteintritt, Gebot auf ein Start-up mit eigenem Anteil) als Nachricht mit
+  Einschätzung; bei Bedarf entsteht daraus ein Abwehrvorschlag (9.1).
+
+### 9.6 KI-Firmen
+- Nutzen Arbeitslast, Branchenverteilung und Fallarten über ihre Regeln (n = ⌈Last / faelle⌉);
+  keine Klausur, keine Anliegen.
+
+## 10 MG10 Branchenfreigabe je Ebene
+Befund: Heute gibt es nur im Strategieauftrag firmenweit gesperrte Warengruppen und Länder
+(`SetMandate`, `mandate::banned`); keine Freigabe je Kontinent oder Land, keine Positivliste, und
+die Sperren beziehen sich auf Warengruppen statt auf die Werksbranchen (`grundlagen.yaml` branchen).
+
+### 10.1 Stufen je Branche (neues Strategiefeld „Branchenfreigabe“ im Vorgabensystem MANAGER.md 7)
+- frei: Die Stellen dürfen alles im Rahmen ihrer Budgets (Neubau, Ausbau, Übernahme, Betrieb).
+- mit Rückfrage: Betrieb frei; jede Expansion (Neubau, Ausbau, Übernahme, Markteintritt) wird
+  als Anliegen vorgelegt, unabhängig vom Budget.
+- nur halten: Betrieb und Ersatz bestehender Anlagen; keine Expansion, keine Vorschläge zur
+  Expansion.
+- gesperrt: keine Expansion; bestehende Standorte laufen weiter. Ein Rückzug (Verkauf,
+  Stilllegung) geschieht nie automatisch, sondern nur als Vorschlag „Branche verlassen“.
+- Zusätzlich je Ebene eine Stufe für „alle übrigen bzw. neuen Branchen“ (Vorgabe: frei). Damit
+  geht „nur diese Branchen“: gewünschte Branchen frei, „übrige“ gesperrt.
+
+### 10.2 Geltung und Vererbung
+- Geltungsbereiche Konzern, Kontinent, Land (Standorte haben ihre feste Branche und folgen ihrem
+  Land). Vererbung von allgemein nach speziell wie alle Vorgaben; jede Zelle ist „geerbt“ oder
+  „eigener Wert“.
+- Die Freigabe hängt an der Einheit, nicht an der Person: Wechselt der Manager, bleibt sie.
+- Die bisherigen gesperrten Warengruppen des Strategieauftrags werden zur Konzern-Ebene dieses
+  Feldes (Zuordnung Warengruppe → Branche über die Produkte); gesperrte Länder bleiben im
+  Strategieauftrag.
+- Schalter je Ebene „gilt auch für Beteiligungen“ (Vorgabe aus): dann empfiehlt und zeichnet
+  die Strategieabteilung keine Start-ups und Übernahmen in nicht freien Branchen.
+- Der Spieler selbst darf weiter alles (wie bisher bei Sperren).
+
+### 10.3 Wirkung im Kern (schnell)
+- Speicherung je Geltungsbereich als zwei Bitmasken über die Branchen-Indizes (Stufe 2 Bit je
+  Branche) plus Maske „gesetzt/geerbt“. Die wirksame Stufe je Einheit wird beim Ändern einer
+  Vorgabe und beim Entstehen einer Einheit aufgelöst und zwischengespeichert; Abfrage im
+  Prüftermin O(1). Kein HashMap-Iterieren, deterministisch.
+- Prüfpunkt an genau einer Stelle: dort, wo heute `mandate::banned` greift, wird
+  `branchenfreigabe(einheit, branche)` abgefragt. Gilt für Entscheidungen der Stellen,
+  Strategievorschläge (MG6/MG9), Gelegenheiten, Übernahmegebote und Analystenverteilung (9.2).
+- Zurückgehaltene Entscheidungen werden je Einheit und Monat gezählt (für 10.5 und die Anzeige),
+  nicht jede einzeln gemeldet.
+
+### 10.4 Bedienung
+- Ansicht „Branchenfreigabe“ (Strategie) als Matrix: Zeilen Branchen, Spalten Konzern und die
+  Kontinente mit eigener Einheit, ausklappbar auf Länder. Zelle zeigt die Stufe als Farbe und
+  Symbol; geerbte Werte blass mit Herkunft im Tooltip.
+- Ein Tipp/Klick wechselt reihum frei → mit Rückfrage → nur halten → gesperrt → geerbt.
+  Langes Drücken/Rechtsklick öffnet die Auswahl direkt.
+- Schnellaktionen je Spalte: „nur diese Branchen …“ (Mehrfachauswahl, übrige gesperrt),
+  „alles erben“, „wie Konzern“; je Zeile: „überall gleich setzen“.
+- Spalte zeigt je Branche kleine Kennzahlen: eigene Werke, Umsatzanteil, Branchenstärke der
+  zuständigen Leitung, Zahl zurückgehaltener Entscheidungen im letzten Jahr.
+- Auf jeder Managerkarte (Organisation, Leitung von Konzern/Kontinent/Land) die Zeile
+  „Aktiv in: Maschinenbau, Chemie (2 von 12)“ mit Link direkt in die passende Spalte.
+- Im Anliegen und im Strategievorschlag: Hinweis, wenn eine Option nur wegen der Freigabe fehlt.
+
+### 10.5 Manager mit Stimme
+- Sieht eine Stelle in einer nicht freien Branche eine große Chance (erwarteter Wert über
+  `freigabe_vorschlag_ab`, Parameter) oder hat sie dort im Jahr mehr als n zurückgehaltene
+  Entscheidungen, darf sie höchstens einmal je Branche und Jahr begründet die Freigabe
+  vorschlagen (Vorgabe-Änderung als Anliegen, MANAGER.md 7, mit Akte und Wiedervorlage).
+- Branchenstärke des Managers fließt in Begründung und Genauigkeit ein; Stil wirkt (Offensive
+  und Querdenker schlagen öfter vor).
+
+### 10.6 Prüfung
+- Szenario: Kontinentleitung Europa mit „nur Maschinenbau“ baut in 24 Monaten kein Werk anderer
+  Branchen, obwohl Gelegenheiten bestehen; Landesleitung Deutschland mit eigenem Wert „Chemie
+  frei“ darf Chemie (spezieller schlägt allgemeiner).
+- Szenario: Branche „mit Rückfrage“ erzeugt bei Ausbauwunsch ein Anliegen trotz Budget.
+- Szenario: große Chance in gesperrter Branche erzeugt genau einen Freigabevorschlag im Jahr.
+- Leistungstest: 100 KI-Firmen, 50 Jahre, Laufzeit mit und ohne gesetzte Freigaben weicht um
+  höchstens 2 % ab.
+- UI-Test: Von einer Managerkarte mit einem Klick in die Matrix, Stufe ändern, Wirkung beim
+  nächsten Prüftermin.
+
+## 11 Ansichten (Überblick)
+- Managermarkt mit Reitern „Freie Kandidaten“ und „Manager anderer Firmen“; neu, Trefferquote,
+  Branchenstärke, Stil, Filter; Einstiege von jeder freien Stelle.
+- Anliegen: Optionen mit Zielkonflikt, Vertreter je Option, Einwand, Verweis auf frühere Akten.
+- Chronik je Einheit und je Manager.
+- Strategievorschläge: offen, angenommen, abgelehnt, mit späterem Ergebnis.
+- Strategieklausur (mit Strategieabteilung) bzw. Strategierücksprache.
+- Organisation: Personalgespür, Personalbedarf der Zentralabteilungen, Analysten je Branche,
+  „Aktiv in“ je Leitung.
+- Branchenfreigabe als Matrix.
+
+## 12 Meilensteine
+- MG1 Abwerbemenü, Pool-Prüfung, faire Zugriffszeit (sofort, vor allem anderen)
+- MG2 Entscheidungsakte, Nachbetrachtung, Trefferquote für alle
+- MG3 Gedächtnis und Chronik
+- MG4 Optionen mit Zielkonflikt, neue Anlässe, Widerspruch
+- MG5 Branchenstärke mit Gesamtdeckel und Protokoll „produktionsfaktoren“
+- MG6 Strategievorschläge
+- MG7 Stil, Lieblingsbegründung, Einwand
+- MG8 Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung,
+  Personalbedarf aller Zentralabteilungen
+- MG9 Strategieabteilung als Denkstelle: ein Typ mit MG6, Fallarten inkl. Abwehr und Verkauf,
+  Arbeitslast und Branchenschwerpunkt, Strategieklausur, zwei Trefferquoten,
+  Konkurrenzbeobachtung
+- MG10 Branchenfreigabe je Ebene mit Matrix, Vererbung, Freigabe-Vorschlägen
+
+Reihenfolge: MG1 zuerst; MG7, MG8 und MG10 dürfen nach MG2 laufen; MG9 nach MG6.
+Einordnung in den Gesamtplan: Vorschlag in `docs/OFFENE_PUNKTE.md` eintragen und nachfragen.
+Jeder Meilenstein mit Szenariotests, z. B.:
+- „Abgelehnter Ausbau erzeugt nach 12 Monaten eine Nachbetrachtung mit entgangenem
+  Deckungsbeitrag.“
+- „Produktionsleiter mit Maschinenbau 100 senkt Arbeitsstunden im Maschinenbauwerk um 10 %, im
+  Chemiewerk nicht.“
+- „CEO mit Schalter ‚gesamte Organisation‘ besetzt binnen 12 Monaten Kontinent-, Landes- und
+  Werksleitungen; jede Einstellung hat eine Akte mit Begründung.“
+- „Strategieabteilung mit 1 Angestelltem und 3 eigenen Branchen meldet Unterdeckung und
+  empfiehlt eine Sollzahl mit Kosten; nach Umsetzung steigt die Genauigkeit wie angekündigt.“
+- „Leitung, die stets 30 % unter Wert bietet und alle Erfolge übersieht, hat niedrigen Spürsinn.“
+- „Fremde Firma bietet auf ein beobachtetes Start-up mit eigenem Anteil → Abwehrvorschlag.“
