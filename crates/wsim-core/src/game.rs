@@ -225,6 +225,7 @@ impl Game {
             next_venture: 0,
             tariff_offsets: PerId::default(),
             tariffs: Default::default(),
+            generated_trends: Vec::new(),
             events: Default::default(),
             regulation: Default::default(),
             contracts: Vec::new(),
@@ -610,6 +611,11 @@ impl Game {
             ));
             if next.ordinal() == 1 {
                 crate::tariffs::new_year(&mut self.state, &self.catalog, next.year());
+                report.messages.extend(crate::market::new_year_trends(
+                    &mut self.state,
+                    &self.catalog,
+                    next.year(),
+                ));
             }
             self.state.refresh_countries(&self.catalog);
             report.messages.extend(crate::management::month_start(

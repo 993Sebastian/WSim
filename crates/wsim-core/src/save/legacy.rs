@@ -188,6 +188,7 @@ pub(super) fn decode_v2(
         next_venture: 0,
         tariff_offsets: Default::default(),
         tariffs: Default::default(),
+        generated_trends: Vec::new(),
         events: Default::default(),
         regulation: Default::default(),
         contracts: Vec::new(),

@@ -14,6 +14,7 @@ use crate::ledger::{Account, CostCenter, CostType};
 use crate::math;
 use crate::money::Money;
 use crate::policy::{self, BuyerGroup};
+use crate::rng::{SimRng, Stream};
 use crate::state::{
     CompanyId, Consignee, GameState, Market, PriceMode, Shipment, SiteId, Stock, Trade,
 };
@@ -387,7 +388,32 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                     .trends
                     .iter()
                     .map(|t| t.factor(product, p.goods_group, country, date.year_fraction()))
-                    .product();
+                    .product::<f64>()
+                    * state
+                        .generated_trends
+                        .iter()
+                        .map(|t| t.factor(p.goods_group, date.year_fraction()))
+                        .product::<f64>();
+                // The stock of used units: what the upper fifths pass on, less what wears
+                // out (MN4).
+                let mut used_left = 0.0;
+                market.used_sold = 0.0;
+                if let (
+                    true,
+                    true,
+                    ConsumptionType::Durable {
+                        service_life_years, ..
+                    },
+                ) = (model.used.enabled, p.used_market, d.consumption)
+                {
+                    let passed: f64 = (2..5)
+                        .map(|q| market.ownership[q] / service_life_years * per_layer / 12.0)
+                        .sum();
+                    let wear =
+                        market.used / (model.used.life_share * service_life_years * 12.0).max(1.0);
+                    market.used = (market.used + model.used.pass_on * passed - wear).max(0.0);
+                    used_left = market.used;
+                }
                 for q in 0..5 {
                     let share = propensity(d, incomes[q], price, reference) * trend;
                     market.consumer_rate[q] = match d.consumption {
@@ -413,8 +439,24 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                             // (Lastenheft §6.4, §9.1): only part of the worn-out units
                             // is replaced.
                             let replaced = if owned > target { target / owned } else { 1.0 };
-                            (gap * model.adoption_per_year + owned / service_life_years * replaced)
+                            // Used units cover part of the first purchases of the lower
+                            // fifths without revenue for the firms (MN4).
+                            let first = gap * model.adoption_per_year * per_layer / 12.0;
+                            let from_used = if q < 3 {
+                                used_left.min(model.used.first_share * first)
+                            } else {
+                                0.0
+                            };
+                            used_left -= from_used;
+                            market.used_sold += from_used;
+                            if per_layer > 0.0 {
+                                market.ownership[q] += from_used / per_layer;
+                            }
+                            ((gap * model.adoption_per_year
+                                + owned / service_life_years * replaced)
                                 * per_layer
+                                - from_used * 12.0)
+                                .max(0.0)
                                 / 365.0
                         }
                         ConsumptionType::Complement {
@@ -427,6 +469,9 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                     } * consumer_factor;
                     market.bought[q] = 0.0;
                 }
+                if model.used.enabled && p.used_market {
+                    market.used = used_left;
+                }
             }
             if let Some(s) = &p.state_demand {
                 market.state_rate = s.per_million_gdp_at(date) * gdp / 1.0e6 / 365.0
@@ -437,6 +482,59 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
         }
     }
     substitute(state, catalog);
+}
+
+/// A new year (MN4): with a chance a demand wave for a goods group with consumer demand,
+/// from the year the generator starts. Returns the news of the wave.
+pub(crate) fn new_year_trends(
+    state: &mut GameState,
+    catalog: &Catalog,
+    year: i32,
+) -> Vec<crate::message::Message> {
+    use crate::message::{Message, MessageKind, Param, keys};
+    let g = &catalog.market_model.trend_generator;
+    if !g.enabled || year < g.from_year {
+        return Vec::new();
+    }
+    let mut rng = SimRng::for_stream(
+        state.settings.seed,
+        Stream::Trends {
+            year: u32::try_from(year).unwrap_or(0),
+        },
+    );
+    if !rng.chance(g.chance) {
+        return Vec::new();
+    }
+    let mut groups: Vec<_> = catalog
+        .products
+        .iter()
+        .filter(|(_, p)| p.consumer_demand.is_some())
+        .map(|(_, p)| p.goods_group)
+        .collect();
+    groups.sort();
+    groups.dedup();
+    if groups.is_empty() {
+        return Vec::new();
+    }
+    let group = groups[usize::try_from(rng.below(groups.len() as u64)).unwrap_or(0)];
+    let peak = g.factor_min + (g.factor_max - g.factor_min) * rng.next_f64();
+    let span = u64::from(g.years_max - g.years_min) + 1;
+    let years = g.years_min + u32::try_from(rng.below(span)).unwrap_or(0);
+    state.generated_trends.push(crate::state::GeneratedTrend {
+        group,
+        start: year,
+        years,
+        peak,
+    });
+    vec![
+        Message::new(MessageKind::Info, keys::DEMAND_WAVE)
+            .with(
+                "gruppe",
+                Param::TextKey(format!("warengruppe.{}", catalog.goods_groups.key(group))),
+            )
+            .with("jahre", Param::Integer(i64::from(years)))
+            .with("faktor", Param::Number((peak * 10.0).round() / 10.0)),
+    ]
 }
 
 /// Whether a product's consumers buy it as a consumable or a complement (MN1).
@@ -1058,6 +1156,35 @@ fn clear_market(
         }
         _ => 0.0,
     }));
+    // Obsolescence (MN4): of durables, an offer loses quality points for each development
+    // level the leader in the country is ahead.
+    let obsolete: Vec<f64> = if model.obsolescence_points > 0.0
+        && matches!(
+            catalog
+                .products
+                .get(product)
+                .consumer_demand
+                .as_ref()
+                .map(|d| d.consumption),
+            Some(ConsumptionType::Durable { .. })
+        ) {
+        let level = |o: &Offer| match o.seller {
+            Seller::Site { owner, .. } => crate::development::level(catalog, state, owner, product),
+            _ => 0,
+        };
+        let leader = offers.iter().map(level).max().unwrap_or(0);
+        offers
+            .iter()
+            .map(|o| match o.seller {
+                Seller::Site { .. } => {
+                    model.obsolescence_points * f64::from(leader.saturating_sub(level(o)))
+                }
+                _ => 0.0,
+            })
+            .collect()
+    } else {
+        Vec::new()
+    };
     // Sales channels (MN3): more households reached, a share of the revenue as cost.
     channel.clear();
     channel.extend(offers.iter().map(|o| match o.seller {
@@ -1091,7 +1218,13 @@ fn clear_market(
             for (i, a) in attraction.iter_mut().enumerate() {
                 *a = presence[i]
                     * channel[i].reach[q]
-                    * appeal(model, q, log_relative[i], offers[i].quality, brand[i])
+                    * appeal(
+                        model,
+                        q,
+                        log_relative[i],
+                        offers[i].quality - obsolete.get(i).copied().unwrap_or(0.0),
+                        brand[i],
+                    )
                     * math::exp(model.reputation.weight[q] * reputation[i]);
             }
         }

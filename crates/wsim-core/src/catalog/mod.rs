@@ -2736,6 +2736,37 @@ pub struct MarketModel {
     pub tenders: TenderModel,
     /// Sales channels (MN3).
     pub channels: ChannelModel,
+    /// Quality points an offer loses per development level the leader is ahead (MN4);
+    /// 0: no obsolescence.
+    pub obsolescence_points: f64,
+    /// Used market of durables (MN4).
+    pub used: UsedModel,
+    /// Demand waves after the historical data (MN4).
+    pub trend_generator: TrendGenerator,
+}
+
+/// Used market of durables (`marktmodell.gebraucht`, MN4). Disabled without the section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct UsedModel {
+    pub enabled: bool,
+    /// Share of the units replaced by the upper three income fifths that are sold on.
+    pub pass_on: f64,
+    /// Remaining life of a used unit as share of the service life.
+    pub life_share: f64,
+    /// Share of the first purchases of the lower three fifths covered from used units.
+    pub first_share: f64,
+}
+
+/// Generated demand waves (`marktmodell.trendgenerator`, MN4). Disabled without it.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TrendGenerator {
+    pub enabled: bool,
+    pub from_year: i32,
+    pub chance: f64,
+    pub factor_min: f64,
+    pub factor_max: f64,
+    pub years_min: u32,
+    pub years_max: u32,
 }
 
 /// Tenders of governments for goods groups (`marktmodell.ausschreibung`, MN2,
@@ -2895,6 +2926,9 @@ impl Default for MarketModel {
             reputation: ReputationModel::default(),
             tenders: TenderModel::default(),
             channels: ChannelModel::default(),
+            obsolescence_points: 0.0,
+            used: UsedModel::default(),
+            trend_generator: TrendGenerator::default(),
         }
     }
 }
@@ -3493,6 +3527,8 @@ pub struct Product {
     /// of their demand this one takes over.
     pub replaces_utility: f64,
     pub replaces_max_share: f64,
+    /// Durables (MN4): used units change hands on a used market.
+    pub used_market: bool,
     /// Raw materials: how the highest output of their deposits develops over the years
     /// (more land and better yields), as factor on the deposit values (M16).
     pub output_index: Option<TimeSeries>,

@@ -1209,6 +1209,59 @@ pub(super) fn market_model(
         }),
         trends: Vec::new(),
         tenders: Default::default(),
+        obsolescence_points: m.obsolescence.as_ref().map_or(0.0, |o| {
+            in_range(
+                ctx,
+                o.points_per_level,
+                0.0,
+                50.0,
+                &l.field("veralterung").field("punkte_je_stufe"),
+            )
+        }),
+        used: m.used.as_ref().map_or_else(Default::default, |u| {
+            let ul = l.field("gebraucht");
+            wsim_core::catalog::UsedModel {
+                enabled: true,
+                pass_on: in_range(ctx, u.pass_on, 0.0, 1.0, &ul.field("weitergabe")),
+                life_share: in_range(
+                    ctx,
+                    u.life_share,
+                    0.05,
+                    1.0,
+                    &ul.field("lebensdauer_anteil"),
+                ),
+                first_share: in_range(ctx, u.first_share, 0.0, 1.0, &ul.field("anteil_erstkauf")),
+            }
+        }),
+        trend_generator: m
+            .trend_generator
+            .as_ref()
+            .map_or_else(Default::default, |t| {
+                let tl = l.field("trendgenerator");
+                let factor_min = in_range(ctx, t.faktor_min, 1.0, 5.0, &tl.field("faktor_min"));
+                let factor_max = in_range(ctx, t.faktor_max, 1.0, 5.0, &tl.field("faktor_max"));
+                if factor_min > factor_max {
+                    ctx.error(
+                        &tl.field("faktor_max"),
+                        messages::range_inverted("faktor_min", "faktor_max"),
+                    );
+                }
+                if t.jahre_min == 0 || t.jahre_min > t.jahre_max {
+                    ctx.error(
+                        &tl.field("jahre_max"),
+                        messages::range_inverted("jahre_min", "jahre_max"),
+                    );
+                }
+                wsim_core::catalog::TrendGenerator {
+                    enabled: true,
+                    from_year: year(ctx, t.from_year, HISTORY_YEARS, &tl.field("ab")),
+                    chance: in_range(ctx, t.chance, 0.0, 1.0, &tl.field("chance")),
+                    factor_min,
+                    factor_max,
+                    years_min: t.jahre_min.max(1),
+                    years_max: t.jahre_max.max(t.jahre_min.max(1)),
+                }
+            }),
         channels: m.channels.as_ref().map_or_else(Default::default, |c| {
             let cl = l.field("vertrieb");
             wsim_core::catalog::ChannelModel {

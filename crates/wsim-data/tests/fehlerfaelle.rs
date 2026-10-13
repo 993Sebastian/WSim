@@ -1851,6 +1851,31 @@ fn marktmodell_wird_geprueft() {
 }
 
 #[test]
+fn nachfragewellen_und_gebrauchtmarkt_werden_geprueft() {
+    // Generated demand waves (MN4): the lower factor must not exceed the upper one.
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "marktmodell:\n",
+        "marktmodell:\n  trendgenerator: {ab: 2027, chance: 0.3, faktor_min: 1.9, faktor_max: 1.2, jahre_min: 3, jahre_max: 8}\n",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "faktor_min");
+    assert_eq!(f.path.to_string(), "marktmodell.trendgenerator.faktor_max");
+    // The share of the used market is a share.
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "marktmodell:\n",
+        "marktmodell:\n  gebraucht: {weitergabe: 1.5, lebensdauer_anteil: 0.5, anteil_erstkauf: 0.5}\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "marktmodell.gebraucht.weitergabe");
+}
+
+#[test]
 fn richtpreis_ist_pflicht() {
     let d = Daten::neu().ersetze("ketten/a.yaml", "    richtpreis_usd: 60\n", "");
     befund(&d.laden(), "Pflichtfeld „richtpreis_usd“ fehlt.");

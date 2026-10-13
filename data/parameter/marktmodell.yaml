@@ -82,6 +82,28 @@ marktmodell:
     - id: elektroauto
       produkte: [elektroauto]
       verlauf: {2018: 1.0, 2022: 1.4, 2026: 1.2}
+  # Veralterung (MN4, docs/FORMELN.md): Bei Gebrauchsgütern verliert ein Angebot in der
+  # Anbieterwahl so viele Qualitätspunkte je Entwicklungsstufe, die der Führer im Land voraus ist.
+  veralterung:
+    punkte_je_stufe: 5
+  # Gebrauchtmarkt (MN4) für Gebrauchsgüter mit „gebraucht: true“: Von den Ersatzkäufen der
+  # Fünftel 3–5 geht der Anteil „weitergabe“ als gebrauchtes Gerät in den Bestand des Landes;
+  # der Bestand veraltet in lebensdauer_anteil · Nutzungsdauer. Die Fünftel 1–3 decken
+  # anteil_erstkauf ihrer Erstkäufe daraus, ohne Umsatz für Firmen.
+  gebraucht:
+    weitergabe: 0.6
+    lebensdauer_anteil: 0.5
+    anteil_erstkauf: 0.5
+  # Nach 2026 entstehen Nachfragewellen von selbst: je Jahr mit Chance „chance“ eine Welle für
+  # eine Warengruppe, Spitzenfaktor und Dauer gleichverteilt in den Grenzen (Zufallsstrom
+  # „Trends“).
+  trendgenerator:
+    ab: 2027
+    chance: 0.3
+    faktor_min: 1.2
+    faktor_max: 1.8
+    jahre_min: 3
+    jahre_max: 8
   # Ruf je Firma und Land (MN2, docs/FORMELN.md): Qualität über dem Marktdurchschnitt hebt
   # ihn, Unfälle und Rückrufe senken ihn; er wirkt in der Anbieterwahl wie die Marke.
   ruf:

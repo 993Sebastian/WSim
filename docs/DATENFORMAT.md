@@ -1009,3 +1009,17 @@ Anliegen; die Optionen sind dann `[Weg A, Weg B, nichts tun]`.
 
 Spielstand: `managers.*.branch` (Zuordnung Branche → 0–100) und `sites[].branch_strength` (0–1, zum letzten
 Monatsanfang).
+
+## marktmodell.veralterung, gebraucht, trendgenerator (MN4)
+
+- `veralterung: {punkte_je_stufe}` – Qualitätspunkte (0–50), die ein Angebot eines Gebrauchsguts je
+  Entwicklungsstufe verliert, die der Führer im Land voraus ist.
+- `gebraucht: {weitergabe, lebensdauer_anteil, anteil_erstkauf}` – Anteil der Ersatzkäufe der Fünftel
+  3–5, der auf den Gebrauchtmarkt geht (0–1); Restlebensdauer als Anteil der Nutzungsdauer (0,05–1);
+  Anteil der Erstkäufe der Fünftel 1–3, den der Bestand deckt (0–1). Wirkt nur bei Produkten mit
+  `gebraucht: true` (nur Gebrauchsgüter erlaubt).
+- `trendgenerator: {ab, chance, faktor_min, faktor_max, jahre_min, jahre_max}` – ab dem Jahr `ab` je Jahr
+  mit Chance `chance` eine Nachfragewelle für eine Warengruppe mit Endkundennachfrage.
+
+Spielstand: `markets[..][..].used`, `.used_sold`; `generated_trends[]` (`group`, `start`, `years`, `peak`).
+

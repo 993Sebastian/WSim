@@ -543,6 +543,12 @@ pub fn management_stock_days_max(max: f64, needed: f64) -> String {
     )
 }
 
+pub fn used_needs_durable(product: &str) -> String {
+    format!(
+        "„{product}“ hat einen Gebrauchtmarkt (gebraucht: true), ist aber kein Gebrauchsgut (verbrauch: gebrauch)."
+    )
+}
+
 pub fn list_empty() -> String {
     "Die Liste darf nicht leer sein.".into()
 }

@@ -60,6 +60,7 @@ produkte:
 
   - id: automobil
     art: endprodukt
+    gebraucht: true
     branche: fahrzeuge
     einheit: stueck
     gewicht_kg: 1000

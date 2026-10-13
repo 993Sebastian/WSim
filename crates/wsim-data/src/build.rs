@@ -983,6 +983,14 @@ impl Builder<'_, '_> {
         let replaces_max_share = v.replaces_max_share.map_or(1.0, |a| {
             in_range(self.ctx, a, 0.0, 1.0, &l.field("ersetzt_anteil_max"))
         });
+        if v.used_market
+            && v.consumer_demand
+                .as_ref()
+                .is_none_or(|d| d.durable.is_none())
+        {
+            self.ctx
+                .error(&l.field("gebraucht"), messages::used_needs_durable(&v.id));
+        }
         if v.replaces.is_empty() && (v.replaces_utility.is_some() || v.replaces_max_share.is_some())
         {
             self.ctx.error(
@@ -1053,6 +1061,7 @@ impl Builder<'_, '_> {
             replaces,
             replaces_utility,
             replaces_max_share,
+            used_market: v.used_market,
             output_index: v.output_index.as_ref().map(|values| {
                 let loc = l.field("foerderindex");
                 if !matches!(v.kind, RawProductKind::RawMaterial) {

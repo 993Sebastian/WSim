@@ -163,6 +163,10 @@ pub enum Stream {
         id: u32,
         month: u32,
     },
+    /// The demand waves that arise in a year (MN4).
+    Trends {
+        year: u32,
+    },
 }
 
 impl Stream {
@@ -236,6 +240,7 @@ impl Stream {
                 (31 << 56) | (u64::from(tender & 0xFF_FFFF) << 32) | u64::from(index)
             }
             Stream::ManagerBranch { id } => (32 << 56) | u64::from(id),
+            Stream::Trends { year } => (34 << 56) | u64::from(year),
             Stream::ManagerBranchMonth { id, month } => {
                 (33 << 56) | (u64::from(id) << 24) | u64::from(month)
             }

@@ -107,7 +107,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN1 | Substitution bei Verbrauchsgütern, Trends | ✅ |
 | MN2 | Ausstattungsstufen, Ruf mit Rückrufen, Ausschreibungen | ✅ |
 | MN3 | Vertriebswege mit Reichweite und Kosten | ✅ |
-| MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | 🔄 |
+| MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | ✅ 13.10.2026 (Ersatzteile als Datenpflege offen, OFFENE_PUNKTE MN4) |
 | MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ (Forschungspflicht, Grundprodukte, KI-Produktforschung, Werksbranche, Kauf nach Produkt, Umstellen; Annahmen OFFENE_PUNKTE U) |

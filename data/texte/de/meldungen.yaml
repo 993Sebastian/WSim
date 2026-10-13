@@ -46,6 +46,7 @@ rang.eigenkapital: nach Eigenkapital
 rang.umsatz: nach Umsatz
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
 meldung.produkt_erforscht: "Produkt erforscht – „{produkt}“ kann jetzt hergestellt werden."
+info.nachfragewelle: "Nachfragewelle: Die Kauflust für {gruppe} steigt in den nächsten {jahre} Jahren bis zum {faktor}-Fachen der gewohnten Nachfrage und flaut dann ab."
 warnung.rueckruf: "Rückruf in {land}: Ware unter der Mindestqualität musste zurückgenommen werden – Kosten {kosten}, der Ruf leidet."
 fehler.befehl.keine_ausstattung: Eine Ausstattung gibt es nur für Endprodukte.
 fehler.befehl.andere_branche: "Dieses Werk gehört zur Branche {branche}. Ein Produkt einer anderen Branche braucht ein neues Werk."

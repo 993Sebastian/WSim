@@ -310,6 +310,9 @@ pub struct RawProduct {
     pub replaces_utility: Option<f64>,
     #[serde(rename = "ersetzt_anteil_max", default)]
     pub replaces_max_share: Option<f64>,
+    /// Durables (MN4): used units change hands.
+    #[serde(rename = "gebraucht", default)]
+    pub used_market: bool,
     #[serde(rename = "foerderindex", default)]
     pub output_index: Option<RawSeries>,
     #[serde(rename = "pacht_anteil", default)]
@@ -1011,6 +1014,43 @@ pub struct RawMarketModel {
     /// Sales channels (MN3).
     #[serde(rename = "vertrieb", default)]
     pub channels: Option<RawChannelModel>,
+    /// Obsolescence, used market and generated trends (MN4).
+    #[serde(rename = "veralterung", default)]
+    pub obsolescence: Option<RawObsolescence>,
+    #[serde(rename = "gebraucht", default)]
+    pub used: Option<RawUsed>,
+    #[serde(rename = "trendgenerator", default)]
+    pub trend_generator: Option<RawTrendGenerator>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawObsolescence {
+    #[serde(rename = "punkte_je_stufe")]
+    pub points_per_level: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawUsed {
+    #[serde(rename = "weitergabe")]
+    pub pass_on: f64,
+    #[serde(rename = "lebensdauer_anteil")]
+    pub life_share: f64,
+    #[serde(rename = "anteil_erstkauf")]
+    pub first_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTrendGenerator {
+    #[serde(rename = "ab")]
+    pub from_year: i32,
+    pub chance: f64,
+    pub faktor_min: f64,
+    pub faktor_max: f64,
+    pub jahre_min: u32,
+    pub jahre_max: u32,
 }
 
 #[derive(Debug, Deserialize)]

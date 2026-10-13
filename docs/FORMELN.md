@@ -6096,3 +6096,41 @@ Gesamtprodukte über alle Anlagengruppen mit der Anzahl an den Untergrenzen.
 
 **KI.** Beim Besetzen von Produktionsstellen eines Werks (Fachstelle Produktion und Leitung) addiert eine
 KI-Firma `ki_gewicht · s` zur Bewertung eines Bewerbers (`s` seine Stärke in der Branche des Werks).
+
+## MN4 – Veralterung, Gebrauchtmarkt, Trend-Generator (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, 12)
+
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, R (MN4).
+
+### Veralterung
+
+Für Gebrauchsgüter: In der Anbieterwahl der Verbraucher zählt ein Firmenangebot mit der
+Qualität
+
+    Q_wirksam = Q − veralterung.punkte_je_stufe · (Stufe_Führer − Stufe_Firma)
+
+Stufe_Führer ist die höchste Entwicklungsstufe (M37) unter den Firmen, die das Produkt im
+Land anbieten. Händler, Einfuhr und Staatsmarkt bleiben unberührt.
+
+### Gebrauchtmarkt
+
+Für Gebrauchsgüter mit `gebraucht: true` führt jeder Markt einen Bestand G an gebrauchten
+Geräten. Bei jeder Nachfrageberechnung (Monatsanfang):
+
+    Zugang  = weitergabe · Σ_{q = 3..5} Besitz_q / Nutzungsdauer · Einwohner_q / 12
+    Abgang  = G / (lebensdauer_anteil · Nutzungsdauer · 12)
+    Erstkäufe_q = Lücke_q · aneignung_je_jahr · Einwohner_q / 12      (Fünftel 1–3, ärmstes zuerst)
+    u_q = min(anteil_erstkauf · Erstkäufe_q, G_übrig);  G_übrig −= u_q
+    Besitz_q += u_q / Einwohner_q;   Kaufrate der Firmen_q −= u_q · 12 / 365 je Tag
+
+Gebrauchte Geräte bringen den Firmen keinen Umsatz; die Besitzquote steigt schneller, die
+Ersatzkäufe kommen später. `Market.used` ist der Bestand nach der Nutzung, `Market.used_sold` die
+in diesem Monat genutzten Geräte (Anzeige „davon Gebrauchtmarkt“, MN5).
+
+### Trend-Generator
+
+Ab `trendgenerator.ab` (2027) entsteht jedes Jahr mit Chance `chance` eine Nachfragewelle
+für eine zufällige Warengruppe mit Endkundennachfrage (Zufallsstrom `Trends` je Jahr):
+Spitzenfaktor gleichverteilt in [faktor_min, faktor_max], Dauer in [jahre_min, jahre_max]
+Jahren; der Faktor steigt bis zur Mitte linear auf die Spitze und fällt bis zum Ende auf 1
+zurück. Er wirkt wie die Trends aus den Daten (MN1) auf die Kaufneigung. Meldung
+„Nachfragewelle“ zu Beginn.

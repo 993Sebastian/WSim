@@ -1512,3 +1512,101 @@ fn ai_channels_follow_skill_and_revenue() {
         Vec::new()
     );
 }
+
+/// MN4: A durable whose maker is a development level behind loses buyers to the leader.
+#[test]
+fn an_outdated_durable_loses_buyers_to_the_leader() {
+    let mut catalog = test_support::production();
+    catalog.market_model.obsolescence_points = 20.0;
+    let mut game = game_with(catalog);
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let rad = product(&game, "rad");
+    game.state_mut().companies[rival.index()]
+        .development
+        .levels
+        .insert(rad, 3);
+    let old = warehouse(&mut game, player, "rad", 1e9, 50.0);
+    let new = warehouse(&mut game, rival, "rad", 1e9, 50.0);
+    sell(&mut game, old, "rad", PriceMode::Fixed(usd(60.0)));
+    sell(&mut game, new, "rad", PriceMode::Fixed(usd(60.0)));
+    for _ in 0..3 {
+        day(&mut game);
+    }
+    let sold = |s| 1e9 - stock(&game, s, "rad");
+    assert!(sold(new) > sold(old), "{} {}", sold(new), sold(old));
+}
+
+/// MN4: Households pass worn durables on; the lower fifths cover part of their first
+/// purchases from the used stock, which brings the firms no revenue.
+#[test]
+fn the_used_market_serves_first_buyers_without_revenue() {
+    let mut catalog = test_support::production();
+    catalog.market_model.used = crate::catalog::UsedModel {
+        enabled: true,
+        pass_on: 0.6,
+        life_share: 0.5,
+        first_share: 0.5,
+    };
+    let rad = catalog.products.id("rad").unwrap();
+    catalog.products.get_mut(rad).used_market = true;
+    let mut game = game_with(catalog);
+    let player = game.player();
+    let site = warehouse(&mut game, player, "rad", 1e9, 50.0);
+    sell(&mut game, site, "rad", PriceMode::Fixed(usd(60.0)));
+    let mut sold_used = 0.0_f64;
+    for _ in 0..48 {
+        game.advance(RoundLength::Month, |_| {});
+        let m = game.state().markets.get(rad).get(aaa(&game));
+        sold_used += m.used_sold;
+    }
+    assert!(
+        sold_used > 0.0,
+        "the lower fifths buy units the upper ones passed on"
+    );
+}
+
+/// MN4: Generated demand waves rise to a peak in the middle and fall back.
+#[test]
+fn a_generated_trend_rises_and_falls() {
+    let t = crate::state::GeneratedTrend {
+        group: <crate::ids::GoodsGroupId as crate::ids::Id>::from_index(0),
+        start: 2030,
+        years: 6,
+        peak: 1.6,
+    };
+    let g = t.group;
+    assert_eq!(t.factor(g, 2029.0), 1.0);
+    assert!((t.factor(g, 2033.0) - 1.6).abs() < 1e-9);
+    assert!((t.factor(g, 2031.5) - 1.3).abs() < 1e-9);
+    assert_eq!(t.factor(g, 2037.0), 1.0);
+    let other = <crate::ids::GoodsGroupId as crate::ids::Id>::from_index(1);
+    assert_eq!(t.factor(other, 2033.0), 1.0);
+}
+
+#[test]
+fn the_generator_creates_a_wave_from_its_year_with_its_chance() {
+    let mut catalog = test_support::production();
+    catalog.market_model.trend_generator = crate::catalog::TrendGenerator {
+        enabled: true,
+        from_year: 2027,
+        chance: 1.0,
+        factor_min: 1.2,
+        factor_max: 1.8,
+        years_min: 3,
+        years_max: 8,
+    };
+    let mut game = game_with(catalog.clone());
+    assert!(crate::market::new_year_trends(game.state_mut(), &catalog, 2026).is_empty());
+    let news = crate::market::new_year_trends(game.state_mut(), &catalog, 2027);
+    assert_eq!(news.len(), 1);
+    let t = game.state().generated_trends[0];
+    assert!((1.2..=1.8).contains(&t.peak) && (3..=8).contains(&t.years));
+    // The same year and seed give the same wave.
+    let mut again = game_with(catalog.clone());
+    crate::market::new_year_trends(again.state_mut(), &catalog, 2027);
+    assert_eq!(
+        again.state().generated_trends,
+        game.state().generated_trends
+    );
+}

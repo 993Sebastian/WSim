@@ -1844,6 +1844,34 @@ pub struct Market {
     /// has taken over here, in the order of `Product::replaces`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub substitution: Vec<f64>,
+    /// Durables (MN4): used units on offer in the country.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub used: f64,
+    /// Used units that found a buyer in the running month.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub used_sold: f64,
+}
+
+/// A demand wave that arose after the historical data (MN4): the factor rises linearly to
+/// the peak in the middle of its run and falls back to 1.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GeneratedTrend {
+    pub group: GoodsGroupId,
+    pub start: i32,
+    pub years: u32,
+    pub peak: f64,
+}
+
+impl GeneratedTrend {
+    /// Factor on the propensity to buy at a fractional year.
+    pub fn factor(&self, group: GoodsGroupId, year: f64) -> f64 {
+        let x = (year - f64::from(self.start)) / f64::from(self.years.max(1));
+        if group != self.group || !(0.0..=1.0).contains(&x) {
+            return 1.0;
+        }
+        let up = if x <= 0.5 { x } else { 1.0 - x } * 2.0;
+        1.0 + (self.peak - 1.0) * up
+    }
 }
 
 /// Closed months of a market, oldest first, the last one is the month before the
@@ -2171,6 +2199,9 @@ pub struct GameState {
     /// Tariffs of the current month; derived, not saved.
     #[serde(skip)]
     pub tariffs: crate::tariffs::TariffTable,
+    /// Demand waves the generator created (MN4).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub generated_trends: Vec<GeneratedTrend>,
     /// Effects of the historical events in the current month (H1); derived, not saved.
     #[serde(skip)]
     pub events: crate::events::EventTable,

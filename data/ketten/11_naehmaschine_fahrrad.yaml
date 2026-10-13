@@ -6,6 +6,7 @@
 produkte:
   - id: naehmaschine
     art: endprodukt
+    gebraucht: true
     branche: maschinenbau
     einheit: stueck
     gewicht_kg: 15
@@ -23,6 +24,7 @@ produkte:
 
   - id: fahrrad
     art: endprodukt
+    gebraucht: true
     branche: fahrzeuge
     einheit: stueck
     gewicht_kg: 15

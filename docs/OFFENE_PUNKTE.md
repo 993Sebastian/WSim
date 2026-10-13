@@ -2587,3 +2587,17 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
 - Die Sortierung „passende Branche zuerst“ gilt im Managermarkt für Werksstellen (Branche des Werks); ein
   Filter „Branche“ steht in beiden Reitern.
 
+### MN4: Veralterung, Gebrauchtmarkt, Trend-Generator – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen:
+- Veralterung gilt für alle Gebrauchsgüter (Entwicklungsstufen vorhanden) in der Anbieterwahl; Händler,
+  Einfuhr und Staatsmarkt bleiben unberührt. Die Verschrottung veralteter Lagerware bleibt Sache des
+  Befehls `Scrap` (M22), keine neue Mechanik.
+- Gebrauchtmarkt nur bei vier Produkten (`gebraucht: true`): Nähmaschine, Fahrrad, Automobil, Möbel.
+  Der Zugang richtet sich nach dem Besitz der Fünftel 3–5 (nicht nach den tatsächlichen Ersatzkäufen des
+  Monats), damit er ohne Monatsrückblick berechnet werden kann.
+- **Ersatzteile (Datenpflege) nicht angelegt:** je Fahrzeug-/Maschinenkette ein Ersatzteil-Produkt als
+  Ergänzungsgut samt Rezeptkette und `ersatzteil_bonus` in der Anbieterwahl sind ein Datenpaket für sich
+  (WG-Datenpflege); Vorschlag: mit WG zusammen oder auf Wunsch eigener Schritt.
+- Der Trend-Generator wählt die Warengruppe gleichverteilt unter denen mit Endkundennachfrage und gilt in
+  allen Ländern; Faktor und Dauer wie in `docs/WELT_MARKT_BETRIEB.md` 12.4.
+

@@ -46,6 +46,7 @@ produkte:
 
   - id: moebel
     art: endprodukt
+    gebraucht: true
     branche: konsumgueter
     einheit: stueck
     gewicht_kg: 25

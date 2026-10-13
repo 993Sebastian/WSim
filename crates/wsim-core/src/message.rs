@@ -168,6 +168,7 @@ pub mod keys {
     pub const COMMAND_TENDER_CLOSED: &str = "fehler.befehl.ausschreibung_geschlossen";
     pub const COMMAND_NO_CHANNEL: &str = "fehler.befehl.kein_vertriebsweg";
     pub const RECALL: &str = "warnung.rueckruf";
+    pub const DEMAND_WAVE: &str = "info.nachfragewelle";
     pub const TENDER_OPEN: &str = "info.ausschreibung";
     pub const TENDER_WON: &str = "erfolg.ausschreibung_gewonnen";
     pub const TENDER_LOST: &str = "info.ausschreibung_verloren";
