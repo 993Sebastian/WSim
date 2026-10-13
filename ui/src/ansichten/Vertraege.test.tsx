@@ -55,6 +55,26 @@ async function zeige(
 describe("Lieferverträge", () => {
   afterEach(cleanup);
 
+  it("zeigt die Partnerschaften mit Lieferanten und Kunden", async () => {
+    await zeige((d) => {
+      d.partnerships = [
+        {
+          company: "Eisen AG",
+          role: "lieferant",
+          grade: 0.4,
+          turnover_share: 0.05,
+          discount: 0.065,
+        },
+        { company: "Werk KG", role: "kunde", grade: 0.1, turnover_share: 0, discount: 0 },
+      ];
+    });
+    const tabelle = screen.getByRole("table", { name: "Partnerschaften" });
+    expect(within(tabelle).getByText("Eisen AG")).toBeTruthy();
+    expect(within(tabelle).getByText("Lieferant")).toBeTruthy();
+    expect(within(tabelle).getByText("40 %")).toBeTruthy();
+    expect(within(tabelle).getByText("Kunde")).toBeTruthy();
+  });
+
   it("zeigt laufende Verträge und kündigt mit Strafe", async () => {
     const gesendet = await zeige();
     const tabelle = screen.getByRole("table", { name: "Lieferverträge" });

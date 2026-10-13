@@ -2295,6 +2295,15 @@ vertrag.standort: Dein Standort
 vertrag.abnehmer: Abnehmer
 vertrag.lieferant: Lieferant
 vertrag.partner_wahl: "{firma} ({land}) – bis {menge} am Tag, Vorschlag {preis}"
+vertrag.partnerschaft_hinweis: "Partnerschaft mit {firma}: Grad {grad}, Umsatzanteil {anteil} – der Vorschlag ist deshalb {rabatt} günstiger."
+vertrag.partnerschaften: Partnerschaften
+vertrag.partnerschaft_rolle: Beziehung
+vertrag.partnerschaft_rolle.lieferant: Lieferant
+vertrag.partnerschaft_rolle.kunde: Kunde
+vertrag.partnerschaft_grad: Grad
+vertrag.partnerschaft_anteil: Umsatzanteil
+vertrag.partnerschaft_rabatt: Rabatt
+vertrag.partnerschaft_hilfe: Der Grad wächst mit jedem Monat, in dem geliefert wird, und sinkt bei Fehlmengen. Ein Lieferant gibt Rabatt für den Grad und für einen großen Anteil an seinem Umsatz; beides zusammen ist nach oben begrenzt.
 vertrag.fracht: "Fracht und Zoll bis zu dir: {kosten} – im Preis enthalten, der Verkäufer zahlt sie."
 vertrag.eigen.verkauf: "Dein Standort erzeugt {menge} am Tag."
 vertrag.eigen.einkauf: "Dein Standort braucht {menge} am Tag."

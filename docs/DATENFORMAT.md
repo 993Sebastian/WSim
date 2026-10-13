@@ -707,6 +707,7 @@ gibt es keine Lieferverträge. Ein Abschnitt `vertraege` mit:
 | **exklusiv_aufschlag** | BP4: Preisaufschlag einer KI für einen exklusiven Vertrag (0–1) |
 | **nachverhandlung_menge_min** | 0–1: so stark (Anteil) muss sich die Tagesmenge ändern, damit eine KI nachverhandelt |
 | **nachverhandlung_verlaengerung_monate** | 0–120: so viele Monate über die Restlaufzeit hinaus genügen der KI als Verlängerung |
+| **partnerschaft** | LV2, optional (ohne Abschnitt keine Partnerschaft): `aufbau_monate` und `verfall_monate` (1–1200: Monate mit Lieferung bis zum vollen Grad bzw. ohne Lieferung bis zum Verlust), `abzug_fehlmenge` (0–1: Grad, den eine Fehlmenge des Lieferanten kostet), `rabatt_max` (0–1: Rabatt bei vollem Grad), `umsatz_rabatt_max` (0–1) und `umsatz_ab` (0,001–1: Rabatt, wenn der Käufer so viel des Lieferantenumsatzes bezieht), `gesamt_max` (0–1: beide Rabatte zusammen höchstens) |
 | **angebot_tage** | 1–365: so lange wartet ein Angebot der KI auf die Antwort |
 | **aufbewahren_monate** | 0–600: so lange bleiben beendete Verträge in der Liste |
 | **ki** | `abschlag_verkauf` und `aufschlag_kauf` (0–1: so viel unter dem eigenen bzw. über dem Marktpreis nimmt die KI für einen Monat an), `abschlag_je_monat` und `aufschlag_je_monat` (0–1: so viel mehr je weiteren Monat Laufzeit), `abschlag_max` und `aufschlag_max` (0–1, mindestens der Grundwert: Obergrenze), `anteil` (0–1: Anteil von Leistung oder Bedarf, der in Verträge geht), `strafe_max` (0–10), `angebot_chance` (0–1 je Monat und Produkt des Spielers) |
@@ -956,3 +957,9 @@ Schlüssel `maschinenbauer.<id>`; erzeugt von `tools/daten/maschinenbauer.py`):
 `sites[].slots[].work` (optional): eigenes Projekt eines Labors – `{Technology: <id>}`,
 `{Product: {product: <id>, technology: <id>|null}}` oder `{Development: <id>}`. Fehlt es, arbeitet
 das Labor am Projekt des Standorts.
+
+## Spielstand: Partnerschaften (LV2)
+
+`partnerships[]` (optional, nach Lieferant und Käufer sortiert): `seller`, `buyer` (Firmen),
+`grade` (0–1), `month` (im laufenden Monat gelieferter Wert), `months` (Lieferwert der letzten
+bis zu 12 geschlossenen Monate, älteste zuerst).

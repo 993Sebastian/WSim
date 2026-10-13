@@ -2082,6 +2082,9 @@ pub struct GameState {
     /// Supply contracts, open ones and those closed in the last months (W4).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub contracts: Vec<crate::contracts::Contract>,
+    /// Partnerships of suppliers and buyers (LV2), sorted by supplier and buyer.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub partnerships: Vec<crate::contracts::Partnership>,
     /// Government tenders, open ones and those of the last year (MN2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tenders: Vec<crate::tenders::Tender>,

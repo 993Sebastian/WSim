@@ -81,6 +81,46 @@ pub struct ContractsView {
     /// Open contracts first (proposals to answer at the top), then closed ones.
     pub contracts: Vec<ContractView>,
     pub sites: Vec<ContractSiteView>,
+    /// Partnerships of the company with its suppliers and buyers (LV2).
+    #[serde(default)]
+    pub partnerships: Vec<PartnershipView>,
+}
+
+/// The standing with a business partner (LV2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PartnershipView {
+    /// The partner company.
+    pub company: String,
+    /// The partner supplies the company (`lieferant`) or buys from it (`kunde`).
+    pub role: String,
+    /// 0–1.
+    pub grade: f64,
+    /// The buyer's share of the supplier's turnover in the last 12 months.
+    pub turnover_share: f64,
+    /// Discount the partnership brings on an AI supplier's price.
+    pub discount: f64,
+}
+
+fn partnership_view(
+    game: &Game,
+    partner: crate::state::CompanyId,
+    supplier: bool,
+) -> PartnershipView {
+    let (state, catalog) = (game.state(), game.catalog());
+    let me = game.player();
+    let (seller, buyer) = if supplier {
+        (partner, me)
+    } else {
+        (me, partner)
+    };
+    let st = contracts::standing(state, catalog, seller, buyer);
+    PartnershipView {
+        company: state.companies[partner.index()].name.clone(),
+        role: if supplier { "lieferant" } else { "kunde" }.to_owned(),
+        grade: st.grade,
+        turnover_share: st.turnover_share,
+        discount: st.discount,
+    }
 }
 
 /// A possible partner for a contract of an own site.
@@ -99,6 +139,9 @@ pub struct ContractPartnerView {
     /// Quality of the seller's stock (buying only).
     #[serde(default)]
     pub quality: Option<f64>,
+    /// Standing of the seller's company with the own one (LV2; buying only).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub partnership: Option<PartnershipView>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -303,6 +346,19 @@ pub fn contracts(game: &Game) -> ContractsView {
         cancel_months: m.cancel_months,
         contracts: list.into_iter().map(|c| contract_view(game, c)).collect(),
         sites,
+        partnerships: state
+            .partnerships
+            .iter()
+            .filter_map(|p| {
+                if p.buyer == me {
+                    Some(partnership_view(game, p.seller, true))
+                } else if p.seller == me {
+                    Some(partnership_view(game, p.buyer, false))
+                } else {
+                    None
+                }
+            })
+            .collect(),
     }
 }
 
@@ -377,6 +433,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
                     .get(&p)
                     .map_or(DEFAULT_QUALITY, |st| st.quality)
             }),
+            partnership: (!selling).then(|| partnership_view(game, other.owner, true)),
         });
     }
     partners.sort_by(|a, b| {

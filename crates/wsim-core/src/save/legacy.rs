@@ -190,6 +190,7 @@ pub(super) fn decode_v2(
         events: Default::default(),
         regulation: Default::default(),
         contracts: Vec::new(),
+        partnerships: Vec::new(),
         tenders: Vec::new(),
         state_orders: Vec::new(),
         next_contract: 0,

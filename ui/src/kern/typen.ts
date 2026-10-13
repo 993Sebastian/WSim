@@ -2405,6 +2405,20 @@ export interface Vertraege {
   cancel_months: number;
   contracts: Vertrag[];
   sites: VertragsStandort[];
+  /** Standing with suppliers and customers (LV2). */
+  partnerships?: Partnerschaft[];
+}
+
+/** The standing with a business partner (LV2). */
+export interface Partnerschaft {
+  company: string;
+  role: "lieferant" | "kunde";
+  /** 0–1. */
+  grade: number;
+  /** The buyer's share of the supplier's turnover in the last 12 months. */
+  turnover_share: number;
+  /** Discount the partnership brings on an AI supplier's price. */
+  discount: number;
 }
 
 export interface Vertragspartner {
@@ -2417,6 +2431,8 @@ export interface Vertragspartner {
   delivery_cost_usd: number;
   /** Quality of the seller's stock (buying only). */
   quality?: number | null;
+  /** Standing of the seller's company with the own one (buying only). */
+  partnership?: Partnerschaft | null;
 }
 
 /** A site of the company or group seen from another, with the way between them. */

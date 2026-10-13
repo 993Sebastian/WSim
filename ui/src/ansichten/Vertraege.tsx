@@ -378,6 +378,16 @@ function NeuerVertrag({
                 </option>
               ))}
             </select>
+            {p?.partnership && p.partnership.discount > 0 && (
+              <small className="feld-hilfe">
+                {t("vertrag.partnerschaft_hinweis", {
+                  firma: p.company,
+                  grad: formatProzent(p.partnership.grade),
+                  anteil: formatProzent(p.partnership.turnover_share),
+                  rabatt: formatProzent(p.partnership.discount),
+                })}
+              </small>
+            )}
             {p && p.delivery_cost_usd > 0 && (
               <small className="feld-hilfe">
                 {t("vertrag.fracht", { kosten: `${formatGeld(p.delivery_cost_usd)}/${e}` })}
@@ -475,6 +485,36 @@ export function VertraegeAnsicht({ kern, stand }: { kern: Kern; stand: string })
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {(daten.partnerships?.length ?? 0) > 0 && (
+        <div className="tabelle">
+          <table aria-label={t("vertrag.partnerschaften")}>
+            <caption>{t("vertrag.partnerschaften")}</caption>
+            <thead>
+              <tr>
+                <th>{t("vertrag.partner")}</th>
+                <th>{t("vertrag.partnerschaft_rolle")}</th>
+                <th className="zahl">{t("vertrag.partnerschaft_grad")}</th>
+                <th className="zahl">{t("vertrag.partnerschaft_anteil")}</th>
+                <th className="zahl">{t("vertrag.partnerschaft_rabatt")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {daten.partnerships?.map((x) => (
+                <tr key={`${x.role}/${x.company}`}>
+                  <td>{x.company}</td>
+                  <td>{t(`vertrag.partnerschaft_rolle.${x.role}`)}</td>
+                  <td className="zahl">{formatProzent(x.grade)}</td>
+                  <td className="zahl">{formatProzent(x.turnover_share)}</td>
+                  <td className="zahl">
+                    {x.role === "lieferant" ? formatProzent(x.discount) : "–"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <small className="feld-hilfe">{t("vertrag.partnerschaft_hilfe")}</small>
         </div>
       )}
       <NeuerVertrag kern={kern} daten={daten} stand={stand} onNeu={neu} />

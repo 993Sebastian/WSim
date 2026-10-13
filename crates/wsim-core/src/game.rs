@@ -228,6 +228,7 @@ impl Game {
             events: Default::default(),
             regulation: Default::default(),
             contracts: Vec::new(),
+            partnerships: Vec::new(),
             tenders: Vec::new(),
             machine_tenders: Vec::new(),
             next_machine_tender: 0,

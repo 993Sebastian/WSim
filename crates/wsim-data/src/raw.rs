@@ -3153,11 +3153,33 @@ pub struct RawContracts {
     pub renegotiate_quantity_min: f64,
     #[serde(rename = "nachverhandlung_verlaengerung_monate", default)]
     pub renegotiate_extension_min: u32,
+    #[serde(rename = "partnerschaft", default)]
+    pub partnership: Option<RawPartnership>,
     pub ki: RawContractAi,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// Partnership of supplier and buyer (`vertraege.partnerschaft`, LV2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPartnership {
+    #[serde(rename = "aufbau_monate")]
+    pub build_months: u32,
+    #[serde(rename = "verfall_monate")]
+    pub decay_months: u32,
+    #[serde(rename = "abzug_fehlmenge")]
+    pub shortfall_drop: f64,
+    #[serde(rename = "rabatt_max")]
+    pub discount_max: f64,
+    #[serde(rename = "umsatz_rabatt_max")]
+    pub turnover_discount_max: f64,
+    #[serde(rename = "umsatz_ab")]
+    pub turnover_from: f64,
+    #[serde(rename = "gesamt_max")]
+    pub total_max: f64,
 }
 
 #[derive(Debug, Deserialize)]

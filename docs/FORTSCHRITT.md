@@ -112,7 +112,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ (Forschungspflicht, Grundprodukte, KI-Produktforschung, Werksbranche, Kauf nach Produkt, Umstellen; Annahmen OFFENE_PUNKTE U) |
 | MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | 🔄 Schritt 1–3 erledigt (Daten, Kern, Anzeige); Schritt 4 (KI/Manager: bestes Angebot am selben Tag, Rest siehe OFFENE_PUNKTE W-s) in Arbeit |
-| LB1 | Forschungszentrum: Projekt je Labor statt eines Projekts je Standort; forschen mehrere Labore dasselbe Produkt bzw. dieselbe Technologie, addieren sich ihre Punkte (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE Y) | 🔄 13.10.2026: Kern, Befehl SetLabWork, Sicht und Oberfläche fertig; Prüfungen laufen |
+| LB1 | Forschungszentrum: Projekt je Labor statt eines Projekts je Standort; forschen mehrere Labore dasselbe Produkt bzw. dieselbe Technologie, addieren sich ihre Punkte (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE Y) | ✅ 13.10.2026 (Commit e700e86) |
 | EC1 | Einkaufscontrolling im Bereich Controlling: je Komponente Menge, Qualität, Preis und Ausgaben (letzter Monat, letztes Jahr) als Grundlage für die Frage, ob sich Eigenfertigung lohnt (Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE Z) | ⏳ nach AKT |
 | MG1 | Manager mit Geschichte: Abwerbemenü (Reiter „Manager anderer Firmen“), Pool-Prüfung, faire Zugriffszeit (KI-Wartetage), CLI-Protokoll „managermarkt“ (`docs/MANAGER_2.md` §1; sofort, vor allem anderen) | ⏳ |
 | MG2 | Entscheidungsakte, Nachbetrachtung, Trefferquote für alle Manager (§2) | ⏳ |
@@ -124,7 +124,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MG8 | Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung, Personalbedarf aller Zentralabteilungen (§8) | ⏳ nach MG2 |
 | MG9 | Strategieabteilung als Denkstelle: ein Typ mit MG6, Fallarten inkl. Abwehr und Verkauf, Arbeitslast und Branchenschwerpunkt, Strategieklausur, zwei Trefferquoten, Konkurrenzbeobachtung (§9) | ⏳ nach MG6 |
 | MG10 | Branchenfreigabe je Ebene mit Matrix, Vererbung, Freigabe-Vorschlägen (§10) | ⏳ nach MG2 |
-| LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ⏳ nach MAA |
+| LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | 🔄 13.10.2026: Kern, Sicht und Oberfläche fertig; Prüfungen laufen |
 | AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ⏳ |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏸ zurückgestellt bis zur Aufforderung (Wunsch vom 12.10.2026) |
 

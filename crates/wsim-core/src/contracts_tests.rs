@@ -28,6 +28,15 @@ pub(super) fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Cata
         exclusive_premium: 0.1,
         renegotiate_quantity_min: 0.2,
         renegotiate_extension_min: 3,
+        partnership: crate::catalog::PartnershipModel {
+            build_months: 60,
+            decay_months: 120,
+            shortfall_drop: 0.25,
+            discount_max: 0.1,
+            turnover_discount_max: 0.1,
+            turnover_from: 0.2,
+            total_max: 0.2,
+        },
         ai: ContractAiModel {
             sale_discount: 0.08,
             sale_discount_per_month: 0.005,
@@ -579,4 +588,104 @@ fn a_buyer_without_cash_pays_only_for_its_own_days() {
     assert_eq!(c.paid_by_seller, Money::ZERO, "the seller had the goods");
     assert!(c.paid_by_buyer > Money::ZERO);
     assert!(super::contracts_tests::cash(&game, player) >= seller_cash);
+}
+
+#[test]
+fn the_partnership_discount_follows_grade_and_turnover_share() {
+    let catalog = with_contracts(test_support::trading(), 0.0);
+    let m = &catalog.contracts.partnership;
+    assert_eq!(m.discount(0.0, 0.0), 0.0);
+    assert!((m.discount(1.0, 0.0) - 0.1).abs() < 1e-12);
+    assert!((m.discount(0.5, 0.1) - 0.1).abs() < 1e-12, "5 % and 5 %");
+    // A fifth of the turnover earns the full turnover discount, more earns nothing extra.
+    assert!((m.discount(0.0, 0.2) - 0.1).abs() < 1e-12);
+    assert!((m.discount(0.0, 0.9) - 0.1).abs() < 1e-12);
+    // Both together, but never above the total.
+    assert!((m.discount(1.0, 0.2) - 0.2).abs() < 1e-12);
+    let mut tight = m.clone();
+    tight.total_max = 0.15;
+    assert!((tight.discount(1.0, 0.2) - 0.15).abs() < 1e-12);
+}
+
+#[test]
+fn the_grade_grows_with_deliveries_and_falls_after_a_shortfall() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let player = game.player();
+    let (_, _, other) = agreed(&mut game, "AAA", 10.0, 12);
+    for _ in 0..70 {
+        days(&mut game, 1);
+        if !game.state().partnerships.is_empty() && !game.state().partnerships[0].months.is_empty()
+        {
+            break;
+        }
+    }
+    let p = &game.state().partnerships[0];
+    assert_eq!((p.seller, p.buyer), (player, other));
+    assert!((p.grade - 1.0 / 60.0).abs() < 1e-12, "{}", p.grade);
+    assert!(p.months[0] > Money::ZERO);
+    // Further months with deliveries raise it step by step.
+    days(&mut game, 31);
+    let p = &game.state().partnerships[0];
+    assert!((p.grade - 2.0 / 60.0).abs() < 1e-12, "{}", p.grade);
+}
+
+#[test]
+fn a_shortfall_of_the_supplier_costs_grade() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    agreed(&mut game, "AAA", 100.0, 12);
+    // 1000 in stock last ten days, then months of shortfall.
+    days(&mut game, 31 + 31 + 28 + 31 + 1);
+    let p = &game.state().partnerships[0];
+    assert_eq!(p.grade, 0.0, "{p:?}");
+}
+
+#[test]
+fn an_ai_supplier_gives_a_partner_the_discount() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let works = furnace(&mut game);
+    let other = competitor(&mut game);
+    game.state_mut().sites[works.index()].owner = other;
+    let me = game.player();
+    let mine = warehouse(&mut game, me, "AAA", 0.0);
+    let catalog = game.catalog().clone();
+    let iron = product(&game, "eisen");
+    let months = 12;
+    let plain = contracts::contract_price(game.state(), &catalog, (works, mine), iron, months)
+        .expect("route");
+    game.state_mut().partnerships.push(contracts::Partnership {
+        seller: other,
+        buyer: me,
+        grade: 1.0,
+        month: Money::ZERO,
+        months: Vec::new(),
+    });
+    let state = game.state();
+    let partner =
+        contracts::contract_price(state, &catalog, (works, mine), iron, months).expect("route");
+    let ratio = partner.to_usd() / plain.to_usd();
+    assert!((ratio - 0.9).abs() < 0.001, "{ratio}");
+    let t = |price| Terms {
+        seller: works,
+        buyer: mine,
+        product: iron,
+        per_day: 1.0,
+        price,
+        months,
+        min_quality: 0.0,
+        penalty: 0.2,
+        exclusive: false,
+    };
+    assert_eq!(
+        contracts::ai_answer(state, &catalog, &t(partner), other),
+        Ok(())
+    );
+    assert_eq!(
+        contracts::ai_answer(state, &catalog, &t(partner.scale(0.99)), other),
+        Err(Decline::Price)
+    );
+    // The view shows the standing.
+    let view = crate::views::contracts(&game);
+    assert_eq!(view.partnerships.len(), 1);
+    assert_eq!(view.partnerships[0].role, "lieferant");
+    assert!((view.partnerships[0].discount - 0.1).abs() < 1e-12);
 }

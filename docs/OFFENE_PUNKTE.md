@@ -2470,6 +2470,17 @@ nochmals bis zu 10 %. Zusammen höchstens 20 %.
   Lieferant (Firma) gespeichert und in Vertrags- und Marktansicht angezeigt.
 - Der Umsatzanteil bezieht sich auf den Umsatz des Lieferanten (Firma) im letzten Jahr.
 
+✅ Umsetzung (13.10.2026, LV2) – bitte abnehmen:
+- Der Grad gilt je Paar aus Lieferant und Käufer (beide Firmen), nicht nur je Lieferant, weil
+  auch die KI Käuferin sein kann; gespeichert in `GameState::partnerships`, ohne
+  Versionssprung (neues optionales Feld). Aufbau 60 Monate, Verfall 120 Monate, eine Fehlmenge
+  des Lieferanten kostet 25 Prozentpunkte (`parameter/vertraege.yaml`, `partnerschaft`).
+- Der Rabatt wirkt nur auf den Preis, den eine **KI-Lieferantin** verlangt (Vorschlag und
+  Annahmegrenze); als Lieferant bekommt der Spieler keinen Preisvorteil von der Partnerschaft.
+- Umsatzanteil: Lieferwert aus Verträgen der letzten 12 geschlossenen Monate gegen den
+  Hauptbuchumsatz des Lieferanten in denselben Monaten; Marktkäufe zählen nicht.
+- Anzeige: Tabelle „Partnerschaften“ in den Lieferverträgen, Hinweis bei der Partnerwahl.
+
 ## Y Forschungszentrum: Projekt je Labor (Wunsch vom 12.10.2026)
 
 Wunsch: Jedes Labor eines Forschungszentrums wählt sein eigenes Projekt (ein Produkt).

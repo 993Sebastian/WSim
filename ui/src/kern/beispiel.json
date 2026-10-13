@@ -168087,6 +168087,7 @@
     "enabled": true,
     "months_default": 12,
     "months_max": 60,
+    "partnerships": [],
     "penalty_default": 0.2,
     "penalty_max": 1.0,
     "sites": [
@@ -168113,6 +168114,13 @@
         "delivery_cost_usd": 371.676,
         "free_per_day": 296.39999999999884,
         "kind_text": "standorttyp.werk",
+        "partnership": {
+          "company": "Barker Ltd.",
+          "discount": 0.0,
+          "grade": 0.0,
+          "role": "lieferant",
+          "turnover_share": 0.0
+        },
         "quality": 56.56970650860909,
         "site": 155,
         "suggested_price_usd": 1564.3259
@@ -168123,6 +168131,13 @@
         "delivery_cost_usd": 337.5832,
         "free_per_day": 99.94739726027395,
         "kind_text": "standorttyp.werk",
+        "partnership": {
+          "company": "Lindqvist AB",
+          "discount": 0.0,
+          "grade": 0.0,
+          "role": "lieferant",
+          "turnover_share": 0.0
+        },
         "quality": 56.74827052302432,
         "site": 2692,
         "suggested_price_usd": 1530.396
@@ -168133,6 +168148,13 @@
         "delivery_cost_usd": 0.0,
         "free_per_day": 49.47992949677506,
         "kind_text": "standorttyp.werk",
+        "partnership": {
+          "company": "Barker & Fletcher Corporation",
+          "discount": 0.0,
+          "grade": 0.0,
+          "role": "lieferant",
+          "turnover_share": 0.0
+        },
         "quality": 57.69577481108776,
         "site": 138,
         "suggested_price_usd": 1293.3024
@@ -168143,6 +168165,13 @@
         "delivery_cost_usd": 0.0,
         "free_per_day": 24.79534246575336,
         "kind_text": "standorttyp.werk",
+        "partnership": {
+          "company": "Thyssen & Co.",
+          "discount": 0.0,
+          "grade": 0.0,
+          "role": "lieferant",
+          "turnover_share": 0.0
+        },
         "quality": 56.82908829417665,
         "site": 4,
         "suggested_price_usd": 1293.3149

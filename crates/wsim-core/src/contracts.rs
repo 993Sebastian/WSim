@@ -296,6 +296,139 @@ pub fn delivery_cost(
     Some((freight + price.scale(tariff), days))
 }
 
+/// The partnership of a supplier and a buyer company (LV2): the grade grows with the
+/// months of deliveries and, with the buyer's share of the supplier's turnover, lowers
+/// the price of an AI supplier.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Partnership {
+    pub seller: CompanyId,
+    pub buyer: CompanyId,
+    /// 0–1.
+    pub grade: f64,
+    /// Value delivered in the running month.
+    #[serde(default)]
+    pub month: Money,
+    /// Value delivered in each of the last closed months, oldest first (at most 12).
+    #[serde(default)]
+    pub months: Vec<Money>,
+}
+
+/// Standing of a supplier and a buyer: the grade, the buyer's share of the supplier's
+/// turnover over the last 12 months and the discount both bring.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Standing {
+    pub grade: f64,
+    pub turnover_share: f64,
+    pub discount: f64,
+}
+
+pub fn standing(
+    state: &GameState,
+    catalog: &Catalog,
+    seller: CompanyId,
+    buyer: CompanyId,
+) -> Standing {
+    let Some(p) = state
+        .partnerships
+        .iter()
+        .find(|p| p.seller == seller && p.buyer == buyer)
+    else {
+        return Standing::default();
+    };
+    let bought: Money = p.months.iter().copied().sum();
+    let turnover: Money = state.companies[seller.index()]
+        .ledger
+        .months
+        .iter()
+        .rev()
+        .take(12)
+        .map(|m| {
+            m.by_type
+                .get(&CostType::Revenue)
+                .copied()
+                .unwrap_or(Money::ZERO)
+        })
+        .sum();
+    let turnover_share = if turnover > Money::ZERO {
+        bought.to_usd() / turnover.to_usd()
+    } else {
+        0.0
+    };
+    Standing {
+        grade: p.grade,
+        turnover_share,
+        discount: catalog
+            .contracts
+            .partnership
+            .discount(p.grade, turnover_share),
+    }
+}
+
+/// Discount an AI supplier's company gives a buyer's company for the partnership.
+fn partner_discount(state: &GameState, catalog: &Catalog, sites: (SiteId, SiteId)) -> f64 {
+    let (a, b) = (&state.sites[sites.0.index()], &state.sites[sites.1.index()]);
+    standing(state, catalog, a.owner, b.owner).discount
+}
+
+/// Notes a delivery of `value` for the partnership of the contract's companies.
+fn note_delivery(state: &mut GameState, seller: CompanyId, buyer: CompanyId, value: Money) {
+    let at = state
+        .partnerships
+        .iter()
+        .position(|p| (p.seller, p.buyer) == (seller, buyer));
+    let p = match at {
+        Some(i) => &mut state.partnerships[i],
+        None => {
+            state.partnerships.push(Partnership {
+                seller,
+                buyer,
+                grade: 0.0,
+                month: Money::ZERO,
+                months: Vec::new(),
+            });
+            state
+                .partnerships
+                .sort_by_key(|p| (p.seller.index(), p.buyer.index()));
+            let i = state
+                .partnerships
+                .iter()
+                .position(|p| (p.seller, p.buyer) == (seller, buyer))
+                .expect("just added");
+            &mut state.partnerships[i]
+        }
+    };
+    p.month += value;
+}
+
+/// At the start of a month: grades grow with deliveries, fade without them and fall after
+/// a shortfall of the supplier (`faults`, docs/FORMELN.md, LV2).
+fn update_partnerships(
+    state: &mut GameState,
+    catalog: &Catalog,
+    faults: &[(CompanyId, CompanyId)],
+) {
+    let m = &catalog.contracts.partnership;
+    for p in &mut state.partnerships {
+        if p.month > Money::ZERO {
+            p.grade = (p.grade + 1.0 / f64::from(m.build_months.max(1))).min(1.0);
+        } else {
+            p.grade = (p.grade - 1.0 / f64::from(m.decay_months.max(1))).max(0.0);
+        }
+        if faults.contains(&(p.seller, p.buyer)) {
+            p.grade = (p.grade - m.shortfall_drop).max(0.0);
+        }
+        p.months.push(p.month);
+        if p.months.len() > 12 {
+            p.months.remove(0);
+        }
+        p.month = Money::ZERO;
+    }
+    // Partnerships that faded away and bought nothing for a year are forgotten.
+    state
+        .partnerships
+        .retain(|p| p.grade > 0.0 || p.months.iter().any(|v| *v > Money::ZERO));
+}
+
 /// The lowest delivered price an AI seller takes for a contract of `months`: its price
 /// less the discount for the term, plus freight and customs (docs/FORMELN.md, W4).
 pub fn contract_price(
@@ -311,7 +444,10 @@ pub fn contract_price(
         .tariffs
         .for_product(catalog, a.country, b.country, product)?;
     let discount = catalog.contracts.ai.discount(months);
-    let net = seller_price(state, catalog, seller, product).scale(1.0 - discount) + freight;
+    let partner = partner_discount(state, catalog, (seller, buyer));
+    let net = seller_price(state, catalog, seller, product)
+        .scale((1.0 - discount) * (1.0 - partner))
+        + freight;
     // One unit more so that rounding never makes the seller decline its own price.
     Some(net.scale(1.0 / (1.0 - tariff).max(0.01)) + Money::from_units(1))
 }
@@ -380,7 +516,8 @@ fn ai_answer_freeing(
         } else {
             1.0
         };
-        if (t.price - cost) < own.scale((1.0 - m.discount(t.months)) * premium) {
+        let partner = partner_discount(state, catalog, (t.seller, t.buyer));
+        if (t.price - cost) < own.scale((1.0 - m.discount(t.months)) * (1.0 - partner) * premium) {
             return Err(Decline::Price);
         }
         let free = m.share * daily_output(state, catalog, t.seller, t.product)
@@ -856,6 +993,7 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
             lost: false,
         });
     }
+    note_delivery(state, c.seller_company, c.buyer_company, amount);
     let seller = state.contracts[i].seller;
     state.sites[seller.index()]
         .totals
@@ -872,6 +1010,7 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
 /// cleared of old ones.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date) -> Vec<Message> {
     let mut news = Vec::new();
+    let mut faults: Vec<(CompanyId, CompanyId)> = Vec::new();
     let player = state.main_company;
     for i in 0..state.contracts.len() {
         let c = state.contracts[i].clone();
@@ -941,6 +1080,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
             let seller_fault = by_seller > Money::ZERO;
             if seller_fault {
                 cs.misses += 1;
+                faults.push((cs.seller_company, cs.buyer_company));
             }
             let after = catalog.contracts.free_cancel_after;
             if seller_fault && after > 0 && cs.misses == after && Some(cs.buyer_company) == player {
@@ -969,6 +1109,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
             }
         }
     }
+    update_partnerships(state, catalog, &faults);
     let keep = catalog.contracts.keep_months;
     state
         .contracts

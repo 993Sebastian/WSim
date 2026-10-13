@@ -3952,6 +3952,14 @@ vertraege:
   kuendigung_monate: 3
   angebot_tage: 30
   aufbewahren_monate: 12
+  partnerschaft:
+    aufbau_monate: 60
+    verfall_monate: 120
+    abzug_fehlmenge: 0.25
+    rabatt_max: 0.1
+    umsatz_rabatt_max: 0.1
+    umsatz_ab: 0.2
+    gesamt_max: 0.2
   ki:
     abschlag_verkauf: 0.08
     abschlag_je_monat: 0.005
@@ -3978,8 +3986,28 @@ fn vertraege_werden_geprueft() {
     assert!(m.enabled());
     assert_eq!(m.months_default, 12);
     assert!((m.ai.share - 0.5).abs() < 1e-12);
+    assert_eq!(m.partnership.build_months, 60);
+    assert!((m.partnership.discount(1.0, 0.2) - 0.2).abs() < 1e-12);
 
     for (alt, neu, meldung, pfad) in [
+        (
+            "rabatt_max: 0.1",
+            "rabatt_max: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "vertraege.partnerschaft.rabatt_max",
+        ),
+        (
+            "aufbau_monate: 60",
+            "aufbau_monate: 0",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 1200.",
+            "vertraege.partnerschaft.aufbau_monate",
+        ),
+        (
+            "umsatz_ab: 0.2",
+            "umsatz_ab: 0",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 0.001 bis 1.",
+            "vertraege.partnerschaft.umsatz_ab",
+        ),
         (
             "aufbewahren_monate: 12",
             "aufbewahren_monate: 12\n  nachverhandlung_menge_min: 1.5",

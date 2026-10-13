@@ -655,8 +655,41 @@ pub struct ContractModel {
     /// share, or the term extended by at least these months.
     pub renegotiate_quantity_min: f64,
     pub renegotiate_extension_min: u32,
+    /// Partnership of supplier and buyer (LV2); all zero = none.
+    pub partnership: PartnershipModel,
     pub ai: ContractAiModel,
     pub provenance: Provenance,
+}
+
+/// Partnership grade and turnover share lower the price of an AI supplier (LV2).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct PartnershipModel {
+    /// Months with deliveries up to the full grade.
+    pub build_months: u32,
+    /// Months without deliveries until the grade is lost.
+    pub decay_months: u32,
+    /// Grade a shortfall of the supplier costs.
+    pub shortfall_drop: f64,
+    /// Discount at the full grade.
+    pub discount_max: f64,
+    /// Discount when the buyer makes up `turnover_from` of the supplier's turnover.
+    pub turnover_discount_max: f64,
+    pub turnover_from: f64,
+    /// Both discounts together at most.
+    pub total_max: f64,
+}
+
+impl PartnershipModel {
+    /// Discount for a grade (0–1) and a turnover share (docs/FORMELN.md, LV2).
+    pub fn discount(&self, grade: f64, turnover_share: f64) -> f64 {
+        if self.turnover_from <= 0.0 {
+            return 0.0;
+        }
+        (self.discount_max * grade.clamp(0.0, 1.0)
+            + self.turnover_discount_max * (turnover_share / self.turnover_from).clamp(0.0, 1.0))
+        .min(self.total_max)
+        .max(0.0)
+    }
 }
 
 /// How AI companies answer and propose contracts.

@@ -14,6 +14,15 @@ vertraege:
   # die Menge muss sich um diesen Anteil ändern oder die Laufzeit so viele Monate wachsen.
   nachverhandlung_menge_min: 0.2
   nachverhandlung_verlaengerung_monate: 3
+  # Partnerschaft und Umsatzanteil (LV2, 13.10.2026; Formeln: FORMELN.md, Abschnitt LV2).
+  partnerschaft:
+    aufbau_monate: 60        # so viele Monate mit Lieferung bis zum vollen Grad
+    verfall_monate: 120      # so viele Monate ohne Lieferung bis zum Verlust
+    abzug_fehlmenge: 0.25    # Grad, den eine Fehlmenge des Lieferanten kostet
+    rabatt_max: 0.10         # Rabatt bei vollem Grad
+    umsatz_rabatt_max: 0.10  # Rabatt, wenn der Käufer umsatz_ab des Lieferantenumsatzes bezieht
+    umsatz_ab: 0.20
+    gesamt_max: 0.20         # beide Rabatte zusammen höchstens
   ki:
     # Rabatt für Bindung (10.10.2026): je Monat Laufzeit über den ersten mehr, bis zum Höchstwert.
     abschlag_verkauf: 0.08   # für sichere Abnahme verkauft die KI 8 % billiger …

@@ -1,6 +1,6 @@
 //! Supply contracts of `vertraege` (docs/FORMELN.md, W4).
 
-use wsim_core::catalog::{ContractAiModel, ContractModel};
+use wsim_core::catalog::{ContractAiModel, ContractModel, PartnershipModel};
 
 use super::{in_range, provenance};
 use crate::messages;
@@ -57,7 +57,31 @@ pub(super) fn contract_model(ctx: &mut Ctx, raw: &RawData) -> ContractModel {
             messages::range_inverted("aufschlag_kauf", "aufschlag_max"),
         );
     }
+    let partnership = c
+        .partnership
+        .as_ref()
+        .map_or_else(PartnershipModel::default, |p| {
+            let pl = l.field("partnerschaft");
+            let months = |ctx: &mut Ctx, value: u32, field: &str| {
+                in_range(ctx, f64::from(value), 1.0, 1200.0, &pl.field(field));
+                value
+            };
+            let share = |ctx: &mut Ctx, value: f64, field: &str| {
+                in_range(ctx, value, 0.0, 1.0, &pl.field(field))
+            };
+            let turnover_from = in_range(ctx, p.turnover_from, 0.001, 1.0, &pl.field("umsatz_ab"));
+            PartnershipModel {
+                build_months: months(ctx, p.build_months, "aufbau_monate"),
+                decay_months: months(ctx, p.decay_months, "verfall_monate"),
+                shortfall_drop: share(ctx, p.shortfall_drop, "abzug_fehlmenge"),
+                discount_max: share(ctx, p.discount_max, "rabatt_max"),
+                turnover_discount_max: share(ctx, p.turnover_discount_max, "umsatz_rabatt_max"),
+                turnover_from,
+                total_max: share(ctx, p.total_max, "gesamt_max"),
+            }
+        });
     ContractModel {
+        partnership,
         months_max,
         months_default,
         penalty_max,

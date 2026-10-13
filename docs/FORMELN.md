@@ -5944,3 +5944,27 @@ Labore, auch an verschiedenen Standorten, dasselbe Projekt, addieren sich ihre P
 wird das eigene Projekt des Labors gelöscht; es folgt dann wieder dem Standort.
 **Stellen.** Forscherstellen: ein Labor mit eigenem Projekt ist beschäftigt, die übrigen sind es,
 wenn das Standortprojekt Arbeit hat.
+
+## LV2 Lieferverträge: Partnerschaftsgrad und Umsatzanteil (OFFENE_PUNKTE X)
+
+**Partnerschaft.** Je Paar aus Lieferant (Firma) und Käufer (Firma) gibt es einen Grad
+`g` in 0–1, produktübergreifend und über mehrere Verträge hinweg. Am Monatsersten:
+- Gab es im Monat davor mindestens eine Lieferung des Lieferanten an den Käufer (aus
+  Verträgen): `g = min(1, g + 1 / aufbau_monate)`.
+- Sonst: `g = max(0, g − 1 / verfall_monate)`.
+- Blieb der Lieferant eine Menge schuldig (Strafe zu seinen Lasten):
+  `g = max(0, g − abzug_fehlmenge)`.
+
+**Umsatzanteil.** `s = E / U`; `E` ist, was der Käufer in den letzten 12 geschlossenen Monaten
+vom Lieferanten aus Verträgen bezogen hat (Lieferwert), `U` der Umsatz des Lieferanten in
+denselben 12 Monaten (Konto Umsatz im Hauptbuch). Ohne Umsatz ist `s = 0`.
+
+**Rabatt.** `d = min(gesamt_max, rabatt_max · g + umsatz_rabatt_max · min(1, s / umsatz_ab))`
+(Vorschlag: 10 % · g + 10 % · min(1, s / 20 %), zusammen höchstens 20 %). Er senkt den
+Warenpreis des Lieferanten zusätzlich zum Rabatt für Bindung (W4):
+
+    P_K = ((1 − r(n)) · (1 − d) · G + Fracht) / (1 − Zoll)
+
+Eine KI-Verkäuferin nimmt ein Angebot an, wenn `P − Fracht ≥ (1 − r(n)) · (1 − d) · G · Aufschlag`.
+Der Rabatt gilt beim Abschluss und beim Nachverhandeln; laufende Preise bleiben fest.
+Für den Spieler als Lieferant wirkt die Partnerschaft nicht auf den Preis.
