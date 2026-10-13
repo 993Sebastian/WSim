@@ -790,6 +790,12 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
                 ManagerId(state.next_manager),
                 &mut manager,
             );
+            assign_style(
+                catalog,
+                state.settings.seed,
+                ManagerId(state.next_manager),
+                &mut manager,
+            );
             note_market(state, continent, |c| c.appeared += 1);
             state
                 .managers
@@ -810,6 +816,13 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     }
     crate::staffing::set_potentials(state, catalog);
     crate::aging::set_births(state, catalog, date);
+    // Managers of older saves get a style (MG7).
+    let seed = state.settings.seed;
+    for (id, manager) in &mut state.managers {
+        if manager.style.is_none() {
+            assign_style(catalog, seed, *id, manager);
+        }
+    }
     news
 }
 
@@ -934,7 +947,51 @@ pub(crate) fn draw(
         succession_asked: false,
         extension_refused: false,
         family: false,
+        style: None,
+        reasons: Vec::new(),
     }
+}
+
+/// Gives a new candidate his style and favourite reasons (MG7), from a stream of its own.
+pub(crate) fn assign_style(catalog: &Catalog, seed: u64, id: ManagerId, manager: &mut Manager) {
+    let m = &catalog.management.style;
+    let total: f64 = m.kinds.iter().map(|k| k.share).sum();
+    if m.kinds.is_empty() || total <= 0.0 {
+        return;
+    }
+    let mut rng = SimRng::for_stream(seed, Stream::ManagerStyle { id: id.0 });
+    let mut pick = rng.next_f64() * total;
+    let mut kind = m.kinds.len() - 1;
+    for (i, k) in m.kinds.iter().enumerate() {
+        if pick < k.share {
+            kind = i;
+            break;
+        }
+        pick -= k.share;
+    }
+    manager.style = u8::try_from(kind).ok();
+    manager.reasons.clear();
+    let n = u64::try_from(m.reasons.len()).unwrap_or(0);
+    if n == 0 {
+        return;
+    }
+    let first = usize::try_from(rng.below(n)).unwrap_or(0);
+    manager.reasons.push(u8::try_from(first).unwrap_or(0));
+    if n > 1 && rng.chance(m.second_reason_chance) {
+        let pick = usize::try_from(rng.below(n - 1)).unwrap_or(0);
+        let second = if pick >= first { pick + 1 } else { pick };
+        manager.reasons.push(u8::try_from(second).unwrap_or(0));
+    }
+}
+
+/// The style of a manager (MG7), if he has one.
+pub fn style_of<'a>(
+    catalog: &'a Catalog,
+    manager: &Manager,
+) -> Option<&'a crate::catalog::StyleKind> {
+    manager
+        .style
+        .and_then(|i| catalog.management.style.kinds.get(usize::from(i)))
 }
 
 /// Gives a new candidate his industry experience (MG5), from a stream of its own.
@@ -1387,6 +1444,21 @@ pub(crate) fn forecast(effect: Money, error: f64) -> (Money, Money) {
     (a.min(b), a.max(b))
 }
 
+/// The forecast of a manager of a style (docs/FORMELN.md, MG7): the error widened or
+/// narrowed by the style and the range moved by its optimism, a share of the amount.
+pub(crate) fn styled_forecast(
+    effect: Money,
+    error: f64,
+    style: Option<&crate::catalog::StyleKind>,
+) -> (Money, Money) {
+    let Some(k) = style else {
+        return forecast(effect, error);
+    };
+    let (low, high) = forecast(effect, error * k.spread);
+    let shift = Money::from_units((effect.units().abs() as f64 * k.optimism).round() as i64);
+    (low + shift, high + shift)
+}
+
 /// An amount a position counted against its budget, with its log entry.
 type Spent = (Position, Money, Option<PositionLog>);
 
@@ -1616,6 +1688,7 @@ impl Staff<'_> {
         decision: &Decision,
         assessments: &[Assessment],
         (manager, expertise, judgment): (ManagerId, f64, f64),
+        style: Option<&crate::catalog::StyleKind>,
     ) -> usize {
         let model = self.model;
         recommend_with(
@@ -1623,6 +1696,7 @@ impl Staff<'_> {
             self.rng(manager),
             (decision, assessments),
             (expertise, judgment),
+            style,
         )
     }
 }
@@ -1634,14 +1708,54 @@ pub(crate) fn recommend_with(
     rng: &mut SimRng,
     (decision, assessments): (&Decision, &[Assessment]),
     (expertise, judgment): (f64, f64),
+    style: Option<&crate::catalog::StyleKind>,
 ) -> usize {
     if assessments.iter().all(|a| a.effect.is_none()) {
         return decision.rule;
     }
-    let values: Vec<f64> = assessments
+    let mut values: Vec<f64> = assessments
         .iter()
         .map(|a| a.effect.unwrap_or(Money::ZERO).to_usd() + a.once.to_usd())
         .collect();
+    // The style tilts the values (MG7): a hurdle on what an option costs for the cautious,
+    // a bonus for the bold, as a share of the amount; keeping things costs nothing.
+    if let Some(k) = style {
+        for (i, v) in values.iter_mut().enumerate() {
+            if decision
+                .choices
+                .get(i)
+                .is_some_and(|c| c.kind != ChoiceKind::Keep)
+            {
+                *v -= k.keep_bias * assessments[i].amount.to_usd();
+            }
+        }
+    }
+    let spread = style.map_or(1.0, |k| k.spread);
+    let chosen = recommend_by(
+        model,
+        rng,
+        (decision, &values),
+        (expertise, judgment, spread),
+    );
+    // A maverick sometimes recommends another way than the best (MG7).
+    match style {
+        Some(k) if k.deviation > 0.0 && values.len() > 1 && rng.chance(k.deviation) => {
+            let n = u64::try_from(values.len() - 1).unwrap_or(1);
+            let pick = usize::try_from(rng.below(n)).unwrap_or(0);
+            if pick >= chosen { pick + 1 } else { pick }
+        }
+        _ => chosen,
+    }
+}
+
+/// The best option by the true values with a chance after the judgment, else by the
+/// manager's own estimate (docs/FORMELN.md, MA2).
+fn recommend_by(
+    model: &ConcernModel,
+    rng: &mut SimRng,
+    (decision, values): (&Decision, &[f64]),
+    (expertise, judgment, spread): (f64, f64, f64),
+) -> usize {
     let best = |values: &[f64]| {
         let mut best = decision.rule;
         for (i, &v) in values.iter().enumerate() {
@@ -1652,9 +1766,9 @@ pub(crate) fn recommend_with(
         best
     };
     let base = model.recommend_base;
-    let error = model.estimate_error * (1.0 - expertise / 100.0);
+    let error = model.estimate_error * (1.0 - expertise / 100.0) * spread;
     if rng.chance(base + (1.0 - base) * judgment / 100.0) {
-        return best(&values);
+        return best(values);
     }
     let estimated: Vec<f64> = values
         .iter()
@@ -1761,7 +1875,11 @@ impl Decider for Staff<'_> {
                 None => d.rule,
                 Some(a) => {
                     let judgment = self.positions[index].judgment;
-                    self.recommend(d, a, (*manager, skill, judgment))
+                    let style = state
+                        .managers
+                        .get(manager)
+                        .and_then(|x| style_of(catalog, x));
+                    self.recommend(d, a, (*manager, skill, judgment), style)
                 }
             };
             let Some(option) = d.choices.get(choice) else {
@@ -1887,11 +2005,15 @@ impl Decider for Staff<'_> {
             ConcernReason::Year
         };
         let error = self.model.estimate_error * (1.0 - skill / 100.0);
+        let top_style = state
+            .managers
+            .get(&top.manager)
+            .and_then(|x| style_of(catalog, x));
         let options = assessments
             .iter()
             .map(|a| ConcernOption {
                 amount: a.amount,
-                forecast: a.effect.map(|e| forecast(e, error)),
+                forecast: a.effect.map(|e| styled_forecast(e, error, top_style)),
                 once: a.once,
             })
             .collect();
@@ -3129,9 +3251,48 @@ fn file_for(
             recommended: c.recommended,
             chosen: choice,
             delegated,
+            objection: objection_of(state, catalog, c, choice, delegated),
         }),
         result: None,
     })
+}
+
+/// The objection the asking manager notes against a decision (docs/FORMELN.md, MG7): the
+/// player chose another option than his recommendation, the chosen one costs more than the
+/// threshold and the draw, by the base chance times the factor of his style, falls on him.
+/// The objection is what his way was forecast to bring more per year.
+pub(crate) fn objection_of(
+    state: &GameState,
+    catalog: &Catalog,
+    c: &Concern,
+    choice: usize,
+    delegated: bool,
+) -> Option<Money> {
+    let m = &catalog.management.style;
+    if delegated || choice == c.recommended {
+        return None;
+    }
+    let chosen = c.options.get(choice)?;
+    if chosen.amount <= m.objection_threshold {
+        return None;
+    }
+    let asking = c.path.last().map_or(c.manager, |h| h.manager);
+    let factor = state
+        .managers
+        .get(&asking)
+        .and_then(|x| style_of(catalog, x))
+        .map_or(1.0, |k| k.objection);
+    let mid = |i: usize| {
+        let kind = c.decision.choices.get(i)?.kind;
+        forecast_mid(kind, c.options.get(i).and_then(|o| o.forecast))
+    };
+    let gap = mid(c.recommended)? - mid(choice)?;
+    if gap <= Money::ZERO {
+        return None;
+    }
+    let mut rng = SimRng::for_stream(state.settings.seed, Stream::Objection { concern: c.id });
+    rng.chance((m.objection_chance * factor).clamp(0.0, 1.0))
+        .then_some(gap)
 }
 
 /// A followup on an option carried out at a site, with the middle of its forecast.

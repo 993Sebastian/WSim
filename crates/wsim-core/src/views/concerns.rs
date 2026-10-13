@@ -178,6 +178,12 @@ pub struct ConcernView {
     /// A proposal not yet put off can be postponed once (MG6).
     #[serde(default)]
     pub can_postpone: bool,
+    /// The style of the asking manager (text `stil.<key>`) and the reason he favours,
+    /// worded in his style (MG7).
+    #[serde(default)]
+    pub style: Option<String>,
+    #[serde(default)]
+    pub favorite: Option<MessageView>,
 }
 
 /// Open concerns of several sites alike: the same topic and recommendation.
@@ -939,6 +945,10 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
                 );
                 1.0 - catalog.management.concerns.estimate_error * (1.0 - skill / 100.0)
             }),
+        style: asking
+            .and_then(|m| management::style_of(catalog, m))
+            .map(|k| k.key.clone()),
+        favorite: asking.and_then(|m| favorite(catalog, m, c.id)),
         can_postpone: c.reason == ConcernReason::Proposal
             && c.status == ConcernStatus::Open
             && c.deadline
@@ -995,4 +1005,21 @@ pub fn concerns(game: &Game) -> ConcernsView {
         deadline_days: model.deadline_days,
         block_days: model.block_days,
     }
+}
+
+/// The favourite reason of a manager in the words of his style (MG7): the reason and the
+/// variant follow the number of the concern.
+fn favorite(
+    catalog: &Catalog,
+    manager: &crate::state::Manager,
+    concern: u32,
+) -> Option<MessageView> {
+    let kind = management::style_of(catalog, manager)?;
+    let n = manager.reasons.len();
+    let index = manager
+        .reasons
+        .get(usize::try_from(concern).ok()? % n.max(1))?;
+    let reason = catalog.management.style.reasons.get(usize::from(*index))?;
+    let key = format!("lieblingsgrund.{reason}.{}.{}", kind.key, concern % 3 + 1);
+    Some(message_view(&Message::new(MessageKind::Info, &key)))
 }

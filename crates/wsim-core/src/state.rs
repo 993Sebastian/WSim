@@ -725,6 +725,10 @@ pub struct DecisionFile {
     /// The player let the position decide.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub delegated: bool,
+    /// The objection the manager noted when the player decided against his
+    /// recommendation (MG7): what his way was forecast to bring more per year.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub objection: Option<Money>,
 }
 
 /// An option as the file keeps it.
@@ -874,6 +878,13 @@ pub struct Manager {
     /// resign and is not hired away.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub family: bool,
+    /// His style (MG7, index into the catalog's styles); none for managers of older saves
+    /// until the next month start gives him one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub style: Option<u8>,
+    /// His favourite reasons (MG7, indices into the catalog's reasons), one or two.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub reasons: Vec<u8>,
 }
 
 fn no_count(n: &u32) -> bool {

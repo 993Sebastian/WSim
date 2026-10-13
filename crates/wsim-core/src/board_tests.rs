@@ -905,6 +905,160 @@ fn a_proposal_comes_from_the_head_of_its_country_else_from_the_ceo() {
 }
 
 #[test]
+fn every_new_manager_gets_a_style_and_favourite_reasons_from_a_stream_of_his_own() {
+    let mut catalog = cheap_furnaces();
+    catalog.management.style = crate::catalog::test_support::styles();
+    let (mut game, _works, _) = weak_works(catalog);
+    let boss = hire_sharp(&mut game, ceo());
+    let c = game.catalog();
+    let mut seen = std::collections::BTreeSet::new();
+    for i in 0..60 {
+        let mut m = game.state().managers[&boss].clone();
+        m.style = None;
+        m.reasons.clear();
+        crate::management::assign_style(c, 1, crate::state::ManagerId(i), &mut m);
+        let k = crate::management::style_of(c, &m).expect("a style");
+        seen.insert(k.key.clone());
+        assert!((1..=2).contains(&m.reasons.len()), "{:?}", m.reasons);
+        if m.reasons.len() == 2 {
+            assert_ne!(m.reasons[0], m.reasons[1]);
+        }
+        // The same id draws the same.
+        let mut again = m.clone();
+        again.style = None;
+        crate::management::assign_style(c, 1, crate::state::ManagerId(i), &mut again);
+        assert_eq!(again.style, m.style);
+        assert_eq!(again.reasons, m.reasons);
+    }
+    assert_eq!(seen.len(), 4, "{seen:?}");
+}
+
+#[test]
+fn a_cautious_manager_keeps_things_where_an_offensive_one_builds() {
+    use crate::decision::{Assessment, Choice, Decision, Topic};
+    let mut catalog = cheap_furnaces();
+    catalog.management.style = crate::catalog::test_support::styles();
+    let (game, _works, _boss) = weak_works(catalog);
+    let c = game.catalog();
+    let model = &c.management.concerns;
+    let decision = Decision::new(
+        Topic::Bottleneck,
+        game.player(),
+        Choice {
+            kind: ChoiceKind::Keep,
+            steps: Vec::new(),
+        },
+    )
+    .or(Choice {
+        kind: ChoiceKind::Build,
+        steps: Vec::new(),
+    });
+    // Building is only slightly better than waiting.
+    let assessments = [
+        Assessment {
+            amount: Money::ZERO,
+            effect: Some(Money::from_usd(0.0).unwrap()),
+            once: Money::ZERO,
+        },
+        Assessment {
+            amount: Money::from_usd(1000.0).unwrap(),
+            effect: Some(Money::from_usd(100.0).unwrap()),
+            once: Money::ZERO,
+        },
+    ];
+    let pick = |name: &str| {
+        // Without the chance of a deviation, so that the pick is the same every time.
+        let k = c
+            .management
+            .style
+            .kinds
+            .iter()
+            .find(|k| k.key == name)
+            .map(|k| crate::catalog::StyleKind {
+                deviation: 0.0,
+                ..k.clone()
+            });
+        let k = k.as_ref();
+        let mut rng =
+            crate::rng::SimRng::for_stream(1, crate::rng::Stream::Objection { concern: 1 });
+        // Judgment 100: the best option by the true values, tilted by the style.
+        crate::management::recommend_with(
+            model,
+            &mut rng,
+            (&decision, &assessments),
+            (100.0, 100.0),
+            k,
+        )
+    };
+    assert_eq!(pick("vorsichtig"), 0, "cautious keeps");
+    assert_eq!(pick("offensiv"), 1, "offensive builds");
+}
+
+#[test]
+fn an_objection_needs_a_decision_against_the_advice_over_the_threshold_and_depends_on_style() {
+    let (mut game, _rival, _site) = buyer_game(0.0001);
+    let boss = hire_sharp(&mut game, ceo());
+    let next = game.state().next_concern;
+    through_quarter_end(&mut game);
+    // The style data of the test catalog (the game's own has none).
+    let mut c: crate::catalog::Catalog = crate::catalog::Catalog::clone(game.catalog());
+    c.management.style = crate::catalog::test_support::styles();
+    let mut concern = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.id >= next && c.reason == ConcernReason::Proposal)
+        .expect("a proposal")
+        .clone();
+    let big = c.management.style.objection_threshold + Money::from_usd(1.0).unwrap();
+    // The recommended way was forecast to bring more than the chosen one.
+    concern.recommended = 0;
+    concern.options = vec![
+        crate::state::ConcernOption {
+            amount: big,
+            forecast: Some((
+                Money::from_usd(900.0).unwrap(),
+                Money::from_usd(1100.0).unwrap()
+            )),
+            once: Money::ZERO,
+        };
+        2
+    ];
+    concern.options[1].forecast = Some((
+        Money::from_usd(-50.0).unwrap(),
+        Money::from_usd(50.0).unwrap(),
+    ));
+    concern.decision.choices.truncate(1);
+    while concern.decision.choices.len() < 2 {
+        let first = concern.decision.choices[0].clone();
+        concern.decision.choices.push(first);
+    }
+    let hits = |game: &mut Game, style: &str, concern: &crate::state::Concern| {
+        let index = c.management.style.kinds.iter().position(|k| k.key == style);
+        game.state_mut().managers.get_mut(&boss).unwrap().style =
+            index.map(|i| u8::try_from(i).unwrap());
+        (1..400)
+            .filter(|&id| {
+                let mut x = concern.clone();
+                x.id = id;
+                crate::management::objection_of(game.state(), &c, &x, 1, false).is_some()
+            })
+            .count()
+    };
+    let offensive = hits(&mut game, "offensiv", &concern);
+    let cautious = hits(&mut game, "vorsichtig", &concern);
+    assert!(
+        offensive > cautious && cautious > 0,
+        "{offensive} {cautious}"
+    );
+    // Following the advice, delegating or choosing a small option raises no objection.
+    assert!(crate::management::objection_of(game.state(), &c, &concern, 0, false).is_none());
+    assert!(crate::management::objection_of(game.state(), &c, &concern, 1, true).is_none());
+    concern.options[1].amount = Money::from_usd(1.0).unwrap();
+    assert!(crate::management::objection_of(game.state(), &c, &concern, 1, false).is_none());
+}
+
+#[test]
 fn a_new_site_answered_later_gets_its_steps() {
     // A concern founds a site and builds on it; meanwhile another site was founded.
     let mut game = new_game(cheap_furnaces());

@@ -118,6 +118,18 @@ export function AlleFaehigkeiten({ m }: { m: Manager }) {
         ))}
         <dt>{t("organisation.trefferquote")}</dt>
         <dd>{trefferquote(m.hit_rate, m.judged)}</dd>
+        {m.style && (
+          <>
+            <dt>{t("stil.titel")}</dt>
+            <dd title={t(`stil.${m.style}_hilfe`)}>{t(`stil.${m.style}`)}</dd>
+          </>
+        )}
+        {(m.reasons?.length ?? 0) > 0 && (
+          <>
+            <dt>{t("stil.lieblingsgruende")}</dt>
+            <dd>{m.reasons?.map((r) => t(`begruendung.${r}`)).join(", ")}</dd>
+          </>
+        )}
       </dl>
     </Erklaerung>
   );

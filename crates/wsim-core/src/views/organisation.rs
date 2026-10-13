@@ -51,6 +51,11 @@ pub struct ManagerView {
     /// A child of the person (PE2).
     #[serde(default)]
     pub family: bool,
+    /// His style (text `stil.<key>`) and favourite reasons (MG7).
+    #[serde(default)]
+    pub style: Option<String>,
+    #[serde(default)]
+    pub reasons: Vec<String>,
 }
 
 /// The successor waiting for a position until its holder retires (PE1).
@@ -302,6 +307,10 @@ pub struct ChronicleEntryView {
     pub alternative_usd: Option<f64>,
     pub unserved: Option<f64>,
     pub hit: Option<bool>,
+    /// What his way was forecast to bring more per year, where the manager noted an
+    /// objection to the decision (MG7).
+    #[serde(default)]
+    pub objection_usd: Option<f64>,
 }
 
 /// The chronicle entry of a followup with a file.
@@ -342,6 +351,7 @@ pub fn chronicle_entry(game: &Game, f: &crate::state::Followup) -> Option<Chroni
         alternative_usd: f.result.as_ref().and_then(|r| r.alternative).map(usd),
         unserved: f.result.as_ref().and_then(|r| r.unserved),
         hit: f.result.as_ref().map(|r| r.hit),
+        objection_usd: file.objection.map(usd),
     })
 }
 
@@ -674,6 +684,12 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
         retires_at: crate::aging::retirement_age(c, m),
         retirement: crate::aging::retirement(c, m).map(iso),
         family: m.family,
+        style: management::style_of(c, m).map(|k| k.key.clone()),
+        reasons: m
+            .reasons
+            .iter()
+            .filter_map(|&i| c.management.style.reasons.get(usize::from(i)).cloned())
+            .collect(),
     }
 }
 

@@ -2670,3 +2670,17 @@ angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit d
 - Vorschläge außer der Reihe: höchstens einer je Quartal (`vorschlaege_je_quartal: 1`), nur in Quartalsmonaten ohne
   Rücksprache. Mit monatlicher Rücksprache gibt es keine zusätzlichen.
 - Das Genauigkeitsgewicht der Branchenstärke ist 0,5 (`vorschlag_branche_gewicht`).
+
+### MG7: Stil, Lieblingsbegründung, Einwand – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen (angenommen nach der Sammelentscheidung vom 13.10.):
+- Der Stil wirkt über eine Hürde bzw. einen Zuschlag je Betrag (`abwarten`), die Spanne (`spanne`, `optimismus`) und die
+  Chance auf eine abweichende Empfehlung (`abweichung`); „keine Vorschläge für neue Branchen ohne Datenbasis“ (zahlengetrieben)
+  ist nicht gebaut – es gibt noch keine Vorschlagsart „neue Branche ohne Daten“ (MG9).
+- „Querdenker bringt ungewöhnliche Optionen“ ist als größere Streuung der Empfehlung umgesetzt, nicht als zusätzliche
+  Optionen.
+- Der Einwand steht in der Akte und in der Chronik; ein späteres Aufgreifen im Gedächtnis (MG3: „damals hatte ich
+  eingewandt …“) ist noch nicht verknüpft. Vorschlag: bei MG8 mitnehmen.
+- Anzeige: Stil und Lieblingsbegründungen bei den Fähigkeiten (ⓘ) in Organisation und Managermarkt und im Anliegen. Eine
+  eigene Spalte im Managermarkt gibt es nicht.
+- Manager aus alten Spielständen bekommen ihren Stil beim nächsten Monatsanfang; bis dahin zeigt die Ansicht keinen.
+- In den Tests der Kerns ist die Stilliste leer (neutral); nur die MG7-Tests laden `test_support::styles()`.

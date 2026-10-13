@@ -2775,3 +2775,21 @@ organisation.keine_fremden: Keine Manager anderer Firmen passen zu den Filtern.
 zufriedenheit.0: unzufrieden
 zufriedenheit.1: gemischt
 zufriedenheit.2: zufrieden
+
+# Stil der Manager (MG7)
+stil.offensiv: Offensiv
+stil.vorsichtig: Vorsichtig
+stil.zahlengetrieben: Zahlengetrieben
+stil.querdenker: Querdenker
+stil.offensiv_hilfe: Bevorzugt Wachstum und größere Beträge; seine Spannen sind eher optimistisch.
+stil.vorsichtig_hilfe: Bevorzugt „kleiner anfangen“ und „abwarten“; seine Spannen sind eher vorsichtig.
+stil.zahlengetrieben_hilfe: Rechnet mit engen Spannen und empfiehlt, was den besten Erwartungswert hat.
+stil.querdenker_hilfe: Bringt ungewöhnliche Wege ein; mehr Volltreffer und mehr Fehlgriffe.
+stil.titel: Stil
+stil.lieblingsgruende: Begründet gern mit
+begruendung.rendite: Rendite
+begruendung.marktanteil: Marktanteil
+begruendung.sicherheit: Sicherheit
+begruendung.technologie: Technologie
+anliegen.stil: "Stil: {stil}"
+chronik.einwand: "Einwand des Managers: Seine Empfehlung hätte nach seiner Prognose {betrag} im Jahr mehr gebracht."

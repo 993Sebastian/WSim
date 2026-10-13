@@ -229,4 +229,23 @@ management:
     # Bewerbers für Produktionsstellen addiert.
     ki_gewicht: 20
 
+  # Stil, Lieblingsbegründung und Einwand der Manager (MG7). Stile werden nach `anteil`
+  # gezogen. abwarten: Hürde je Option als Anteil ihres Betrags, die der Jahreseffekt überwinden muss
+  # (negativ: Zuschlag für größere Beträge, der Mutige); spanne: Faktor auf den Schätzfehler; optimismus: Verschiebung
+  # der Prognose um diesen Anteil des Betrags; abweichung: Chance, statt der besten eine
+  # andere Option zu empfehlen; einwand: Faktor auf die Einwandschance.
+  stil:
+    arten:
+      - {id: offensiv, anteil: 0.25, abwarten: -0.2, spanne: 1.2, optimismus: 0.10, abweichung: 0.05, einwand: 1.5}
+      - {id: vorsichtig, anteil: 0.30, abwarten: 0.3, spanne: 1.0, optimismus: -0.10, abweichung: 0.0, einwand: 0.5}
+      - {id: zahlengetrieben, anteil: 0.30, abwarten: 0.0, spanne: 0.6, optimismus: 0.0, abweichung: 0.0, einwand: 1.0}
+      - {id: querdenker, anteil: 0.15, abwarten: 0.0, spanne: 1.6, optimismus: 0.0, abweichung: 0.15, einwand: 1.5}
+    # Begründungen, aus denen 1–2 als Lieblingsbegründung gezogen werden (Texte
+    # `lieblingsgrund.<begruendung>.<stil>.<1–3>`).
+    begruendungen: [rendite, marktanteil, sicherheit, technologie]
+    zweite_begruendung_chance: 0.4
+    # Entscheidet der Spieler bei einer Option über dieser Summe gegen die Empfehlung, hält der
+    # Manager mit dieser Chance (mal Stilfaktor) einen Einwand in der Akte fest.
+    einwand: {schwelle_usd: 100000, chance: 0.5}
+
   annaeherung: true

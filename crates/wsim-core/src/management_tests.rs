@@ -1528,6 +1528,7 @@ fn a_declined_expansion_is_reviewed_by_the_unserved_demand() {
         recommended: 1,
         chosen: 0,
         delegated: false,
+        objection: None,
     };
     let followup = Followup {
         company: player,
@@ -1589,6 +1590,7 @@ fn reviewed_file(
             recommended: 1,
             chosen: 0,
             delegated: false,
+            objection: None,
         }),
         result: Some(FileResult {
             date,

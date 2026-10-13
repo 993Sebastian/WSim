@@ -1025,3 +1025,5 @@ Monatsanfang).
 
 Spielstand: `markets[..][..].used`, `.used_sold`; `generated_trends[]` (`group`, `start`, `years`, `peak`).
 
+
+| **stil** (unter `management`) | Stil der Manager (MG7), siehe FORMELN „MG7“ |

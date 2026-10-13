@@ -11,7 +11,7 @@ use wsim_core::money::Money;
 use super::production::SITE_TYPES;
 use super::{in_range, non_negative, positive, provenance};
 use crate::messages;
-use crate::raw::{RawManagerMarket, RawPriceStrategy, RawSpread};
+use crate::raw::{RawManagerMarket, RawPriceStrategy, RawSpread, RawStyleModel};
 use crate::read::{Ctx, Loc, RawData};
 use crate::texts::TextIndex;
 
@@ -466,6 +466,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         pool,
         skills,
         branch,
+        style: style(ctx, &v.style, &l.field("stil")),
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }
@@ -709,4 +710,58 @@ fn topic_values(
         }
     }
     out
+}
+
+/// Style, favourite reasons and objections of managers (MG7).
+fn style(ctx: &mut Ctx, v: &RawStyleModel, l: &Loc) -> wsim_core::catalog::StyleModel {
+    use wsim_core::catalog::{StyleKind, StyleModel};
+    let kl = l.field("arten");
+    if v.kinds.is_empty() {
+        ctx.error(&kl, messages::list_empty());
+    }
+    let mut kinds: Vec<StyleKind> = Vec::new();
+    for (i, k) in v.kinds.iter().enumerate() {
+        let loc = kl.index(i);
+        if let Some(other) = kinds.iter().position(|x| x.key == k.id) {
+            ctx.error(
+                &loc.field("id"),
+                messages::duplicate_key("Stil", &k.id, &format!("Eintrag {}", other + 1)),
+            );
+        }
+        kinds.push(StyleKind {
+            key: k.id.clone(),
+            share: non_negative(ctx, k.share, &loc.field("anteil")),
+            keep_bias: in_range(ctx, k.keep_bias, -1.0, 1.0, &loc.field("abwarten")),
+            spread: in_range(ctx, k.spread, 0.1, 3.0, &loc.field("spanne")),
+            optimism: in_range(ctx, k.optimism, -0.5, 0.5, &loc.field("optimismus")),
+            deviation: in_range(ctx, k.deviation, 0.0, 1.0, &loc.field("abweichung")),
+            objection: non_negative(ctx, k.objection, &loc.field("einwand")),
+        });
+    }
+    if kinds.iter().map(|k| k.share).sum::<f64>() <= 0.0 {
+        ctx.error(&kl, messages::not_positive(0.0));
+    }
+    let rl = l.field("begruendungen");
+    if v.reasons.is_empty() {
+        ctx.error(&rl, messages::list_empty());
+    }
+    let ol = l.field("einwand");
+    StyleModel {
+        kinds,
+        reasons: v.reasons.clone(),
+        second_reason_chance: in_range(
+            ctx,
+            v.second_reason_chance,
+            0.0,
+            1.0,
+            &l.field("zweite_begruendung_chance"),
+        ),
+        objection_threshold: Money::from_usd(non_negative(
+            ctx,
+            v.objection.threshold_usd,
+            &ol.field("schwelle_usd"),
+        ))
+        .unwrap_or(Money::ZERO),
+        objection_chance: in_range(ctx, v.objection.chance, 0.0, 1.0, &ol.field("chance")),
+    }
 }

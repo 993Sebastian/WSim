@@ -766,6 +766,7 @@ pub fn management() -> Catalog {
             floor_scrap: 0.30,
             ai_weight: 20.0,
         },
+        style: crate::catalog::StyleModel::default(),
         provenance: Provenance::default(),
     };
     // Central departments (ZA2, ZA3), headed by the board's specialists above.
@@ -916,5 +917,38 @@ pub fn private() -> super::PersonModel {
         savings_rate: flat(0.02),
         inheritance_tax: flat(0.2),
         ..person()
+    }
+}
+
+/// The styles of the managers (MG7); tests that need them put them into a catalog.
+pub fn styles() -> crate::catalog::StyleModel {
+    crate::catalog::StyleModel {
+        kinds: [
+            ("offensiv", 0.25, -0.2, 1.2, 0.10, 0.05, 1.5),
+            ("vorsichtig", 0.30, 0.3, 1.0, -0.10, 0.0, 0.5),
+            ("zahlengetrieben", 0.30, 0.0, 0.6, 0.0, 0.0, 1.0),
+            ("querdenker", 0.15, 0.0, 1.6, 0.0, 0.15, 1.5),
+        ]
+        .into_iter()
+        .map(
+            |(key, share, keep_bias, spread, optimism, deviation, objection)| {
+                crate::catalog::StyleKind {
+                    key: key.to_owned(),
+                    share,
+                    keep_bias,
+                    spread,
+                    optimism,
+                    deviation,
+                    objection,
+                }
+            },
+        )
+        .collect(),
+        reasons: ["rendite", "marktanteil", "sicherheit", "technologie"]
+            .map(str::to_owned)
+            .to_vec(),
+        second_reason_chance: 0.4,
+        objection_threshold: crate::money::Money::from_usd(100_000.0).expect("valid"),
+        objection_chance: 0.5,
     }
 }

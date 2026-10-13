@@ -425,18 +425,22 @@ fn proposals(
         let x = &state.managers[&manager];
         let skill = proposer_skill(catalog, state, (manager, position.unit == Unit::Board), &d);
         let assessments = decision::assess(catalog, state, &d);
+        let style = management::style_of(catalog, x);
         let recommended = management::recommend_with(
             &m.concerns,
             &mut rng,
             (&d, &assessments),
             (skill, f64::from(x.judgment)),
+            style,
         );
         let error = m.concerns.estimate_error * (1.0 - skill / 100.0);
         let options = assessments
             .iter()
             .map(|a| ConcernOption {
                 amount: a.amount,
-                forecast: a.effect.map(|e| management::forecast(e, error)),
+                forecast: a
+                    .effect
+                    .map(|e| management::styled_forecast(e, error, style)),
                 once: a.once,
             })
             .collect();

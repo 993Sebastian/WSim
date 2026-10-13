@@ -30,6 +30,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Einheit | `Unit` |
 | Branche | `Branch` |
 | Branchenerfahrung / Branchenstärke (MG5) | `Manager.branch`, `Site.branch_strength`, `branch_skill` |
+| Stil / Lieblingsbegründung (MG7) | `Manager.style`, `Manager.reasons`, `StyleKind` |
+| Einwand (MG7) | `DecisionFile.objection`, `objection_of` |
+| Strategievorschlag (MG6) | `Concern` mit `ConcernReason::Proposal`, `review::proposer` |
+| Marktaufbau | `AiModel::ramp` (`markt_aufbau`) |
 | Warengruppe | `GoodsGroup` |
 | Transportklasse | `TransportClass` |
 | Staatsmarkt | `StateMarketOffer` |

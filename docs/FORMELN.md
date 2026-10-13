@@ -6173,3 +6173,31 @@ es entstehen keine neuen Zustandstypen.
   vor (Befehl `AnswerConcern` mit `Postpone`; nur für Vorschläge, nur solange die Frist noch die ursprüngliche
   ist, sonst Fehler `vorschlag_aufschub`).
 - Jeder Vorschlag bekommt wie jedes beantwortete Anliegen Akte, Nachbetrachtung und Trefferquote (MG2).
+
+
+## MG7 – Stil, Lieblingsbegründung und Einwand der Manager (13.10.2026)
+
+Vorgabe `docs/MANAGER_2.md` §7. Daten: `management.yaml`, Abschnitt `stil`.
+
+- **Ziehung:** Jeder neue Kandidat (Markt, Kinder der Spielerfigur) bekommt aus einem eigenen Zufallsstrom
+  (`Stream::ManagerStyle`) einen **Stil** nach den `anteil`-Gewichten (offensiv, vorsichtig, zahlengetrieben,
+  Querdenker) und **eine, mit Chance `zweite_begruendung_chance` zwei verschiedene Lieblingsbegründungen**
+  (Rendite, Marktanteil, Sicherheit, Technologie). Manager aus älteren Spielständen bekommen beides beim nächsten
+  Monatsanfang nach derselben Regel (Strom je Manager-Nummer). KI-Firmen nutzen den Stil nicht über ihre Regeln,
+  er wird nur angezeigt.
+- **Empfehlung:** Werte der Optionen *v_i* (Jahreseffekt + einmalig) werden vor der Wahl verschoben:
+
+      v_i' = v_i − abwarten · Betrag_i   (nicht für „abwarten“ selbst)
+
+  Wer vorsichtig ist (`abwarten` > 0), verlangt, dass der Effekt einen Teil des eingesetzten Betrags
+  überwindet; der Offensive (< 0) bekommt einen Zuschlag für größere Beträge. Danach gilt die Regel der
+  Empfehlung wie sonst (Urteilsvermögen, Schätzfehler · `spanne`). Mit Chance `abweichung` empfiehlt er eine
+  zufällige andere Option statt der besten (Querdenker: mehr Volltreffer und Fehlgriffe).
+- **Spanne der Prognose:** Fehler · `spanne`, Mitte um `optimismus` · |Effekt| verschoben (Offensive
+  optimistisch, Vorsichtige vorsichtig).
+- **Lieblingsbegründung:** Zu jedem Anliegen zeigt die Sicht einen Satz aus
+  `lieblingsgrund.<begründung>.<stil>.<1–3>`; Begründung und Variante folgen der Nummer des Anliegens.
+- **Einwand:** Entscheidet der Spieler bei einem Anliegen gegen die Empfehlung, kostet die gewählte Option mehr als
+  `einwand.schwelle_usd` und hält die Prognose des Fragenden seine Option für besser, dann hält der Manager mit der
+  Chance `einwand.chance` · `einwand`(Stil) einen Einwand in der Akte fest (Zufall `Stream::Objection`, je Anliegen):
+  die Differenz der Prognosemitten je Jahr. Die Chronik und die früheren Entscheidungen im Anliegen zeigen ihn.

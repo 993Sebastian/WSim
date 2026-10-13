@@ -3325,6 +3325,13 @@ fn management_wird_geprueft() {
         d.zeile(datei, "antraege_max: 0"),
         "management.strategieauftrag.antraege_max",
     );
+    let d = basis().ersetze(datei, "{id: vorsichtig,", "{id: offensiv,");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Stil „offensiv“ ist doppelt definiert; erste Definition in Eintrag 1.",
+    );
+    assert_eq!(f.path.to_string(), "management.stil.arten[1].id");
     let d = basis().ersetze(
         datei,
         "vorschlag_aufschub_tage: 30",

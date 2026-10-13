@@ -120,7 +120,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MG4 | Tiefe und Vielfalt der Anliegen: 2–4 Optionen, neue Anlässe (§4) | ✅ 13.10.2026: Abwägung je Option (Risiko, Wirkzeit, laufende Kosten), Widerspruch mit Fürsprechern; neue Anlässe als Daten nur teilweise (OFFENE_PUNKTE MG4) |
 | MG5 | Branchenstärke je Manager, Wirkung höchstens 10 %, Gesamtdeckel, CLI „produktionsfaktoren“ (§5) | ✅ 13.10.2026: Branchenerfahrung, Wirkung im Werk, Gesamtdeckel, CLI `produktionsfaktoren` |
 | MG6 | Strategievorschläge von CEO, Kontinent und Land, ein System mit den Zentralabteilungen (§6, §9) | ✅ 13.10.2026: Vorschlagende nach Ort, Genauigkeit mit Branchenstärke, Sicherheit, Vorschläge außer der Reihe, Zurückstellen (Rest OFFENE_PUNKTE MG6) |
-| MG7 | Stil, Lieblingsbegründung, Einwand (§7) | ⏳ nach MG2 |
+| MG7 | Stil, Lieblingsbegründung, Einwand (§7) | ✅ 13.10.2026: Stil und Begründungen gezogen, Wirkung auf Empfehlung und Spanne, Einwand in Akte und Chronik (Rest OFFENE_PUNKTE MG7) |
 | MG8 | Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung, Personalbedarf aller Zentralabteilungen (§8) | ⏳ nach MG2 |
 | MG9 | Strategieabteilung als Denkstelle: ein Typ mit MG6, Fallarten inkl. Abwehr und Verkauf, Arbeitslast und Branchenschwerpunkt, Strategieklausur, zwei Trefferquoten, Konkurrenzbeobachtung (§9) | ⏳ nach MG6 |
 | PD1 | Produktentwicklung: Labor-Rollen, Pools, PL als Person, Entfall der 20 Ingenieure (`docs/PRODUKTENTWICKLUNG.md` §1; Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE PD) | ⏳ |

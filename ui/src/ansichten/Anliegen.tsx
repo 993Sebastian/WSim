@@ -125,6 +125,12 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
         </p>
       )}
       {a.path.length > 1 && <p className="feld-hilfe">{t("anliegen.weg", { weg: weg(a) })}</p>}
+      {a.style && (
+        <p className="feld-hilfe" title={t(`stil.${a.style}_hilfe`)}>
+          {t("anliegen.stil", { stil: t(`stil.${a.style}`) })}
+          {a.favorite ? ` · „${meldungText(a.favorite)}“` : ""}
+        </p>
+      )}
       {a.certainty != null && (
         <p className="feld-hilfe">
           {t("anliegen.sicherheit", { prozent: formatZahl(Math.round(a.certainty * 100), 0) })}

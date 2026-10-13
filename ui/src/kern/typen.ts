@@ -1506,6 +1506,9 @@ export interface Manager {
   retirement?: string | null;
   /** A child of the person (PE2). */
   family?: boolean;
+  /** His style (text `stil.<key>`) and favourite reasons (MG7). */
+  style?: string | null;
+  reasons?: string[];
 }
 
 /** The successor waiting for a position until its holder retires (PE1). */
@@ -1754,6 +1757,8 @@ export interface Budgetvorgabe {
 
 /** A decision file with its review as the chronicle shows it (MG3). */
 export interface ChronikEintrag {
+  /** What the manager's way was forecast to bring more per year, if he objected (MG7). */
+  objection_usd?: number | null;
   created: string;
   reviewed: string | null;
   due: string;
@@ -1990,6 +1995,9 @@ export interface Anliegen {
   certainty?: number | null;
   /** A proposal not yet put off can be postponed once. */
   can_postpone?: boolean;
+  /** The style of the asking manager and the reason he favours in his words (MG7). */
+  style?: string | null;
+  favorite?: Meldung | null;
 }
 
 /** Open concerns of several sites alike: the same topic and recommendation. */

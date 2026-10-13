@@ -163,6 +163,14 @@ pub enum Stream {
         id: u32,
         month: u32,
     },
+    /// The style and favourite reasons a manager starts with (MG7).
+    ManagerStyle {
+        id: u32,
+    },
+    /// Whether a manager objects to a decision against his recommendation (MG7).
+    Objection {
+        concern: u32,
+    },
     /// The demand waves that arise in a year (MN4).
     Trends {
         year: u32,
@@ -241,6 +249,8 @@ impl Stream {
             }
             Stream::ManagerBranch { id } => (32 << 56) | u64::from(id),
             Stream::Trends { year } => (34 << 56) | u64::from(year),
+            Stream::ManagerStyle { id } => (35 << 56) | u64::from(id),
+            Stream::Objection { concern } => (36 << 56) | u64::from(concern),
             Stream::ManagerBranchMonth { id, month } => {
                 (33 << 56) | (u64::from(id) << 24) | u64::from(month)
             }

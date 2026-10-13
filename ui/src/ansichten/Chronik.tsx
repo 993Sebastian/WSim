@@ -34,7 +34,14 @@ function Zeile({ e }: { e: ChronikEintrag }) {
       <td className="zahl">{e.forecast_usd == null ? "–" : formatGeld(e.forecast_usd)}</td>
       <td className="zahl">{e.actual_usd == null ? "–" : formatGeld(e.actual_usd)}</td>
       <td className="zahl">{e.alternative_usd == null ? "–" : formatGeld(e.alternative_usd)}</td>
-      <td>{urteilText(e)}</td>
+      <td>
+        {urteilText(e)}
+        {e.objection_usd != null && (
+          <small className="block gedaempft">
+            {t("chronik.einwand", { betrag: formatGeld(e.objection_usd) })}
+          </small>
+        )}
+      </td>
     </tr>
   );
 }

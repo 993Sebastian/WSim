@@ -337,6 +337,7 @@ fn careers(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<
         let mut rng = SimRng::for_stream(state.settings.seed, Stream::ManagerBirth { id: id.0 });
         let mut m = management::draw(catalog, &mut rng, state.person.home, &mut names);
         management::assign_branches(catalog, state.settings.seed, id, &mut m);
+        management::assign_style(catalog, state.settings.seed, id, &mut m);
         // Education by the lifestyle of the childhood (PE3).
         let bonus = crate::private::education(catalog, &state.person, child.born, date)
             + school_bonus(catalog, &child, date);

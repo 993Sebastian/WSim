@@ -216,7 +216,34 @@ pub struct ManagementModel {
     pub skills: SkillModel,
     /// Industry experience of managers and its effect in the works (MG5).
     pub branch: BranchSkillModel,
+    /// Style, favourite reasons and objections of managers (MG7).
+    pub style: StyleModel,
     pub provenance: Provenance,
+}
+
+/// Style, favourite reasons and objections of managers (MG7, docs/FORMELN.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct StyleModel {
+    pub kinds: Vec<StyleKind>,
+    /// Keys of the reasons a manager may favour (texts `lieblingsgrund.<key>.<style>.<n>`).
+    pub reasons: Vec<String>,
+    pub second_reason_chance: f64,
+    /// Sum of an option above which a decision against the recommendation can draw an
+    /// objection, and the base chance.
+    pub objection_threshold: Money,
+    pub objection_chance: f64,
+}
+
+/// One style of managers.
+#[derive(Clone, Debug, PartialEq)]
+pub struct StyleKind {
+    pub key: String,
+    pub share: f64,
+    pub keep_bias: f64,
+    pub spread: f64,
+    pub optimism: f64,
+    pub deviation: f64,
+    pub objection: f64,
 }
 
 /// Industry experience of managers (MG5, docs/MANAGER_2.md 5).

@@ -1936,6 +1936,8 @@ pub struct RawManagement {
     pub skills: RawSkills,
     #[serde(rename = "branchenstaerke")]
     pub branch: RawBranchSkill,
+    #[serde(rename = "stil")]
+    pub style: RawStyleModel,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -2189,6 +2191,47 @@ pub struct RawSkills {
     pub general: RawSpread,
     #[serde(rename = "eindruck_unschaerfe")]
     pub impression_blur: f64,
+}
+
+/// Style, favourite reasons and objections of managers (MG7).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStyleModel {
+    #[serde(rename = "arten")]
+    pub kinds: Vec<RawStyleKind>,
+    #[serde(rename = "begruendungen")]
+    pub reasons: Vec<String>,
+    #[serde(rename = "zweite_begruendung_chance")]
+    pub second_reason_chance: f64,
+    #[serde(rename = "einwand")]
+    pub objection: RawObjection,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStyleKind {
+    pub id: String,
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "abwarten")]
+    pub keep_bias: f64,
+    #[serde(rename = "spanne")]
+    pub spread: f64,
+    #[serde(rename = "optimismus")]
+    pub optimism: f64,
+    #[serde(rename = "abweichung")]
+    pub deviation: f64,
+    #[serde(rename = "einwand")]
+    pub objection: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawObjection {
+    #[serde(rename = "schwelle_usd")]
+    pub threshold_usd: f64,
+    #[serde(rename = "chance")]
+    pub chance: f64,
 }
 
 /// Industry experience of managers (MG5).
