@@ -788,6 +788,8 @@ pub enum CommandError {
     UnknownConcern,
     /// The concern was answered or expired already.
     ConcernClosed,
+    /// Only a proposal can be put off, and only once (MG6).
+    CannotPostpone,
     UnknownOption,
     /// Only a head fills positions itself (MA6).
     NotAHead,
@@ -1126,6 +1128,7 @@ impl CommandError {
             CommandError::PositionTaken => e(keys::COMMAND_POSITION_TAKEN),
             CommandError::UnknownConcern => e(keys::COMMAND_UNKNOWN_CONCERN),
             CommandError::ConcernClosed => e(keys::COMMAND_CONCERN_CLOSED),
+            CommandError::CannotPostpone => e(keys::COMMAND_CANNOT_POSTPONE),
             CommandError::UnknownOption => e(keys::COMMAND_UNKNOWN_OPTION),
             CommandError::NotAHead => e(keys::COMMAND_NOT_A_HEAD),
             CommandError::SalaryNotHigher => e(keys::COMMAND_SALARY_NOT_HIGHER),

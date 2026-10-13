@@ -1,7 +1,7 @@
 // Concerns (MA2, docs/BEDIENUNG.md): what the player's positions ask beyond their budget.
 // "What does my management want from me, what does it recommend, and what does each way
 // cost and bring?"
-import { formatDatum, formatGeld, landName, meldungText } from "../format";
+import { formatDatum, formatGeld, formatZahl, landName, meldungText } from "../format";
 import type { Anliegen, AnliegenGruppe, AnliegenOption, Anliegenantwort, Kern } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -125,6 +125,11 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
         </p>
       )}
       {a.path.length > 1 && <p className="feld-hilfe">{t("anliegen.weg", { weg: weg(a) })}</p>}
+      {a.certainty != null && (
+        <p className="feld-hilfe">
+          {t("anliegen.sicherheit", { prozent: formatZahl(Math.round(a.certainty * 100), 0) })}
+        </p>
+      )}
       <p>
         {t(`anliegen.grund.${a.reason}`, {
           budget: formatGeld(a.per_decision_usd),
@@ -276,6 +281,16 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
         >
           {t("anliegen.nie")}
         </button>
+        {a.can_postpone && (
+          <button
+            type="button"
+            className="schlicht"
+            title={t("anliegen.zurueckstellen_hilfe")}
+            onClick={() => antworten("Postpone", t("anliegen.erfolg.zurueckgestellt"))}
+          >
+            {t("anliegen.zurueckstellen")}
+          </button>
+        )}
         <button
           type="button"
           className="schlicht"

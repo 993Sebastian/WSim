@@ -840,6 +840,71 @@ fn the_ceo_proposes_an_offer_at_the_review() {
 }
 
 #[test]
+fn a_proposal_shows_how_sure_the_manager_is_and_can_be_put_off_once() {
+    let (mut game, _rival, _site) = buyer_game(0.0001);
+    hire_sharp(&mut game, ceo());
+    let next = game.state().next_concern;
+    through_quarter_end(&mut game);
+    let proposal = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.id >= next && c.reason == ConcernReason::Proposal)
+        .expect("a proposal")
+        .clone();
+    let shown = |game: &Game| {
+        crate::views::concerns(game)
+            .open
+            .iter()
+            .flat_map(|g| g.concerns.clone())
+            .find(|c| c.id == proposal.id)
+            .expect("shown")
+    };
+    let view = shown(&game);
+    let certainty = view.certainty.expect("a proposal has a certainty");
+    assert!((0.0..=1.0).contains(&certainty), "{certainty}");
+    assert!(view.can_postpone);
+    game.apply(Command::AnswerConcern {
+        concern: proposal.id,
+        answer: ConcernAnswer::Postpone,
+    })
+    .unwrap();
+    let after = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.id == proposal.id)
+        .unwrap();
+    assert_eq!(after.status, crate::state::ConcernStatus::Open);
+    assert_eq!(after.deadline, proposal.deadline.add_days(30));
+    assert!(!shown(&game).can_postpone);
+    assert_eq!(
+        game.apply(Command::AnswerConcern {
+            concern: proposal.id,
+            answer: ConcernAnswer::Postpone,
+        }),
+        Err(crate::command::CommandError::CannotPostpone)
+    );
+}
+
+#[test]
+fn a_proposal_comes_from_the_head_of_its_country_else_from_the_ceo() {
+    let (mut game, _rival, _site) = buyer_game(0.0001);
+    let boss = hire_sharp(&mut game, ceo());
+    let aaa = game.catalog().countries.id("AAA").unwrap();
+    let place = Some(Unit::Country(aaa));
+    let who = |game: &Game| {
+        crate::review::proposer(game.catalog(), game.state(), game.player(), place, boss)
+    };
+    assert_eq!(who(&game), (ceo(), boss));
+    let head = hire_sharp(&mut game, Position::new(Unit::Country(aaa), Role::Head));
+    assert_eq!(
+        who(&game),
+        (Position::new(Unit::Country(aaa), Role::Head), head)
+    );
+}
+
+#[test]
 fn a_new_site_answered_later_gets_its_steps() {
     // A concern founds a site and builds on it; meanwhile another site was founded.
     let mut game = new_game(cheap_furnaces());

@@ -1986,6 +1986,10 @@ export interface Anliegen {
   closed: string | null;
   /** Beyond the routine of the sites: a run of rounds halts for it. */
   important: boolean;
+  /** How sure the proposing manager is of his figures, 0–1 (strategy proposals). */
+  certainty?: number | null;
+  /** A proposal not yet put off can be postponed once. */
+  can_postpone?: boolean;
 }
 
 /** Open concerns of several sites alike: the same topic and recommendation. */

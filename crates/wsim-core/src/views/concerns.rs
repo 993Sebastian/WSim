@@ -172,6 +172,12 @@ pub struct ConcernView {
     pub closed: Option<String>,
     /// Beyond the routine of the sites: a run of rounds halts for it ("wichtige").
     pub important: bool,
+    /// How sure the proposing manager is of his figures, 0–1 (strategy proposals, MG6).
+    #[serde(default)]
+    pub certainty: Option<f64>,
+    /// A proposal not yet put off can be postponed once (MG6).
+    #[serde(default)]
+    pub can_postpone: bool,
 }
 
 /// Open concerns of several sites alike: the same topic and recommendation.
@@ -923,6 +929,22 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         carried_out,
         closed: c.closed.map(iso),
         important: management::important(catalog, c),
+        certainty: (c.reason == ConcernReason::Proposal && state.managers.contains_key(&c.manager))
+            .then(|| {
+                let skill = crate::review::proposer_skill(
+                    catalog,
+                    state,
+                    (c.manager, c.position.unit == Unit::Board),
+                    &c.decision,
+                );
+                1.0 - catalog.management.concerns.estimate_error * (1.0 - skill / 100.0)
+            }),
+        can_postpone: c.reason == ConcernReason::Proposal
+            && c.status == ConcernStatus::Open
+            && c.deadline
+                <= c.created.add_days(
+                    i32::try_from(catalog.management.concerns.deadline_days).unwrap_or(i32::MAX),
+                ),
     }
 }
 

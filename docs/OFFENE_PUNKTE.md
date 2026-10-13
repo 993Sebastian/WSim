@@ -2656,3 +2656,17 @@ angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit d
   `world_stays_plausible_in_the_first_year`) schalten den Aufbau ab; ein Weltlauf-Protokoll 1900–1930 mit Aufbau steht
   noch aus. Beobachtung vorab: Mit Faktor 0,1 meldet die Plausibilitätsprüfung 1900 mehrere Produkte mit niedriger
   Versorgung (Dünger, Schienenfahrzeuge, Frachtschiff, Gase, Nickel) – Ursache noch offen.
+
+### MG6: Strategievorschläge – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen (nach der Sammelentscheidung vom 13.10. gelten sie als angenommen):
+- Der Vorschlag ist das vorhandene Anliegen mit Grund `antrag`; die Ansicht „Strategievorschläge“ ist die
+  bestehende Anliegenliste (Karte mit Vorschlagendem, Sicherheit, Spanne je Option, Frist). Eine eigene Ansicht
+  gemeinsam mit den Empfehlungen der Zentralabteilungen (ZA3) folgt mit MG9.
+- Anlässe sind, was die Regeln der KI-Diversifikation und der Kaufangebote hergeben: neue Kette bzw. neues Land und
+  Kaufangebote. „Branche oder Land verlassen“ und „Großinvestition“ als eigene Vorschlagsarten gibt es noch nicht
+  (kein Entscheidungssystem dafür); Vorschlag: mit MG9 (Fallarten der Strategieabteilung).
+- „Anpassen (Betrag, Land, Zeitpunkt)“: Nur der Zeitpunkt (Zurückstellen, einmal um 30 Tage) ist umgesetzt; Betrag und
+  Land lassen sich über die Optionen wählen (MG4), nicht frei ändern.
+- Vorschläge außer der Reihe: höchstens einer je Quartal (`vorschlaege_je_quartal: 1`), nur in Quartalsmonaten ohne
+  Rücksprache. Mit monatlicher Rücksprache gibt es keine zusätzlichen.
+- Das Genauigkeitsgewicht der Branchenstärke ist 0,5 (`vorschlag_branche_gewicht`).

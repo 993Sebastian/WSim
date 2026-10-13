@@ -1840,7 +1840,11 @@ anliegen.grund.kredit: Dafür braucht es einen Kredit – darüber entscheidest 
 anliegen.grund.reserve: "Danach läge die Kasse unter der Liquiditätsreserve ({reserve})."
 anliegen.grund.investition: "Das Investitionsbudget ({wo}) reicht nicht mehr (übrig: {rest})."
 anliegen.grund.verschuldung: "Danach wären die Kredite höher, als der Strategieauftrag erlaubt (Spielraum: {rest})."
-anliegen.grund.antrag: Ein Antrag des CEO aus der Strategierücksprache – er legt ihn dir unabhängig vom Budget vor.
+anliegen.grund.antrag: Ein Strategievorschlag des CEO oder einer Kontinent- oder Landesleitung – er wird dir unabhängig vom Budget vorgelegt.
+anliegen.sicherheit: "Der Vorschlagende ist sich seiner Zahlen zu {prozent} % sicher."
+anliegen.zurueckstellen: Zurückstellen
+anliegen.zurueckstellen_hilfe: Die Frist verlängert sich einmal; der Vorschlag bleibt offen.
+anliegen.erfolg.zurueckgestellt: Zurückgestellt. Die Frist ist verlängert.
 anliegen.grund.abwerbung: Eine andere Firma will den Manager abwerben – ob du ihn hältst, entscheidest du.
 anliegen.grund.freigabe: "Kostet mehr als die Freigabegrenze der Abteilung ({grenze}) – darüber entscheidet sie nicht allein."
 anliegen.grund.beteiligung: "Das Budget für Beteiligungen reicht in diesem Jahr nicht mehr (übrig: {rest})."

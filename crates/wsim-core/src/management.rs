@@ -1057,6 +1057,8 @@ pub enum ConcernAnswer {
     NeverAsk,
     /// The topic rests at the position for a while.
     Decline,
+    /// Puts a proposal off: its deadline moves on once (MG6).
+    Postpone,
 }
 
 /// The recorded state of a position of a company, if any.
@@ -3217,6 +3219,18 @@ pub(crate) fn answer(
         return Err(CommandError::ConcernClosed);
     }
     let today = state.date;
+    if answer == ConcernAnswer::Postpone {
+        let m = &catalog.management;
+        let first = c
+            .created
+            .add_days(i32::try_from(m.concerns.deadline_days).unwrap_or(i32::MAX));
+        if c.reason != ConcernReason::Proposal || c.deadline > first {
+            return Err(CommandError::CannotPostpone);
+        }
+        let days = i32::try_from(m.mandate.proposal_postpone_days).unwrap_or(i32::MAX);
+        state.concerns[index].deadline = c.deadline.add_days(days);
+        return Ok(());
+    }
     let decide =
         |state: &mut GameState, (choice, delegated): (usize, bool)| -> Result<(), CommandError> {
             let option = c
@@ -3281,6 +3295,8 @@ pub(crate) fn answer(
                 .insert(c.decision.topic);
             ConcernStatus::Muted
         }
+        // Handled above: a postponed concern stays open.
+        ConcernAnswer::Postpone => return Ok(()),
         ConcernAnswer::Decline => {
             let days = catalog.management.concerns.block_days;
             let until = today.add_days(i32::try_from(days).unwrap_or(i32::MAX));

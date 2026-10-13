@@ -305,7 +305,7 @@ pub fn report(
 
 /// Who raises a proposal for a place (docs/FORMELN.md, MG6): the head of the country, else
 /// of its continent, else the CEO.
-fn proposer(
+pub(crate) fn proposer(
     catalog: &Catalog,
     state: &GameState,
     company: CompanyId,

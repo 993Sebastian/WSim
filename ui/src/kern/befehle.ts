@@ -243,7 +243,7 @@ export type Befehl =
     };
 
 /** The player's answer to a concern (MA2). */
-export type Anliegenantwort = { Choose: number } | "Delegate" | "NeverAsk" | "Decline";
+export type Anliegenantwort = { Choose: number } | "Delegate" | "NeverAsk" | "Decline" | "Postpone";
 
 /** A role: the head of a unit or the specialist of a function. */
 export type Rolle = "Head" | { Specialist: string };

@@ -6147,3 +6147,29 @@ Spitzenfaktor gleichverteilt in [faktor_min, faktor_max], Dauer in [jahre_min, j
 Jahren; der Faktor steigt bis zur Mitte linear auf die Spitze und fällt bis zum Ende auf 1
 zurück. Er wirkt wie die Trends aus den Daten (MN1) auf die Kaufneigung. Meldung
 „Nachfragewelle“ zu Beginn.
+
+
+## MG6 – Strategievorschläge von CEO, Kontinent und Land (13.10.2026)
+
+Vorgabe `docs/MANAGER_2.md` §6. Der Strategievorschlag ist das bestehende Anliegen mit Grund `antrag` (MA5);
+es entstehen keine neuen Zustandstypen.
+
+- **Anlässe:** Wie bisher die Chancen der KI-Diversifikation (neue Kette in einem Land, `ai::opportunities`)
+  und das beste Kaufangebot (`deals::best_deal_for`). Dazu bis zu `vorschlaege_je_quartal` Vorschläge **außer der
+  Reihe** in den Monaten, die ein Quartal schließen und keine Rücksprache haben (ohne Kaufangebot). Der Zufall
+  kommt aus `Stream::Review` mit eigenem Versatz (1 000 000 + Monat), damit die Rücksprachen unverändert bleiben.
+- **Wer schlägt vor:** Der Ort der Entscheidung (`place_of`) bestimmt die Stelle: die Leitung des Landes, sonst
+  die des Kontinents, sonst der CEO. Fehlt die Leitung, springt die nächsthöhere Stelle ein.
+- **Genauigkeit:** Fachkompetenz *e* des Vorschlagenden in der Funktion des Themas (beim CEO · (1 − `kopfabschlag`))
+  und Branchenstärke *b* (MG5, 0–1) des Produkts:
+
+      k = e + (100 − e) · b · vorschlag_branche_gewicht
+
+  Empfehlung wie bei jedem Anliegen (`recommend_with`) mit *k* und dem Urteilsvermögen; die Spanne der
+  Prognose folgt dem Fehler `schaetzfehler · (1 − k/100)`. Gezeigt wird die **Sicherheit**
+  1 − `schaetzfehler` · (1 − *k*/100).
+- **Antworten:** annehmen (Wahl einer Option), den Vorschlag der Stelle übernehmen (delegieren), ablehnen
+  (Thema ruht), nie wieder fragen und **zurückstellen**: Die Frist rückt einmal um `vorschlag_aufschub_tage`
+  vor (Befehl `AnswerConcern` mit `Postpone`; nur für Vorschläge, nur solange die Frist noch die ursprüngliche
+  ist, sonst Fehler `vorschlag_aufschub`).
+- Jeder Vorschlag bekommt wie jedes beantwortete Anliegen Akte, Nachbetrachtung und Trefferquote (MG2).
