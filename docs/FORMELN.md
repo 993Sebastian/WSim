@@ -5891,3 +5891,30 @@ alles wie bisher.
     muss auf das Grundstück passen.
   - Der Buchwert in der Bilanz bleibt vorerst; die Anzeige rechnet die Anlage aus dem
     Katalog der neuen Anlage neu. Das Aktivieren der Kosten folgt als Aufgabe AKT nach MAA.
+
+## MG1 Managermarkt: Abwerben sichtbar, fairer Zugriff (docs/MANAGER_2.md §1)
+
+**Markteintritt.** Jeder freie Manager trägt `entered`: den Tag, an dem er neu in den Pool kam
+(Auffüllen am Monatsersten) oder nach einer Stelle wieder frei wurde. Ältere Spielstände ohne
+Datum gelten als „seit jeher am Markt“.
+
+**Zugriff.** KI-Firmen und die automatische Einstellung der Leitungen (`staffing::candidates`)
+sehen einen Kandidaten ab `entered + pool.ki_wartetage` (Vorgabe 10 Tage). Der Spieler greift
+sofort zu. Die Zahl der Kandidaten ändert sich nicht: der Pool wird weiter nur an die
+Akademiker je Kontinent gebunden, nicht an die Zahl der Firmen.
+
+**Anzeige.** Der Managermarkt zeigt „neu“ (am Markt seit weniger als 31 Tagen) und die Tage bis
+zum KI-Zugriff (`entered + ki_wartetage − heute`). Der zweite Reiter „Manager anderer Firmen“
+listet alle Manager fremder, nicht bankrotter Firmen (ohne Kinder der Person und ohne
+Nachfolger in Wartestellung); Forderung = `staffing::poach_salary` für die gewählte Stelle,
+Zufriedenheit als Stufe (unzufrieden, gemischt, zufrieden), Sperre bis `courted + pause_monate`.
+Sortiert: eigener Kontinent und passende Funktion zuerst.
+
+**Pool über die Jahrzehnte.** Poolziel = Akademiker des Kontinents · `je_mio_akademiker`,
+zwischen `min` und `max`. Gemessen (Ziel je Kontinent): 1900 12–13, 1930 12–19, 1960 26–39,
+1990 60 (Grenze `max`), 2020 60. Der Pool wächst also mit den Akademikern, ab etwa 1990 stößt er
+an die Obergrenze (60).
+
+**Protokoll.** `wsim run --managermarkt` gibt je Kontinent und Jahr aus: Ziel und freie
+Kandidaten nach dem letzten Auffüllen des Jahres, neue Kandidaten, Einstellungen durch KI und
+Spieler, abgeworbene Manager (`GameState::manager_market_log`).

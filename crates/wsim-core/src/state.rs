@@ -752,6 +752,10 @@ pub struct Manager {
     /// When another company last made him an offer (MA6).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub courted: Option<Date>,
+    /// The day he came on the market (MG1): new, or free again after a job. `None`: on the
+    /// market since before the day was kept.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub entered: Option<Date>,
     /// His estimates of targets judged so far, and the hits among them (ZA3).
     #[serde(default, skip_serializing_if = "no_count")]
     pub judged: u32,
@@ -984,6 +988,22 @@ pub struct Job {
     /// the holder yet.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub successor: bool,
+}
+
+/// What happened on the market of managers of a continent in a year (MG1).
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MarketCount {
+    pub year: i32,
+    pub continent: u16,
+    /// New candidates, hired from the market by AI companies and by the player's
+    /// companies, and managers poached from another company.
+    pub appeared: u32,
+    pub ai_hired: u32,
+    pub player_hired: u32,
+    pub poached: u32,
+    /// Target and number of free candidates after the last refill of the year.
+    pub target: u32,
+    pub free: u32,
 }
 
 /// Where a position sits (MA3, MA5): a site, a country or continent of its company, or
@@ -2002,6 +2022,9 @@ pub struct GameState {
     /// Open offers to managers of other companies (MA6).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub poach_offers: Vec<PoachOffer>,
+    /// Counts of the market of managers per year and continent, for the protocol (MG1).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub manager_market_log: Vec<MarketCount>,
     /// Estimates of heads waiting for their judgment, oldest first (ZA3).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub judgments: Vec<Judgment>,

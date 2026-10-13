@@ -35,7 +35,7 @@ use crate::state::GameState;
 /// Current save format. Raise it on every incompatible change of `GameState`, read the
 /// old format in `legacy` and keep a save of the old version under
 /// `tests/fixtures/saves/`.
-pub const SAVE_FORMAT_VERSION: u32 = 3;
+pub const SAVE_FORMAT_VERSION: u32 = 4;
 
 const MAGIC: &[u8; 8] = b"WSIMSAVE";
 

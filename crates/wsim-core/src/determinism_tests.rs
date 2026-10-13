@@ -410,6 +410,7 @@ const FIXTURES: &[(u32, &[u8])] = &[
     (1, include_bytes!("../tests/fixtures/saves/v1.wsim")),
     (2, include_bytes!("../tests/fixtures/saves/v2.wsim")),
     (3, include_bytes!("../tests/fixtures/saves/v3.wsim")),
+    (4, include_bytes!("../tests/fixtures/saves/v4.wsim")),
 ];
 
 #[test]

@@ -511,7 +511,7 @@ Optional: ohne den Abschnitt gibt es keine Manager.
 | **bemerken_grund** | 0–1: Wahrscheinlichkeit, mit der eine Stelle ganz ohne Sorgfalt eine Lage am Prüftermin bemerkt; mit voller Sorgfalt 1 |
 | **gehalt_lohngruppe** | Arbeitskräftegruppe, deren Lohn die Gehälter bestimmt (z. B. `akademiker.kaufmaennisch`) |
 | **abfindung_monate** | ≥ 0: Monatsgehälter beim Entlassen |
-| **pool** | `je_mio_akademiker` (> 0), `min` (≥ 1), `max` (≥ `min`): Kandidaten je Kontinent; `abgang_monat` (0–1) |
+| **pool** | `je_mio_akademiker` (> 0), `min` (≥ 1), `max` (≥ `min`): Kandidaten je Kontinent; `abgang_monat` (0–1), `ki_wartetage` (Tage, 0–365, Vorgabe 0): so lange ist ein neuer Kandidat nur für den Spieler greifbar (MG1) |
 | **faehigkeiten** | `schwerpunkt`, `sonst`, `allgemein`: je `mittel` (0–100) und `streuung` (0–50); `eindruck_unschaerfe` (0–50) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 

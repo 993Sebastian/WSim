@@ -164,6 +164,10 @@ struct RunArgs {
     /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
     #[arg(long)]
     welt: bool,
+    /// Am Ende den Managermarkt je Kontinent und Jahr ausgeben: Poolziel, freie
+    /// Kandidaten, neue Kandidaten, von KI und Spieler eingestellt, abgeworben (MG1)
+    #[arg(long)]
+    managermarkt: bool,
     /// Balance-Protokoll in diesen Ordner schreiben (produkte.csv, firmen.csv,
     /// auswertung.md); Runden höchstens einen Monat lang
     #[arg(long)]
@@ -577,6 +581,9 @@ fn run(args: &RunArgs) -> Result<(), String> {
     }
     if args.welt {
         print_world(texts, &game);
+    }
+    if args.managermarkt {
+        print_manager_market(&data.catalog, &game);
     }
     if args.als_person {
         print_person(&game);
@@ -1885,4 +1892,25 @@ fn print_report(texts: &wsim_data::Texts, ledger: &wsim_core::ledger::Ledger) {
     }
     line("Bilanzsumme", sheet.total);
     println!();
+}
+
+/// The market of managers per continent and year (MANAGER_2.md 1.4): the target of the
+/// pool and the free candidates after the last refill of the year, the new ones, the
+/// hires of AI companies and of the player, and the managers poached.
+fn print_manager_market(catalog: &wsim_core::catalog::Catalog, game: &Game) {
+    println!("Managermarkt je Kontinent und Jahr:");
+    println!("  Jahr  Kontinent               Ziel  frei  neu  KI  Spieler  abgeworben");
+    let mut rows: Vec<_> = game.state().manager_market_log.iter().collect();
+    rows.sort_by_key(|c| (c.year, c.continent));
+    for c in rows {
+        let name = catalog
+            .continents
+            .keys()
+            .get(usize::from(c.continent))
+            .map_or("?", String::as_str);
+        println!(
+            "  {:>4}  {:<22} {:>5} {:>5} {:>4} {:>3} {:>8} {:>11}",
+            c.year, name, c.target, c.free, c.appeared, c.ai_hired, c.player_hired, c.poached
+        );
+    }
 }

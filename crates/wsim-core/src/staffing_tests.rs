@@ -801,3 +801,95 @@ fn games_with_offers_load_identically() {
     assert_eq!(loaded.state_hash(), game.state_hash());
     assert_eq!(loaded.state().poach_offers, game.state().poach_offers);
 }
+
+#[test]
+fn new_candidates_wait_for_the_ai_but_not_for_the_player() {
+    let mut c = test_support::management();
+    c.management.pool.ai_wait_days = 10;
+    c.management.pool.leave_per_month = 1.0;
+    let mut game = new_game(c);
+    let (_, works) = mine_and_works(&mut game);
+    let unit = format!("standort:{}", works.0);
+    to_next_month(&mut game);
+    let today = game.state().date;
+    let fresh: Vec<ManagerId> = game
+        .state()
+        .managers
+        .iter()
+        .filter(|(_, m)| m.job.is_none() && m.entered == Some(today))
+        .map(|(&id, _)| id)
+        .collect();
+    assert!(!fresh.is_empty(), "the pool was refilled");
+    // The player sees them at once, marked new with the days until the AI may take them.
+    let view = crate::views::manager_market(&game, &unit, "leitung").expect("a seat");
+    for id in &fresh {
+        let k = view
+            .candidates
+            .iter()
+            .find(|k| k.manager.id == id.0)
+            .expect("listed");
+        assert!(k.new);
+        assert_eq!(k.ai_days, Some(10));
+    }
+    // An AI company does not see them yet, but on the eleventh day.
+    let pool =
+        |g: &Game| staffing::candidates(g.catalog(), g.state(), g.player(), Unit::Site(works));
+
+    assert!(fresh.iter().all(|id| !pool(&game).contains(id)));
+    days(&mut game, 10);
+    assert!(fresh.iter().any(|id| pool(&game).contains(id)));
+    let state = game.state();
+    assert!(fresh.iter().all(|id| {
+        management::ai_access_from(game.catalog(), &state.managers[id])
+            .is_some_and(|d| d <= state.date)
+    }));
+}
+
+#[test]
+fn the_market_lists_managers_of_other_companies_with_what_they_ask() {
+    let (mut game, _, _) = with_rival(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    let unit = format!("standort:{}", works.0);
+    let rival = CompanyId(1);
+    let boss = free(&game)[0];
+    let today = game.state().date;
+    game.state_mut().managers.get_mut(&boss).unwrap().job = Some(crate::state::Job {
+        company: rival,
+        position: ceo(),
+        salary: usd(80_000.0),
+        since: today,
+        satisfaction: Some(10),
+        successor: false,
+    });
+    let view = crate::views::manager_market(&game, &unit, "leitung").expect("a seat");
+    let k = view
+        .others
+        .iter()
+        .find(|k| k.manager.id == boss.0)
+        .expect("a manager of another company is listed");
+    assert_eq!(
+        k.company.as_deref(),
+        Some(game.state().companies[1].name.as_str())
+    );
+    assert_eq!(k.satisfaction, Some(0), "unhappy: ready to move");
+    assert!(k.demand_usd > 0.0 && k.blocked_until.is_none());
+    assert!(
+        view.candidates.iter().all(|c| c.manager.id != boss.0),
+        "not among the free candidates"
+    );
+    // After an offer to him the pause shows.
+    let position = head(works);
+    game.apply(Command::PoachManager {
+        manager: boss,
+        position,
+    })
+    .unwrap();
+    let view = crate::views::manager_market(&game, &unit, "leitung");
+    if let Some(v) = view {
+        let k = v.others.iter().find(|k| k.manager.id == boss.0).unwrap();
+        assert!(
+            k.blocked_until.is_some(),
+            "the pause after the offer is shown"
+        );
+    }
+}

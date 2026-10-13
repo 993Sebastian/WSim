@@ -930,7 +930,7 @@ function EinheitKarte({
 }: {
   s: EinheitOrganisation;
   sockel: [number, number];
-  onBesetzen: (einheit: string, rolle: string) => void;
+  onBesetzen: (einheit: string, rolle: string, reiter?: MarktReiter) => void;
   onAnliegen: () => void;
 }) {
   const titel = einheitName(s);
@@ -981,6 +981,15 @@ function EinheitKarte({
                           onClick={() => onBesetzen(s.key, p.role)}
                         >
                           {t("organisation.besetzen")}
+                        </button>
+                      )}
+                      {(p.topics.length > 0 || p.effect) && (
+                        <button
+                          type="button"
+                          aria-label={`${t("organisation.abwerben_stelle")} ${stellenName(p.role, s.kind_text)} (${titel})`}
+                          onClick={() => onBesetzen(s.key, p.role, "abwerben")}
+                        >
+                          {t("organisation.abwerben_stelle")}
                         </button>
                       )}
                     </td>
@@ -1171,6 +1180,29 @@ function Budgetvorgaben({ daten }: { daten: Organisation }) {
   );
 }
 
+/** The market is always in reach: it opens at the first free position (MG1). */
+function MarktEinstieg({
+  daten,
+  onBesetzen,
+}: {
+  daten: Organisation;
+  onBesetzen: (einheit: string, rolle: string, reiter?: MarktReiter) => void;
+}) {
+  const stelle = ersteFreieStelle(daten);
+  return (
+    <div className="markt-einstieg">
+      <button
+        type="button"
+        disabled={!stelle}
+        onClick={() => stelle && onBesetzen(stelle.einheit, stelle.rolle, "abwerben")}
+      >
+        {t("organisation.managermarkt")}
+      </button>
+      {!stelle && <small className="feld-hilfe"> {t("organisation.markt_ohne_stelle")}</small>}
+    </div>
+  );
+}
+
 function Organigramm({
   kern,
   stand,
@@ -1179,7 +1211,7 @@ function Organigramm({
 }: {
   kern: Kern;
   stand: string;
-  onBesetzen: (einheit: string, rolle: string) => void;
+  onBesetzen: (einheit: string, rolle: string, reiter?: MarktReiter) => void;
   onAnliegen: () => void;
 }) {
   const { daten, fehler } = useSicht(() => kern.organisation(), stand);
@@ -1200,6 +1232,7 @@ function Organigramm({
           <p>{t("organisation.spaeter")}</p>
         </Erklaerung>
       </p>
+      <MarktEinstieg daten={daten} onBesetzen={onBesetzen} />
       {daten.continents.length === 0 && <p>{t("organisation.keine_standorte")}</p>}
       <Ruhestaende liste={daten.retiring ?? []} />
       <Budgetvorgaben daten={daten} />
@@ -1256,6 +1289,77 @@ function Organigramm({
   );
 }
 
+/** The two lists of the market: free candidates and managers of other companies (MG1). */
+export type MarktReiter = "frei" | "abwerben";
+
+/** The first free position of the organisation, for the entry "Managermarkt". */
+function ersteFreieStelle(daten: Organisation): { einheit: string; rolle: string } | null {
+  const einheiten: EinheitOrganisation[] = [
+    ...(daten.board ? [daten.board] : []),
+    ...daten.continents.flatMap((k) => [
+      ...(k.unit ? [k.unit] : []),
+      ...k.countries.flatMap((l) => [...(l.unit ? [l.unit] : []), ...l.sites]),
+    ]),
+  ];
+  for (const e of einheiten) {
+    const p = e.positions.find((x) => !x.holder && (x.topics.length > 0 || x.effect));
+    if (p) return { einheit: e.key, rolle: p.role };
+  }
+  return null;
+}
+
+/** Satisfaction level of a manager of another company as text. */
+function zufriedenheitText(stufe: number | null | undefined): string {
+  return stufe == null ? "–" : t(`zufriedenheit.${stufe}`);
+}
+
+/** One row of managers of other companies: who, where, what he asks, the button to offer. */
+function AbwerbeZeile({ k, rolle, onWahl }: { k: Kandidat; rolle: string; onWahl: () => void }) {
+  const m = k.manager;
+  const gesperrt = k.blocked_until != null;
+  return (
+    <tr>
+      <td>
+        <strong>{m.name}</strong> <Familienmarke m={m} />
+        <AlleFaehigkeiten m={m} />
+      </td>
+      <td data-spalte={t("organisation.firma")}>{k.company ?? "–"}</td>
+      <td data-spalte={t("organisation.stelle")}>
+        {k.current ? stellenName(k.current.role, k.current.unit) : "–"}
+      </td>
+      <td data-spalte={t("organisation.heimat")}>{landName(m.home)}</td>
+      <td data-spalte={t("organisation.schwerpunkt_kurz")}>{t(`bereich.${m.focus}`)}</td>
+      <td data-spalte={t("organisation.fach_der_stelle")}>{fachDerStelle(m, rolle)}</td>
+      <td data-spalte={t("organisation.zufriedenheit")}>{zufriedenheitText(k.satisfaction)}</td>
+      <td className="zahl" data-spalte={t("organisation.forderung")}>
+        {formatGeld(k.demand_usd)}
+        {k.over_cash && (
+          <span className="warnung" title={t("organisation.ueber_kasse_hilfe")}>
+            {" "}
+            {t("organisation.ueber_kasse")}
+          </span>
+        )}
+      </td>
+      <td>
+        <button
+          type="button"
+          disabled={gesperrt}
+          aria-label={`${t("organisation.abwerben")}: ${m.name}`}
+          onClick={onWahl}
+        >
+          {t("organisation.abwerben")}
+        </button>
+        {gesperrt && (
+          <small className="feld-hilfe">
+            {" "}
+            {t("organisation.gesperrt_bis", { datum: formatDatum(k.blocked_until ?? "") })}
+          </small>
+        )}
+      </td>
+    </tr>
+  );
+}
+
 /** One row of the market: a candidate or an own manager, with the button to take him. */
 function KandidatZeile({
   k,
@@ -1273,6 +1377,13 @@ function KandidatZeile({
     <tr>
       <td>
         <strong>{m.name}</strong> <Familienmarke m={m} />
+        {k.new && <span className="marke"> {t("organisation.neu")}</span>}
+        {k.ai_days != null && k.ai_days > 0 && (
+          <small className="feld-hilfe">
+            {" "}
+            {t("organisation.ki_in_tagen", { tage: formatZahl(k.ai_days) })}
+          </small>
+        )}
         <AlleFaehigkeiten m={m} />
       </td>
       <td className="zahl" data-spalte={t("organisation.alter_kurz")}>
@@ -1309,17 +1420,24 @@ function Managermarkt({
   stand,
   einheit,
   rolle,
+  reiter: anfang,
   onZurueck,
 }: {
   kern: Kern;
   stand: string;
   einheit: string;
   rolle: string;
+  reiter: MarktReiter;
   onZurueck: () => void;
 }) {
   const { daten, fehler } = useSicht(() => kern.managermarkt(einheit, rolle), stand);
   const { los } = useAktion(ORT);
   const [kontinent, setKontinent] = useState<string | null>(null);
+  const [reiter, setReiter] = useState<MarktReiter>(anfang);
+  const [land, setLand] = useState("alle");
+  const [funktion, setFunktion] = useState("alle");
+  const [nurBereit, setNurBereit] = useState(false);
+  const [mindest, setMindest] = useState(0);
   const auswahlId = useId();
   if (!daten) return <FehlerText fehler={fehler} />;
   const stelle = stellenName(rolle, daten.kind_text);
@@ -1328,6 +1446,23 @@ function Managermarkt({
   const kontinente = [...new Set(daten.candidates.map((k) => k.manager.continent))];
   const liste = daten.candidates.filter(
     (k) => gewaehlt === "alle" || k.manager.continent === gewaehlt,
+  );
+  const abwerben = async (k: Kandidat) => {
+    const ok = await los(
+      [{ PoachManager: { manager: k.manager.id, position: stellenangabe(einheit, rolle) } }],
+      t("organisation.abwerbe_angebot", { name: k.manager.name, stelle, standort }),
+    );
+    if (ok) onZurueck();
+  };
+  const fremde = (daten.others ?? []).filter(
+    (k) =>
+      (gewaehlt === "alle" || k.manager.continent === gewaehlt) &&
+      (land === "alle" || k.manager.home === land) &&
+      (funktion === "alle" || k.manager.focus === funktion) &&
+      (!nurBereit || k.satisfaction === 0) &&
+      (k.manager.skills.find(
+        (s) => s.key === `fach.${rolle === "leitung" ? k.manager.focus : rolle}`,
+      )?.level ?? 0) >= mindest,
   );
   const nehmen = async (k: Kandidat) => {
     const position = stellenangabe(einheit, rolle);
@@ -1371,7 +1506,21 @@ function Managermarkt({
           {t("organisation.ueber_kasse_warnung", { kasse: formatGeld(daten.cash_usd ?? 0) })}
         </p>
       )}
-      <p className="feld-hilfe">{t("organisation.abwerben_hinweis")}</p>
+      <div className="unterreiter" role="group" aria-label={t("organisation.markt_reiter")}>
+        {(["frei", "abwerben"] as const).map((r) => (
+          <button
+            key={r}
+            type="button"
+            className={reiter === r ? "haupt" : undefined}
+            aria-pressed={reiter === r}
+            onClick={() => setReiter(r)}
+          >
+            {t(`organisation.reiter_${r}`)}
+            {r === "abwerben" && ` (${formatZahl((daten.others ?? []).length)})`}
+          </button>
+        ))}
+      </div>
+      {reiter === "abwerben" && <p className="feld-hilfe">{t("organisation.abwerben_hinweis")}</p>}
       <label htmlFor={auswahlId}>{t("organisation.kontinent_wahl")} </label>
       <select id={auswahlId} value={gewaehlt} onChange={(e) => setKontinent(e.target.value)}>
         {[daten.continent, ...kontinente.filter((k) => k !== daten.continent)].map((k) => (
@@ -1381,46 +1530,142 @@ function Managermarkt({
         ))}
         <option value="alle">{t("organisation.alle_kontinente")}</option>
       </select>
-      <h3>{t("organisation.bewerber")}</h3>
-      {liste.length === 0 ? (
-        <p>{t("organisation.keine_bewerber")}</p>
-      ) : (
-        <div className="tabelle">
-          <table className="mobil-karten" aria-label={t("organisation.bewerber")}>
-            <thead>{kopf}</thead>
-            <tbody>
-              {liste.map((k) => (
-                <KandidatZeile
-                  key={k.manager.id}
-                  k={k}
-                  rolle={rolle}
-                  aktion={t("organisation.einstellen")}
-                  onWahl={() => void nehmen(k)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {daten.own.length > 0 && (
+      {reiter === "frei" && (
         <>
-          <h3>{t("organisation.eigene")}</h3>
-          <div className="tabelle">
-            <table className="mobil-karten" aria-label={t("organisation.eigene")}>
-              <thead>{kopf}</thead>
-              <tbody>
-                {daten.own.map((k) => (
-                  <KandidatZeile
-                    key={k.manager.id}
-                    k={k}
-                    rolle={rolle}
-                    aktion={t("organisation.versetzen")}
-                    onWahl={() => void nehmen(k)}
-                  />
+          <h3>{t("organisation.bewerber")}</h3>
+          {liste.length === 0 ? (
+            <p>{t("organisation.keine_bewerber")}</p>
+          ) : (
+            <div className="tabelle">
+              <table className="mobil-karten" aria-label={t("organisation.bewerber")}>
+                <thead>{kopf}</thead>
+                <tbody>
+                  {liste.map((k) => (
+                    <KandidatZeile
+                      key={k.manager.id}
+                      k={k}
+                      rolle={rolle}
+                      aktion={t("organisation.einstellen")}
+                      onWahl={() => void nehmen(k)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {daten.own.length > 0 && (
+            <>
+              <h3>{t("organisation.eigene")}</h3>
+              <div className="tabelle">
+                <table className="mobil-karten" aria-label={t("organisation.eigene")}>
+                  <thead>{kopf}</thead>
+                  <tbody>
+                    {daten.own.map((k) => (
+                      <KandidatZeile
+                        key={k.manager.id}
+                        k={k}
+                        rolle={rolle}
+                        aktion={t("organisation.versetzen")}
+                        onWahl={() => void nehmen(k)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </>
+      )}
+      {reiter === "abwerben" && (
+        <>
+          <div className="formular-zeile">
+            <div className="feld">
+              <label htmlFor={`${auswahlId}-land`}>{t("organisation.land_wahl")}</label>
+              <select
+                id={`${auswahlId}-land`}
+                value={land}
+                onChange={(e) => setLand(e.target.value)}
+              >
+                <option value="alle">{t("organisation.alle_laender")}</option>
+                {[...new Set((daten.others ?? []).map((k) => k.manager.home))]
+                  .sort((x, y) => landName(x).localeCompare(landName(y), "de"))
+                  .map((l) => (
+                    <option key={l} value={l}>
+                      {landName(l)}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="feld">
+              <label htmlFor={`${auswahlId}-funktion`}>{t("organisation.funktion_wahl")}</label>
+              <select
+                id={`${auswahlId}-funktion`}
+                value={funktion}
+                onChange={(e) => setFunktion(e.target.value)}
+              >
+                <option value="alle">{t("organisation.alle_funktionen")}</option>
+                {[...new Set((daten.others ?? []).map((k) => k.manager.focus))].map((f) => (
+                  <option key={f} value={f}>
+                    {t(`bereich.${f}`)}
+                  </option>
                 ))}
-              </tbody>
-            </table>
+              </select>
+            </div>
+            <div className="feld">
+              <label htmlFor={`${auswahlId}-stufe`}>{t("organisation.mindeststufe")}</label>
+              <select
+                id={`${auswahlId}-stufe`}
+                value={mindest}
+                onChange={(e) => setMindest(Number(e.target.value))}
+              >
+                {[0, 1, 2, 3].map((n) => (
+                  <option key={n} value={n}>
+                    {n === 0 ? t("organisation.egal") : `≥ ${n}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <label>
+              <input
+                type="checkbox"
+                checked={nurBereit}
+                onChange={(e) => setNurBereit(e.target.checked)}
+              />{" "}
+              {t("organisation.wechselbereit")}
+            </label>
           </div>
+          <h3>{t("organisation.reiter_abwerben")}</h3>
+          {fremde.length === 0 ? (
+            <p>{t("organisation.keine_fremden")}</p>
+          ) : (
+            <div className="tabelle">
+              <table className="mobil-karten" aria-label={t("organisation.reiter_abwerben")}>
+                <thead>
+                  <tr>
+                    <th>{t("organisation.name")}</th>
+                    <th>{t("organisation.firma")}</th>
+                    <th>{t("organisation.stelle")}</th>
+                    <th>{t("organisation.heimat")}</th>
+                    <th>{t("organisation.schwerpunkt_kurz")}</th>
+                    <th>{t("organisation.fach_der_stelle")}</th>
+                    <th>{t("organisation.zufriedenheit")}</th>
+                    <th className="zahl">{t("organisation.forderung")}</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {fremde.map((k) => (
+                    <AbwerbeZeile
+                      key={k.manager.id}
+                      k={k}
+                      rolle={rolle}
+                      onWahl={() => void abwerben(k)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
     </section>
@@ -1439,7 +1684,11 @@ export function OrganisationAnsicht({
   // Every command reloads the chart; the overview keeps cash and counters.
   const [zaehler, setZaehler] = useState(0);
   const { senden, meldung } = useBefehl(kern, onGeaendert, () => setZaehler((z) => z + 1));
-  const [wahl, setWahl] = useState<{ einheit: string; rolle: string } | null>(null);
+  const [wahl, setWahl] = useState<{
+    einheit: string;
+    rolle: string;
+    reiter: MarktReiter;
+  } | null>(null);
   const offen = uebersicht.concerns_open ?? 0;
   // Open concerns have a deadline: the inbox comes first while there are some.
   const [bereich, setBereich] = useState<
@@ -1468,7 +1717,9 @@ export function OrganisationAnsicht({
               <Organigramm
                 kern={kern}
                 stand={stand}
-                onBesetzen={(einheit, rolle) => setWahl({ einheit, rolle })}
+                onBesetzen={(einheit, rolle, reiter = "frei") =>
+                  setWahl({ einheit, rolle, reiter })
+                }
                 onAnliegen={() => setBereich("anliegen")}
               />
             )}
@@ -1489,6 +1740,7 @@ export function OrganisationAnsicht({
             stand={stand}
             einheit={wahl.einheit}
             rolle={wahl.rolle}
+            reiter={wahl.reiter}
             onZurueck={() => setWahl(null)}
           />
         )}

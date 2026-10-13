@@ -358,7 +358,34 @@ describe("Anliegen", () => {
     expect(await screen.findByText(/Mehrere Forderungen sind höher als deine Kasse/)).toBeTruthy();
     // The candidates of the unit's continent are listed first.
     expect(screen.getAllByText("über der Kasse").length).toBeGreaterThan(0);
-    expect(screen.getByText(/Manager anderer Firmen wirbst du unter „Wettbewerb“ ab/)).toBeTruthy();
+    // The market has two lists; the one of other companies is one click away (MG1).
+    expect(screen.getByRole("button", { name: /Manager anderer Firmen/ })).toBeTruthy();
+  });
+
+  it("führt von einer freien Stelle in einem Klick zu den Managern anderer Firmen (MG1)", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "Manager abwerben Produktion (Werk · Deutschland)",
+      }),
+    );
+    const tabelle = await screen.findByRole("table", { name: "Manager anderer Firmen" });
+    expect(within(tabelle).getAllByText("Abwerben").length).toBeGreaterThan(0);
+    const knopf = within(tabelle)
+      .getAllByRole("button", { name: /^Abwerben: / })
+      .find((b) => !(b as HTMLButtonElement).disabled);
+    expect(knopf).toBeTruthy();
+    fireEvent.click(knopf as HTMLElement);
+    await screen.findByRole("button", { name: /Managermarkt/ });
+    expect(gesendet).toHaveLength(1);
+    expect(JSON.stringify(gesendet[0])).toContain("PoachManager");
   });
 
   it("zeigt den Hauptsitz mit Steuer und Lohn und verlegt ihn", async () => {

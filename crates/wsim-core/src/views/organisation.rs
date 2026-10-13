@@ -283,6 +283,20 @@ pub struct CandidateView {
     pub over_cash: bool,
     /// An own manager's position now.
     pub current: Option<CurrentPositionView>,
+    /// On the market less than a month (MG1).
+    #[serde(default)]
+    pub new: bool,
+    /// Days until AI companies may take him; none once they may (MG1).
+    #[serde(default)]
+    pub ai_days: Option<u32>,
+    /// A manager of another company: its name, his satisfaction level (0 unhappy, 1 mixed,
+    /// 2 happy) and the day the pause after the last offer to him ends (MG1).
+    #[serde(default)]
+    pub company: Option<String>,
+    #[serde(default)]
+    pub satisfaction: Option<u8>,
+    #[serde(default)]
+    pub blocked_until: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -301,6 +315,10 @@ pub struct ManagerMarketView {
     pub candidates: Vec<CandidateView>,
     /// The company's managers on other positions.
     pub own: Vec<CandidateView>,
+    /// Managers of other companies the player could poach (MG1): those of the unit's
+    /// continent and a fitting function first.
+    #[serde(default)]
+    pub others: Vec<CandidateView>,
     /// The company's cash, for the warning on salaries above it.
     #[serde(default)]
     pub cash_usd: f64,
@@ -963,11 +981,21 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
             ),
             None => (demand, None),
         };
+        let today = state.date;
+        let ai_days = management::ai_access_from(c, m)
+            .map(|d| today.days_until(d))
+            .filter(|&d| d > 0)
+            .and_then(|d| u32::try_from(d).ok());
         CandidateView {
             manager: manager_view(game, id, m),
             demand_usd: usd(demand),
             over_cash: demand > cash,
             current,
+            new: m.job.is_none() && m.entered.is_some_and(|d| d.days_until(today) < 31),
+            ai_days: if m.job.is_none() { ai_days } else { None },
+            company: None,
+            satisfaction: None,
+            blocked_until: None,
         }
     };
     let fits = |m: &Manager| match &position.role {
@@ -999,6 +1027,54 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         })
         .map(|(&id, m)| candidate(id, m))
         .collect();
+    let others = {
+        let today = state.date;
+        let mut list: Vec<(bool, bool, bool, &str, ManagerId)> = state
+            .managers
+            .iter()
+            .filter(|(_, m)| {
+                !m.family
+                    && m.job
+                        .as_ref()
+                        .is_some_and(|j| j.company != player && !j.successor)
+            })
+            .map(|(&id, m)| {
+                let elsewhere = c.countries.get(m.home).continent != continent;
+                (elsewhere, !fits(m), false, m.name.as_str(), id)
+            })
+            .collect();
+        list.sort();
+        list.iter()
+            .filter_map(|&(.., id)| {
+                let m = &state.managers[&id];
+                let job = m.job.as_ref()?;
+                let employer = state.companies.get(job.company.index())?;
+                if employer.bankrupt {
+                    return None;
+                }
+                let demand = crate::staffing::poach_salary(c, state, player, m, &position);
+                let blocked = crate::staffing::courted_until(c, m).filter(|&d| d > today);
+                Some(CandidateView {
+                    manager: manager_view(game, id, m),
+                    demand_usd: usd(demand),
+                    over_cash: demand > cash,
+                    current: Some(CurrentPositionView {
+                        unit: unit_key(c, job.position.unit),
+                        site: unit_site(job.position.unit),
+                        role: role_key(&job.position.role),
+                    }),
+                    new: false,
+                    ai_days: None,
+                    company: Some(employer.name.clone()),
+                    satisfaction: Some(staffing::satisfaction_level(
+                        c,
+                        staffing::satisfaction(c, job),
+                    )),
+                    blocked_until: blocked.map(iso),
+                })
+            })
+            .collect::<Vec<_>>()
+    };
     Some(ManagerMarketView {
         unit: unit_key(c, unit),
         site: unit_site(unit),
@@ -1013,6 +1089,7 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         candidates,
         cash_usd: usd(cash),
         own,
+        others,
     })
 }
 

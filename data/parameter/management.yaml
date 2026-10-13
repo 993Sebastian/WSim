@@ -157,6 +157,9 @@ management:
     min: 12
     max: 60
     abgang_monat: 0.15
+    # Neue Kandidaten sehen zuerst der Spieler: KI-Firmen und automatische Einstellung
+    # dürfen erst nach so vielen Tagen zugreifen (MANAGER_2.md 1.3).
+    ki_wartetage: 10
 
   # Verteilung der Fähigkeiten (Normalverteilung, auf 0–100 begrenzt); Risikoneigung und
   # Fragefreude sind gleichverteilt. Der Eindruck verschiebt die angezeigte Stufe.

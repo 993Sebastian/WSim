@@ -452,6 +452,9 @@ pub(crate) fn end_job(state: &mut GameState, manager: ManagerId, today: Date) {
     let Some(job) = state.managers.get_mut(&manager).and_then(|m| m.job.take()) else {
         return;
     };
+    if let Some(m) = state.managers.get_mut(&manager) {
+        m.entered = Some(today);
+    }
     let from = job.since.max(today.first_of_month());
     let pay = salary_for(&job, from, today);
     if !state.companies[job.company.index()].bankrupt {
@@ -529,6 +532,7 @@ pub(crate) fn hire(
     crate::person::check_family(state, actor, m)?;
     check_position(catalog, state, actor, position)?;
     let salary = salary_demand(catalog, state, actor, m, position);
+    let continent = catalog.countries.get(m.home).continent;
     let since = state.date;
     state.managers.get_mut(&manager).expect("checked").job = Some(Job {
         company: actor,
@@ -538,6 +542,11 @@ pub(crate) fn hire(
         satisfaction: Some(catalog.management.market.satisfaction.start),
         successor: false,
     });
+    if state.companies[actor.index()].ai.is_some() {
+        note_market(state, continent, |c| c.ai_hired += 1);
+    } else {
+        note_market(state, continent, |c| c.player_hired += 1);
+    }
     Ok(())
 }
 
@@ -769,18 +778,66 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
                 x.job.is_none() && !x.family && catalog.countries.get(x.home).continent == continent
             })
             .count();
-        for _ in free..pool_size(catalog, total) {
+        let target = pool_size(catalog, total);
+        for _ in free..target {
             let home = pick_country(&mut rng, &countries, total);
-            let manager = draw(catalog, &mut rng, home, &mut names);
+            let mut manager = draw(catalog, &mut rng, home, &mut names);
+            manager.entered = Some(date);
+            note_market(state, continent, |c| c.appeared += 1);
             state
                 .managers
                 .insert(ManagerId(state.next_manager), manager);
             state.next_manager += 1;
         }
+        let free_now = state
+            .managers
+            .values()
+            .filter(|x| {
+                x.job.is_none() && !x.family && catalog.countries.get(x.home).continent == continent
+            })
+            .count();
+        note_market(state, continent, |c| {
+            c.target = u32::try_from(target).unwrap_or(u32::MAX);
+            c.free = u32::try_from(free_now).unwrap_or(u32::MAX);
+        });
     }
     crate::staffing::set_potentials(state, catalog);
     crate::aging::set_births(state, catalog, date);
     news
+}
+
+/// Counts an event on the market of managers of a continent in the year of today (MG1).
+pub(crate) fn note_market(
+    state: &mut GameState,
+    continent: crate::ids::ContinentId,
+    count: impl FnOnce(&mut crate::state::MarketCount),
+) {
+    let year = state.date.year();
+    let index = u16::try_from(continent.index()).unwrap_or(u16::MAX);
+    let at = state
+        .manager_market_log
+        .iter()
+        .position(|c| c.year == year && c.continent == index);
+    let entry = match at {
+        Some(i) => &mut state.manager_market_log[i],
+        None => {
+            state.manager_market_log.push(crate::state::MarketCount {
+                year,
+                continent: index,
+                ..Default::default()
+            });
+            state.manager_market_log.last_mut().expect("just pushed")
+        }
+    };
+    count(entry);
+}
+
+/// The first day AI companies and automatic hiring may take a free manager (MG1): a
+/// number of days after he came on the market; the player may at once.
+pub fn ai_access_from(catalog: &Catalog, manager: &Manager) -> Option<Date> {
+    manager
+        .entered
+        .map(|d| d.add_days(i32::try_from(catalog.management.pool.ai_wait_days).unwrap_or(0)))
 }
 
 /// A country of a continent, weighted by its academics.
@@ -860,6 +917,7 @@ pub(crate) fn draw(
         job: None,
         potential: None,
         courted: None,
+        entered: None,
         judged: 0,
         hits: 0,
         born: None,

@@ -312,6 +312,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             1.0,
             &pl.field("abgang_monat"),
         ),
+        ai_wait_days: v.pool.ai_wait_days.min(365),
     };
     if pool.min == 0 {
         ctx.error(&pl.field("min"), messages::not_positive(0.0));

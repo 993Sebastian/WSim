@@ -110,7 +110,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await expect(verlauf.getByText("Gestrichelt: Richtpreis im Land.")).toBeVisible();
   await expect(
     verlauf.getByRole("img", {
-      name: /^Bezahlter Preis je Monat: 1\.894 USD\/t \(Jan 1914\) bis 2\.035 USD\/t \(Jul 1914\)$/,
+      name: /^Bezahlter Preis je Monat: 1\.894 USD\/t \(Jan 1914\) bis 2\.034 USD\/t \(Jul 1914\)$/,
     }),
   ).toBeVisible();
   await expect(
@@ -323,7 +323,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
       SetInternalSupply: { site: 0, product: "draht", source: 5, mode: { Need: { days: 25 } } },
     },
     // The limit suggested: the market price + 10 %.
-    { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 18_656_200 } },
+    { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 18_642_500 } },
     // 1 887,21 USD − 5 %, rounded to cents
     { TransferGoods: { from: 0, to: 5, product: "draht", quantity: 4 } },
     {
@@ -752,7 +752,7 @@ test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page })
   await expect(preis).toContainText("Richtpreis (Preisniveau 1)1.800 USD/t");
   await expect(preis).toContainText("Preisniveau Deutschland 0,8, davon wirkt 10 %× 0,98");
   await expect(preis).toContainText("Marktlage: 15 % über dem Richtpreis× 1,15");
-  await expect(preis).toContainText("Marktpreis= 2.033 USD/t");
+  await expect(preis).toContainText("Marktpreis= 2.032 USD/t");
   await bild(page, "erklaerung_preis");
   await page.getByRole("button", { name: /Alle Produkte/ }).click();
 
@@ -976,11 +976,11 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   );
   const werk = page.getByRole("article", { name: "Werk · Deutschland" });
   await expect(werk).toContainText("Werksleitung");
-  await expect(werk).toContainText("Ana García");
-  await expect(werk).toContainText("83.948 USD");
+  await expect(werk).toContainText("Anna Kovalenko");
+  await expect(werk).toContainText("97.756 USD");
   await expect(werk).toContainText("Nächste Prüfung: 04.01.1915");
   // Age and planned retirement (PE1).
-  await expect(werk).toContainText("38 Jahre · Ruhestand am 01.10.1945 mit 69");
+  await expect(werk).toContainText("45 Jahre · Ruhestand am 01.07.1928 mit 59");
   // The head takes care of the functions without a specialist.
   await expect(werk).toContainText("Auslastung und Rezept, Überkapazität");
   // All skills as levels behind the ⓘ.
@@ -995,58 +995,57 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(
     page.getByRole("heading", { name: "Produktion · Werk · Deutschland" }),
   ).toBeVisible();
-  // The unit's continent comes first; Europe has no candidates in the example right now.
+  // The unit's continent comes first; the candidates that appeared lately are marked (MG1).
   await expect(page.getByLabel("Bewerber aus")).toHaveValue("europa");
-  await expect(page.getByText(/Im Moment gibt es hier keine Bewerber/)).toBeVisible();
-  // Candidates of other continents on request.
-  await page.getByLabel("Bewerber aus").selectOption("alle");
   const bewerber = page.getByRole("table", { name: "Bewerber" });
   await expect(bewerber.getByRole("row").nth(0)).toContainText("Alter");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("William Whitfield");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Australien und Ozeanien");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("solide");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Manuel Ortega");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Spanien und Portugal");
   await bild(page, "managermarkt");
-  await bewerber.getByRole("button", { name: "Einstellen: William Whitfield" }).click();
+  // Managers of other companies are one click away (MG1).
+  await page.getByRole("button", { name: /^Manager anderer Firmen/ }).click();
+  await expect(page.getByRole("table", { name: "Manager anderer Firmen" })).toBeVisible();
+  await bild(page, "managermarkt_abwerben");
+  await page.getByRole("button", { name: /^Freie Kandidaten/ }).click();
+  await bewerber.getByRole("button", { name: "Einstellen: Manuel Ortega" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     HireManager: {
-      manager: 535,
+      manager: 434,
       position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
     },
   });
   // The own head could move here instead.
   const eigene = page.getByRole("table", { name: "Eigene Manager versetzen" });
-  await eigene.getByRole("button", { name: "Hierher versetzen: Ana García" }).click();
+  await eigene.getByRole("button", { name: "Hierher versetzen: Anna Kovalenko" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     MoveManager: {
-      manager: 346,
+      manager: 274,
       position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
     },
   });
 
   // Dismissing asks first and names the severance.
   await page.getByRole("button", { name: "← Organisation" }).click();
-  await werk.getByRole("button", { name: "Entlassen: Ana García, Werksleitung" }).click();
-  await expect(werk).toContainText("Ana García entlassen? Abfindung 20.987 USD.");
+  await werk.getByRole("button", { name: "Entlassen: Anna Kovalenko, Werksleitung" }).click();
+  await expect(werk).toContainText("Anna Kovalenko entlassen? Abfindung 24.439 USD.");
   await werk.getByRole("button", { name: "Ja, entlassen" }).click();
-  expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 346 } });
+  expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 274 } });
 
   // The country's positions (MA3): its head, and a specialist from the market.
   const land = page.getByRole("article", { name: "Land · Deutschland" });
   await expect(land).toContainText("Landesleitung");
-  await expect(land).toContainText("Arthur Carter");
   await expect(land).toContainText("Kraftwerk");
   await land.getByRole("button", { name: "Besetzen Produktion (Land · Deutschland)" }).click();
   await expect(
     page.getByRole("heading", { name: "Produktion · Land · Deutschland" }),
   ).toBeVisible();
-  await page.getByLabel("Bewerber aus").selectOption("alle");
   await page
     .getByRole("table", { name: "Bewerber" })
-    .getByRole("button", { name: "Einstellen: William Whitfield" })
+    .getByRole("button", { name: /^Einstellen: / })
+    .first()
     .click();
-  expect((await befehle(page)).at(-1)).toEqual({
+  expect((await befehle(page)).at(-1)).toMatchObject({
     HireManager: {
-      manager: 535,
       position: { unit: { Country: "DEU" }, role: { Specialist: "produktion" } },
     },
   });

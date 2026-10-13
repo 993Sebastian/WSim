@@ -318,7 +318,7 @@ pub fn offered(state: &GameState, company: CompanyId, position: &Position) -> bo
 }
 
 /// Free candidates from the continent of a unit's seat country.
-fn candidates(
+pub(crate) fn candidates(
     catalog: &Catalog,
     state: &GameState,
     company: CompanyId,
@@ -332,7 +332,10 @@ fn candidates(
         .managers
         .iter()
         .filter(|(_, m)| {
-            m.job.is_none() && !m.family && catalog.countries.get(m.home).continent == continent
+            m.job.is_none()
+                && !m.family
+                && catalog.countries.get(m.home).continent == continent
+                && management::ai_access_from(catalog, m).is_none_or(|d| d <= state.date)
         })
         .map(|(&id, _)| id)
         .collect()
@@ -659,6 +662,10 @@ pub(crate) fn let_go(
     state.poach_offers.remove(index);
     close_concerns(state, manager, ConcernStatus::Settled);
     let today = state.date;
+    if let Some(m) = state.managers.get(&manager) {
+        let continent = catalog.countries.get(m.home).continent;
+        management::note_market(state, continent, |c| c.poached += 1);
+    }
     management::end_job(state, manager, today);
     let start = catalog.management.market.satisfaction.start;
     if let Some(m) = state.managers.get_mut(&manager) {

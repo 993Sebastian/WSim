@@ -1769,6 +1769,15 @@ export interface Kandidat {
   over_cash?: boolean;
   /** An own manager's position now. */
   current: { unit: string; site: number | null; role: string } | null;
+  /** On the market less than a month (MG1). */
+  new?: boolean;
+  /** Days until AI companies may take him; null once they may (MG1). */
+  ai_days?: number | null;
+  /** Managers of other companies (MG1): the company, his satisfaction level (0 unhappy, 1
+   * mixed, 2 happy) and the day the pause after the last offer to him ends. */
+  company?: string | null;
+  satisfaction?: number | null;
+  blocked_until?: string | null;
 }
 
 /** An option of a concern as the position assessed it (MA2). */
@@ -1917,6 +1926,8 @@ export interface Managermarkt {
   candidates: Kandidat[];
   /** The company's managers on other positions. */
   own: Kandidat[];
+  /** Managers of other companies the player could poach (MG1). */
+  others?: Kandidat[];
   /** The company's cash, for the warning on salaries above it. */
   cash_usd?: number;
 }

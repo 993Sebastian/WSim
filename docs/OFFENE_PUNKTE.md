@@ -2441,6 +2441,20 @@ MG7/MG8/MG10 nach MG2, MG9 nach MG6.
 `PoachManager`, Strategierücksprache, `SetHiringByHead`, `mandate::banned`) werden an die Vorgabe
 angeglichen, nicht doppelt gebaut. Jede Abweichung wird beim jeweiligen Meilenstein hier vermerkt.
 
+### MG1-a: Ergebnisse und Annahmen (13.10.2026)
+
+🟡 Gemessen mit `wsim run --managermarkt` (30 KI, 1900–1903): Europa bekommt 75–85 neue
+Kandidaten im Jahr bei einem Poolziel von 13; die KI stellt davon 66–70 ein. Der Engpass im
+Befund ist also real. Mit den 10 Tagen Vorsprung sieht der Spieler jeden neuen Kandidaten vor
+der KI; die Menge ändert sich nicht. Ob 10 Tage reichen, zeigt der Spielbetrieb (Parameter
+`ki_wartetage`).
+🟡 Das Poolziel erreicht 1990 die Obergrenze 60 (`pool.max`); danach wächst es nicht mehr.
+Vorschlag: `max` anheben, wenn der Pool nach 1990 zu knapp wirkt (das Protokoll zeigt es).
+🟡 „Aktuelles Gehalt soweit bekannt“ entfällt in der Liste: gezeigt wird die voraussichtliche
+Forderung für die gewählte Stelle (Gehalt plus Aufschlag, mindestens die Marktforderung).
+🟡 Die Filter „Funktion“ und „Mindeststufe“ beziehen sich auf den Schwerpunkt bzw. die
+Fachkompetenz für die gewählte Stelle; „Branche“ kommt mit MG5.
+
 ## X Lieferverträge: Partnerschaft und Umsatzanteil (Wunsch vom 12.10.2026)
 
 Wunsch: Je Lieferant ein **Partnerschaftsgrad in %**, produktübergreifend. Er steigt mit

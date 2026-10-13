@@ -2092,6 +2092,8 @@ pub struct RawManagerPool {
     pub max: u32,
     #[serde(rename = "abgang_monat")]
     pub leave_per_month: f64,
+    #[serde(rename = "ki_wartetage", default)]
+    pub ai_wait_days: u32,
 }
 
 #[derive(Debug, Deserialize)]

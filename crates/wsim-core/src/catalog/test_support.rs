@@ -730,6 +730,7 @@ pub fn management() -> Catalog {
             min: 6,
             max: 12,
             leave_per_month: 0.15,
+            ai_wait_days: 0,
         },
         skills: SkillModel {
             focus: (60.0, 15.0),

@@ -972,6 +972,9 @@ pub struct ManagerPoolModel {
     pub max: u32,
     /// Chance that a free candidate leaves the market at the start of a month.
     pub leave_per_month: f64,
+    /// Days a new candidate is on the market before AI companies and automatic hiring may
+    /// take him; the player may at once (MG1).
+    pub ai_wait_days: u32,
 }
 
 /// Distributions of the skills of new managers (0–100).

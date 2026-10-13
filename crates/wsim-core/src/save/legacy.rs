@@ -181,6 +181,7 @@ pub(super) fn decode_v2(
         next_concern: 0,
         followups: Vec::new(),
         poach_offers: Vec::new(),
+        manager_market_log: Vec::new(),
         judgments: Vec::new(),
         ventures: Vec::new(),
         next_venture: 0,
