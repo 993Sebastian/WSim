@@ -111,9 +111,19 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ (Forschungspflicht, Grundprodukte, KI-Produktforschung, Werksbranche, Kauf nach Produkt, Umstellen; Annahmen OFFENE_PUNKTE U) |
-| MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | ⏳ (Annahmen W0–W8 bestätigt; Start nach FW1 Teil 2) |
+| MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | 🔄 Schritt 1–3 erledigt (Daten, Kern, Anzeige); Schritt 4 (KI/Manager: bestes Angebot am selben Tag, Rest siehe OFFENE_PUNKTE W-s) in Arbeit |
 | LB1 | Forschungszentrum: Projekt je Labor statt eines Projekts je Standort; forschen mehrere Labore dasselbe Produkt bzw. dieselbe Technologie, addieren sich ihre Punkte (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE Y) | ⏳ nach MAA |
 | EC1 | Einkaufscontrolling im Bereich Controlling: je Komponente Menge, Qualität, Preis und Ausgaben (letzter Monat, letztes Jahr) als Grundlage für die Frage, ob sich Eigenfertigung lohnt (Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE Z) | ⏳ nach AKT |
+| MG1 | Manager mit Geschichte: Abwerbemenü (Reiter „Manager anderer Firmen“), fairer Zugriff (KI-Wartezeit), Poolprüfung, CLI-Protokoll „managermarkt“ (`docs/MANAGER_2.md` §1) | ⏳ nach MAA 4 und den Arbeitspaketen davor |
+| MG2 | Entscheidungsakte, Nachbetrachtung, Trefferquote für alle Manager (§2) | ⏳ |
+| MG3 | Gedächtnis und Chronik (§3) | ⏳ |
+| MG4 | Tiefe und Vielfalt der Anliegen: 2–4 Optionen, neue Anlässe (§4) | ⏳ |
+| MG5 | Branchenstärke je Manager, Wirkung höchstens 10 %, Gesamtdeckel, CLI „produktionsfaktoren“ (§5) | ⏳ |
+| MG6 | Strategievorschläge von CEO, Kontinent und Land, ein System mit den Zentralabteilungen (§6, §9) | ⏳ |
+| MG7 | Stil und Einwand je Manager (§7; Text der Vorgabe ab §7.2 fehlt) | ⏳ Vorgabe unvollständig |
+| MG8 | Personalverantwortung: Leitungen stellen mit Begründung, Akte und Nachbetrachtung ein (Entscheidung 8; Beschreibung fehlt) | ⏳ Vorgabe unvollständig |
+| MG9 | Empfehlung der Abteilungsleitungen zur Zahl der Angestellten (Entscheidung 9; Beschreibung fehlt) | ⏳ Vorgabe unvollständig |
+| MG10 | Branchenfreigabe je Ebene (Konzern, Kontinent, Land) (Entscheidung 11; Beschreibung fehlt) | ⏳ Vorgabe unvollständig |
 | LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ⏳ nach MAA |
 | AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ⏳ |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏸ zurückgestellt bis zur Aufforderung (Wunsch vom 12.10.2026) |

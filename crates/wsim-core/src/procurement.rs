@@ -390,6 +390,99 @@ pub fn draw_offer(
     )
 }
 
+/// The days (offsets from the start) on which the offers of a tender arrive: some on random
+/// days of each week.
+fn draw_schedule(m: &MachineOfferModel, seed: u64, tender: u32) -> Vec<u32> {
+    let mut rng = SimRng::for_stream(
+        seed,
+        Stream::Procurement {
+            tender,
+            index: u32::MAX,
+        },
+    );
+    let weeks = m.tender_days.div_ceil(7);
+    let mut days = Vec::new();
+    for week in 0..weeks {
+        let span = u64::from(m.offers_per_week.1 - m.offers_per_week.0) + 1;
+        let n = m.offers_per_week.0 + rng.below(span) as u32;
+        for _ in 0..n {
+            let day = week * 7 + rng.below(7) as u32;
+            if day < m.tender_days {
+                days.push(day);
+            }
+        }
+    }
+    days.sort_unstable();
+    if days.is_empty() {
+        days.push(0);
+    }
+    days
+}
+
+/// The offer a machine builder makes on `date` as the `index`-th of a tender: builder of
+/// the site's country when there is one, hidden values from the tender's own stream.
+fn offer_at(
+    state: &GameState,
+    catalog: &Catalog,
+    (tender, index): (u32, u32),
+    date: Date,
+    (site, kind): (SiteId, TenderKind),
+) -> Option<MachineOffer> {
+    let m = &catalog.machine_offers;
+    let base = base(state, catalog, site, kind).ok()?;
+    let country = state.site(site).map(|s| s.country);
+    let mut rng = SimRng::for_stream(state.settings.seed, Stream::Procurement { tender, index });
+    let active = |b: &crate::catalog::MachineBuilder| b.active(date.year());
+    let own: Vec<(MachineBuilderId, f64)> = catalog
+        .machine_builders
+        .iter()
+        .filter(|(_, b)| active(b) && Some(b.country) == country)
+        .map(|(id, b)| (id, b.tendency))
+        .collect();
+    let eligible = if own.is_empty() {
+        catalog
+            .machine_builders
+            .iter()
+            .filter(|(_, b)| active(b))
+            .map(|(id, b)| (id, b.tendency))
+            .collect()
+    } else {
+        own
+    };
+    if eligible.is_empty() {
+        return None;
+    }
+    let (builder, tendency) = eligible[rng.below(eligible.len() as u64) as usize];
+    let (mut factors, price, build_days) = draw_offer(&mut rng, m, tendency, base.count, &base);
+    factors.builder = Some(builder);
+    let input_prices = country
+        .map(|c| {
+            catalog
+                .recipes
+                .get(base.recipe)
+                .inputs
+                .iter()
+                .map(|&(p, _)| {
+                    (
+                        p,
+                        crate::market::market_price(catalog, state, c, p).to_usd(),
+                    )
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    Some(MachineOffer {
+        id: index,
+        builder,
+        received: date,
+        valid_until: date.add_days(i32::try_from(m.valid_days).unwrap_or(1) - 1),
+        factors,
+        price,
+        build_days,
+        input_prices,
+    })
+}
+
 /// Offers arrive, old ones lapse and tenders end (daily).
 pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let m = &catalog.machine_offers;
@@ -404,101 +497,23 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             (t.id, t.company, t.site, t.kind, t.start)
         };
         if state.machine_tenders[i].schedule.is_empty() {
-            // The weeks of the tender: some offers on random days of each.
-            let mut rng = SimRng::for_stream(
-                seed,
-                Stream::Procurement {
-                    tender: id,
-                    index: u32::MAX,
-                },
-            );
-            let weeks = m.tender_days.div_ceil(7);
-            let mut days = Vec::new();
-            for week in 0..weeks {
-                let span = u64::from(m.offers_per_week.1 - m.offers_per_week.0) + 1;
-                let n = m.offers_per_week.0 + rng.below(span) as u32;
-                for _ in 0..n {
-                    let day = week * 7 + rng.below(7) as u32;
-                    if day < m.tender_days {
-                        days.push(day);
-                    }
-                }
-            }
-            days.sort_unstable();
-            if days.is_empty() {
-                days.push(0);
-            }
-            state.machine_tenders[i].schedule = days;
+            state.machine_tenders[i].schedule = draw_schedule(m, seed, id);
         }
-        let input_prices: Vec<(ProductId, f64)> = base(state, catalog, site, kind)
-            .ok()
-            .zip(state.site(site).map(|s| s.country))
-            .map(|(b, country)| {
-                catalog
-                    .recipes
-                    .get(b.recipe)
-                    .inputs
-                    .iter()
-                    .map(|&(p, _)| {
-                        (
-                            p,
-                            crate::market::market_price(catalog, state, country, p).to_usd(),
-                        )
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
         let offset = start.days_until(date);
-        let due: Vec<u32> = state.machine_tenders[i]
+        let due = state.machine_tenders[i]
             .schedule
             .iter()
-            .copied()
-            .filter(|&d| i32::try_from(d).is_ok_and(|d| d == offset))
-            .collect();
+            .filter(|&&d| i32::try_from(d).is_ok_and(|d| d == offset))
+            .count();
         let mut received = 0;
-        if let Ok(base) = base(state, catalog, site, kind) {
-            let country = state.site(site).map(|s| s.country);
-            for _ in due {
+        for _ in 0..due {
+            let index = {
                 let t = &mut state.machine_tenders[i];
-                let index = t.next_offer;
                 t.next_offer += 1;
-                let mut rng = SimRng::for_stream(seed, Stream::Procurement { tender: id, index });
-                let eligible: Vec<(MachineBuilderId, f64)> = {
-                    let active = |b: &crate::catalog::MachineBuilder| b.active(date.year());
-                    let own: Vec<_> = catalog
-                        .machine_builders
-                        .iter()
-                        .filter(|(_, b)| active(b) && Some(b.country) == country)
-                        .map(|(id, b)| (id, b.tendency))
-                        .collect();
-                    if own.is_empty() {
-                        catalog
-                            .machine_builders
-                            .iter()
-                            .filter(|(_, b)| active(b))
-                            .map(|(id, b)| (id, b.tendency))
-                            .collect()
-                    } else {
-                        own
-                    }
-                };
-                if eligible.is_empty() {
-                    continue;
-                }
-                let (builder, tendency) = eligible[rng.below(eligible.len() as u64) as usize];
-                let (mut factors, price, build_days) =
-                    draw_offer(&mut rng, m, tendency, base.count, &base);
-                factors.builder = Some(builder);
-                t.offers.push(MachineOffer {
-                    id: index,
-                    builder,
-                    received: date,
-                    valid_until: date.add_days(i32::try_from(m.valid_days).unwrap_or(1) - 1),
-                    factors,
-                    price,
-                    build_days,
-                    input_prices: input_prices.clone(),
-                });
+                t.next_offer - 1
+            };
+            if let Some(o) = offer_at(state, catalog, (id, index), date, (site, kind)) {
+                state.machine_tenders[i].offers.push(o);
                 received += 1;
             }
         }
@@ -692,4 +707,75 @@ pub fn offer_area(
         free_before_ha: plot.map(|a| a - before),
         free_after_ha: plot.map(|a| a - after),
     })
+}
+
+/// What one unit made with an offer costs a company that has to decide (MAA §7): the unit
+/// cost over the life of the machine, plus the contribution margin lost while it is
+/// being built, spread over the units it makes in its life. Lower is better.
+pub fn offer_score(
+    state: &GameState,
+    catalog: &Catalog,
+    tender: &MachineTender,
+    offer: &MachineOffer,
+) -> Option<f64> {
+    let costs = offer_costs(state, catalog, tender, offer)?;
+    let b = base(state, catalog, tender.site, tender.kind).ok()?;
+    let product = catalog.recipes.get(b.recipe).product;
+    let country = state.site(tender.site)?.country;
+    let margin = (crate::market::market_price(catalog, state, country, product).to_usd()
+        - costs.unit_cost_usd)
+        .max(0.0);
+    let life_days = f64::from(catalog.facilities.get(b.facility).lifetime_years.max(1)) * 365.0;
+    Some(costs.unit_cost_usd + margin * f64::from(offer.build_days) / life_days)
+}
+
+/// The best offer of a tender that is decided on the day it is asked for, as automatic
+/// decisions (AI companies, managers) do: the offers a tender would bring over its days
+/// are drawn now and the one with the lowest score that fits the plot wins. `None` when
+/// there are no tenders or no offer.
+pub fn best_offer_now(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    (site, kind): (SiteId, TenderKind),
+) -> Option<MachineOffer> {
+    let m = &catalog.machine_offers;
+    if !m.enabled {
+        return None;
+    }
+    let id = state.next_machine_tender;
+    state.next_machine_tender += 1;
+    let date = state.date;
+    let schedule = draw_schedule(m, state.settings.seed, id);
+    let offers: Vec<MachineOffer> = (0..schedule.len())
+        .filter_map(|i| {
+            offer_at(
+                state,
+                catalog,
+                (id, u32::try_from(i).ok()?),
+                date,
+                (site, kind),
+            )
+        })
+        .collect();
+    let tender = MachineTender {
+        id,
+        company: actor,
+        site,
+        kind,
+        start: date,
+        schedule,
+        offers,
+        next_offer: 0,
+    };
+    tender
+        .offers
+        .iter()
+        .filter(|o| {
+            offer_area(state, catalog, &tender, o)
+                .is_none_or(|a| a.free_after_ha.is_none_or(|f| f >= 0.0))
+        })
+        .filter_map(|o| offer_score(state, catalog, &tender, o).map(|v| (v, o)))
+        .min_by(|a, b| a.0.total_cmp(&b.0).then(a.1.id.cmp(&b.1.id)))
+        .map(|(_, o)| o.clone())
 }

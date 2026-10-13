@@ -1055,7 +1055,57 @@ fn name_products(
 }
 
 fn run(state: &mut GameState, catalog: &Catalog, actor: CompanyId, command: &Command) -> bool {
+    if let Command::BuildFacility {
+        site,
+        facility,
+        count,
+        size,
+    } = command
+        && let Some(built) =
+            build_by_tender(state, catalog, actor, (*site, *facility, *count, *size))
+    {
+        return built;
+    }
     command::execute(state, catalog, actor, command).is_ok()
+}
+
+/// A facility of a product is not bought at the catalog but asked for (MAA §7): automatic
+/// decisions get the offers of a tender on the same day and take the best. `None` for
+/// facilities no product is made in (extraction, laboratories) or without tenders.
+fn build_by_tender(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    (site, facility, count, size): (SiteId, crate::ids::FacilityId, u32, FacilitySize),
+) -> Option<bool> {
+    if !catalog.machine_offers.enabled {
+        return None;
+    }
+    let product = catalog
+        .recipes
+        .values()
+        .find(|r| r.facility == facility)
+        .map(|r| r.product)?;
+    let main = crate::product_research::main_recipe(catalog, product)?;
+    if catalog.recipes.get(main).facility != facility {
+        return None;
+    }
+    let kind = crate::procurement::TenderKind::Build {
+        product,
+        size,
+        count,
+    };
+    let offer = crate::procurement::best_offer_now(state, catalog, actor, (site, kind))?;
+    Some(
+        command::build_facility_with_offer(
+            state,
+            catalog,
+            actor,
+            (site, facility, count, size),
+            &offer,
+        )
+        .is_ok(),
+    )
 }
 
 /// Competence and aggressiveness of a company's rules: an AI company's character with

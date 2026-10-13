@@ -2407,6 +2407,26 @@ Faktoren des Umbau-Angebots ersetzen die der Anlage. Mengenrabatt entfällt nich
 aber für die Zahl der umgestellten Einheiten. Damit wird AKT (Aktivierung der
 Umstellungskosten) auf den angenommenen Angebotspreis bezogen. Siehe `MASCHINENANGEBOTE.md` §2a.
 
+### W-s: KI und Manager bei Maschinenangeboten (Schritt 4, 13.10.2026) – zur Abnahme
+
+🟡 Eigenständig entschieden, weil der Umbau aller KI-Bauauslöser auf eine 28-tägige Wartezeit
+das Wachstum der Welt deutlich verändert hätte:
+
+- **Gleicher Tag statt 28 Tage Wartezeit:** KI-Firmen und Manager holen die Angebote, die
+  eine Ausschreibung über ihre Laufzeit brächte, am Tag der Entscheidung ein (gleiche Zahl,
+  gleiche Streuung, eigener Zufallsstrom je Ausschreibung) und nehmen das beste. Sie haben
+  damit die Auswahl eines Spielers, aber ohne die Wartezeit. Die Bauzeit des Angebots gilt.
+  Bewertung: Stückkosten über die Lebensdauer (wie die Anzeige) plus der Deckungsbeitrag,
+  der während der Bauzeit entgeht, verteilt auf die Stücke der Lebensdauer. Angebote, deren
+  Fläche nicht auf das Grundstück passt, scheiden aus.
+- **Betroffene Bauten:** Anlagen eines Produkts (Hauptanlage des Produkts). Bergwerke, Labore und
+  andere Anlagen ohne Produktrezept bleiben beim Direktkauf.
+- **Noch nicht umgesetzt:** Schwelle (`ai_threshold`) und Warten bis zum Ende der Ausschreibung,
+  Schätzfehler nach Kompetenz auf die Angebotsbewertung, das Anliegen „Maschinenangebot
+  annehmen?“ über die Manager-Kette, Sperre des Direktkaufs im Kern (der Spieler nutzt in der
+  Oberfläche nur noch die Ausschreibung; ohne Pflichtforschung bleibt der Direktkauf).
+  Vorschlag: nach Sichtung des Weltlaufs entscheiden, ob die echte Wartezeit für die KI nötig ist.
+
 ## X Lieferverträge: Partnerschaft und Umsatzanteil (Wunsch vom 12.10.2026)
 
 Wunsch: Je Lieferant ein **Partnerschaftsgrad in %**, produktübergreifend. Er steigt mit

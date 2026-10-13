@@ -255,3 +255,42 @@ fn the_production_view_lists_tenders_with_costs_and_land() {
         assert!(o.catalog_unit_cost_usd > 0.0);
     }
 }
+
+#[test]
+fn a_decision_on_the_day_takes_the_best_offer_and_builds_on_its_terms() {
+    let mut g = game();
+    let site = factory(&mut g);
+    let product = iron(&g);
+    let catalog = g.catalog().clone();
+    let me = g.player();
+    let kind = crate::procurement::TenderKind::Build {
+        product,
+        size: FacilitySize::Medium,
+        count: 1,
+    };
+    let mut state = g.state().clone();
+    let best = crate::procurement::best_offer_now(&mut state, &catalog, me, (site, kind))
+        .expect("an offer");
+    // The same state and the same call give the same offer; ids of tenders move on.
+    let mut again = g.state().clone();
+    let same = crate::procurement::best_offer_now(&mut again, &catalog, me, (site, kind)).unwrap();
+    assert_eq!(best, same);
+    assert_ne!(state.next_machine_tender, g.state().next_machine_tender);
+    // Building on its terms keeps its price and machine values.
+    let facility = catalog
+        .recipes
+        .get(product_research::main_recipe(&catalog, product).unwrap())
+        .facility;
+    crate::command::build_facility_with_offer(
+        &mut state,
+        &catalog,
+        me,
+        (site, facility, 1, FacilitySize::Medium),
+        &best,
+    )
+    .unwrap();
+    let slot = state.sites[site.index()].slots.last().unwrap();
+    assert_eq!(slot.machine.map(|m| m.output), Some(best.factors.output));
+    assert_eq!(slot.cost, best.price);
+    assert!(state.companies[me.index()].ledger.is_balanced());
+}

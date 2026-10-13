@@ -1471,6 +1471,17 @@ type Offer<'a> = Option<&'a crate::procurement::MachineOffer>;
 
 /// Builds `count` units of a facility of a size at a site: at the catalog or on the terms
 /// of an offer.
+/// Builds units on the terms of an offer (automatic decisions that took a tender's best).
+pub(crate) fn build_facility_with_offer(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    what: (SiteId, FacilityId, u32, FacilitySize),
+    offer: &crate::procurement::MachineOffer,
+) -> Result<(), CommandError> {
+    build_facility(state, catalog, actor, what, Some(offer))
+}
+
 pub(crate) fn build_facility(
     state: &mut GameState,
     catalog: &Catalog,
