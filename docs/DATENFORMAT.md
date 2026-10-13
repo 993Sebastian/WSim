@@ -986,3 +986,14 @@ Spielstand: `followups[]` kann `file` (Akte: `concern`, `position`, `manager`, `
 `lernchance` (0–1, Vorschlag 0,25): Chance, dass ein Manager, dessen Empfehlung die Nachbetrachtung widerlegt
 hat, daraus lernt (Urteilsvermögen +1). Spielstand: `concerns[].memory` (`decided`, `reviewed`, `kind`,
 `actual`, `alternative`) verweist auf eine frühere Akte, in der der Manager recht hatte.
+
+## management.anliegen und management: Abwägung und Widerspruch (MG4)
+
+In `anliegen`: `option_risiko`, `nichtstun_risiko` und `laufend_anteil` (je Zuordnung Thema → Zahl 0–1;
+`standard` für alle nicht genannten Themen; unbekannte Themen sind ein Fehler mit Vorschlag). Risiko 0–1;
+`laufend_anteil` = Anteil des Betrags, der jedes Jahr als laufende Kosten anfällt.
+Auf der Ebene von `management`: `widerspruch_themen` – Liste von Paaren `[thema, thema]` (verschieden), deren
+Empfehlungen am selben Standort einander widersprechen können.
+
+Spielstand: `concerns[].dissent` (`advocates`: zwei Einträge `position`, `manager`, `topic`) bei zusammengelegten
+Anliegen; die Optionen sind dann `[Weg A, Weg B, nichts tun]`.

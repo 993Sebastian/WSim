@@ -6038,3 +6038,26 @@ Spieler hat keine Risikoneigung im Spiel.
 **Chronik.** Alle Akten der Firma, die jüngsten 200, mit Einheit, Manager, empfohlener und gewählter Option,
 Prognose, Messung, Gegenrechnung und Urteil; filterbar nach Thema, Manager, Zeitraum und „gegen die
 Empfehlung entschieden“. Jedes Anliegen zeigt außerdem die letzten drei Akten zum selben Thema am selben Standort.
+
+## MG4 Tiefe der Anliegen: Abwägung und Widerspruch (docs/MANAGER_2.md §4)
+
+**Abwägung je Option** (nur Anzeige, keine neue Spielregel; Zahlen in `management.anliegen`):
+- Kosten sofort = Betrag der Option (`amount`), einmalige Wirkung `once`.
+- Kosten laufend je Jahr = `amount · laufend_anteil[Thema]` (Ausbau, Forschung, Werbung, Lohn …).
+- Erwartete Wirkung = Spanne der Prognose (`forecast`, Fehler nach Fachkompetenz wie MA2).
+- Risiko = `option_risiko[Thema]` (0–1); „nichts tun“ hat `nichtstun_risiko[Thema]` (Engpass, Abwerbung, Nachfolge
+  höher). „Nichts tun“ trägt die Prognose 0 (die Basis, an der alle Prognosen gemessen werden) und steht in jedem
+  Anliegen als letzte Option.
+- Zeit bis zur Wirkung = `wirkzeit_monate[Thema]` (dieselbe Zahl wie die Nachbetrachtung, MG2).
+
+**Widerspruch.** Nach der Bündelung (MA3) betrachtet die Prüfung je Firma alle neuen Anliegen. Zwei Anliegen
+verschiedener Stellen am selben Standort, deren Themen ein Paar aus `widerspruch_themen` bilden und die beide
+einen Weg ungleich „nichts tun“ empfehlen, werden zu einem Anliegen mit den Optionen
+`[Weg A, Weg B, nichts tun]`. Jede der beiden ersten Optionen nennt Fürsprecher (Manager, Stelle, Thema).
+Empfohlen wird der Weg mit der höheren Prognosemitte (bei Gleichstand A); die fragende Stelle ist der Fürsprecher
+des empfohlenen Wegs. Frist = die frühere der beiden. Die Mengenbegrenzung MANAGER.md 6.6 bleibt unberührt, weil
+nur bestehende Anliegen zusammengelegt werden (nie mehr als vorher).
+
+**Neue Anlässe.** Lieferantenwechsel, Qualität gegen Menge, Lohnforderung, Preissenkung eines Konkurrenten,
+Großüberholung gegen Ersatzinvestition, Lageraufbau, Expansion ins Nachbarland und Konjunktureinbruch sind als
+eigene Themen noch nicht angelegt (siehe OFFENE_PUNKTE MG4).

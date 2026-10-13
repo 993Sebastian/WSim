@@ -666,6 +666,7 @@ pub fn management() -> Catalog {
             Topic::Wage,
         ],
         rule_topics: vec![Topic::Cash, Topic::Advertising, Topic::SalaryRound],
+        contradictions: vec![(Topic::Sale, Topic::Production)],
         budget_floor: (1.0, 3.0),
         concerns: ConcernModel {
             deadline_days: 30,
@@ -679,6 +680,9 @@ pub fn management() -> Catalog {
             hit_tolerance: 0.1,
             files_kept: 120,
             learn_chance: 0.25,
+            option_risk: [0.2; crate::decision::Topic::ALL.len()],
+            keep_risk: [0.1; crate::decision::Topic::ALL.len()],
+            running_share: [0.1; crate::decision::Topic::ALL.len()],
         },
         strategy: StrategyModel {
             premium: (1.35, 0.15),

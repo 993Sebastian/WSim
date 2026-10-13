@@ -1856,6 +1856,9 @@ pub struct RawManagement {
     pub routine_topics: Vec<String>,
     #[serde(rename = "regel_themen", default)]
     pub rule_topics: Vec<String>,
+    /// Pairs of topics whose recommendations can contradict each other (MG4).
+    #[serde(rename = "widerspruch_themen", default)]
+    pub contradictions: Vec<[String; 2]>,
     #[serde(rename = "budget_sockel_gehaelter")]
     pub budget_floor: RawBudgetFloor,
     #[serde(rename = "anliegen")]
@@ -1949,6 +1952,14 @@ pub struct RawConcerns {
     pub learn_chance: f64,
     #[serde(rename = "akten_behalten", default)]
     pub files_kept: u32,
+    /// Risk of an option per topic key; `standard` for the rest (MG4).
+    #[serde(rename = "option_risiko", default)]
+    pub option_risk: std::collections::BTreeMap<String, f64>,
+    #[serde(rename = "nichtstun_risiko", default)]
+    pub keep_risk: std::collections::BTreeMap<String, f64>,
+    /// Running cost per year as a share of the amount, per topic key (MG4).
+    #[serde(rename = "laufend_anteil", default)]
+    pub running_share: std::collections::BTreeMap<String, f64>,
 }
 
 /// Strategies of the managers (MA4).

@@ -632,6 +632,25 @@ pub struct Concern {
     /// player decided otherwise (MG3).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub memory: Option<Memory>,
+    /// Two positions of the unit recommended opposite ways: who stands for which option
+    /// (MG4).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dissent: Option<Dissent>,
+}
+
+/// The advocates of a concern in which two positions contradict each other (MG4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Dissent {
+    /// The advocate of the first option and of the second; the third is doing nothing.
+    pub advocates: [Advocate; 2],
+}
+
+/// A position that stands for an option and the topic it argues from (MG4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Advocate {
+    pub position: Position,
+    pub manager: ManagerId,
+    pub topic: Topic,
 }
 
 /// What a manager remembers of an earlier decision he was right about (MG3).

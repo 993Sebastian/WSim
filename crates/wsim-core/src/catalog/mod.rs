@@ -193,6 +193,9 @@ pub struct ManagementModel {
     pub specialists: Vec<(SiteType, Vec<usize>)>,
     /// Topics of the running routine: positions take the rules' option (MA2).
     pub routine_topics: Vec<crate::decision::Topic>,
+    /// Pairs of topics whose recommendations at one site on one check can contradict
+    /// each other (MG4).
+    pub contradictions: Vec<(crate::decision::Topic, crate::decision::Topic)>,
     /// Topics whose effect counts only costs (loans, advertising): positions take the
     /// rules' option, but concerns about them are important (MA5).
     pub rule_topics: Vec<crate::decision::Topic>,
@@ -283,6 +286,12 @@ pub struct ConcernModel {
     pub files_kept: u32,
     /// Chance that a manager whose recommendation proved wrong learns from it (MG3).
     pub learn_chance: f64,
+    /// Risk (0–1) of carrying out an option, per topic (MG4), indexed by `Topic::ALL`.
+    pub option_risk: [f64; crate::decision::Topic::ALL.len()],
+    /// Risk (0–1) of doing nothing, per topic (MG4).
+    pub keep_risk: [f64; crate::decision::Topic::ALL.len()],
+    /// Running cost per year of an option as a share of its amount, per topic (MG4).
+    pub running_share: [f64; crate::decision::Topic::ALL.len()],
 }
 
 impl ConcernModel {
@@ -293,6 +302,28 @@ impl ConcernModel {
             .position(|&t| t == topic)
             .unwrap_or(0);
         self.effect_months[i].max(1)
+    }
+
+    fn index(topic: crate::decision::Topic) -> usize {
+        crate::decision::Topic::ALL
+            .iter()
+            .position(|&t| t == topic)
+            .unwrap_or(0)
+    }
+
+    /// Risk of an option of a topic; `keep` for doing nothing (MG4).
+    pub fn risk(&self, topic: crate::decision::Topic, keep: bool) -> f64 {
+        let i = Self::index(topic);
+        if keep {
+            self.keep_risk[i]
+        } else {
+            self.option_risk[i]
+        }
+    }
+
+    /// Running cost per year of an option with the amount (MG4).
+    pub fn running_share(&self, topic: crate::decision::Topic) -> f64 {
+        self.running_share[Self::index(topic)]
     }
 }
 

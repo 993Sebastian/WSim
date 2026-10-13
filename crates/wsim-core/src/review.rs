@@ -399,6 +399,7 @@ fn proposals(
             status: ConcernStatus::Open,
             closed: None,
             memory: None,
+            dissent: None,
         });
     }
     out

@@ -34,6 +34,13 @@ management:
   # Themen, deren Wirkung nur Kosten zählt (Zins, Werbebudget): Auch hier folgt die Stelle
   # der Regel; Anliegen dazu sind aber wichtig (MA5).
   regel_themen: [kasse, werbung, gehaltsrunde]
+  # Themen, deren Empfehlungen am selben Standort im selben Prüftermin einander
+  # widersprechen können (MG4): Dann fragt eine Stelle mit beiden Wegen, und jede Option
+  # nennt ihren Fürsprecher. (Vertrieb: Preis senken, Produktion: Qualität halten.)
+  widerspruch_themen:
+    - [verkauf, produktion]
+    - [werbung, verkauf]
+    - [einkauf, produktion]
 
   # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung,
   # Budget je Entscheidung und je Jahr als Anteil am Umsatz der Einheit in zwölf Monaten
@@ -95,6 +102,17 @@ management:
     # daraus lernt (Urteilsvermögen +1).
     lernchance: 0.25
     akten_behalten: 120
+    # Optionen mit Zielkonflikt (MG4): Risiko 0–1 je Thema, das Risiko, nichts zu tun, und
+    # die laufenden Kosten je Jahr als Anteil des Betrags. Die Zeit bis zur Wirkung ist
+    # die Wirkzeit des Themas (wirkzeit_monate).
+    option_risiko: {standard: 0.2, ausbau: 0.4, kraftwerk: 0.4, lagerstaette: 0.5,
+                    forschung: 0.5, weiterentwicklung: 0.4, kaufangebot: 0.5, startup: 0.7,
+                    umschuldung: 0.2, verkauf: 0.25, werbung: 0.3, stillgelegt: 0.3}
+    nichtstun_risiko: {standard: 0.1, engpass: 0.4, ausbau: 0.25, ueberkapazitaet: 0.3,
+                       wiederanfahren: 0.3, abwerbung: 0.5, nachfolge: 0.5}
+    laufend_anteil: {standard: 0.0, ausbau: 0.08, kraftwerk: 0.06, forschung: 0.15,
+                     weiterentwicklung: 0.1, werbung: 1.0, lohn: 1.0, startup: 0.0,
+                     wiederanfahren: 0.05, engpass: 0.06}
 
   # Strategievorgaben (MA4): Premium und Kampfpreis setzen die Preisuntergrenze als
   # Vielfaches der Vollkosten je Stück und den Aufschlag, mit dem ein Angebot auf den

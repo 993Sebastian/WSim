@@ -42,6 +42,10 @@ const ausbau: Anliegen = {
       forecast_usd: [10840.4426, 21615.9724],
       kind: "bauen",
       once_usd: 0.0,
+      yearly_usd: 1200.0,
+      risk: 0.3,
+      months: 6,
+      advocate: null,
       steps: [
         {
           group: "allgemein",
@@ -66,7 +70,17 @@ const ausbau: Anliegen = {
         },
       ],
     },
-    { amount_usd: 0.0, forecast_usd: null, kind: "beibehalten", once_usd: 0.0, steps: [] },
+    {
+      amount_usd: 0.0,
+      forecast_usd: null,
+      kind: "beibehalten",
+      once_usd: 0.0,
+      steps: [],
+      yearly_usd: 0.0,
+      risk: 0.1,
+      months: 0,
+      advocate: null,
+    },
   ],
   parts: [],
   path: [
@@ -148,6 +162,33 @@ async function kernMitAnliegen() {
 
 describe("Anliegen", () => {
   afterEach(cleanup);
+
+  it("zeigt Risiko, Wirkzeit, laufende Kosten und den Fürsprecher jeder Option (MG4)", async () => {
+    const { kern, uebersicht } = await kernMitAnliegen();
+    const mitStreit: Kern = {
+      ...kern,
+      anliegen: async () => {
+        const a = await kern.anliegen();
+        const k = a.open[0]!.concerns[0]!;
+        k.options[0]!.advocate = {
+          manager: "Hanna Weber",
+          position: structuredClone(k.asker),
+          topic: "verkauf",
+        };
+        return a;
+      },
+    };
+    render(<OrganisationAnsicht kern={mitStreit} uebersicht={uebersicht} onGeaendert={() => {}} />);
+    const gruppe = await screen.findByRole("region", { name: /2 gleiche Anliegen: Ausbau/ });
+    const karte = within(gruppe).getAllByRole("article")[0]!;
+    expect(
+      within(karte).getByText(/Laufend .* im Jahr · Risiko mittel · Wirkung nach 6 Monaten/),
+    ).toBeTruthy();
+    expect(within(karte).getByText(/Risiko gering/)).toBeTruthy();
+    expect(
+      within(karte).getByText(/Hanna Weber \(.*\) vertritt diesen Weg aus Sicht von Verkauf/),
+    ).toBeTruthy();
+  });
 
   it("zeigt Optionen mit Schritten, Empfehlung und Frist und schickt die Antworten", async () => {
     const { kern, uebersicht, gesendet } = await kernMitAnliegen();

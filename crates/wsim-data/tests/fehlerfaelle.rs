@@ -3184,6 +3184,34 @@ fn management_wird_geprueft() {
         f.path.to_string(),
         "management.anliegen.wirkzeit_monate.ausbao"
     );
+    let d = basis().ersetze(
+        datei,
+        "nichtstun_risiko: {standard: 0.1,",
+        "nichtstun_risiko: {standard: 3,",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 3 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "management.anliegen.nichtstun_risiko.standard"
+    );
+    let d = basis().ersetze(datei, "- [verkauf, produktion]", "- [verkauf, verkauf]");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Ein Widerspruchspaar braucht zwei verschiedene Themen.",
+    );
+    assert_eq!(f.path.to_string(), "management.widerspruch_themen[0]");
+    let d = basis().ersetze(datei, "- [werbung, verkauf]", "- [werbunk, verkauf]");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Thema „werbunk“ ist nicht definiert. Meinten Sie „werbung“?",
+    );
+    assert_eq!(f.path.to_string(), "management.widerspruch_themen[1]");
     let d = basis().ersetze(datei, "treffer_toleranz: 0.1", "treffer_toleranz: 2");
     let outcome = d.laden();
     let f = befund(

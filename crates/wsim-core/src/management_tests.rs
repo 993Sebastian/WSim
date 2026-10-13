@@ -1349,6 +1349,7 @@ fn alike_concerns_of_several_sites_become_one_strategic_concern() {
             status: ConcernStatus::Open,
             closed: None,
             memory: None,
+            dissent: None,
         }
     };
     let two = management::bundle(vec![concern(sites[0]), concern(sites[1])], 3);
@@ -1664,4 +1665,102 @@ fn a_manager_the_player_proved_wrong_may_learn() {
     assert_eq!(m.hits, 0);
     assert_eq!(m.judgment, 51, "he learned (was 50, started at {before})");
     assert_eq!(news.len(), 1);
+}
+
+/// Two positions of a site that recommend opposite ways become one concern with both ways
+/// and their advocates (MG4).
+#[test]
+fn contradicting_recommendations_become_one_concern() {
+    use crate::decision::{Choice, ChoiceKind, Decision, Topic};
+    use crate::state::{Concern, ConcernOption, ConcernReason, ConcernStatus, Dissent};
+    let (game, site, manager) = weak_works(cheap_furnaces());
+    let concern = |topic: Topic, kind: ChoiceKind, function: &str, gain: f64| {
+        let position = specialist(site, function);
+        Concern {
+            id: 0,
+            company: game.player(),
+            position,
+            manager,
+            decision: Decision {
+                topic,
+                company: game.player(),
+                site: Some(site),
+                product: None,
+                choices: vec![
+                    Choice {
+                        kind,
+                        steps: Vec::new(),
+                    },
+                    Choice::keep(),
+                ],
+                rule: 0,
+            },
+            recommended: 0,
+            options: vec![
+                ConcernOption {
+                    amount: usd(100.0),
+                    forecast: Some((usd(gain), usd(gain))),
+                    once: Money::ZERO,
+                },
+                ConcernOption {
+                    amount: Money::ZERO,
+                    forecast: Some((Money::ZERO, Money::ZERO)),
+                    once: Money::ZERO,
+                },
+            ],
+            reason: ConcernReason::Decision,
+            path: Vec::new(),
+            parts: Vec::new(),
+            created: game.date(),
+            deadline: game.date().add_days(30),
+            status: ConcernStatus::Open,
+            closed: None,
+            memory: None,
+            dissent: None,
+        }
+    };
+    let sale = concern(Topic::Sale, ChoiceKind::Adjust, "vertrieb_marketing", 100.0);
+    let production = concern(Topic::Production, ChoiceKind::Keep, "produktion", 300.0);
+    // Keeping is no way of its own: nothing to contradict.
+    let out = management::contradict(
+        vec![sale.clone(), production],
+        &[(Topic::Sale, Topic::Production)],
+    );
+    assert_eq!(out.len(), 2);
+    let production = concern(Topic::Production, ChoiceKind::Build, "produktion", 300.0);
+    let out = management::contradict(
+        vec![sale.clone(), production.clone()],
+        &[(Topic::Sale, Topic::Production)],
+    );
+    assert_eq!(out.len(), 1);
+    let c = &out[0];
+    assert_eq!(c.decision.choices.len(), 3);
+    assert_eq!(c.decision.choices[2].kind, ChoiceKind::Keep);
+    assert_eq!(c.recommended, 1, "the better forecast leads");
+    let Some(Dissent { advocates }) = &c.dissent else {
+        panic!("dissent")
+    };
+    assert_eq!(advocates[0].topic, Topic::Sale);
+    assert_eq!(advocates[1].topic, Topic::Production);
+    // Unrelated topics stay apart.
+    let out = management::contradict(vec![sale, production], &[(Topic::Sale, Topic::Purchase)]);
+    assert_eq!(out.len(), 2);
+}
+
+/// Every option of a concern shows risk, time to the effect and running cost; doing
+/// nothing is an option of its own (MG4).
+#[test]
+fn options_show_risk_time_and_running_cost() {
+    let (game, _) = asked(cheap_furnaces());
+    let view = crate::views::concerns(&game);
+    let c = &view.open[0].concerns[0];
+    assert!(c.options.len() >= 2);
+    let keep = c.options.iter().find(|o| o.kind == "beibehalten").unwrap();
+    assert_eq!(keep.months, 0);
+    assert_eq!(keep.yearly_usd, 0.0);
+    assert!(keep.risk > 0.0, "doing nothing has a risk of its own");
+    for o in c.options.iter().filter(|o| o.kind != "beibehalten") {
+        assert!(o.months > 0 && o.risk > 0.0);
+        assert!(o.advocate.is_none());
+    }
 }

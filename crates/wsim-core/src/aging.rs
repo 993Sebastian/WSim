@@ -761,6 +761,7 @@ fn ask(
         status: ConcernStatus::Open,
         closed: None,
         memory: None,
+        dissent: None,
     });
     news.extend(message);
 }

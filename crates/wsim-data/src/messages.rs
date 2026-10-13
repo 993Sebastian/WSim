@@ -173,6 +173,10 @@ pub fn not_positive(value: f64) -> String {
     format!("Wert {value} muss größer als 0 sein.")
 }
 
+pub fn contradiction_same() -> String {
+    "Ein Widerspruchspaar braucht zwei verschiedene Themen.".to_owned()
+}
+
 pub fn money_out_of_range(value: f64) -> String {
     format!("Betrag {value} ist ungültig (zu groß oder negativ).")
 }

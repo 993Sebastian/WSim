@@ -1000,6 +1000,7 @@ fn ask(state: &mut GameState, catalog: &Catalog, offer: &PoachOffer, date: Date)
         status: ConcernStatus::Open,
         closed: None,
         memory: None,
+        dissent: None,
     });
     vec![message]
 }

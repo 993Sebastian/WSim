@@ -1813,6 +1813,13 @@ anliegen.option: Option
 anliegen.kosten: Zählt aufs Budget
 anliegen.prognose: Ergebnis im Jahr (Schätzung)
 anliegen.einmalig: Einmalig
+anliegen.laufend: "Laufend {betrag} im Jahr"
+anliegen.risiko: "Risiko {stufe}"
+anliegen.risiko.gering: gering
+anliegen.risiko.mittel: mittel
+anliegen.risiko.hoch: hoch
+anliegen.wirkung_nach: "Wirkung nach {monate} Monaten"
+anliegen.fuersprecher: "{manager} ({stelle}) vertritt diesen Weg aus Sicht von {thema}."
 anliegen.spanne: "{von} bis {bis}"
 anliegen.keine_schaetzung: keine Schätzung
 anliegen.unveraendert: keine Änderung

@@ -1836,6 +1836,22 @@ export interface AnliegenOption {
   forecast_usd: [number, number] | null;
   /** One-off effect on the result. */
   once_usd: number;
+  /** Running cost per year (MG4). */
+  yearly_usd: number;
+  /** Risk 0–1 (MG4). */
+  risk: number;
+  /** Months until the effect shows; 0 for doing nothing (MG4). */
+  months: number;
+  /** The manager who stands for the option where two contradict (MG4). */
+  advocate: AnliegenFuersprecher | null;
+}
+
+/** Who stands for an option and from which topic (MG4). */
+export interface AnliegenFuersprecher {
+  manager: string;
+  position: AnliegenStelle;
+  /** Text `thema.<topic>`. */
+  topic: string;
 }
 
 export type AnliegenStatus =

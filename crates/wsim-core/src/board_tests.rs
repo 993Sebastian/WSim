@@ -893,6 +893,7 @@ fn a_new_site_answered_later_gets_its_steps() {
         status: ConcernStatus::Open,
         closed: None,
         memory: None,
+        dissent: None,
     };
     let id = concern.id;
     let state = game.state_mut();

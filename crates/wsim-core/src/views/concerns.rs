@@ -37,6 +37,27 @@ pub struct ConcernOptionView {
     pub forecast_usd: Option<(f64, f64)>,
     /// One-off effect on the result.
     pub once_usd: f64,
+    /// Running cost per year (MG4).
+    #[serde(default)]
+    pub yearly_usd: f64,
+    /// Risk 0–1 (MG4).
+    #[serde(default)]
+    pub risk: f64,
+    /// Months until the effect shows (MG4).
+    #[serde(default)]
+    pub months: u32,
+    /// The manager who stands for the option where two contradict (MG4).
+    #[serde(default)]
+    pub advocate: Option<AdvocateView>,
+}
+
+/// Who stands for an option and from which topic (MG4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AdvocateView {
+    pub manager: String,
+    pub position: ConcernPositionView,
+    /// Text `thema.<topic>`.
+    pub topic: String,
 }
 
 /// A position in views of concerns: its role and unit (MA3).
@@ -699,10 +720,20 @@ pub(super) fn position_view(
 fn option_view(
     catalog: &Catalog,
     state: &GameState,
-    choice: &crate::decision::Choice,
-    o: &crate::state::ConcernOption,
+    topic: crate::decision::Topic,
+    (choice, o): (&crate::decision::Choice, &crate::state::ConcernOption),
 ) -> ConcernOptionView {
+    let model = &catalog.management.concerns;
+    let keep = choice.kind == ChoiceKind::Keep;
     ConcernOptionView {
+        yearly_usd: if keep {
+            0.0
+        } else {
+            usd(o.amount.scale(model.running_share(topic)))
+        },
+        risk: model.risk(topic, keep),
+        months: if keep { 0 } else { model.review_months(topic) },
+        advocate: None,
         kind: choice.kind.key().to_owned(),
         steps: choice
             .steps
@@ -778,19 +809,32 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
     let (per_decision, per_year) = management::budget(catalog, state, c.company, asker, salary);
     let left = (per_year - management::spent(state, c.company, asker)).max(Money::ZERO);
     let (strategy_limit, strategy_scope) = strategy_limit(catalog, state, c);
-    let options = c
-        .decision
-        .choices
-        .iter()
-        .zip(&c.options)
-        .map(|(choice, o)| option_view(catalog, state, choice, o))
-        .collect();
     let name = |id| {
         state
             .managers
             .get(&id)
             .map_or_else(String::new, |m| m.name.clone())
     };
+    let options = c
+        .decision
+        .choices
+        .iter()
+        .zip(&c.options)
+        .enumerate()
+        .map(|(i, (choice, o))| {
+            let mut view = option_view(catalog, state, c.decision.topic, (choice, o));
+            view.advocate = c
+                .dissent
+                .as_ref()
+                .and_then(|d| d.advocates.get(i))
+                .map(|a| AdvocateView {
+                    manager: name(a.manager),
+                    position: position_view(catalog, state, &a.position),
+                    topic: a.topic.key().to_owned(),
+                });
+            view
+        })
+        .collect();
     let path = c
         .path
         .iter()
@@ -819,7 +863,7 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
                     .decision
                     .product
                     .map(|x| catalog.products.key(x).to_owned()),
-                option: option_view(catalog, state, choice, &p.option),
+                option: option_view(catalog, state, p.decision.topic, (choice, &p.option)),
             })
         })
         .collect();

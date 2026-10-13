@@ -26,6 +26,16 @@ function wirkung(o: AnliegenOption): string {
   return t("anliegen.spanne", { von: mitVorzeichen(von), bis: mitVorzeichen(bis) });
 }
 
+/** "Laufend 1.200 $/Jahr · Risiko mittel · Wirkung nach 6 Monaten" (MG4). */
+function abwaegung(o: AnliegenOption): string {
+  const risiko = o.risk < 0.2 ? "gering" : o.risk < 0.4 ? "mittel" : "hoch";
+  const teile = [t("anliegen.risiko", { stufe: t(`anliegen.risiko.${risiko}`) })];
+  if (o.yearly_usd >= 0.005)
+    teile.unshift(t("anliegen.laufend", { betrag: formatGeld(o.yearly_usd) }));
+  if (o.months > 0) teile.push(t("anliegen.wirkung_nach", { monate: o.months }));
+  return teile.join(" · ");
+}
+
 /** "Werksleitung · Werk · Deutschland", "Landesleitung · Land · Deutschland" */
 export function herkunft(a: Anliegen): string {
   return `${stellenName(a.asker.role, a.asker.kind_text)} · ${einheitName(a.asker)}`;
@@ -187,6 +197,19 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
                 <td>
                   <strong>{t(`option.${o.kind}`)}</strong>
                   {i === a.recommended && <span className="marke">{t("anliegen.empfohlen")}</span>}
+                  {o.advocate && (
+                    <p className="hinweis">
+                      {t("anliegen.fuersprecher", {
+                        manager: o.advocate.manager,
+                        stelle: stellenName(
+                          o.advocate.position.role,
+                          o.advocate.position.kind_text,
+                        ),
+                        thema: t(`thema.${o.advocate.topic}`),
+                      })}
+                    </p>
+                  )}
+                  <p className="hinweis">{abwaegung(o)}</p>
                   {o.steps.length > 0 && (
                     <ul className="schritte">
                       {o.steps.map((s, j) => (

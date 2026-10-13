@@ -2554,3 +2554,19 @@ Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).
   Standorts), damit er auch nach einem Stellenwechsel gilt.
 - Die Chronik zeigt die jüngsten 200 Akten der Firma in der Organisation (Reiter „Chronik“), die Filter laufen in der
   Oberfläche; „je Einheit“ steht als Spalte Standort, „je Manager“ als Filter.
+
+### MG4: Tiefe und Vielfalt der Anliegen – Umsetzung 13.10.2026, bitte abnehmen
+🟡 Annahmen und Abweichungen:
+- Risiko, Wirkzeit und laufende Kosten sind je **Thema** in den Daten festgelegt (nicht je Einzelfall berechnet) und
+  werden nur angezeigt; sie ändern keine Spielregel. „Nichts tun“ war schon in jedem Anliegen als letzte Option
+  enthalten und trägt jetzt ein eigenes Risiko.
+- Optionen je Anliegen bleiben so viele, wie die Regeln aufstellen (2–4); neue Optionen entstehen mit den neuen
+  Anlässen, nicht durch Ausschmückung bestehender.
+- **Neue Anlässe nicht angelegt:** Lieferantenwechsel, Qualität gegen Menge, Preissenkung eines Konkurrenten,
+  Lageraufbau, Expansion ins Nachbarland und Konjunktureinbruch haben im Kern keine Entscheidungsstelle (kein Thema,
+  keine Befehlsfolge). Lohnforderung (`gehaltsrunde`), Großüberholung (Automatik AKT) und Ausbau (`ausbau`) gibt es
+  bereits. Vorschlag: Die übrigen mit dem jeweiligen Fachsystem zusammen einbauen (Lieferantenwechsel mit EC1-Zahlen
+  zuerst), auf Wunsch als eigener Meilenstein.
+- Das Widerspruchspaar wirkt nur bei Anliegen derselben Firma am selben Standort aus verschiedenen Stellen; die
+  Paare stehen in `widerspruch_themen` (Verkauf/Produktion, Werbung/Verkauf, Einkauf/Produktion). Da Verkauf und
+  Produktion Routinethemen sind (die Stelle folgt der Regel), tritt der Fall praktisch erst mit weiteren Themen auf.

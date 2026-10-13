@@ -267,7 +267,27 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         ),
         files_kept: if c.files_kept > 0 { c.files_kept } else { 120 },
         learn_chance: in_range(ctx, c.learn_chance, 0.0, 1.0, &cl.field("lernchance")),
+        option_risk: topic_values(ctx, &c.option_risk, &cl.field("option_risiko"), 0.2),
+        keep_risk: topic_values(ctx, &c.keep_risk, &cl.field("nichtstun_risiko"), 0.1),
+        running_share: topic_values(ctx, &c.running_share, &cl.field("laufend_anteil"), 0.0),
     };
+    let mut contradictions = Vec::new();
+    for (i, pair) in v.contradictions.iter().enumerate() {
+        let pl = l.field("widerspruch_themen").index(i);
+        let found: Vec<Option<Topic>> = pair.iter().map(|k| Topic::from_key(k)).collect();
+        match (found[0], found[1]) {
+            (Some(a), Some(b)) if a != b => contradictions.push((a, b)),
+            (Some(_), Some(_)) => ctx.error(&pl, messages::contradiction_same()),
+            _ => {
+                for (key, topic) in pair.iter().zip(&found) {
+                    if topic.is_none() {
+                        let suggested = crate::suggest::closest(key, topic_keys.iter().copied());
+                        ctx.error(&pl, messages::unknown_reference("Thema", key, suggested));
+                    }
+                }
+            }
+        }
+    }
 
     let strategy = strategy(ctx, catalog, &v.strategy, &l.field("strategie"));
     let ml = l.field("strategieauftrag");
@@ -361,6 +381,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         levels,
         specialists,
         routine_topics,
+        contradictions,
         rule_topics,
         budget_floor,
         concerns,
@@ -583,6 +604,39 @@ fn effect_months(
                 let suggested = crate::suggest::closest(key, keys.iter().copied());
                 ctx.error(
                     &ml.field(key),
+                    messages::unknown_reference("Thema", key, suggested),
+                );
+            }
+        }
+    }
+    out
+}
+
+/// A value in 0–1 per topic (MG4): `standard` for topics not named.
+fn topic_values(
+    ctx: &mut Ctx,
+    raw: &std::collections::BTreeMap<String, f64>,
+    l: &crate::read::Loc,
+    fallback: f64,
+) -> [f64; wsim_core::decision::Topic::ALL.len()] {
+    use wsim_core::decision::Topic;
+    let standard = raw.get("standard").copied().unwrap_or(fallback);
+    let standard = in_range(ctx, standard, 0.0, 1.0, &l.field("standard"));
+    let mut out = [standard; Topic::ALL.len()];
+    let keys: Vec<&str> = Topic::ALL.iter().map(|t| t.key()).collect();
+    for (key, &value) in raw {
+        if key == "standard" {
+            continue;
+        }
+        match Topic::from_key(key) {
+            Some(topic) => {
+                let i = Topic::ALL.iter().position(|&t| t == topic).unwrap_or(0);
+                out[i] = in_range(ctx, value, 0.0, 1.0, &l.field(key));
+            }
+            None => {
+                let suggested = crate::suggest::closest(key, keys.iter().copied());
+                ctx.error(
+                    &l.field(key),
                     messages::unknown_reference("Thema", key, suggested),
                 );
             }

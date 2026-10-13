@@ -16,10 +16,10 @@ use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
-    BudgetRule, CompanyId, Concern, ConcernOption, ConcernPart, ConcernReason, ConcernStatus,
-    DecisionFile, FileOption, FileResult, Followup, GameState, Hop, Job, Manager, ManagerId,
-    Memory, Position, PositionKind, PositionLog, PositionState, Role, RuleScope, SiteId, Unit,
-    UnitLevel,
+    Advocate, BudgetRule, CompanyId, Concern, ConcernOption, ConcernPart, ConcernReason,
+    ConcernStatus, DecisionFile, Dissent, FileOption, FileResult, Followup, GameState, Hop, Job,
+    Manager, ManagerId, Memory, Position, PositionKind, PositionLog, PositionState, Role,
+    RuleScope, SiteId, Unit, UnitLevel,
 };
 use crate::strategy;
 
@@ -1862,6 +1862,7 @@ impl Decider for Staff<'_> {
             status: ConcernStatus::Open,
             closed: None,
             memory: memory_of(state, d.company, (top.manager, d.topic)),
+            dissent: None,
         });
         Verdict::Hold
     }
@@ -2038,9 +2039,106 @@ pub(crate) fn bundle(concerns: Vec<Concern>, from: u32) -> Vec<Concern> {
             status: ConcernStatus::Open,
             closed: None,
             memory: None,
+            dissent: None,
         });
     }
     out
+}
+
+/// Concerns of two positions of one site on contradicting topics that recommend a way each
+/// become one concern with both ways and their advocates (MG4).
+pub(crate) fn contradict(concerns: Vec<Concern>, pairs: &[(Topic, Topic)]) -> Vec<Concern> {
+    let mut list: Vec<Option<Concern>> = concerns.into_iter().map(Some).collect();
+    let recommends = |c: &Concern| {
+        c.parts.is_empty()
+            && c.decision.site.is_some()
+            && c.decision
+                .choices
+                .get(c.recommended)
+                .is_some_and(|o| o.kind != ChoiceKind::Keep)
+    };
+    let mut out = Vec::new();
+    for i in 0..list.len() {
+        let Some(a) = list[i].take() else { continue };
+        let partner = (i + 1..list.len()).find(|&j| {
+            list[j].as_ref().is_some_and(|b| {
+                recommends(&a)
+                    && recommends(b)
+                    && a.company == b.company
+                    && a.decision.site == b.decision.site
+                    && asker(&a) != asker(b)
+                    && pairs.iter().any(|&(x, y)| {
+                        (a.decision.topic == x && b.decision.topic == y)
+                            || (a.decision.topic == y && b.decision.topic == x)
+                    })
+            })
+        });
+        match partner.and_then(|j| list[j].take()) {
+            Some(b) => out.push(merge_dissent(a, b)),
+            None => out.push(a),
+        }
+    }
+    out
+}
+
+fn merge_dissent(a: Concern, b: Concern) -> Concern {
+    let advocate = |c: &Concern| Advocate {
+        position: asker(c).clone(),
+        manager: c.path.last().map_or(c.manager, |h| h.manager),
+        topic: c.decision.topic,
+    };
+    let (adv_a, adv_b) = (advocate(&a), advocate(&b));
+    let (ca, cb) = (
+        a.decision.choices[a.recommended].clone(),
+        b.decision.choices[b.recommended].clone(),
+    );
+    let (oa, ob) = (
+        a.options[a.recommended].clone(),
+        b.options[b.recommended].clone(),
+    );
+    let mid = |kind, o: &ConcernOption| forecast_mid(kind, o.forecast).unwrap_or(Money::ZERO);
+    let second_better = mid(cb.kind, &ob) > mid(ca.kind, &oa);
+    let keep = ConcernOption {
+        amount: Money::ZERO,
+        forecast: Some((Money::ZERO, Money::ZERO)),
+        once: Money::ZERO,
+    };
+    let lead = if second_better { &adv_b } else { &adv_a };
+    let reason = if a.reason == ConcernReason::Finance || b.reason == ConcernReason::Finance {
+        ConcernReason::Finance
+    } else {
+        a.reason
+    };
+    Concern {
+        id: 0,
+        company: a.company,
+        position: lead.position.clone(),
+        manager: lead.manager,
+        decision: Decision {
+            topic: a.decision.topic,
+            company: a.company,
+            site: a.decision.site,
+            product: a
+                .decision
+                .product
+                .filter(|p| b.decision.product == Some(*p)),
+            choices: vec![ca, cb, decision::Choice::keep()],
+            rule: 0,
+        },
+        recommended: usize::from(second_better),
+        options: vec![oa, ob, keep],
+        reason,
+        path: Vec::new(),
+        parts: Vec::new(),
+        created: a.created,
+        deadline: a.deadline.min(b.deadline),
+        status: ConcernStatus::Open,
+        closed: None,
+        memory: None,
+        dissent: Some(Dissent {
+            advocates: [adv_a, adv_b],
+        }),
+    }
 }
 
 /// Positions held, per company and unit.
@@ -2275,6 +2373,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             ..
         } = staff;
         let concerns = bundle(concerns, m.concerns.bundle_from);
+        let concerns = contradict(concerns, &m.contradictions);
         record(
             state,
             catalog,
