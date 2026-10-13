@@ -668,6 +668,7 @@ impl Game {
             ));
             crate::channels::month_start(&mut self.state, &self.catalog, next);
             market::reset_site_months(&mut self.state);
+            crate::purchasing::month_start(&mut self.state);
             report.messages.extend(crate::competition::month_end(
                 &mut self.state,
                 &self.catalog,
@@ -822,6 +823,7 @@ pub(crate) fn push_player_company(
         auction_until: None,
         development: Default::default(),
         product_names: Default::default(),
+        purchases: Vec::new(),
         positions: Vec::new(),
         budget_rules: Vec::new(),
         strategies: Vec::new(),

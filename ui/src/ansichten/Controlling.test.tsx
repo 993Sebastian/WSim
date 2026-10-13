@@ -62,6 +62,33 @@ function mitProdukt(d: Controlling) {
 }
 
 describe("Controlling", () => {
+  it("zeigt den Einkauf mit Menge, Qualität, Preis und Ausgaben", async () => {
+    await zeige((d) => {
+      d.purchasing = {
+        month_usd: 1200,
+        year_usd: 14400,
+        rows: [
+          {
+            site: 1,
+            site_name: "Werk Nord",
+            country: "DEU",
+            product: "naegel",
+            source: "vertrag",
+            month: { quantity: 100, quality: 55, price_usd: 12, spent_usd: 1200 },
+            year: { quantity: 1200, quality: 54, price_usd: 12, spent_usd: 14400 },
+            own_usd: 9.6,
+            own_vs_price: -0.2,
+          },
+        ],
+      };
+    });
+    const tabelle = await screen.findByRole("table", { name: "Einkauf" });
+    expect(within(tabelle).getByText("Werk Nord")).toBeTruthy();
+    expect(within(tabelle).getByText("Liefervertrag")).toBeTruthy();
+    expect(within(tabelle).getByText(/−20 %|-20 %/)).toBeTruthy();
+    expect(screen.getByText(/Ausgaben letzter Monat/)).toBeTruthy();
+  });
+
   afterEach(cleanup);
 
   it("klappt vom Konzern bis zum Produkt auf", async () => {

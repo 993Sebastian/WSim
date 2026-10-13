@@ -56,6 +56,7 @@ pub mod product_names;
 pub mod product_research;
 pub mod production;
 pub mod purchase;
+pub mod purchasing;
 pub mod ranking;
 pub mod regulation;
 pub mod relocation;

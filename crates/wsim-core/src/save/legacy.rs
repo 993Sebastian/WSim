@@ -95,6 +95,7 @@ pub(super) fn decode_v2(
                 auction_until: None,
                 development: Default::default(),
                 product_names: Default::default(),
+                purchases: Vec::new(),
                 positions: Vec::new(),
                 budget_rules: Vec::new(),
                 strategies: Vec::new(),

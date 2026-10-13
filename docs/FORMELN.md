@@ -5969,3 +5969,22 @@ Warenpreis des Lieferanten zusätzlich zum Rabatt für Bindung (W4):
 Eine KI-Verkäuferin nimmt ein Angebot an, wenn `P − Fracht ≥ (1 − r(n)) · (1 − d) · G · Aufschlag`.
 Der Rabatt gilt beim Abschluss und beim Nachverhandeln; laufende Preise bleiben fest.
 Für den Spieler als Lieferant wirkt die Partnerschaft nicht auf den Preis.
+
+## EC1 Einkaufscontrolling (OFFENE_PUNKTE Z)
+
+**Erfassung.** Jeder Zukauf eines Standorts wird je Firma, Standort, Produkt und Quelle
+(`markt`: Markt, Importe, Staat; `vertrag`: Liefervertrag) im laufenden Monat summiert:
+Menge `q`, Ausgaben `A` (Warenwert ohne Fracht und Zoll, wie ins Lager gebucht) und
+`q · Qualität`. Lieferungen zwischen eigenen Standorten (interne Belieferung, eigene Angebote
+am Markt) sind kein Zukauf. Am Monatsersten schließt der Monat; je Eintrag bleiben die
+letzten 12 geschlossenen Monate (Eintrag ohne Zukauf in einem Jahr entfällt).
+
+**Anzeige.** Zeile je Eintrag mit „letzter Monat“ (der zuletzt geschlossene) und „letzte
+12 Monate“ (Summe der geschlossenen Monate): Menge `q`, Durchschnittsqualität `Σ(q·Qualität) / q`,
+Durchschnittspreis `A / q`, Ausgaben `A`; Summen über alle Zeilen. Sortiert nach den Ausgaben
+des Jahres.
+
+**Eigenfertigung als Vergleich.** Kann ein eigener Standort das Produkt herstellen, steht seine
+geschätzte Stückkostenzahl (`production::unit_costs`, der günstigste eigene Standort) neben dem
+Durchschnittspreis des Jahres, dazu `Eigenkosten / Preis − 1` in Prozent. Es ist eine Entscheidungshilfe;
+die Entscheidung bleibt beim Spieler.

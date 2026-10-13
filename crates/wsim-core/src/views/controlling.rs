@@ -103,6 +103,125 @@ pub struct ControllingView {
     /// Make or buy per input of the company's sites (BP4).
     #[serde(default)]
     pub make_or_buy: Vec<MakeOrBuyRow>,
+    /// What the company bought in the last month and the last 12 months (EC1).
+    #[serde(default)]
+    pub purchasing: PurchasingView,
+}
+
+/// Quantity, quality, price and spending of purchases in a period.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PurchaseFigures {
+    pub quantity: f64,
+    /// Average quality, weighted by quantity.
+    pub quality: f64,
+    /// Average price paid per unit (USD).
+    pub price_usd: f64,
+    pub spent_usd: f64,
+}
+
+/// One line of the purchasing controlling: a site's purchases of a product from a source.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PurchaseRow {
+    pub site: u32,
+    pub site_name: Option<String>,
+    pub country: String,
+    pub product: String,
+    /// `markt` (market, imports, state) or `vertrag` (supply contract).
+    pub source: String,
+    /// The last closed month.
+    pub month: PurchaseFigures,
+    /// The last 12 closed months.
+    pub year: PurchaseFigures,
+    /// Estimated unit cost at the cheapest own site that makes the product, if any.
+    pub own_usd: Option<f64>,
+    /// How far that cost lies above (+) or below (−) the average price of the year.
+    pub own_vs_price: Option<f64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PurchasingView {
+    /// Biggest spending of the year first.
+    pub rows: Vec<PurchaseRow>,
+    pub month_usd: f64,
+    pub year_usd: f64,
+}
+
+fn figures(m: &crate::purchasing::PurchaseMonth) -> PurchaseFigures {
+    if m.quantity <= 0.0 {
+        return PurchaseFigures::default();
+    }
+    PurchaseFigures {
+        quantity: m.quantity,
+        quality: m.quality_sum / m.quantity,
+        price_usd: usd(m.spent) / m.quantity,
+        spent_usd: usd(m.spent),
+    }
+}
+
+/// Cheapest estimated unit cost per product over the company's sites.
+fn own_unit_costs(game: &Game) -> BTreeMap<ProductId, f64> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let me = game.player();
+    let mut own: BTreeMap<ProductId, f64> = BTreeMap::new();
+    for (i, s) in state.sites.iter().enumerate() {
+        if !s.held_by(me) {
+            continue;
+        }
+        let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+        for u in crate::production::unit_costs(catalog, state, site) {
+            let e = own.entry(u.product).or_insert(f64::INFINITY);
+            *e = e.min(u.total());
+        }
+    }
+    own
+}
+
+fn purchasing(game: &Game) -> PurchasingView {
+    let (state, catalog) = (game.state(), game.catalog());
+    let me = game.player();
+    let own = own_unit_costs(game);
+    let mut rows: Vec<PurchaseRow> = Vec::new();
+    for r in &state.companies[me.index()].purchases {
+        let mut year = crate::purchasing::PurchaseMonth::default();
+        for m in &r.months {
+            year.add(m);
+        }
+        if year.is_empty() {
+            continue;
+        }
+        let site = &state.sites[r.site.index()];
+        let year_fig = figures(&year);
+        let own_usd = own.get(&r.product).copied().filter(|c| c.is_finite());
+        rows.push(PurchaseRow {
+            site: r.site.0,
+            site_name: site.name.clone(),
+            country: catalog.countries.key(site.country).to_owned(),
+            product: catalog.products.key(r.product).to_owned(),
+            source: match r.source {
+                crate::purchasing::PurchaseSource::Market => "markt",
+                crate::purchasing::PurchaseSource::Contract => "vertrag",
+            }
+            .to_owned(),
+            month: r.months.last().map(figures).unwrap_or_default(),
+            year: year_fig,
+            own_usd,
+            own_vs_price: own_usd
+                .filter(|_| year_fig.price_usd > 0.0)
+                .map(|o| o / year_fig.price_usd - 1.0),
+        });
+    }
+    rows.sort_by(|a, b| {
+        b.year
+            .spent_usd
+            .total_cmp(&a.year.spent_usd)
+            .then(a.site.cmp(&b.site))
+            .then(a.product.cmp(&b.product))
+    });
+    PurchasingView {
+        month_usd: rows.iter().map(|r| r.month.spent_usd).sum(),
+        year_usd: rows.iter().map(|r| r.year.spent_usd).sum(),
+        rows,
+    }
 }
 
 /// Making an input at an own site against buying it (BP4, docs/FORMELN.md).
@@ -527,6 +646,7 @@ pub fn controlling(game: &Game, period: &str) -> ControllingView {
         months,
         root,
         make_or_buy: make_or_buy(game),
+        purchasing: purchasing(game),
     }
 }
 

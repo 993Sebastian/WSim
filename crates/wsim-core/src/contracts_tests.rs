@@ -689,3 +689,90 @@ fn an_ai_supplier_gives_a_partner_the_discount() {
     assert_eq!(view.partnerships[0].role, "lieferant");
     assert!((view.partnerships[0].discount - 0.1).abs() < 1e-12);
 }
+
+#[test]
+fn contract_deliveries_are_noted_as_purchases_of_the_buyer() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let (_, buyer, other) = agreed(&mut game, "AAA", 12.0, 3);
+    // Deliveries start next month; two months later a full month has closed.
+    days(&mut game, 31 + 28 + 2);
+    let records = &game.state().companies[other.index()].purchases;
+    let r = records
+        .iter()
+        .find(|r| r.site == buyer && r.source == crate::purchasing::PurchaseSource::Contract)
+        .expect("the buyer's contract purchases");
+    let closed: f64 = r.months.iter().map(|m| m.quantity).sum();
+    assert!(
+        closed > 12.0 * 20.0,
+        "a month of deliveries closed: {closed}"
+    );
+    let spent: Money = r.months.iter().map(|m| m.spent).sum();
+    assert!(
+        (spent.to_usd() - 2.0 * closed).abs() < 0.05,
+        "{spent:?} for {closed}"
+    );
+    // The seller bought nothing.
+    let seller = game.player();
+    assert!(game.state().companies[seller.index()].purchases.is_empty());
+}
+
+#[test]
+fn the_purchasing_view_shows_the_players_contract_purchases_with_own_cost() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let works = furnace(&mut game);
+    let other = competitor(&mut game);
+    let ore = product(&game, "erz");
+    let store = warehouse(&mut game, other, "AAA", 0.0);
+    let catalog = game.catalog().clone();
+    let country = game.state().sites[works.index()].country;
+    let price = market::market_price(&catalog, game.state(), country, ore).scale(0.5);
+    {
+        let state = game.state_mut();
+        state.sites[store.index()]
+            .inventory
+            .entry(ore)
+            .or_default()
+            .add(1e6, Money::times(price, 1e6), 50.0);
+        state.companies[other.index()].ledger.transfer(
+            Account::Inventory,
+            Account::Equity,
+            Money::times(price, 1e6),
+        );
+        state.sites[works.index()].inventory.remove(&ore);
+    }
+    let need = contracts::daily_need(game.state(), &catalog, works, ore);
+    let terms = Terms {
+        seller: store,
+        buyer: works,
+        product: ore,
+        per_day: 2.0 * need,
+        price,
+        months: 6,
+        min_quality: 0.0,
+        penalty: 0.2,
+        exclusive: false,
+    };
+    contracts::propose(game.state_mut(), &catalog, other, &terms).unwrap();
+    let id = game.state().contracts.last().unwrap().id;
+    game.apply(Command::AnswerContract {
+        contract: id,
+        accept: true,
+    })
+    .unwrap();
+    days(&mut game, 70);
+    let view = crate::views::controlling(&game, "monat").purchasing;
+    let row = view
+        .rows
+        .iter()
+        .find(|r| r.product == "erz" && r.source == "vertrag")
+        .expect("ore bought under the contract");
+    assert_eq!(row.site, works.0);
+    assert!(row.year.quantity > 0.0 && row.year.spent_usd > 0.0);
+    assert!(
+        (row.year.price_usd - price.to_usd()).abs() < 1e-3,
+        "{row:?}"
+    );
+    assert!((row.year.quality - 50.0).abs() < 1e-6);
+    assert!(view.year_usd >= row.year.spent_usd - 1e-9);
+    assert!(view.month_usd > 0.0, "a closed month with purchases");
+}

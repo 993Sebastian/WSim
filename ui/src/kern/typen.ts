@@ -2644,6 +2644,34 @@ export interface Controlling {
   root: ControllingKnoten | null;
   /** Make or buy per input of the own sites (BP4). */
   make_or_buy?: MakeOrBuyZeile[];
+  /** Purchasing controlling (EC1). */
+  purchasing?: Zukauf;
+}
+
+export interface ZukaufZahlen {
+  quantity: number;
+  quality: number;
+  price_usd: number;
+  spent_usd: number;
+}
+
+export interface ZukaufZeile {
+  site: number;
+  site_name: string | null;
+  country: string;
+  product: string;
+  source: "markt" | "vertrag";
+  month: ZukaufZahlen;
+  year: ZukaufZahlen;
+  own_usd: number | null;
+  own_vs_price: number | null;
+}
+
+/** What the company bought in the last month and the last 12 months (EC1). */
+export interface Zukauf {
+  rows: ZukaufZeile[];
+  month_usd: number;
+  year_usd: number;
 }
 
 export interface MakeOrBuyZeile {

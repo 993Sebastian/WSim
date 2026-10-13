@@ -963,3 +963,9 @@ das Labor am Projekt des Standorts.
 `partnerships[]` (optional, nach Lieferant und Käufer sortiert): `seller`, `buyer` (Firmen),
 `grade` (0–1), `month` (im laufenden Monat gelieferter Wert), `months` (Lieferwert der letzten
 bis zu 12 geschlossenen Monate, älteste zuerst).
+
+## Spielstand: Einkauf (EC1)
+
+`companies[].purchases[]` (optional): `site`, `product`, `source` (`Market` oder `Contract`),
+`month` (laufender Monat) und `months` (bis zu 12 geschlossene Monate, älteste zuerst); jeder
+Monat hat `quantity`, `spent` und `quality_sum` (Menge mal Qualität).

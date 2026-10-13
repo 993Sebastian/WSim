@@ -1518,6 +1518,16 @@ fn trade(
                 Account::Cash,
                 amount,
             );
+            let internal =
+                matches!(offer.seller, Seller::Site { owner: seller, .. } if seller == owner);
+            if !internal {
+                crate::purchasing::note(
+                    state,
+                    owner,
+                    (site, product, crate::purchasing::PurchaseSource::Market),
+                    (quantity, amount, offer.quality),
+                );
+            }
             if matches!(offer.seller, Seller::Site { owner: seller, .. } if seller != owner) {
                 offer.to_companies += quantity;
             }

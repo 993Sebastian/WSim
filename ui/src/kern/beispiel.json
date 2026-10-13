@@ -5002,6 +5002,33 @@
       "jahr",
       "vorjahr"
     ],
+    "purchasing": {
+      "month_usd": 0.0,
+      "rows": [
+        {
+          "country": "DEU",
+          "month": {
+            "price_usd": 0.0,
+            "quality": 0.0,
+            "quantity": 0.0,
+            "spent_usd": 0.0
+          },
+          "own_usd": null,
+          "own_vs_price": null,
+          "product": "draht",
+          "site": 0,
+          "site_name": null,
+          "source": "markt",
+          "year": {
+            "price_usd": 1603.901747175509,
+            "quality": 55.87735458930371,
+            "quantity": 134.3745060939921,
+            "spent_usd": 215523.5051
+          }
+        }
+      ],
+      "year_usd": 215523.5051
+    },
     "root": {
       "children": [
         {

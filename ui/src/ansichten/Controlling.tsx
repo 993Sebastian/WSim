@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { formatGeld, formatProzent, landName } from "../format";
-import type { Controlling, ControllingKnoten, Kern, MakeOrBuyZeile } from "../kern";
+import { formatGeld, formatProzent, formatZahl, landName } from "../format";
+import type { Controlling, ControllingKnoten, Kern, MakeOrBuyZeile, Zukauf } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Unterreiter, useSicht } from "./gemeinsam";
@@ -239,6 +239,9 @@ export function ControllingAnsicht({ kern, stand }: { kern: Kern; stand: string 
         onWahl={setZeitraum}
       />
       <Baum key={`${daten.period}/${daten.root?.key ?? ""}`} daten={daten} />
+      {(daten.purchasing?.rows.length ?? 0) > 0 && daten.purchasing && (
+        <EinkaufsControlling einkauf={daten.purchasing} />
+      )}
       {(daten.make_or_buy ?? []).length > 0 && <MakeOrBuy zeilen={daten.make_or_buy ?? []} />}
     </section>
   );
@@ -270,6 +273,60 @@ function MakeOrBuy({ zeilen }: { zeilen: MakeOrBuyZeile[] }) {
               <td className="zahl">{z.buy_usd == null ? "–" : formatGeld(z.buy_usd)}</td>
               <td className="zahl">{formatProzent(z.supply)}</td>
               <td>{t(`controlling.mob.rat.${z.advice}`)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+/** What was bought, in which quantity, quality and price, and what it cost (EC1). */
+function EinkaufsControlling({ einkauf }: { einkauf: Zukauf }) {
+  return (
+    <section aria-labelledby="einkauf-controlling">
+      <h3 id="einkauf-controlling">{t("controlling.einkauf.titel")}</h3>
+      <p className="feld-hilfe">{t("controlling.einkauf.hilfe")}</p>
+      <p>
+        {t("controlling.einkauf.summe", {
+          monat: formatGeld(einkauf.month_usd),
+          jahr: formatGeld(einkauf.year_usd),
+        })}
+      </p>
+      <table className="tabelle" aria-label={t("controlling.einkauf.titel")}>
+        <thead>
+          <tr>
+            <th>{t("controlling.einkauf.produkt")}</th>
+            <th>{t("controlling.einkauf.standort")}</th>
+            <th>{t("controlling.einkauf.quelle")}</th>
+            <th className="zahl">{t("controlling.einkauf.menge_monat")}</th>
+            <th className="zahl">{t("controlling.einkauf.preis_monat")}</th>
+            <th className="zahl">{t("controlling.einkauf.ausgaben_monat")}</th>
+            <th className="zahl">{t("controlling.einkauf.menge_jahr")}</th>
+            <th className="zahl">{t("controlling.einkauf.qualitaet")}</th>
+            <th className="zahl">{t("controlling.einkauf.preis_jahr")}</th>
+            <th className="zahl">{t("controlling.einkauf.ausgaben_jahr")}</th>
+            <th className="zahl">{t("controlling.einkauf.eigen")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {einkauf.rows.map((z) => (
+            <tr key={`${z.site}/${z.product}/${z.source}`}>
+              <td>{t(`produkt.${z.product}`)}</td>
+              <td>{z.site_name ?? landName(z.country)}</td>
+              <td>{t(`controlling.einkauf.quelle.${z.source}`)}</td>
+              <td className="zahl">{formatZahl(z.month.quantity, 0)}</td>
+              <td className="zahl">{z.month.quantity > 0 ? formatGeld(z.month.price_usd) : "–"}</td>
+              <td className="zahl">{formatGeld(z.month.spent_usd)}</td>
+              <td className="zahl">{formatZahl(z.year.quantity, 0)}</td>
+              <td className="zahl">{formatZahl(z.year.quality, 0)}</td>
+              <td className="zahl">{formatGeld(z.year.price_usd)}</td>
+              <td className="zahl">{formatGeld(z.year.spent_usd)}</td>
+              <td className="zahl">
+                {z.own_usd == null || z.own_vs_price == null
+                  ? "–"
+                  : `${formatGeld(z.own_usd)} (${z.own_vs_price > 0 ? "+" : ""}${formatProzent(z.own_vs_price)})`}
+              </td>
             </tr>
           ))}
         </tbody>

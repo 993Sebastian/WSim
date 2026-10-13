@@ -994,6 +994,16 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
         });
     }
     note_delivery(state, c.seller_company, c.buyer_company, amount);
+    crate::purchasing::note(
+        state,
+        c.buyer_company,
+        (
+            c.buyer,
+            c.product,
+            crate::purchasing::PurchaseSource::Contract,
+        ),
+        (quantity, amount, quality),
+    );
     let seller = state.contracts[i].seller;
     state.sites[seller.index()]
         .totals

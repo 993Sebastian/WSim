@@ -2525,3 +2525,9 @@ und im letzten Jahr dafür ausgegeben wurde – um zu prüfen, ob sich Eigenfert
   Einkaufspreis in %; die Entscheidung bleibt beim Spieler.
 - Die Zahlen kommen aus einem neuen Monatsspeicher je Firma (Spielstandformat steigt);
   alles in USD Kaufkraft 2026, Anzeige in der gewählten Währung.
+
+✅ Umsetzung (13.10.2026, EC1): Ansicht Controlling → Abschnitt „Einkauf“ (nur für die Hauptfirma);
+Erfassung in `purchasing.rs` (Markt: `market::trade`, Verträge: `contracts::ship`), Spielstand
+additiv (`Company.purchases`, kein Versionssprung). Ausgaben ohne Fracht und Zoll. Offen
+bleibt: Werte je Konzernfirma (bisher nur die eigene Firma) und Einmalkäufe getrennt von
+Dauerbestellungen (laufen über denselben Markt und stehen unter „Markt“).

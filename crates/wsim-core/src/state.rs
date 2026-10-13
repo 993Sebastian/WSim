@@ -366,6 +366,9 @@ pub struct Company {
     /// The names the company gave its end products (M42).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub product_names: BTreeMap<ProductId, String>,
+    /// What the company bought, per site, product and source (EC1).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub purchases: Vec<crate::purchasing::PurchaseRecord>,
     /// Budgets and settings of its positions (MA2), in the order they were first used.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub positions: Vec<PositionState>,

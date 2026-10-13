@@ -2411,6 +2411,22 @@ tochter.summe: Summe
 finanzen.reiter_abschluss: Abschluss
 finanzen.reiter_controlling: Controlling
 controlling.titel: Controlling
+controlling.einkauf.titel: Einkauf
+controlling.einkauf.hilfe: Was die Firma zugekauft hat – am Markt (auch Importe und Staat) und über Lieferverträge. Lieferungen zwischen eigenen Standorten zählen nicht. Die Spalte „Eigenfertigung“ schätzt die Stückkosten, wenn ein eigener Standort das Produkt herstellen kann; in Klammern steht, wie weit sie über (+) oder unter (−) dem Einkaufspreis des Jahres liegen. Die Entscheidung bleibt bei dir.
+controlling.einkauf.summe: "Ausgaben letzter Monat: {monat} · letzte 12 Monate: {jahr}"
+controlling.einkauf.produkt: Produkt
+controlling.einkauf.standort: Standort
+controlling.einkauf.quelle: Quelle
+controlling.einkauf.quelle.markt: Markt
+controlling.einkauf.quelle.vertrag: Liefervertrag
+controlling.einkauf.menge_monat: Menge (Monat)
+controlling.einkauf.preis_monat: Preis (Monat)
+controlling.einkauf.ausgaben_monat: Ausgaben (Monat)
+controlling.einkauf.menge_jahr: Menge (12 Monate)
+controlling.einkauf.qualitaet: Qualität
+controlling.einkauf.preis_jahr: Preis (12 Monate)
+controlling.einkauf.ausgaben_jahr: Ausgaben (12 Monate)
+controlling.einkauf.eigen: Eigenfertigung
 controlling.mob.titel: Eigenfertigung oder Zukauf
 controlling.mob.hilfe: Für jedes Vorprodukt deiner Werke – was es dich selbst kostet und was es geliefert kostet. Versorgung = Anteil des bedienten Bedarfs im Land im Vormonat.
 controlling.mob.vorprodukt: Vorprodukt
