@@ -1515,6 +1515,7 @@ pub struct ProjectLeadModel {
     pub capacity_new: u32,
     pub capacity_further: u32,
     pub candidates: u32,
+    pub experience_gain: f64,
     pub age_min: u32,
     pub age_max: u32,
     /// Character keys (texts `projektleiter.charakter.<key>`).

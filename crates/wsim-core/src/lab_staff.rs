@@ -13,6 +13,9 @@ use crate::state::{GameState, Site, SiteId};
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LabStaff {
     pub counts: [u32; 4],
+    /// People assigned to development projects (PD2); recomputed every day.
+    #[serde(default)]
+    pub assigned: [u32; 4],
 }
 
 impl LabStaff {
@@ -24,6 +27,11 @@ impl LabStaff {
         self.counts[role.index()]
     }
 
+    /// People of a role not assigned to a project.
+    pub fn free(&self, role: LabRole) -> u32 {
+        self.counts[role.index()].saturating_sub(self.assigned[role.index()])
+    }
+
     pub fn total(&self) -> u32 {
         self.counts.iter().sum()
     }
@@ -33,7 +41,7 @@ impl LabStaff {
         let model = &catalog.research_model.lab_staff;
         LabRole::ALL
             .iter()
-            .map(|&r| f64::from(self.get(r)) * model.weight(r).unwrap_or(0.0))
+            .map(|&r| f64::from(self.free(r)) * model.weight(r).unwrap_or(0.0))
             .sum()
     }
 }

@@ -2168,6 +2168,13 @@ pub struct GameState {
     pub managers: BTreeMap<ManagerId, Manager>,
     #[serde(default)]
     pub next_manager: u32,
+    /// Development projects PM0–PM7 of all companies, finished ones kept for the
+    /// after-calculation (PD2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub dev_projects: Vec<crate::projects::DevProject>,
+    /// Project leaders on the market and in companies; the index is their number (PD2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub project_leads: Vec<crate::projects::ProjectLead>,
     /// Questions of positions to their companies (MA2), open and closed in the last year.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub concerns: Vec<Concern>,

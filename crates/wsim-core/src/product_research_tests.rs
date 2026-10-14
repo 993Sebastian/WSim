@@ -15,7 +15,7 @@ use crate::money::Money;
 use crate::product_research;
 use crate::state::{GameSettings, SiteId, StartForm};
 
-fn catalog() -> Catalog {
+pub(crate) fn catalog() -> Catalog {
     let mut c = test_support::research();
     let iron = c.products.id("eisen").unwrap();
     let template = c.products.get(iron).clone();
@@ -56,7 +56,7 @@ fn catalog() -> Catalog {
     c
 }
 
-fn new_game(catalog: Catalog) -> Game {
+pub(crate) fn new_game(catalog: Catalog) -> Game {
     let catalog = Arc::new(catalog);
     let settings = GameSettings {
         seed: 7,
@@ -83,7 +83,7 @@ fn product(game: &Game, key: &str) -> ProductId {
 }
 
 /// A research center with one laboratory working at full load.
-fn research_center(game: &mut Game) -> SiteId {
+pub(crate) fn research_center(game: &mut Game) -> SiteId {
     let c = game.catalog().clone();
     game.apply(Command::FoundSite {
         country: c.countries.id("AAA").unwrap(),

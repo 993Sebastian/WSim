@@ -274,6 +274,12 @@ fehler.befehl.stelle_besetzt: Die Stelle ist schon besetzt.
 fehler.befehl.anliegen_unbekannt: Dieses Anliegen gibt es nicht.
 fehler.befehl.anliegen_erledigt: Dieses Anliegen ist schon beantwortet oder verfallen.
 fehler.befehl.labor_voll: Die Labore haben keine freien Arbeitsplätze mehr für so viele Leute.
+fehler.befehl.projekte_aus: In diesem Spiel gibt es keine Entwicklungsprojekte.
+fehler.befehl.nur_ueber_projekte: "Produkte werden in Entwicklungsprojekten entwickelt: Starte ein Projekt mit einem Projektleiter."
+fehler.befehl.projekt_unbekannt: Dieses Entwicklungsprojekt gibt es nicht oder es läuft nicht mehr.
+fehler.befehl.projektleiter_nicht_verfuegbar: Dieser Projektleiter gehört nicht zur Firma, ist schon ausgelastet oder nicht mehr zu haben.
+fehler.befehl.projekt_laeuft_schon: Die Firma entwickelt dieses Produkt schon.
+meldung.projekt_meilenstein: "Entwicklung {produkt}: Meilenstein M{meilenstein} erreicht."
 fehler.befehl.vorschlag_aufschub: Nur ein Strategievorschlag lässt sich zurückstellen, und nur einmal.
 fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.
 fehler.befehl.keine_leitung: Nur eine Leitung besetzt die Stellen ihrer Einheit selbst.

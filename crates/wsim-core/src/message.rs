@@ -228,6 +228,12 @@ pub mod keys {
     pub const COMMAND_CONCERN_CLOSED: &str = "fehler.befehl.anliegen_erledigt";
     pub const COMMAND_CANNOT_POSTPONE: &str = "fehler.befehl.vorschlag_aufschub";
     pub const COMMAND_LAB_FULL: &str = "fehler.befehl.labor_voll";
+    pub const COMMAND_PROJECTS_OFF: &str = "fehler.befehl.projekte_aus";
+    pub const COMMAND_USE_PROJECTS: &str = "fehler.befehl.nur_ueber_projekte";
+    pub const COMMAND_UNKNOWN_PROJECT: &str = "fehler.befehl.projekt_unbekannt";
+    pub const COMMAND_LEAD_UNAVAILABLE: &str = "fehler.befehl.projektleiter_nicht_verfuegbar";
+    pub const COMMAND_PROJECT_EXISTS: &str = "fehler.befehl.projekt_laeuft_schon";
+    pub const PROJECT_MILESTONE: &str = "meldung.projekt_meilenstein";
     pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
     pub const COMMAND_NOT_A_HEAD: &str = "fehler.befehl.keine_leitung";
     pub const COMMAND_SALARY_NOT_HIGHER: &str = "fehler.befehl.gehalt_nicht_hoeher";
@@ -663,6 +669,12 @@ pub mod keys {
         COMMAND_CONCERN_CLOSED,
         COMMAND_CANNOT_POSTPONE,
         COMMAND_LAB_FULL,
+        COMMAND_PROJECTS_OFF,
+        COMMAND_USE_PROJECTS,
+        COMMAND_UNKNOWN_PROJECT,
+        COMMAND_LEAD_UNAVAILABLE,
+        COMMAND_PROJECT_EXISTS,
+        PROJECT_MILESTONE,
         COMMAND_UNKNOWN_OPTION,
         COMMAND_NOT_A_HEAD,
         COMMAND_SALARY_NOT_HIGHER,

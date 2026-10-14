@@ -215,6 +215,8 @@ impl Game {
             next_offer: 0,
             managers: Default::default(),
             next_manager: 0,
+            dev_projects: Vec::new(),
+            project_leads: Vec::new(),
             concerns: Vec::new(),
             next_concern: 0,
             followups: Vec::new(),
@@ -273,6 +275,7 @@ impl Game {
         crate::events::start(&mut state);
         crate::stock::list_at_start(&mut state, &catalog);
         crate::management::month_start(&mut state, &catalog, date);
+        crate::projects::top_up_market(&mut state, &catalog, date);
         crate::person::start(&mut state, &catalog, date);
         crate::private::start(&mut state, &catalog, date);
         crate::ranking::record(&mut state);
@@ -562,6 +565,7 @@ impl Game {
                 next,
             ));
             crate::management::month_end(&mut self.state, today);
+            crate::projects::month_start(&mut self.state, &self.catalog, next);
             crate::private::pay_salary(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
             crate::logistics::month_end(&mut self.state, &self.catalog, today);

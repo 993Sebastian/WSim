@@ -1791,6 +1791,13 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
             capacity_new: p.lead.capacity_new.max(1),
             capacity_further: p.lead.capacity_further.max(1),
             candidates: p.lead.candidates,
+            experience_gain: in_range(
+                ctx,
+                p.lead.experience_gain,
+                0.0,
+                1.0,
+                &ll.field("erfahrung_je_projekt"),
+            ),
             age_min: p.lead.age_min,
             age_max: p.lead.age_max,
             characters: p.lead.characters.clone(),

@@ -5992,7 +5992,7 @@ fn entwicklungsprojekte_werden_geprueft() {
          - {{id: beschleunigt, dauer: 0.8, kosten: 1.2, risiko: 1.5}}\n    ausstattung:\n      \
          - {{id: basis, kosten: 0.8, qualitaet: -0.1}}\n      - {{id: standard, kosten: 1, qualitaet: 0}}\n      \
          - {{id: premium, kosten: 1.3, qualitaet: 0.1}}\n    projektleiter:\n      gehalt_usd_jahr: 90000\n      \
-         kapazitaet_neu: 1\n      kapazitaet_weiter: 2\n      kandidaten: 4\n      alter_min: 30\n      \
+         kapazitaet_neu: 1\n      kapazitaet_weiter: 2\n      kandidaten: 4\n      erfahrung_je_projekt: 0.1\n      alter_min: 30\n      \
          alter_max: 60\n      charaktere: [optimistisch, vorsichtig]\n    risiko:\n      basis: 0.02\n      \
          unterbesetzung: 1.5\n      erfahrung: 0.4\n      branche: 0.3\n      puffer: 0.5\n      fast_track: 1\n",
         phase("pm0_pm1", 0.1, 0.1),

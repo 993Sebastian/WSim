@@ -83,7 +83,12 @@ pub fn can_research(
 /// One day of research for all companies. Returns messages for the player.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let model = &catalog.research_model;
-    let mut messages = crate::product_research::steer(state, catalog);
+    let projects = crate::projects::enabled(catalog);
+    let mut messages = if projects {
+        crate::projects::simulate_day(state, catalog, date)
+    } else {
+        crate::product_research::steer(state, catalog)
+    };
     messages.extend(crate::labs::steer(state, catalog));
     messages.extend(develop(state, catalog, date));
     for index in 0..state.sites.len() {
@@ -130,7 +135,9 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         }
     }
 
-    learn_products(state, catalog, date);
+    if !projects {
+        learn_products(state, catalog, date);
+    }
 
     for c in 0..state.companies.len() {
         let done: Vec<TechnologyId> = state.companies[c]
@@ -142,49 +149,62 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             .map(|(&t, _)| t)
             .collect();
         for technology in done {
-            let company = &mut state.companies[c];
-            company.research.remove(&technology);
-            company.technologies.insert(technology);
-            let first = state.inventions.get_mut(technology);
-            let new_to_the_world = first.is_none();
-            if new_to_the_world {
-                *first = Some(date);
-                // The first inventor may patent it (P7).
-                let id = CompanyId(u32::try_from(c).expect("company count fits u32"));
-                messages.extend(crate::patents::claim(state, catalog, id, technology, date));
-            }
-            if new_to_the_world && !state.main_company.is_some_and(|p| p.index() == c) {
-                messages.push(
-                    Message::new(MessageKind::Info, keys::AI_INVENTION)
-                        .with("firma", Param::Text(state.companies[c].name.clone()))
-                        .with(
-                            "technologie",
-                            Param::TextKey(format!(
-                                "technologie.{}",
-                                catalog.technologies.key(technology)
-                            )),
-                        ),
-                );
-            }
-            for site in &mut state.sites {
-                if site.owner.index() == c && site.research == Some(technology) {
-                    site.research = None;
-                }
-            }
-            if state.main_company.is_some_and(|p| p.index() == c) {
-                messages.push(
-                    Message::new(MessageKind::Success, keys::RESEARCH_DONE).with(
-                        "technologie",
-                        Param::TextKey(format!(
-                            "technologie.{}",
-                            catalog.technologies.key(technology)
-                        )),
-                    ),
-                );
-            }
+            acquire(state, catalog, c, technology, date, &mut messages);
         }
     }
     messages
+}
+
+/// A company learns a technology: it joins its know-how, the first inventor may patent
+/// it (P7), and the player hears of it. Also the end of a development project (PD2).
+pub(crate) fn acquire(
+    state: &mut GameState,
+    catalog: &Catalog,
+    c: usize,
+    technology: TechnologyId,
+    date: Date,
+    messages: &mut Vec<Message>,
+) {
+    let company = &mut state.companies[c];
+    company.research.remove(&technology);
+    company.technologies.insert(technology);
+    let first = state.inventions.get_mut(technology);
+    let new_to_the_world = first.is_none();
+    if new_to_the_world {
+        *first = Some(date);
+        // The first inventor may patent it (P7).
+        let id = CompanyId(u32::try_from(c).expect("company count fits u32"));
+        messages.extend(crate::patents::claim(state, catalog, id, technology, date));
+    }
+    if new_to_the_world && !state.main_company.is_some_and(|p| p.index() == c) {
+        messages.push(
+            Message::new(MessageKind::Info, keys::AI_INVENTION)
+                .with("firma", Param::Text(state.companies[c].name.clone()))
+                .with(
+                    "technologie",
+                    Param::TextKey(format!(
+                        "technologie.{}",
+                        catalog.technologies.key(technology)
+                    )),
+                ),
+        );
+    }
+    for site in &mut state.sites {
+        if site.owner.index() == c && site.research == Some(technology) {
+            site.research = None;
+        }
+    }
+    if state.main_company.is_some_and(|p| p.index() == c) {
+        messages.push(
+            Message::new(MessageKind::Success, keys::RESEARCH_DONE).with(
+                "technologie",
+                Param::TextKey(format!(
+                    "technologie.{}",
+                    catalog.technologies.key(technology)
+                )),
+            ),
+        );
+    }
 }
 
 /// Researchers of a center work on the development of its products (Q1): each product

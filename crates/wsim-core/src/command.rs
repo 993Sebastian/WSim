@@ -268,6 +268,30 @@ pub enum Command {
         slot: usize,
         work: Option<LabTarget>,
     },
+    /// Starts a development project PM0–PM7 for a product in a research center (PD2),
+    /// with a leader of the company; tempo and trim are indexes into the data.
+    StartProject {
+        site: SiteId,
+        product: ProductId,
+        lead: u32,
+        tempo: u8,
+        trim: u8,
+    },
+    /// Sets how many people of a role work on a project (PD2); takes the project off
+    /// the automatic assignment.
+    AssignProjectStaff {
+        project: u32,
+        role: crate::catalog::LabRole,
+        count: u32,
+    },
+    /// The project takes the people each phase needs again (PD2).
+    AutoAssignProject { project: u32 },
+    /// Stops a development project (PD2).
+    AbortProject { project: u32 },
+    /// Hires a project leader of the market (PD2).
+    HireProjectLead { lead: u32 },
+    /// Lets an idle project leader go (PD2).
+    DismissProjectLead { lead: u32 },
     /// Hires people for a role in a research center (PD1).
     HireLabStaff {
         site: SiteId,
@@ -804,6 +828,16 @@ pub enum CommandError {
     CannotPostpone,
     /// The laboratories have no free post for more people (PD1).
     LabFull,
+    /// The data have no development projects (PD2).
+    ProjectsOff,
+    /// Products are developed in projects; researching them directly is closed (PD2).
+    UseProjects,
+    /// No such project, or not running (PD2).
+    UnknownProject,
+    /// The project leader is not the company's or is busy (PD2).
+    LeadUnavailable,
+    /// The company develops this product already (PD2).
+    ProjectExists,
     UnknownOption,
     /// Only a head fills positions itself (MA6).
     NotAHead,
@@ -1144,6 +1178,11 @@ impl CommandError {
             CommandError::ConcernClosed => e(keys::COMMAND_CONCERN_CLOSED),
             CommandError::CannotPostpone => e(keys::COMMAND_CANNOT_POSTPONE),
             CommandError::LabFull => e(keys::COMMAND_LAB_FULL),
+            CommandError::ProjectsOff => e(keys::COMMAND_PROJECTS_OFF),
+            CommandError::UseProjects => e(keys::COMMAND_USE_PROJECTS),
+            CommandError::UnknownProject => e(keys::COMMAND_UNKNOWN_PROJECT),
+            CommandError::LeadUnavailable => e(keys::COMMAND_LEAD_UNAVAILABLE),
+            CommandError::ProjectExists => e(keys::COMMAND_PROJECT_EXISTS),
             CommandError::UnknownOption => e(keys::COMMAND_UNKNOWN_OPTION),
             CommandError::NotAHead => e(keys::COMMAND_NOT_A_HEAD),
             CommandError::SalaryNotHigher => e(keys::COMMAND_SALARY_NOT_HIGHER),
@@ -2600,6 +2639,9 @@ fn run(
             s.staffing_due = true;
         }
         Command::SetProductResearch { site, product } => {
+            if crate::projects::enabled(catalog) {
+                return Err(CommandError::UseProjects);
+            }
             let s = own_site(state, actor, *site)?;
             if s.kind != SiteType::ResearchCenter {
                 return Err(CommandError::WrongSiteType {
@@ -2644,6 +2686,40 @@ fn run(
                 s.research = None;
             }
             s.staffing_due = true;
+        }
+        Command::StartProject {
+            site,
+            product,
+            lead,
+            tempo,
+            trim,
+        } => {
+            crate::projects::start(
+                state,
+                catalog,
+                actor,
+                (*site, *product, *lead),
+                (*tempo, *trim),
+            )?;
+        }
+        Command::AssignProjectStaff {
+            project,
+            role,
+            count,
+        } => {
+            crate::projects::assign(state, actor, *project, (*role, *count))?;
+        }
+        Command::AutoAssignProject { project } => {
+            crate::projects::auto_assign(state, actor, *project)?;
+        }
+        Command::AbortProject { project } => {
+            crate::projects::abort(state, actor, *project)?;
+        }
+        Command::HireProjectLead { lead } => {
+            crate::projects::hire_lead(state, catalog, actor, *lead)?;
+        }
+        Command::DismissProjectLead { lead } => {
+            crate::projects::dismiss_lead(state, actor, *lead)?;
         }
         Command::HireLabStaff { site, role, count } => {
             crate::lab_staff::change(state, catalog, actor, (*site, *role), (*count, true))?;

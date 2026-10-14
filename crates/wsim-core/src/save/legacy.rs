@@ -178,6 +178,8 @@ pub(super) fn decode_v2(
         next_offer: 0,
         managers: Default::default(),
         next_manager: 0,
+        dev_projects: Vec::new(),
+        project_leads: Vec::new(),
         concerns: Vec::new(),
         next_concern: 0,
         followups: Vec::new(),

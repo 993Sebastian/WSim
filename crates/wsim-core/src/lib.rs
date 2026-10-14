@@ -57,6 +57,7 @@ mod procurement_tests;
 pub mod product_names;
 pub mod product_research;
 pub mod production;
+pub mod projects;
 pub mod purchase;
 pub mod purchasing;
 pub mod ranking;
@@ -154,6 +155,8 @@ mod product_names_tests;
 mod product_research_tests;
 #[cfg(test)]
 mod production_tests;
+#[cfg(test)]
+mod projects_tests;
 #[cfg(test)]
 mod purchase_tests;
 #[cfg(test)]

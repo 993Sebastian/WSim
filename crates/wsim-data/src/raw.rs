@@ -1484,6 +1484,9 @@ pub struct RawProjectLead {
     /// Candidates on the market per laboratory country.
     #[serde(rename = "kandidaten")]
     pub candidates: u32,
+    /// Experience (0–1) a lead gains for each finished project.
+    #[serde(rename = "erfahrung_je_projekt")]
+    pub experience_gain: f64,
     #[serde(rename = "alter_min")]
     pub age_min: u32,
     #[serde(rename = "alter_max")]

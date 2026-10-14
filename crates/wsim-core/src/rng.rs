@@ -115,6 +115,11 @@ pub enum Stream {
         id: u32,
         day: u32,
     },
+    /// New project leaders on the market of a continent in a month (PD2).
+    ProjectLeads {
+        continent: u16,
+        month: u32,
+    },
     /// The person at the start of a game (PE2).
     PersonStart,
     /// The person's family in a month (PE2).
@@ -230,6 +235,9 @@ impl Stream {
                 (21 << 56) | (u64::from(id) << 24) | u64::from(month)
             }
             Stream::Extension { id, day } => (22 << 56) | (u64::from(id) << 24) | u64::from(day),
+            Stream::ProjectLeads { continent, month } => {
+                (37 << 56) | (u64::from(continent) << 32) | u64::from(month)
+            }
             Stream::PersonStart => 23 << 56,
             Stream::Person { month } => (24 << 56) | u64::from(month),
             Stream::Succession { month } => (25 << 56) | u64::from(month),

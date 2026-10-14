@@ -1416,7 +1416,7 @@ fn screws_are_researched_built_and_developed_under_mandatory_research() {
     game.apply(Command::BuildFacility {
         site: lab,
         facility: c.facilities.id("forschungslabor").unwrap(),
-        count: 3,
+        count: 20,
         size: FacilitySize::Medium,
     })
     .unwrap();
@@ -1425,15 +1425,34 @@ fn screws_are_researched_built_and_developed_under_mandatory_research() {
     }
     // The laboratories start empty (PD1): hire developers for all the posts.
     let posts = wsim_core::lab_staff::capacity(&c, &game.state().sites[lab.index()], game.date());
-    game.apply(Command::HireLabStaff {
+    assert!(posts >= 100.0, "posts {posts}");
+    for (role, count) in [
+        (wsim_core::catalog::LabRole::Developer, 40),
+        (wsim_core::catalog::LabRole::ProductionPlanner, 20),
+        (wsim_core::catalog::LabRole::ProductManager, 20),
+        (wsim_core::catalog::LabRole::Technician, 20),
+    ] {
+        game.apply(Command::HireLabStaff {
+            site: lab,
+            role,
+            count,
+        })
+        .unwrap();
+    }
+    // Products are developed in projects (PD2): hire a leader and start one.
+    let lead = game
+        .state()
+        .project_leads
+        .iter()
+        .position(|l| l.employer.is_none())
+        .expect("the market has leaders") as u32;
+    game.apply(Command::HireProjectLead { lead }).unwrap();
+    game.apply(Command::StartProject {
         site: lab,
-        role: wsim_core::catalog::LabRole::Developer,
-        count: posts.floor() as u32,
-    })
-    .unwrap();
-    game.apply(Command::SetProductResearch {
-        site: lab,
-        product: Some(screws),
+        product: screws,
+        lead,
+        tempo: 1,
+        trim: 1,
     })
     .unwrap();
     let mut done = false;
@@ -1450,7 +1469,8 @@ fn screws_are_researched_built_and_developed_under_mandatory_research() {
     let co = &s.companies[player.index()];
     assert!(
         done,
-        "screws not learned after {days} days: points {:?}, techs {:?}, site {:?}/{:?}, staff {:?}",
+        "screws not learned after {days} days: projects {:?}, points {:?}, techs {:?}, site {:?}/{:?}, staff {:?}",
+        s.dev_projects,
         co.product_points,
         co.research,
         s.sites[lab.index()].research,

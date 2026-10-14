@@ -3297,6 +3297,60 @@ fn staff_labs(
     }
 }
 
+/// Develops `product` in the laboratory `site` with the same commands as the player (PD2):
+/// one project at a time, led by an employed leader or the most experienced one on the
+/// market, at normal tempo and standard trim.
+fn start_project(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (site, product): (SiteId, ProductId),
+) {
+    if state
+        .dev_projects
+        .iter()
+        .any(|p| p.running() && p.company == id)
+    {
+        return;
+    }
+    let busy = |state: &GameState, lead: usize| {
+        state
+            .dev_projects
+            .iter()
+            .any(|p| p.running() && p.lead as usize == lead)
+    };
+    let own = (0..state.project_leads.len())
+        .find(|&l| state.project_leads[l].employer == Some(id) && !busy(state, l));
+    let lead = own.or_else(|| {
+        let best = (0..state.project_leads.len())
+            .filter(|&l| state.project_leads[l].employer.is_none())
+            .max_by(|&a, &b| {
+                state.project_leads[a]
+                    .experience
+                    .total_cmp(&state.project_leads[b].experience)
+                    .then(b.cmp(&a))
+            })?;
+        let lead = u32::try_from(best).expect("lead count fits u32");
+        run(state, catalog, id, &Command::HireProjectLead { lead });
+        (state.project_leads[best].employer == Some(id)).then_some(best)
+    });
+    let Some(lead) = lead else {
+        return;
+    };
+    run(
+        state,
+        catalog,
+        id,
+        &Command::StartProject {
+            site,
+            product,
+            lead: u32::try_from(lead).expect("lead count fits u32"),
+            tempo: 1,
+            trim: 1,
+        },
+    );
+}
+
 /// The research target of the company's first laboratory among `sites` (the rules of
 /// `research_plan` without asking whether the company wants research at all).
 fn plan_research(
@@ -3397,7 +3451,9 @@ fn plan_research(
         let Some(c) = center.or_else(|| found_lab(state, catalog, id)) else {
             return;
         };
-        if state.sites[c.index()].research_product != Some(p) {
+        if crate::projects::enabled(catalog) {
+            start_project(state, catalog, id, (c, p));
+        } else if state.sites[c.index()].research_product != Some(p) {
             run(
                 state,
                 catalog,

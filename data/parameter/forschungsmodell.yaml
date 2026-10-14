@@ -111,7 +111,8 @@ forschungsmodell:
       gehalt_usd_jahr: 90_000      # Preisniveau 1
       kapazitaet_neu: 1            # eine Neuentwicklung ...
       kapazitaet_weiter: 2         # ... oder bis zu zwei Weiterentwicklungen
-      kandidaten: 6                # auf dem Markt je Labor-Land
+      kandidaten: 6                # auf dem Markt je Kontinent
+      erfahrung_je_projekt: 0.1    # Erfahrung (0–1) je abgeschlossenem Projekt
       alter_min: 32
       alter_max: 58
       charaktere: [optimistisch, vorsichtig, sachlich]
