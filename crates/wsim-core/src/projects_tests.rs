@@ -363,3 +363,38 @@ fn people_are_assigned_from_the_free_ones_and_can_be_set_by_hand() {
     assert!(game.state().dev_projects[0].auto);
     let _ = SiteType::ResearchCenter;
 }
+
+#[test]
+fn the_view_shows_projects_leaders_scenarios_and_offers() {
+    let mut game = crate::product_research_tests::new_game(catalog());
+    // Before any project: leaders on the market, steel on offer, no projects.
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    assert!(v.leads.len() >= 3 && v.leads.iter().all(|l| !l.hired && !l.busy));
+    assert!(v.projects.is_empty());
+    let offer = v.offers.iter().find(|o| o.product == "stahl").unwrap();
+    assert!(offer.effort > 300.0 && offer.cost_usd > 0.0 && offer.days > 0.0);
+    // The cable's input does not exist yet: no offer.
+    assert!(v.offers.iter().all(|o| o.product != "kabel"));
+
+    let (site, lead) = running(&mut game);
+    days(&mut game, 6);
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    let p = &v.projects[0];
+    assert_eq!(
+        (p.product.as_str(), p.status.as_str()),
+        ("stahl", "laufend")
+    );
+    assert_eq!((p.site, p.lead_id), (site.0, lead));
+    assert!(p.progress > 0.0 && p.progress < 1.0 && p.days_left > 0.0);
+    assert!(p.spent_usd > 0.0 && p.spent_usd < p.budget_usd);
+    assert!(p.next_milestone.is_some() && p.milestone <= 4);
+    assert_eq!(p.roles.len(), 4);
+    assert_eq!(p.scenarios.len(), 5);
+    let days_of = |d: i32| p.scenarios.iter().find(|s| s.delta == d).unwrap().days;
+    assert!(days_of(2) < days_of(0) && days_of(0) < days_of(-2));
+    let l = v.leads.iter().find(|l| l.id == lead).unwrap();
+    assert!(l.hired && l.busy);
+    // The view is plain data for the interface.
+    let json = serde_json::to_string(&v).unwrap();
+    assert!(json.contains("\"projects\""));
+}

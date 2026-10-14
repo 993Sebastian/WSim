@@ -15,7 +15,6 @@ import type {
   Entwicklungswirkung,
   Forschung,
   Kern,
-  LaborRolle,
   Patent,
   Produktforschung,
   Technologie,
@@ -35,6 +34,7 @@ import {
 } from "./gemeinsam";
 import { GrundstueckWahl, useGewerbeflaeche, type GrundstueckWahlWert } from "./Grundstuecke";
 import { LAENDER } from "./laender";
+import { Projekte, ROLLEN } from "./Projekte";
 
 const technologieName = (k: string) => t(`technologie.${k}`);
 const produktName = (p: string) => t(`produkt.${p}`);
@@ -53,9 +53,11 @@ export function ForschungAnsicht({
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.forschung(), uebersicht.date);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
-  const [bereich, setBereich] = useState<"produkte" | "entwicklung" | "zentren" | "patente">(
-    "produkte",
-  );
+  const [bereich, setBereich] = useState<
+    "produkte" | "projekte" | "entwicklung" | "zentren" | "patente"
+  >("produkte");
+  // A product chosen in the product list to start a project for (PD2).
+  const [vorwahl, setVorwahl] = useState<string | null>(null);
   const patente = daten?.technologies.filter((x) => x.patent) ?? [];
   if (!daten) return <FehlerText fehler={fehler} />;
   return (
@@ -66,6 +68,15 @@ export function ForschungAnsicht({
           name={t("forschung.bereiche")}
           bereiche={[
             { key: "produkte", text: t("forschung.produkte_reiter") },
+            ...(daten.projects
+              ? [
+                  {
+                    key: "projekte" as const,
+                    text: t("projekte.reiter"),
+                    zaehler: daten.projects.projects.filter((x) => x.status === "laufend").length,
+                  },
+                ]
+              : []),
             { key: "entwicklung", text: t("forschung.entwicklung") },
             {
               key: "zentren",
@@ -90,7 +101,18 @@ export function ForschungAnsicht({
             daten={daten}
             onZentren={() => setBereich("zentren")}
             onStandorte={onStandorte}
+            onProjekt={
+              daten.projects
+                ? (produkt) => {
+                    setVorwahl(produkt);
+                    setBereich("projekte");
+                  }
+                : null
+            }
           />
+        )}
+        {bereich === "projekte" && (
+          <Projekte daten={daten} vorwahl={vorwahl} onZentren={() => setBereich("zentren")} />
         )}
         {bereich === "entwicklung" && (
           <Entwicklung daten={daten} onZentren={() => setBereich("zentren")} />
@@ -137,10 +159,12 @@ function Produkte({
   daten,
   onZentren,
   onStandorte,
+  onProjekt,
 }: {
   daten: Forschung;
   onZentren: () => void;
   onStandorte: () => void;
+  onProjekt: ((produkt: string) => void) | null;
 }) {
   const alle = daten.products ?? [];
   const [branche, setBranche] = useState("");
@@ -268,6 +292,7 @@ function Produkte({
                         daten={daten}
                         onZentren={onZentren}
                         onStandorte={onStandorte}
+                        onProjekt={onProjekt}
                       />
                     </td>
                   </tr>
@@ -286,11 +311,13 @@ function ProduktDetail({
   daten,
   onZentren,
   onStandorte,
+  onProjekt,
 }: {
   x: Produktforschung;
   daten: Forschung;
   onZentren: () => void;
   onStandorte: () => void;
+  onProjekt: ((produkt: string) => void) | null;
 }) {
   const name = produktName(x.product);
   const { los, antwort } = useAktion(`produktforschung/${x.product}`);
@@ -415,7 +442,13 @@ function ProduktDetail({
             {t("forschung.anlage_bauen")}
           </button>
         </div>
-      ) : x.status === "gesperrt" ? null : bereit.length === 0 ? (
+      ) : x.status === "gesperrt" ? null : onProjekt ? (
+        <div className="knopfreihe links">
+          <button type="button" className="haupt" onClick={() => onProjekt(x.product)}>
+            {t("projekte.als_projekt")}
+          </button>
+        </div>
+      ) : bereit.length === 0 ? (
         dabei.length === 0 && (
           <p className="erklaerung">
             {t("forschung.erst_zentrum", { betrag: formatGeld(daten.laboratory_usd) })}{" "}
@@ -848,13 +881,6 @@ export function ForschungImWerk({
   );
 }
 
-const ROLLEN: Record<string, LaborRolle> = {
-  produktmanager: "ProductManager",
-  entwickler: "Developer",
-  fertigungsplaner: "ProductionPlanner",
-  laborpersonal: "Technician",
-};
-
 /** The staff of the laboratories by role: hire and dismiss with buttons (PD1). */
 function Laborpersonal({ z }: { z: Forschung["centers"][number] }) {
   const { los, antwort } = useAktion(`laborpersonal/${z.site}`);
@@ -943,7 +969,8 @@ function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschu
           ? `p:${z.development}`
           : "",
   );
-  const erforschbar = (daten.products ?? [])
+  // With development projects (PD2) products are no longer researched directly.
+  const erforschbar = (daten.projects ? [] : (daten.products ?? []))
     .filter((x) => x.status === "erforschbar" || x.status === "in_arbeit")
     .sort((a, b) => produktName(a.product).localeCompare(produktName(b.product), "de"));
   const ziel = daten.products?.find((x) => x.product === z.research_product);
@@ -1083,13 +1110,15 @@ function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschu
               {z.project && !z.research_product && (
                 <option value={`t:${z.project}`}>{technologieName(z.project)}</option>
               )}
-              <optgroup label={t("forschung.produkte_reiter")}>
-                {erforschbar.map((x) => (
-                  <option key={x.product} value={`r:${x.product}`}>
-                    {t("forschung.erforschen_option", { produkt: produktName(x.product) })}
-                  </option>
-                ))}
-              </optgroup>
+              {erforschbar.length > 0 && (
+                <optgroup label={t("forschung.produkte_reiter")}>
+                  {erforschbar.map((x) => (
+                    <option key={x.product} value={`r:${x.product}`}>
+                      {t("forschung.erforschen_option", { produkt: produktName(x.product) })}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
               {entwickelbar.length > 0 && (
                 <optgroup label={t("forschung.entwicklung")}>
                   {entwickelbar.map((d) => (
@@ -1236,13 +1265,15 @@ function LaborAuslastung({
           {labor.work?.kind === "technologie" && (
             <option value={eigenes}>{technologieName(labor.work.key)}</option>
           )}
-          <optgroup label={t("forschung.produkte_reiter")}>
-            {erforschbar.map((p) => (
-              <option key={p} value={`r:${p}`}>
-                {t("forschung.erforschen_option", { produkt: produktName(p) })}
-              </option>
-            ))}
-          </optgroup>
+          {erforschbar.length > 0 && (
+            <optgroup label={t("forschung.produkte_reiter")}>
+              {erforschbar.map((p) => (
+                <option key={p} value={`r:${p}`}>
+                  {t("forschung.erforschen_option", { produkt: produktName(p) })}
+                </option>
+              ))}
+            </optgroup>
+          )}
           {entwickelbar.length > 0 && (
             <optgroup label={t("forschung.entwicklung")}>
               {entwickelbar.map((p) => (

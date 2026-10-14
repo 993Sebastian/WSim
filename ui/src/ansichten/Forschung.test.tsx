@@ -149,7 +149,7 @@ describe("Laborpersonal", () => {
     fireEvent.click(await screen.findByRole("button", { name: /^Forschungszentren/ }));
     const block = await screen.findByRole("region", { name: "Laborpersonal" });
     expect(within(block).getByText(/2 von 4 Arbeitsplätzen besetzt/)).toBeTruthy();
-    expect(within(block).getByText(/noch ohne Wirkung/)).toBeTruthy();
+    expect(within(block).getByText(/arbeitet in Entwicklungsprojekten/)).toBeTruthy();
     fireEvent.click(within(block).getByRole("button", { name: "Einstellen: Laborpersonal" }));
     await within(block).findByText("Eine Person ist eingestellt.");
     fireEvent.click(within(block).getByRole("button", { name: "Entlassen: Entwickler" }));

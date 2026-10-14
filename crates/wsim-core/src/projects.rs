@@ -669,3 +669,57 @@ pub(crate) fn top_up_market(state: &mut GameState, catalog: &Catalog, date: Date
         }
     }
 }
+
+/// Days until PM7: the current phase at today's staffing, the later ones as staffed to need.
+pub fn days_left(m: &ProjectModel, p: &DevProject) -> f64 {
+    let tempo = usize::from(p.tempo);
+    let mut days = 0.0;
+    for phase in usize::from(p.phase).min(6)..6 {
+        let assigned = if phase == usize::from(p.phase) {
+            p.assigned
+        } else {
+            let mut a = [0u32; 4];
+            for role in LabRole::ALL {
+                a[role.index()] = need(m, phase, role, p.effort);
+            }
+            a
+        };
+        let (speed, _) = staffing(m, phase, p.effort, assigned);
+        let left = if phase == usize::from(p.phase) {
+            1.0 - p.progress
+        } else {
+            1.0
+        };
+        days += phase_days(m, tempo, phase, p.effort) * left / speed.max(1e-9);
+    }
+    days
+}
+
+/// The share of the project's duration done, 0–1 (weighted by the phases' time shares).
+pub fn overall_progress(m: &ProjectModel, p: &DevProject) -> f64 {
+    let done: f64 = m
+        .phases
+        .iter()
+        .take(usize::from(p.phase))
+        .map(|ph| ph.time)
+        .sum();
+    let current = m
+        .phases
+        .get(usize::from(p.phase))
+        .map_or(0.0, |ph| ph.time * p.progress);
+    (done + current).min(1.0)
+}
+
+/// The milestone a project has reached last (0 = started); the gate PM4 counts as passed
+/// with PM3.
+pub fn last_milestone(p: &DevProject) -> u8 {
+    match p.phase {
+        0 => 0,
+        1 => 1,
+        2 => 2,
+        3 => 4,
+        4 => 5,
+        5 => 6,
+        _ => 7,
+    }
+}

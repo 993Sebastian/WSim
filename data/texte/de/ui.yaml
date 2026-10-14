@@ -2810,7 +2810,7 @@ labor.rolle: Rolle
 labor.anzahl: Anzahl
 labor.wirkung: Wirkung
 labor.forscht: "forscht mit {gewicht}"
-labor.forscht_nicht: "noch ohne Wirkung (kommt mit den Entwicklungsprojekten)"
+labor.forscht_nicht: "arbeitet in Entwicklungsprojekten"
 labor.rolle.produktmanager: Produktmanager
 labor.rolle.entwickler: Entwickler
 labor.rolle.fertigungsplaner: Fertigungsplaner
@@ -2819,3 +2819,74 @@ labor.einstellen: Einstellen
 labor.entlassen: Entlassen
 labor.eingestellt: Eine Person ist eingestellt.
 labor.entlassen_ok: Eine Person ist entlassen.
+projekte.reiter: Entwicklungsprojekte
+projekte.erklaerung: "Neue Produkte entwickelst du in Projekten von M0 bis M7. Ein Projektleiter führt das Projekt, die Leute des Labors arbeiten daran. Fehlt eine Rolle, laufen deren Phasen kaum voran."
+projekte.neu: Neues Projekt
+projekte.erst_labor: Für ein Projekt brauchst du ein fertiges Forschungszentrum mit Labor.
+projekte.erst_leiter: Stelle zuerst einen Projektleiter ein, der gerade nichts leitet.
+projekte.keine_angebote: Im Moment lässt sich kein weiteres Produkt entwickeln.
+projekte.produkt: Produkt
+projekte.leiter: Projektleiter
+projekte.tempo: Tempo
+projekte.ausstattung: Zielausstattung
+projekte.starten: Projekt starten
+projekte.gestartet: "Projekt gestartet: {produkt}."
+projekte.schaetzung: "Beim normalen Tempo und mit Standardausstattung rund {kosten} und {tage} Tage mit Referenzbesetzung."
+projekte.tempo.gruendlich: gründlich
+projekte.tempo.normal: normal
+projekte.tempo.beschleunigt: beschleunigt
+projekte.ausstattung.basis: Basis
+projekte.ausstattung.standard: Standard
+projekte.ausstattung.premium: Premium
+projekte.leiter_titel: Projektleiter
+projekte.leiter_hilfe: "Ein Projektleiter leitet ein neues Produkt zur Zeit und kostet etwa {gehalt} im Jahr."
+projekte.eigene_leiter: Deine Projektleiter
+projekte.markt_leiter: Projektleiter auf dem Markt
+projekte.name: Name
+projekte.alter: Alter
+projekte.charakter: Charakter
+projekte.erfahrung: Erfahrung
+projekte.bilanz_titel: Bilanz
+projekte.bilanz: "{fertig} fertig, {abgebrochen} abgebrochen"
+projekte.charakter.optimistisch: optimistisch
+projekte.charakter.vorsichtig: vorsichtig
+projekte.charakter.sachlich: sachlich
+projekte.einstellen: Einstellen
+projekte.entlassen: Entlassen
+projekte.eingestellt: Der Projektleiter ist eingestellt.
+projekte.entlassen_ok: Der Projektleiter hat die Firma verlassen.
+projekte.leiter_frei: frei
+projekte.leiter_beschaeftigt: leitet ein Projekt
+projekte.laufend: Laufende Projekte
+projekte.keine: Kein Projekt läuft.
+projekte.abgeschlossen: Abgeschlossene Projekte
+projekte.abgeschlossen_zeile: "{produkt}: {status} am {datum}, Kosten {kosten}"
+projekte.status.laufend: läuft
+projekte.status.freigegeben: freigegeben
+projekte.status.abgebrochen: abgebrochen
+projekte.fortschritt: Fortschritt
+projekte.meilenstein: "Meilenstein M{erreicht} erreicht, weiter zu M{naechster} ({anteil} der Zeit)"
+projekte.restdauer: Restdauer
+projekte.tage: "{tage} Tage"
+projekte.risiko: Risiko eines Problems
+projekte.abschlag: "Abschlag auf die Kennzahlen {anteil}"
+projekte.abschlag_titel: Abschlag
+projekte.kosten: Kosten
+projekte.kosten_stand: "{ausgegeben} von {gesamt}"
+projekte.besetzung: Besetzung der aktuellen Phase
+projekte.bedarf: Bedarf
+projekte.zugewiesen: Zugewiesen
+projekte.frei: Frei im Labor
+projekte.mehr: Eine Person mehr
+projekte.weniger: Eine Person weniger
+projekte.automatisch: Das Projekt nimmt die Leute, die jede Phase braucht.
+projekte.von_hand: Du hast die Besetzung selbst festgelegt.
+projekte.auf_automatik: Wieder automatisch
+projekte.szenarien: Besetzungsszenarien
+projekte.szenario: Szenario
+projekte.szenario_bedarf: nach Bedarf
+projekte.szenario_mehr: "{n} mehr je Rolle"
+projekte.szenario_weniger: "{n} weniger je Rolle"
+projekte.abbrechen: Projekt abbrechen
+projekte.abgebrochen_ok: "Projekt abgebrochen: {produkt}."
+projekte.als_projekt: Als Projekt entwickeln

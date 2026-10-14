@@ -1198,6 +1198,8 @@ export interface Forschung {
   units: Record<string, string>;
   /** Countries to file patents in, largest markets first (P7). */
   patent_countries?: { country: string; cost_usd: number; suggested: boolean }[];
+  /** The development projects PM0–PM7 (PD2); absent where the data have none. */
+  projects?: Entwicklungsprojekte;
 }
 
 /** A patent or an open claim on a technology (P7). */
@@ -3119,4 +3121,85 @@ export interface MaschinenAusschreibung {
   days: number;
   ends: string;
   offers: MaschinenAngebot[];
+}
+
+/** A project leader (PD2). */
+export interface Projektleiter {
+  id: number;
+  name: string;
+  home: string;
+  age: number;
+  /** `optimistisch`, `vorsichtig`, `sachlich` … */
+  character: string;
+  experience: number;
+  finished: number;
+  aborted: number;
+  /** Works for the player's company (else on the market). */
+  hired: boolean;
+  /** Leads a running project. */
+  busy: boolean;
+}
+
+/** Staffing of a role in the current phase of a project (PD2). */
+export interface Projektrolle {
+  role: string;
+  need: number;
+  assigned: number;
+  /** People of the role in the laboratory not working on any project. */
+  free: number;
+}
+
+/** What the rest of the project takes with `delta` people per role more or fewer than needed. */
+export interface Projektszenario {
+  delta: number;
+  days: number;
+  risk: number;
+  penalty: number;
+}
+
+/** One development project of the company (PD2). */
+export interface Projekt {
+  id: number;
+  product: string;
+  site: number;
+  site_name: string | null;
+  lead: string;
+  lead_id: number;
+  tempo: string;
+  trim: string;
+  /** `laufend`, `freigegeben` or `abgebrochen`. */
+  status: "laufend" | "freigegeben" | "abgebrochen";
+  /** Milestone reached last (0 = started) and the next one. */
+  milestone: number;
+  next_milestone: number | null;
+  /** Share of the duration done, 0–1. */
+  progress: number;
+  started: string;
+  finished: string | null;
+  days_left: number;
+  risk: number;
+  penalty: number;
+  spent_usd: number;
+  budget_usd: number;
+  auto: boolean;
+  roles: Projektrolle[];
+  scenarios: Projektszenario[];
+}
+
+/** A product a project can start for, at normal tempo and standard trim (PD2). */
+export interface Projektangebot {
+  product: string;
+  effort: number;
+  cost_usd: number;
+  days: number;
+}
+
+/** The development projects of the player's company (PD2). */
+export interface Entwicklungsprojekte {
+  tempos: string[];
+  trims: string[];
+  salary_usd_year: number;
+  leads: Projektleiter[];
+  projects: Projekt[];
+  offers: Projektangebot[];
 }

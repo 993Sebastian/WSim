@@ -166,6 +166,20 @@ export type Befehl =
       };
     }
   | { SetProductResearch: { site: number; product: string | null } }
+  | {
+      StartProject: {
+        site: number;
+        product: string;
+        lead: number;
+        tempo: number;
+        trim: number;
+      };
+    }
+  | { AssignProjectStaff: { project: number; role: LaborRolle; count: number } }
+  | { AutoAssignProject: { project: number } }
+  | { AbortProject: { project: number } }
+  | { HireProjectLead: { lead: number } }
+  | { DismissProjectLead: { lead: number } }
   | { HireLabStaff: { site: number; role: LaborRolle; count: number } }
   | { DismissLabStaff: { site: number; role: LaborRolle; count: number } }
   | {

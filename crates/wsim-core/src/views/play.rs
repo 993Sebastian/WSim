@@ -2895,6 +2895,9 @@ pub struct ResearchOverview {
     /// Countries to file patents in, largest markets first (P7; empty without patents).
     #[serde(default)]
     pub patent_countries: Vec<PatentCountryView>,
+    /// The development projects (PD2); none where the data have none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub projects: Option<super::ProjectsView>,
 }
 
 fn lab_work_view(catalog: &Catalog, work: crate::state::LabWork) -> LabWorkView {
@@ -3547,6 +3550,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             .map_or(0.0, |f| f.runs_per_day),
         units: units(catalog),
         patent_countries: patent_countries(game),
+        projects: super::projects_view(game),
     }
 }
 
