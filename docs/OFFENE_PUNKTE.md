@@ -2638,6 +2638,10 @@ Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRIT
 - Unbeantwortete Entscheidungen entscheidet der PL zum Rundenende mit seiner Empfehlung (§7).
 - Umrüstung der Anlagen nach WM3 dauert ein Viertel der Bauzeit (§8).
 - Restertrag der Weiterentwicklung nach der dritten Stufe: 20 % der dritten Stufe (§8).
+- **PD11 Entwicklungsleitung (Nachtrag 14.10.2026):** Reservepuffer 10 %, Vorlaufzeit der Einstellung 2 Runden,
+  Abfindung 3 Monatsgehälter, Einarbeitung beim Verschieben 1 Runde (§10). Reihenfolge (Annahme): PD11 nach MG8;
+  PD2/PD3 bauen die Schnittstelle „zuständige Stelle“ (zunächst Spieler oder PL). Nachfrage: oder eigene Einstellkaskade
+  vorziehen und später mit MG8 vereinheitlichen?
 
 ### Sammelentscheidung 13.10.2026
 ✅ Der Auftraggeber hat angewiesen, zu allen offenen Punkten („bitte abnehmen“) erst einmal die Einschätzung

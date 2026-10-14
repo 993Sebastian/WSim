@@ -1,8 +1,8 @@
-# Produktentwicklung (PD1–PD10)
+# Produktentwicklung (PD1–PD11)
 
 Vorgabe des Auftraggebers vom 13.10.2026. Sie ersetzt das bisherige „Produkt erforschen“ durch
-Entwicklungsprojekte mit Meilensteinen. Umsetzung in den Meilensteinen **PD1–PD10** (Abschnitt 10;
-der Auftraggeber nannte sie PE1–PE10, der Name PE ist durch `docs/PERSON.md` belegt, siehe
+Entwicklungsprojekte mit Meilensteinen. Umsetzung in den Meilensteinen **PD1–PD11** (Abschnitt 11;
+der Auftraggeber nannte sie PE1–PE11, der Name PE ist durch `docs/PERSON.md` belegt, siehe
 OFFENE_PUNKTE, Abschnitt PD). Formeln kommen vor der Umsetzung in `docs/FORMELN.md`.
 Alle mit **(vorläufig)** markierten Werte stehen als vorläufige Entscheidungen in
 `docs/OFFENE_PUNKTE.md` (Abschnitt PD) und liegen als Parameter in YAML.
@@ -43,13 +43,13 @@ Alle mit **(vorläufig)** markierten Werte stehen als vorläufige Entscheidungen
 - Unverplantes Personal kostet Gehalt ohne Nutzen.
 - Die Strategieabteilung empfiehlt dem Spieler immer, wie viel Personal je Rolle über alle
   Projekte gebraucht wird.
-- Ein CEO mit entsprechender Delegation stellt selbstständig ein. Die KI stellt nach denselben
-  Regeln ein.
+- Wer selbstständig einstellt und entlässt, regelt die Entwicklungsleitung (Abschnitt 10). Die KI
+  stellt nach denselben Regeln ein.
 
 ## 2 Personalbedarf je Projekt
 
 - Bei PM0/WM0 ermittelt der PL den Bedarf je Rolle und je Phase.
-- Der Spieler bzw. der delegierte Manager weist Personal aus dem Labor zu; die Zuweisung ist
+- Der Spieler bzw. die zuständige Entwicklungsleitung weist Personal aus dem Labor zu; die Zuweisung ist
   während des Projekts änderbar.
 - **Unterbesetzung** einer Rolle: Die Phasen dieser Rolle dauern länger (etwa proportional zur
   Lücke), das Problemrisiko steigt, die Endkennzahlen in ihrem Bereich fallen schlechter aus.
@@ -179,7 +179,44 @@ PM5→PM6 25 % / 25 %; PM6→PM7 15 % / 15 %.
   verknüpft mit den Ausschreibungen.
 - **Projektportfolio-Ansicht:** alle Projekte mit Phase, Ampel, Budgetverbrauch, Personal, nächstem Gate.
 
-## 10 Umsetzungs-Meilensteine
+## 10 Entwicklungsleitung
+
+Angelehnt an das Manager-System (`docs/MANAGER_2.md`): alle Positionen haben Charakter, Erfahrung,
+Branchenstärke, Alter/Ruhestand, Bilanz und sind abwerbbar.
+
+- **Ebenen:**
+  - *Vorstand Entwicklung* (unter dem CEO): Gesamtbudget und Schwerpunkte, Verteilung auf
+    Kontinente/Länder, Konflikte zwischen Regionen.
+  - *Kontinent-Entwicklungsleitung:* gleicht Personal und Projekte zwischen Ländern aus.
+  - *Landes-Entwicklungsleitung:* gleicht zwischen Laboren im Land aus, verschiebt Projektleiter
+    und Personal.
+  - *Laborleiter* (je Labor): stellt die Rollen nach dem Bedarf der Projekte ein und entlässt sie,
+    plant vorausschauend (vor Phasenbeginn einstellen, nach Phasen- bzw. Projektende freigeben oder
+    umsetzen) und weist Personal und PL nach Priorität zu.
+- **Besetzung:** Ein CEO mit Delegation stellt den Vorstand Entwicklung ein; dieser mit Delegation
+  die untergeordneten Leitungen und Laborleiter. Besetzt wird in der Manager-Übersicht.
+- **Unbesetzte Ebenen:** Alle Ebenen sind optional; eine unbesetzte übernimmt die nächsthöhere.
+  Ohne jede Besetzung entscheidet der Spieler bzw. CEO wie bisher.
+- **Eskalation:** Bedarf über dem Budget einer Ebene geht als Anliegen an die nächsthöhere, mit
+  Begründung und den Szenarien der PL.
+- **Rahmen je Ebene:** Personalbudget (von oben verteilt), Reservepuffer (vorläufig 10 %),
+  Entlassen erlaubt ja/nein, Modus „stellt selbst ein“ oder „nur Empfehlung“. Im Modus „nur
+  Empfehlung“ empfiehlt die Strategieabteilung den Bedarf, eingestellt wird durch den Spieler bzw.
+  die nächsthöhere Ebene.
+- **Branchenfreigabe:** je Leitung festlegbar, wie bei den übrigen Managern (MG10).
+- **Charakter:** Ein sparsamer Leiter besetzt knapp und riskiert Unterbesetzung; ein großzügiger
+  hält Reserve und kostet mehr.
+- **Gegen Hin-und-her:** Einstellungen haben eine Vorlaufzeit (vorläufig 2 Runden), Entlassungen
+  kosten Abfindung (vorläufig 3 Monatsgehälter), Verschieben zwischen Laboren kostet Einarbeitung
+  (vorläufig 1 Runde ohne Wirkung).
+- **Bilanz je Ebene:** Auslastung, Personalkosten, durch Unterbesetzung verursachter Verzug.
+- **Fairness:** KI-Firmen nutzen dieselbe Hierarchie nach denselben Regeln.
+- **Oberfläche:** Im Labor und im Portfolio ist sichtbar, welche Ebene gerade einstellt, entlässt
+  oder verschiebt, und warum.
+- **Schnittstelle:** Bis PD11 liefert die „zuständige Stelle“ für Zuweisung und Entscheidung (PD2,
+  PD3) nur Spieler oder PL; PD11 ersetzt sie durch die Entwicklungsleitung, ohne Umbau der Projekte.
+
+## 11 Umsetzungs-Meilensteine
 
 | Nr. | Inhalt |
 | --- | --- |
@@ -192,7 +229,8 @@ PM5→PM6 25 % / 25 %; PM6→PM7 15 % / 15 %.
 | PD7 | Gate-Gremium, Fast-Track- und Pilotserien-Vorschläge des PL |
 | PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle |
 | PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht |
-| PD10 | Balancing-Durchlauf und Tests zur Gleichstellung von KI und Spieler (gleiche Seeds, gleiche Ergebnisse bei gleichen Entscheidungen) |
+| PD10 | Balancing-Durchlauf und Tests zur Gleichstellung von KI und Spieler, auch für die Hierarchie von PD11 (gleiche Seeds, gleiche Ergebnisse bei gleichen Entscheidungen) |
+| PD11 | Entwicklungsleitung (Vorstand Entwicklung, Kontinent-, Landes-Entwicklungsleitung, Laborleiter) mit Budgetkaskade, Eskalation, Branchenfreigabe und KI-Gleichstellung; nach MG8 (Einstellkaskade) |
 
 Jeder Meilenstein: Formeln in `docs/FORMELN.md` (Abschnitt PD), Daten und Prüfregeln, Kern mit
 KI-Logik, Sichten und Oberfläche, Tests, Weltlauf-Vergleich, Doku, Einzel-Commit.

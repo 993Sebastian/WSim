@@ -133,6 +133,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle | ⏳ |
 | PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ⏳ |
 | PD10 | Balancing und Gleichstellungstests KI/Spieler | ⏳ |
+| PD11 | Entwicklungsleitung: Vorstand, Kontinent, Land, Laborleiter, Budgetkaskade, Eskalation, Branchenfreigabe, KI (`docs/PRODUKTENTWICKLUNG.md` §10; nach MG8) | ⏳ |
 | MG10 | Branchenfreigabe je Ebene mit Matrix, Vererbung, Freigabe-Vorschlägen (§10) | 🔄 13.10.2026: Kern (Stufen, Auflösung Land→Kontinent→Konzern, Wirkung in `banned`/Rückfrage) und Matrix im Strategieauftrag; offen: Land-Spalten in der Matrix, Kennzahlen je Zelle, „Aktiv in“ auf Managerkarten, Freigabe-Vorschläge §10.5, Beteiligungs-Schalter (OFFENE_PUNKTE MG10) |
 | LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ✅ 13.10.2026 (Commit 917ae41) |
 | AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ✅ 13.10.2026 |
