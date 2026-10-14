@@ -2175,6 +2175,12 @@ pub struct GameState {
     /// Project leaders on the market and in companies; the index is their number (PD2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub project_leads: Vec<crate::projects::ProjectLead>,
+    /// Who decides at the milestones of a company's projects (PD3); missing: standard.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub project_delegation: BTreeMap<CompanyId, crate::project_reports::DelegationMode>,
+    /// Messages commands produced for the next round's report (PD3); not saved.
+    #[serde(skip)]
+    pub project_news: Vec<crate::message::Message>,
     /// Questions of positions to their companies (MA2), open and closed in the last year.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub concerns: Vec<Concern>,

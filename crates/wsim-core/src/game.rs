@@ -1,7 +1,7 @@
 //! A running game: catalog, state, journal of decisions, and the round loop
 //! (Lastenheft §13).
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use std::sync::Arc;
 
@@ -217,6 +217,8 @@ impl Game {
             next_manager: 0,
             dev_projects: Vec::new(),
             project_leads: Vec::new(),
+            project_delegation: BTreeMap::new(),
+            project_news: Vec::new(),
             concerns: Vec::new(),
             next_concern: 0,
             followups: Vec::new(),

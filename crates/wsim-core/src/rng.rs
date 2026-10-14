@@ -115,6 +115,11 @@ pub enum Stream {
         id: u32,
         day: u32,
     },
+    /// The bias and spread of a project leader's forecast at a milestone (PD3).
+    ProjectReport {
+        project: u32,
+        milestone: u8,
+    },
     /// New project leaders on the market of a continent in a month (PD2).
     ProjectLeads {
         continent: u16,
@@ -235,6 +240,9 @@ impl Stream {
                 (21 << 56) | (u64::from(id) << 24) | u64::from(month)
             }
             Stream::Extension { id, day } => (22 << 56) | (u64::from(id) << 24) | u64::from(day),
+            Stream::ProjectReport { project, milestone } => {
+                (38 << 56) | (u64::from(project) << 8) | u64::from(milestone)
+            }
             Stream::ProjectLeads { continent, month } => {
                 (37 << 56) | (u64::from(continent) << 32) | u64::from(month)
             }

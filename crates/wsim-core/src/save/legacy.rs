@@ -4,7 +4,7 @@
 //! ledger, no sites. Format 1 additionally stored the derived country values, which
 //! are ignored here.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Deserialize;
 
@@ -180,6 +180,8 @@ pub(super) fn decode_v2(
         next_manager: 0,
         dev_projects: Vec::new(),
         project_leads: Vec::new(),
+        project_delegation: BTreeMap::new(),
+        project_news: Vec::new(),
         concerns: Vec::new(),
         next_concern: 0,
         followups: Vec::new(),

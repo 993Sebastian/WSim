@@ -288,6 +288,22 @@ pub enum Command {
     AutoAssignProject { project: u32 },
     /// Stops a development project (PD2).
     AbortProject { project: u32 },
+    /// Decides the milestone a project waits for (PD3); `choice` picks the target profile at
+    /// PM1 and the solution path at PM2.
+    DecideMilestone {
+        project: u32,
+        decision: crate::project_reports::Decision,
+        #[serde(default)]
+        choice: Option<u8>,
+    },
+    /// A project on hold goes on (PD3).
+    ResumeProject { project: u32 },
+    /// Who decides at the milestones: for the company, or for one project (PD3).
+    SetProjectDelegation {
+        #[serde(default)]
+        project: Option<u32>,
+        mode: crate::project_reports::DelegationMode,
+    },
     /// Hires a project leader of the market (PD2).
     HireProjectLead { lead: u32 },
     /// Lets an idle project leader go (PD2).
@@ -838,6 +854,8 @@ pub enum CommandError {
     LeadUnavailable,
     /// The company develops this product already (PD2).
     ProjectExists,
+    /// No decision is pending at the project (PD3).
+    NothingToDecide,
     UnknownOption,
     /// Only a head fills positions itself (MA6).
     NotAHead,
@@ -1183,6 +1201,7 @@ impl CommandError {
             CommandError::UnknownProject => e(keys::COMMAND_UNKNOWN_PROJECT),
             CommandError::LeadUnavailable => e(keys::COMMAND_LEAD_UNAVAILABLE),
             CommandError::ProjectExists => e(keys::COMMAND_PROJECT_EXISTS),
+            CommandError::NothingToDecide => e(keys::COMMAND_NOTHING_TO_DECIDE),
             CommandError::UnknownOption => e(keys::COMMAND_UNKNOWN_OPTION),
             CommandError::NotAHead => e(keys::COMMAND_NOT_A_HEAD),
             CommandError::SalaryNotHigher => e(keys::COMMAND_SALARY_NOT_HIGHER),
@@ -2714,6 +2733,19 @@ fn run(
         }
         Command::AbortProject { project } => {
             crate::projects::abort(state, actor, *project)?;
+        }
+        Command::DecideMilestone {
+            project,
+            decision,
+            choice,
+        } => {
+            crate::project_reports::decide(state, catalog, actor, *project, (*decision, *choice))?;
+        }
+        Command::ResumeProject { project } => {
+            crate::project_reports::resume(state, catalog, actor, *project)?;
+        }
+        Command::SetProjectDelegation { project, mode } => {
+            crate::project_reports::set_delegation(state, actor, *project, *mode)?;
         }
         Command::HireProjectLead { lead } => {
             crate::projects::hire_lead(state, catalog, actor, *lead)?;

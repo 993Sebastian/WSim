@@ -280,6 +280,10 @@ fehler.befehl.projekt_unbekannt: Dieses Entwicklungsprojekt gibt es nicht oder e
 fehler.befehl.projektleiter_nicht_verfuegbar: Dieser Projektleiter gehört nicht zur Firma, ist schon ausgelastet oder nicht mehr zu haben.
 fehler.befehl.projekt_laeuft_schon: Die Firma entwickelt dieses Produkt schon.
 meldung.projekt_meilenstein: "Entwicklung {produkt}: Meilenstein M{meilenstein} erreicht."
+meldung.projekt_entscheidung_faellig: "Entwicklung {produkt}: Meilenstein M{meilenstein} wartet auf deine Entscheidung."
+meldung.projekt_entschieden: "Entwicklung {produkt}: Der Projektleiter hat zu M{meilenstein} entschieden: {entscheidung}."
+meldung.projekt_automatisch_entschieden: "Entwicklung {produkt}: Zu M{meilenstein} kam keine Entscheidung, der Projektleiter hat entschieden: {entscheidung}."
+fehler.befehl.keine_entscheidung: Bei diesem Projekt wartet keine Entscheidung.
 fehler.befehl.vorschlag_aufschub: Nur ein Strategievorschlag lässt sich zurückstellen, und nur einmal.
 fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.
 fehler.befehl.keine_leitung: Nur eine Leitung besetzt die Stellen ihrer Einheit selbst.

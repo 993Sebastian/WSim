@@ -234,6 +234,10 @@ pub mod keys {
     pub const COMMAND_LEAD_UNAVAILABLE: &str = "fehler.befehl.projektleiter_nicht_verfuegbar";
     pub const COMMAND_PROJECT_EXISTS: &str = "fehler.befehl.projekt_laeuft_schon";
     pub const PROJECT_MILESTONE: &str = "meldung.projekt_meilenstein";
+    pub const PROJECT_DECISION_DUE: &str = "meldung.projekt_entscheidung_faellig";
+    pub const PROJECT_DECIDED: &str = "meldung.projekt_entschieden";
+    pub const PROJECT_AUTO_DECIDED: &str = "meldung.projekt_automatisch_entschieden";
+    pub const COMMAND_NOTHING_TO_DECIDE: &str = "fehler.befehl.keine_entscheidung";
     pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
     pub const COMMAND_NOT_A_HEAD: &str = "fehler.befehl.keine_leitung";
     pub const COMMAND_SALARY_NOT_HIGHER: &str = "fehler.befehl.gehalt_nicht_hoeher";
@@ -675,6 +679,10 @@ pub mod keys {
         COMMAND_LEAD_UNAVAILABLE,
         COMMAND_PROJECT_EXISTS,
         PROJECT_MILESTONE,
+        PROJECT_DECISION_DUE,
+        PROJECT_DECIDED,
+        PROJECT_AUTO_DECIDED,
+        COMMAND_NOTHING_TO_DECIDE,
         COMMAND_UNKNOWN_OPTION,
         COMMAND_NOT_A_HEAD,
         COMMAND_SALARY_NOT_HIGHER,

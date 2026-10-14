@@ -261,6 +261,16 @@ fn staffing_changes_the_duration_but_not_the_cost() {
             status: ProjectStatus::Running,
             spent: crate::money::Money::ZERO,
             finished: None,
+            profile: 1,
+            path: 1,
+            conditions: 0,
+            loops: 0,
+            paused: false,
+            delegation: None,
+            pending: None,
+            queued: Vec::new(),
+            baseline: None,
+            reports: Vec::new(),
         },
     );
     let normal = projects::scenario(&m, &p, 0.5, 0);
@@ -398,4 +408,340 @@ fn the_view_shows_projects_leaders_scenarios_and_offers() {
     // The view is plain data for the interface.
     let json = serde_json::to_string(&v).unwrap();
     assert!(json.contains("\"projects\""));
+}
+
+// --- PD3: reports, decisions, delegation ---
+
+use crate::catalog::{LeadTrait, Light, ProjectChoice, ProjectReportModel};
+use crate::project_reports::{Decision, DelegationMode, LightColor};
+
+fn choice(key: &str, cost: f64, time: f64, risk: f64, quality: f64) -> ProjectChoice {
+    ProjectChoice {
+        key: key.into(),
+        cost,
+        time,
+        risk,
+        quality,
+    }
+}
+
+fn report_model() -> ProjectReportModel {
+    ProjectReportModel {
+        lifecycle_years: 10.0,
+        capture_share: 0.15,
+        plants_without_demand: 1.0,
+        utilization: 0.85,
+        uncertainty: 0.3,
+        accuracy_per_pm: 0.6,
+        traits: vec![
+            LeadTrait {
+                optimism: 0.2,
+                path: 2,
+            },
+            LeadTrait {
+                optimism: -0.1,
+                path: 0,
+            },
+        ],
+        lights: [
+            Light {
+                yellow: 0.1,
+                red: 0.25,
+            },
+            Light {
+                yellow: 0.1,
+                red: 0.25,
+            },
+            Light {
+                yellow: 0.05,
+                red: 0.15,
+            },
+            Light {
+                yellow: 0.15,
+                red: 0.3,
+            },
+        ],
+        payback_max_years: 1_000.0,
+        conditions_risk: 0.15,
+        player_at: vec![2, 4, 6, 7],
+        deadline_days: 7,
+        profiles: vec![
+            choice("kosten", 0.9, 1.0, 1.0, -0.05),
+            choice("ausgewogen", 1.0, 1.0, 1.0, 0.0),
+            choice("qualitaet", 1.15, 1.1, 1.0, 0.08),
+        ],
+        paths: vec![
+            choice("bewaehrt", 0.95, 0.95, 0.7, -0.03),
+            choice("standard", 1.0, 1.0, 1.0, 0.0),
+            choice("innovativ", 1.2, 1.1, 1.5, 0.1),
+        ],
+    }
+}
+
+fn game_with_reports() -> Game {
+    let mut c = catalog();
+    c.research_model.projects.as_mut().unwrap().reports = Some(report_model());
+    crate::product_research_tests::new_game(c)
+}
+
+/// Days until the project waits for a decision; none if it never does.
+fn until_pending(game: &mut Game, limit: u32) -> Option<crate::project_reports::Pending> {
+    for _ in 0..limit {
+        if let Some(p) = game.state().dev_projects[0].pending {
+            return Some(p);
+        }
+        days(game, 1);
+    }
+    game.state().dev_projects[0].pending
+}
+
+#[test]
+fn the_player_decides_at_the_standard_milestones_and_the_leader_at_the_others() {
+    let mut game = game_with_reports();
+    running(&mut game);
+    // PM1 is the leader's: the project waits first at PM2, with PM1 reported and decided.
+    let pending = until_pending(&mut game, 3000).expect("a decision is due");
+    assert_eq!(pending.milestone, 2);
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.reports.len(), 2);
+    assert!(p.reports[0].decided.is_some_and(|d| !d.by_player));
+    assert!(p.reports[1].decided.is_none());
+    assert!(p.baseline.is_none());
+    // The project stands still and the people are free.
+    let before = (p.phase, p.progress);
+    days(&mut game, 5);
+    let p = &game.state().dev_projects[0];
+    assert_eq!(before, (p.phase, p.progress));
+    assert_eq!(p.assigned, [0; 4]);
+    // Decide with the innovative path: it becomes the baseline and the factors change.
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Continue,
+        choice: Some(2),
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.path, 2);
+    assert!(p.pending.is_none());
+    let b = p.baseline.expect("baseline at PM2");
+    assert!(b.plan_days > 0.0 && b.plan_cost > 0.0 && b.kpis.unit_cost > 0.0);
+    let m = game.catalog().research_model.projects.clone().unwrap();
+    let f = projects::factors(&m, p);
+    assert!((f.cost - 1.2).abs() < 1e-9 && (f.time - 1.1).abs() < 1e-9);
+    // PM3 is the leader's, PM4 the player's.
+    let pending = until_pending(&mut game, 3000).expect("PM4");
+    assert_eq!(pending.milestone, 4);
+    let p = &game.state().dev_projects[0];
+    assert!(
+        p.reports
+            .iter()
+            .any(|r| r.milestone == 3 && r.decided.is_some())
+    );
+    // The review shows the figures of PM2 and the causes of the deviations.
+    let r = p.reports.last().unwrap();
+    assert_eq!(r.milestone, 4);
+    assert!(r.truth.unit_cost > 0.0 && r.forecast.unit_cost > 0.0);
+    assert!(r.bias > 0.0);
+    for expected in [4, 6, 7] {
+        game.apply(Command::DecideMilestone {
+            project: 0,
+            decision: Decision::Continue,
+            choice: None,
+        })
+        .unwrap();
+        let next = until_pending(&mut game, 3000);
+        match (expected, next) {
+            (4, Some(n)) => assert_eq!(n.milestone, 6),
+            (6, Some(n)) => assert_eq!(n.milestone, 7),
+            (7, None) => {}
+            (e, n) => panic!("after PM{e}: {n:?}"),
+        }
+    }
+    assert_eq!(game.state().dev_projects[0].status, ProjectStatus::Released);
+}
+
+#[test]
+fn delegation_shows_everything_or_leaves_everything_to_the_leader() {
+    // "Show all": the player already decides PM1, with a target profile.
+    let mut game = game_with_reports();
+    running(&mut game);
+    game.apply(Command::SetProjectDelegation {
+        project: Some(0),
+        mode: DelegationMode::ShowAll,
+    })
+    .unwrap();
+    let pending = until_pending(&mut game, 3000).expect("PM1");
+    assert_eq!(pending.milestone, 1);
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Continue,
+        choice: Some(2),
+    })
+    .unwrap();
+    assert_eq!(game.state().dev_projects[0].profile, 2);
+    // A wrong choice is refused; so is a decision where nothing waits.
+    assert_eq!(until_pending(&mut game, 3000).map(|p| p.milestone), Some(2));
+    assert_eq!(
+        game.apply(Command::DecideMilestone {
+            project: 0,
+            decision: Decision::Continue,
+            choice: Some(9),
+        }),
+        Err(CommandError::InvalidQuantity)
+    );
+
+    // "Leader decides all": the project runs through to the release.
+    let mut game = game_with_reports();
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    running(&mut game);
+    assert!(until_pending(&mut game, 1500).is_none());
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.status, ProjectStatus::Released);
+    assert_eq!(p.reports.len(), 7);
+    assert!(
+        p.reports
+            .iter()
+            .all(|r| r.decided.is_some_and(|d| !d.by_player))
+    );
+    assert_eq!(
+        game.apply(Command::DecideMilestone {
+            project: 0,
+            decision: Decision::Continue,
+            choice: None,
+        }),
+        Err(CommandError::UnknownProject)
+    );
+}
+
+#[test]
+fn an_unanswered_decision_is_taken_by_the_leader_after_the_deadline() {
+    let mut game = game_with_reports();
+    running(&mut game);
+    let pending = until_pending(&mut game, 3000).expect("PM2");
+    let due = pending.deadline;
+    let mut seen = Vec::new();
+    while game.date() < due.add_days(2) {
+        seen.extend(game.advance(RoundLength::Day, |_| {}).messages);
+    }
+    assert!(seen.iter().any(|m| m.key == keys::PROJECT_AUTO_DECIDED));
+    let p = &game.state().dev_projects[0];
+    let r = p.reports.iter().find(|r| r.milestone == 2).unwrap();
+    assert!(r.decided.is_some_and(|d| !d.by_player));
+    // The leader's character picks the path: optimistic or cautious, never the middle one here.
+    assert_ne!(p.path, 1);
+    assert!(p.baseline.is_some());
+}
+
+#[test]
+fn a_loop_runs_the_phase_again_and_a_pause_waits_for_resuming() {
+    let mut game = game_with_reports();
+    running(&mut game);
+    until_pending(&mut game, 3000).expect("PM2");
+    // Loop: the phase that ended runs again.
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Loop,
+        choice: None,
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[0];
+    assert_eq!((p.phase, p.loops), (1, 1));
+    // Next stop at PM2 again; pause there.
+    until_pending(&mut game, 3000).expect("PM2 again");
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Pause,
+        choice: None,
+    })
+    .unwrap();
+    assert!(game.state().dev_projects[0].paused);
+    let (phase, progress) = {
+        let p = &game.state().dev_projects[0];
+        (p.phase, p.progress)
+    };
+    days(&mut game, 10);
+    let p = &game.state().dev_projects[0];
+    assert_eq!((phase, progress), (p.phase, p.progress));
+    game.apply(Command::ResumeProject { project: 0 }).unwrap();
+    assert!(!game.state().dev_projects[0].paused);
+    assert_eq!(
+        game.apply(Command::ResumeProject { project: 0 }),
+        Err(CommandError::UnknownProject)
+    );
+    days(&mut game, 5);
+    assert!(
+        game.state().dev_projects[0].progress > 0.0
+            || game.state().dev_projects[0].pending.is_some()
+    );
+}
+
+#[test]
+fn conditions_raise_the_risk_and_an_abort_ends_the_project() {
+    let mut game = game_with_reports();
+    running(&mut game);
+    until_pending(&mut game, 3000).expect("PM2");
+    let m = game.catalog().research_model.projects.clone().unwrap();
+    let base = projects::factors(&m, &game.state().dev_projects[0]).risk;
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Conditions,
+        choice: Some(1),
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.conditions, 1);
+    let risk = projects::factors(&m, p).risk;
+    assert!((risk / base - 1.15).abs() < 1e-9 || risk > base);
+    until_pending(&mut game, 3000).expect("PM4");
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Abort,
+        choice: None,
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.status, ProjectStatus::Aborted);
+    let lead = p.lead as usize;
+    assert_eq!(game.state().project_leads[lead].aborted, 1);
+    // The lights and the recommendation of the report are plain data.
+    let r = game.state().dev_projects[0].reports.last().unwrap();
+    assert!(matches!(
+        r.recommendation,
+        Decision::Continue | Decision::Conditions | Decision::Loop | Decision::Abort
+    ));
+    assert!(
+        r.lights
+            .iter()
+            .all(|l| matches!(l, LightColor::Green | LightColor::Yellow | LightColor::Red))
+    );
+}
+
+#[test]
+fn a_hopeless_product_makes_the_leader_recommend_to_stop() {
+    // The test catalog's steel sells below its unit cost: no payback, a red light, and the
+    // leader recommends to stop.
+    let mut c = catalog();
+    let mut rm = report_model();
+    rm.payback_max_years = 12.0;
+    c.research_model.projects.as_mut().unwrap().reports = Some(rm);
+    let mut game = crate::product_research_tests::new_game(c);
+    running(&mut game);
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    days(&mut game, 400);
+    let p = &game.state().dev_projects[0];
+    let r = p
+        .reports
+        .iter()
+        .find(|r| r.recommendation == Decision::Abort)
+        .expect("an abort is recommended");
+    assert!(r.truth.payback_years > 12.0 && r.lights.contains(&LightColor::Red));
+    assert_eq!(p.status, ProjectStatus::Aborted);
 }

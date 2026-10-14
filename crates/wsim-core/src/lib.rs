@@ -57,6 +57,7 @@ mod procurement_tests;
 pub mod product_names;
 pub mod product_research;
 pub mod production;
+pub mod project_reports;
 pub mod projects;
 pub mod purchase;
 pub mod purchasing;

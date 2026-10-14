@@ -16,6 +16,7 @@ use crate::ids::{CountryId, Id, ProductId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
+use crate::project_reports::{Baseline, DelegationMode, MilestoneReport, Pending};
 use crate::rng::{SimRng, Stream};
 use crate::state::{CompanyId, GameState, SiteId};
 
@@ -82,12 +83,84 @@ pub struct DevProject {
     pub spent: Money,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub finished: Option<Date>,
+    /// Chosen target profile (PM1) and solution path (PM2), indexes into the report model.
+    #[serde(default = "middle")]
+    pub profile: u8,
+    #[serde(default = "middle")]
+    pub path: u8,
+    /// Milestones passed with conditions (PD3) and phases run again.
+    #[serde(default)]
+    pub conditions: u32,
+    #[serde(default)]
+    pub loops: u32,
+    /// Put on hold until `ResumeProject`.
+    #[serde(default)]
+    pub paused: bool,
+    /// Who decides at the milestones; none: the company's setting.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delegation: Option<DelegationMode>,
+    /// A decision the project waits for.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pending: Option<Pending>,
+    /// Milestones reached at the same time, waiting behind the pending decision.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub queued: Vec<u8>,
+    /// The figures at PM2, kept for the reviews at PM4 and PM6 (PD3).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub baseline: Option<Baseline>,
+    /// The reports at the milestones, newest last.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub reports: Vec<MilestoneReport>,
+}
+
+fn middle() -> u8 {
+    1
 }
 
 impl DevProject {
     pub fn running(&self) -> bool {
         self.status == ProjectStatus::Running
     }
+
+    /// Runs today: running, not waiting for a decision, not on hold.
+    pub fn active(&self) -> bool {
+        self.running() && self.pending.is_none() && !self.paused
+    }
+}
+
+/// How the choices of the project and the leader change time, cost, risk and quality.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Factors {
+    pub time: f64,
+    pub cost: f64,
+    pub risk: f64,
+    pub quality: f64,
+}
+
+/// Profile, path and conditions of a project (PD3); all neutral without the report model.
+pub fn factors(m: &ProjectModel, p: &DevProject) -> Factors {
+    let mut f = Factors {
+        time: 1.0,
+        cost: 1.0,
+        risk: 1.0,
+        quality: 0.0,
+    };
+    if let Some(r) = &m.reports {
+        for c in [
+            r.profiles.get(usize::from(p.profile)),
+            r.paths.get(usize::from(p.path)),
+        ]
+        .into_iter()
+        .flatten()
+        {
+            f.time *= c.time;
+            f.cost *= c.cost;
+            f.risk *= c.risk;
+            f.quality += c.quality;
+        }
+        f.risk *= 1.0 + r.conditions_risk * f64::from(p.conditions);
+    }
+    f
 }
 
 /// Whether the data have the development projects.
@@ -117,7 +190,12 @@ fn gain(m: &ProjectModel, q: f64) -> f64 {
     }
 }
 
-fn staffing(m: &ProjectModel, phase: usize, effort: f64, assigned: [u32; 4]) -> (f64, f64) {
+pub(crate) fn staffing(
+    m: &ProjectModel,
+    phase: usize,
+    effort: f64,
+    assigned: [u32; 4],
+) -> (f64, f64) {
     // Speed of the phase and the effect-weighted shortfall (1 − min(1, q)).
     let mut speed = 0.0;
     let mut shortfall = 0.0;
@@ -181,6 +259,7 @@ pub struct Scenario {
 /// The scenario `delta` for the rest of the project from `phase` with `progress`.
 pub fn scenario(m: &ProjectModel, p: &DevProject, experience: f64, delta: i32) -> Scenario {
     let tempo = usize::from(p.tempo);
+    let f = factors(m, p);
     let (mut days, mut risk_free, mut short_sum, mut weight) = (0.0, 1.0, 0.0, 0.0);
     for phase in usize::from(p.phase).min(5)..6 {
         let mut assigned = [0u32; 4];
@@ -194,9 +273,9 @@ pub fn scenario(m: &ProjectModel, p: &DevProject, experience: f64, delta: i32) -
         } else {
             1.0
         };
-        let d = phase_days(m, tempo, phase, p.effort) * left / speed.max(1e-9);
+        let d = phase_days(m, tempo, phase, p.effort) * f.time * left / speed.max(1e-9);
         days += d;
-        risk_free *= 1.0 - phase_risk(m, tempo, shortfall, experience) * left;
+        risk_free *= 1.0 - phase_risk(m, tempo, shortfall, experience) * f.risk * left;
         short_sum += shortfall * d;
         weight += d;
     }
@@ -238,7 +317,7 @@ fn lead_busy(state: &GameState, lead: u32) -> usize {
         .count()
 }
 
-fn price_level(state: &GameState, site: SiteId) -> f64 {
+pub(crate) fn price_level(state: &GameState, site: SiteId) -> f64 {
     state
         .countries
         .get(state.sites[site.index()].country)
@@ -305,6 +384,16 @@ pub(crate) fn start(
         status: ProjectStatus::Running,
         spent: Money::ZERO,
         finished: None,
+        profile: 1,
+        path: 1,
+        conditions: 0,
+        loops: 0,
+        paused: false,
+        delegation: None,
+        pending: None,
+        queued: Vec::new(),
+        baseline: None,
+        reports: Vec::new(),
     });
     state.sites[site.index()].staffing_due = true;
     Ok(())
@@ -429,6 +518,8 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     let Some(m) = catalog.research_model.projects.as_ref() else {
         return news;
     };
+    // Decisions left open past their deadline, and what commands produced since yesterday.
+    news.extend(crate::project_reports::resolve_due(state, catalog, date));
     for site in &mut state.sites {
         site.lab_staff.assigned = [0; 4];
     }
@@ -443,6 +534,11 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         if state.companies[company.index()].bankrupt {
             state.dev_projects[index].status = ProjectStatus::Aborted;
             state.dev_projects[index].finished = Some(date);
+            continue;
+        }
+        // Waiting for a decision or on hold: no work, and the people are free.
+        if !state.dev_projects[index].active() {
+            state.dev_projects[index].assigned = [0; 4];
             continue;
         }
         // The people: what the phase needs, or what the owner wants, of the free ones.
@@ -465,10 +561,14 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             p.assigned = assigned;
             (usize::from(p.tempo), usize::from(p.trim), p.progress)
         };
-        let days = phase_days(m, tempo, phase, effort).max(1e-9);
+        let f = factors(m, &state.dev_projects[index]);
+        let days = (phase_days(m, tempo, phase, effort) * f.time).max(1e-9);
         let step = (speed / days).min(1.0 - progress);
         let cost = Money::from_usd(
-            phase_cost_usd(m, (tempo, trim), phase, effort) * step * price_level(state, site),
+            phase_cost_usd(m, (tempo, trim), phase, effort)
+                * f.cost
+                * step
+                * price_level(state, site),
         )
         .unwrap_or(Money::ZERO);
         book(state, index, cost);
@@ -476,30 +576,65 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         if state.dev_projects[index].progress < 1.0 - 1e-9 {
             continue;
         }
-        // The phase is done: a milestone.
-        let milestone = PHASE_END_MILESTONE[phase];
-        {
-            let p = &mut state.dev_projects[index];
-            p.phase += 1;
-            p.progress = 0.0;
-        }
-        news.extend(milestone_message(state, catalog, index, milestone));
-        if phase == 2 {
-            // Gate PM3→PM4: the release of the main budget costs its preparation.
-            let gate =
-                Money::from_usd(gate_cost_usd(m, (tempo, trim), effort) * price_level(state, site))
-                    .unwrap_or(Money::ZERO);
-            book(state, index, gate);
-            news.extend(milestone_message(state, catalog, index, 4));
-        }
-        if phase == 5 {
-            news.extend(release(state, catalog, index, date));
-        }
+        // The phase is done: the milestones it ends at.
+        news.extend(on_phase_end(state, catalog, index, date));
     }
     news
 }
 
-fn book(state: &mut GameState, index: usize, amount: Money) {
+/// A phase ended: the project moves on, the gate costs its preparation, and the
+/// milestones are reported (PD3) or just announced (without the report model).
+fn on_phase_end(
+    state: &mut GameState,
+    catalog: &Catalog,
+    index: usize,
+    date: Date,
+) -> Vec<Message> {
+    let Some(m) = catalog.research_model.projects.as_ref() else {
+        return Vec::new();
+    };
+    let (phase, tempo, trim, effort, site) = {
+        let p = &mut state.dev_projects[index];
+        let phase = usize::from(p.phase);
+        p.phase += 1;
+        p.progress = 0.0;
+        (
+            phase,
+            usize::from(p.tempo),
+            usize::from(p.trim),
+            p.effort,
+            p.site,
+        )
+    };
+    if phase == 2 {
+        // Gate PM3→PM4: the release of the main budget costs its preparation.
+        let f = factors(m, &state.dev_projects[index]);
+        let gate = Money::from_usd(
+            gate_cost_usd(m, (tempo, trim), effort) * f.cost * price_level(state, site),
+        )
+        .unwrap_or(Money::ZERO);
+        book(state, index, gate);
+    }
+    let milestones: Vec<u8> = if phase == 2 {
+        vec![3, 4]
+    } else {
+        vec![PHASE_END_MILESTONE[phase]]
+    };
+    if m.reports.is_some() {
+        state.dev_projects[index].queued = milestones;
+        return crate::project_reports::process_queue(state, catalog, index, date);
+    }
+    let mut news = Vec::new();
+    for ms in milestones {
+        news.extend(milestone_message(state, catalog, index, ms));
+    }
+    if phase == 5 {
+        news.extend(release(state, catalog, index, date));
+    }
+    news
+}
+
+pub(crate) fn book(state: &mut GameState, index: usize, amount: Money) {
     let (company, site) = {
         let p = &state.dev_projects[index];
         (p.company, p.site)
@@ -513,7 +648,7 @@ fn book(state: &mut GameState, index: usize, amount: Money) {
     state.dev_projects[index].spent += amount;
 }
 
-fn milestone_message(
+pub(crate) fn milestone_message(
     state: &GameState,
     catalog: &Catalog,
     index: usize,
@@ -534,7 +669,12 @@ fn milestone_message(
 }
 
 /// PM7: the company learns what the product needs; the leader gains experience.
-fn release(state: &mut GameState, catalog: &Catalog, index: usize, date: Date) -> Vec<Message> {
+pub(crate) fn release(
+    state: &mut GameState,
+    catalog: &Catalog,
+    index: usize,
+    date: Date,
+) -> Vec<Message> {
     let (company, product, lead) = {
         let p = &state.dev_projects[index];
         (p.company, p.product, p.lead)
@@ -673,6 +813,7 @@ pub(crate) fn top_up_market(state: &mut GameState, catalog: &Catalog, date: Date
 /// Days until PM7: the current phase at today's staffing, the later ones as staffed to need.
 pub fn days_left(m: &ProjectModel, p: &DevProject) -> f64 {
     let tempo = usize::from(p.tempo);
+    let f = factors(m, p);
     let mut days = 0.0;
     for phase in usize::from(p.phase).min(6)..6 {
         let assigned = if phase == usize::from(p.phase) {
@@ -690,7 +831,7 @@ pub fn days_left(m: &ProjectModel, p: &DevProject) -> f64 {
         } else {
             1.0
         };
-        days += phase_days(m, tempo, phase, p.effort) * left / speed.max(1e-9);
+        days += phase_days(m, tempo, phase, p.effort) * f.time * left / speed.max(1e-9);
     }
     days
 }
