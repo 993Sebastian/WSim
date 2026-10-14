@@ -3,9 +3,9 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LearningModel, MaintenanceModel,
-    OperationsModel, PatentModel, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup,
-    StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LabRole, LabStaffModel, LearningModel,
+    MaintenanceModel, OperationsModel, PatentModel, ProductionModel, ResearchModel, SiteType,
+    SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -16,8 +16,8 @@ use super::{
 };
 use crate::messages;
 use crate::raw::{
-    RawFacilitySizes, RawLimits, RawPatents, RawProductDevelopment, RawProductionModel, RawSeries,
-    RawVehicle, RawWay,
+    RawFacilitySizes, RawLabStaff, RawLimits, RawPatents, RawProductDevelopment,
+    RawProductionModel, RawSeries, RawVehicle, RawWay,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -1608,8 +1608,33 @@ pub(super) fn research_model(
             .patents
             .as_ref()
             .map(|p| patent_model(ctx, p, &l.field("patente"))),
+        lab_staff: m
+            .lab_staff
+            .as_ref()
+            .map_or_else(LabStaffModel::default, |s| {
+                lab_staff_model(ctx, s, &l.field("labor"))
+            }),
         researchers,
     }
+}
+
+/// The roles of laboratory staff (PD1): each known role once, with its weight in research.
+fn lab_staff_model(ctx: &mut Ctx, s: &RawLabStaff, l: &Loc) -> LabStaffModel {
+    let mut roles: Vec<(LabRole, f64)> = Vec::new();
+    for (i, r) in s.roles.iter().enumerate() {
+        let rl = l.field("rollen").index(i);
+        let Some(role) = LabRole::from_key(&r.id) else {
+            ctx.error(&rl.field("id"), messages::unknown_lab_role(&r.id));
+            continue;
+        };
+        if roles.iter().any(|(x, _)| *x == role) {
+            ctx.error(&rl.field("id"), messages::duplicate_lab_role(&r.id));
+            continue;
+        }
+        let weight = in_range(ctx, r.research, 0.0, 1.0, &rl.field("forschung"));
+        roles.push((role, weight));
+    }
+    LabStaffModel { roles }
 }
 
 /// Patents (P7): term, filing period, cost per country, AI filing.

@@ -2728,3 +2728,7 @@ Abwerbung inklusive). Die Forschung (`research.rs`) rechnet `Forscher = Belegsch
   Arbeitsplätze, Monatskosten).
 Offene Frage an den Auftraggeber (ändert das Ergebnis): Soll die Forschung bis PD2 mit dem eingestellten Personal weiterlaufen
 (Vorschlag, wie oben) oder bis zum Abschluss von PD2 ganz ruhen?
+
+✅ Antwort des Auftraggebers 14.10.2026 zu PD1: **Weiterlaufen** – die Forschung läuft bis PD2 mit dem eingestellten
+Personal weiter. Klarstellung zu „Stopp“: Gemeint ist der Stopp *am Meilenstein ohne Freigabe* (ein Projekt läuft ohne
+Freigabe der Gate-Entscheidung nicht weiter, PD2/PD3), nicht ein Ruhen der Forschung insgesamt.

@@ -1640,6 +1640,9 @@ pub struct Site {
     /// Shares of the researchers per product for manufacturing research (Q6).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub process_shares: BTreeMap<ProductId, f64>,
+    /// The staff of the laboratories by role (PD1); only research centers have any.
+    #[serde(default, skip_serializing_if = "crate::lab_staff::LabStaff::is_empty")]
+    pub lab_staff: crate::lab_staff::LabStaff,
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,

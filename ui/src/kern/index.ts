@@ -55,6 +55,7 @@ export type {
   Befehl,
   Einheit,
   Gegenstand,
+  LaborRolle,
   Preisart,
   Rolle,
   Startform,

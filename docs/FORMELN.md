@@ -6241,3 +6241,15 @@ l = Länder der eigenen offenen Standorte, p = laufende Beteiligungen (Start-ups
 Abdeckung und Wirkung der Abteilung folgen wie ZA2 (A = min(1, K / Last)); die KI richtet n = ⌈Last / Fälle⌉ Angestellte ein.
 Noch offen aus MANAGER_2 §9: Anstöße im Quartal in der Last, Verteilung der Angestellten auf Branchen (A_b), Fallarten und
 Stellungnahme der Leitung, Klausur, zwei Trefferquoten, Konkurrenzbeobachtung (OFFENE_PUNKTE MG9).
+
+## PD1 – Laborpersonal (14.10.2026)
+Rollen im Forschungszentrum (`forschungsmodell.yaml` `labor`): Produktmanager, Entwickler, Fertigungsplaner, Laborpersonal; je Rolle
+das Forschungsgewicht g_r (0–1). Die Projektleiter kommen mit den Projekten (PD2).
+- Arbeitsplätze P = Summe der Läufe aller laufenden Labore bei voller Auslastung (`full_runs`). Einstellen ist nur bis
+  Σ Personen ≤ ⌊P⌋ möglich (`HireLabStaff` / `DismissLabStaff`, Fehler `fehler.befehl.labor_voll`).
+- Forschungsaufwand E = Σ_r Personen_r · g_r. Besetzungsgrad b = min(1, E / P). Die Forscherstellen der Labore
+  (`labs::posts`) werden mit b multipliziert; ohne Rollen in den Daten gilt b = 1 (alte Rechnung).
+- Lohn: alle Eingestellten kosten Lohn der Forschergruppe. Wer nicht zum Aufwand zählt, I = Σ Personen − E, wird in der ersten
+  Forschergruppe zusätzlich vorgehalten und forscht nicht (`lab_staff::researchers`).
+- KI: stellt Entwickler bis zur Auslastung der Arbeitsplätze ein, über denselben Befehl.
+- Bestehende Labore starten leer; ältere Spielstände behalten ihr Verhalten nicht (Personal fehlt, Forschung ruht, bis eingestellt wird).

@@ -123,7 +123,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MG7 | Stil, Lieblingsbegründung, Einwand (§7) | ✅ 13.10.2026: Stil und Begründungen gezogen, Wirkung auf Empfehlung und Spanne, Einwand in Akte und Chronik (Rest OFFENE_PUNKTE MG7) |
 | MG8 | Kaskade beim Einstellen, Personalanliegen mit Akte und Personalgespür, Personalabteilung, Personalbedarf aller Zentralabteilungen (§8) | ⏳ nach MG2 |
 | MG9 | Strategieabteilung als Denkstelle: ein Typ mit MG6, Fallarten inkl. Abwehr und Verkauf, Arbeitslast und Branchenschwerpunkt, Strategieklausur, zwei Trefferquoten, Konkurrenzbeobachtung (§9) | ⏳ nach MG6 |
-| PD1 | Produktentwicklung: Labor-Rollen, Pools, PL als Person, Entfall der 20 Ingenieure (`docs/PRODUKTENTWICKLUNG.md` §1; Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE PD) | ⏳ |
+| PD1 | Produktentwicklung: Labor-Rollen, Pools, PL als Person, Entfall der 20 Ingenieure (`docs/PRODUKTENTWICKLUNG.md` §1; Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE PD) | 🔄 14.10.2026: Rollen (ohne Projektleiter), Einstellen/Entlassen, Arbeitsplätze, Lohn, KI, Oberfläche; Projektleiter als Personen folgen mit PD2 |
 | PD2 | Neuentwicklung PM0–PM7 ersetzt Forschung, Personalbedarf mit Szenarien | ⏳ |
 | PD3 | Meilensteinberichte, Kennzahlen, Review gegen PM2, Delegation | ⏳ |
 | PD4 | Ereigniskatalog, Kennzahlenstreuung, versteckte Mängel, Rückrufe | ⏳ |

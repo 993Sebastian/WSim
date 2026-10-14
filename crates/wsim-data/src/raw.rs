@@ -1364,6 +1364,25 @@ pub struct RawResearchModel {
     /// Patents (P7); without the block there are none.
     #[serde(rename = "patente", default)]
     pub patents: Option<RawPatents>,
+    /// Staff roles of a laboratory (PD1); without the block the posts fill themselves.
+    #[serde(rename = "labor", default)]
+    pub lab_staff: Option<RawLabStaff>,
+}
+
+/// Staff roles of a laboratory (PD1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLabStaff {
+    #[serde(rename = "rollen")]
+    pub roles: Vec<RawLabRole>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLabRole {
+    pub id: String,
+    #[serde(rename = "forschung")]
+    pub research: f64,
 }
 
 /// Patents (P7).

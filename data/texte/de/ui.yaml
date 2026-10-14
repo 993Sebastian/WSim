@@ -2804,3 +2804,18 @@ freigabe.frei: Frei
 freigabe.rueckfrage: Mit Rückfrage
 freigabe.halten: Nur halten
 freigabe.gesperrt: Gesperrt
+labor.titel: Laborpersonal
+labor.plaetze: "{besetzt} von {plaetze} Arbeitsplätzen besetzt. Wer nicht forscht, kostet trotzdem Lohn."
+labor.rolle: Rolle
+labor.anzahl: Anzahl
+labor.wirkung: Wirkung
+labor.forscht: "forscht mit {gewicht}"
+labor.forscht_nicht: "noch ohne Wirkung (kommt mit den Entwicklungsprojekten)"
+labor.rolle.produktmanager: Produktmanager
+labor.rolle.entwickler: Entwickler
+labor.rolle.fertigungsplaner: Fertigungsplaner
+labor.rolle.laborpersonal: Laborpersonal
+labor.einstellen: Einstellen
+labor.entlassen: Entlassen
+labor.eingestellt: Eine Person ist eingestellt.
+labor.entlassen_ok: Eine Person ist entlassen.

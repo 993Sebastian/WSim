@@ -23,6 +23,16 @@ forschungsmodell:
     # KI-Firmen melden in ihren Standortländern und in so vielen größten Märkten an.
     ki_groesste_maerkte: 5
     annaeherung: true
+  # Personal im Labor (PD1, docs/PRODUKTENTWICKLUNG.md §1): Der Spieler stellt je Rolle ein; die
+  # Arbeitsplätze begrenzt die Laborgröße. „forschung“ ist das Gewicht einer Person in der
+  # Forschung bis zu den Entwicklungsprojekten (PD2); Rollen ohne Gewicht kosten Lohn, forschen
+  # aber noch nicht. Die Projektleiter kommen mit den Projekten (PD2).
+  labor:
+    rollen:
+      - {id: entwickler, forschung: 1}
+      - {id: laborpersonal, forschung: 0.5}
+      - {id: produktmanager, forschung: 0}
+      - {id: fertigungsplaner, forschung: 0}
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)

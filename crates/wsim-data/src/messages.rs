@@ -464,6 +464,16 @@ pub fn vehicle_without_classes() -> String {
     "Mindestens eine Transportklasse ist nötig: Was befördert dieses Verkehrsmittel?".into()
 }
 
+pub fn unknown_lab_role(key: &str) -> String {
+    format!(
+        "„{key}“ ist keine Rolle im Labor (produktmanager, entwickler, fertigungsplaner, laborpersonal)."
+    )
+}
+
+pub fn duplicate_lab_role(key: &str) -> String {
+    format!("Die Rolle „{key}“ steht mehrmals in der Liste.")
+}
+
 pub fn researchers_need_fields(qualification: &str) -> String {
     format!("Forscher brauchen eine Qualifikation mit Fachrichtungen; „{qualification}“ hat keine.")
 }

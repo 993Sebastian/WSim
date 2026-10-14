@@ -100,6 +100,8 @@ pub(crate) fn posts(
     if s.kind != SiteType::ResearchCenter {
         return out;
     }
+    // PD1: the hired people fill the posts (all of them without roles in the data).
+    let staffed = crate::lab_staff::research_share(catalog, s, date);
     let center_field = development::project_field(catalog, state, site)
         .filter(|_| !development::idle(s) || development::learning(state, s));
     for slot in s.slots.iter().filter(|sl| sl.operating(date)) {
@@ -110,7 +112,7 @@ pub(crate) fn posts(
         let Some(field) = field else {
             continue;
         };
-        let posts = slot.full_runs(catalog) * slot.utilization;
+        let posts = slot.full_runs(catalog) * slot.utilization * staffed;
         match out.iter_mut().find(|(f, _)| *f == field) {
             Some(e) => e.1 += posts,
             None => out.push((field, posts)),

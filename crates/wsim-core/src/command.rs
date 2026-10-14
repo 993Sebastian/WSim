@@ -268,6 +268,18 @@ pub enum Command {
         slot: usize,
         work: Option<LabTarget>,
     },
+    /// Hires people for a role in a research center (PD1).
+    HireLabStaff {
+        site: SiteId,
+        role: crate::catalog::LabRole,
+        count: u32,
+    },
+    /// Dismisses people of a role in a research center (PD1).
+    DismissLabStaff {
+        site: SiteId,
+        role: crate::catalog::LabRole,
+        count: u32,
+    },
     /// Splits the researchers of a research center among products (Q1), each with its
     /// share (sum at most 1); the rest works on the center's technology. Empty clears.
     SetResearchShares {
@@ -790,6 +802,8 @@ pub enum CommandError {
     ConcernClosed,
     /// Only a proposal can be put off, and only once (MG6).
     CannotPostpone,
+    /// The laboratories have no free post for more people (PD1).
+    LabFull,
     UnknownOption,
     /// Only a head fills positions itself (MA6).
     NotAHead,
@@ -1129,6 +1143,7 @@ impl CommandError {
             CommandError::UnknownConcern => e(keys::COMMAND_UNKNOWN_CONCERN),
             CommandError::ConcernClosed => e(keys::COMMAND_CONCERN_CLOSED),
             CommandError::CannotPostpone => e(keys::COMMAND_CANNOT_POSTPONE),
+            CommandError::LabFull => e(keys::COMMAND_LAB_FULL),
             CommandError::UnknownOption => e(keys::COMMAND_UNKNOWN_OPTION),
             CommandError::NotAHead => e(keys::COMMAND_NOT_A_HEAD),
             CommandError::SalaryNotHigher => e(keys::COMMAND_SALARY_NOT_HIGHER),
@@ -1435,6 +1450,7 @@ fn found_site(
         research_product: None,
         development: None,
         development_shares: std::collections::BTreeMap::new(),
+        lab_staff: crate::lab_staff::LabStaff::default(),
         wage_premium: 0.0,
         branch_strength: 0.0,
         training: 0.0,
@@ -2628,6 +2644,12 @@ fn run(
                 s.research = None;
             }
             s.staffing_due = true;
+        }
+        Command::HireLabStaff { site, role, count } => {
+            crate::lab_staff::change(state, catalog, actor, (*site, *role), (*count, true))?;
+        }
+        Command::DismissLabStaff { site, role, count } => {
+            crate::lab_staff::change(state, catalog, actor, (*site, *role), (*count, false))?;
         }
         Command::SetLabWork { site, slot, work } => {
             let s = own_site(state, actor, *site)?;

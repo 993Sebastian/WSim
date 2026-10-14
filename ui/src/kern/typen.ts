@@ -1177,6 +1177,10 @@ export interface Forschung {
     research_product?: string | null;
     ready: boolean;
     building_until: string | null;
+    /** The staff by role (PD1); empty where the data have no roles. */
+    staff?: { role: string; count: number; research_weight: number }[];
+    /** Posts for people in the laboratories (PD1). */
+    posts?: number;
     labs: {
       slot: number;
       count: number;

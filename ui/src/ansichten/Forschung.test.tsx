@@ -120,6 +120,51 @@ describe("Weiterentwicklung", () => {
   });
 });
 
+describe("Laborpersonal", () => {
+  afterEach(cleanup);
+
+  it("stellt Leute je Rolle ein und entlässt sie", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitLabor();
+    const mitPersonal: Kern = {
+      ...kern,
+      forschung: async () => {
+        const d = await kern.forschung();
+        d.centers[0]!.posts = 4;
+        d.centers[0]!.staff = [
+          { role: "entwickler", count: 2, research_weight: 1 },
+          { role: "laborpersonal", count: 0, research_weight: 0.5 },
+          { role: "produktmanager", count: 0, research_weight: 0 },
+        ];
+        return d;
+      },
+    };
+    render(
+      <ForschungAnsicht
+        kern={mitPersonal}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /^Forschungszentren/ }));
+    const block = await screen.findByRole("region", { name: "Laborpersonal" });
+    expect(within(block).getByText(/2 von 4 Arbeitsplätzen besetzt/)).toBeTruthy();
+    expect(within(block).getByText(/noch ohne Wirkung/)).toBeTruthy();
+    fireEvent.click(within(block).getByRole("button", { name: "Einstellen: Laborpersonal" }));
+    await within(block).findByText("Eine Person ist eingestellt.");
+    fireEvent.click(within(block).getByRole("button", { name: "Entlassen: Entwickler" }));
+    await within(block).findByText("Eine Person ist entlassen.");
+    expect(
+      (within(block).getByRole("button", { name: "Entlassen: Laborpersonal" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(gesendet).toEqual([
+      { HireLabStaff: { site: 99, role: "Technician", count: 1 } },
+      { DismissLabStaff: { site: 99, role: "Developer", count: 1 } },
+    ]);
+  });
+});
+
 describe("Projekt je Labor", () => {
   afterEach(cleanup);
 

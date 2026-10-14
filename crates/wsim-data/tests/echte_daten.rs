@@ -1423,6 +1423,14 @@ fn screws_are_researched_built_and_developed_under_mandatory_research() {
     for _ in 0..400 {
         game.advance(RoundLength::Day, |_| {});
     }
+    // The laboratories start empty (PD1): hire developers for all the posts.
+    let posts = wsim_core::lab_staff::capacity(&c, &game.state().sites[lab.index()], game.date());
+    game.apply(Command::HireLabStaff {
+        site: lab,
+        role: wsim_core::catalog::LabRole::Developer,
+        count: posts.floor() as u32,
+    })
+    .unwrap();
     game.apply(Command::SetProductResearch {
         site: lab,
         product: Some(screws),

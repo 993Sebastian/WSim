@@ -166,6 +166,8 @@ export type Befehl =
       };
     }
   | { SetProductResearch: { site: number; product: string | null } }
+  | { HireLabStaff: { site: number; role: LaborRolle; count: number } }
+  | { DismissLabStaff: { site: number; role: LaborRolle; count: number } }
   | {
       SetLabWork: {
         site: number;
@@ -259,3 +261,6 @@ export type Gegenstand = { Site: number } | { License: string } | { Area: string
 
 /** How the company whose turn it is answers an offer. */
 export type Antwort = "Accept" | "Decline" | { Counter: { price: number } };
+
+/** A role in the laboratory as the commands name it (PD1). */
+export type LaborRolle = "ProductManager" | "Developer" | "ProductionPlanner" | "Technician";

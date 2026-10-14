@@ -1436,6 +1436,68 @@ pub struct ResearchModel {
     pub development: DevelopmentModel,
     /// Patents (P7); `None`: no patents.
     pub patents: Option<PatentModel>,
+    /// The staff roles of a laboratory (PD1); empty: the posts fill themselves as before.
+    pub lab_staff: LabStaffModel,
+}
+
+/// The roles of laboratory staff (PD1, docs/FORMELN.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct LabStaffModel {
+    /// The roles in the order of the data with the weight of one person in the research
+    /// effort (0 for roles that only matter in development projects).
+    pub roles: Vec<(LabRole, f64)>,
+}
+
+impl LabStaffModel {
+    pub fn enabled(&self) -> bool {
+        !self.roles.is_empty()
+    }
+
+    /// The weight of a role in the research effort; none if the data lack the role.
+    pub fn weight(&self, role: LabRole) -> Option<f64> {
+        self.roles.iter().find(|(r, _)| *r == role).map(|(_, w)| *w)
+    }
+}
+
+/// A role in a laboratory (PD1). Project leaders join with the projects (PD2).
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
+pub enum LabRole {
+    ProductManager,
+    Developer,
+    ProductionPlanner,
+    Technician,
+}
+
+impl LabRole {
+    pub const ALL: [LabRole; 4] = [
+        LabRole::ProductManager,
+        LabRole::Developer,
+        LabRole::ProductionPlanner,
+        LabRole::Technician,
+    ];
+
+    /// The key in the data and the texts.
+    pub fn key(self) -> &'static str {
+        match self {
+            LabRole::ProductManager => "produktmanager",
+            LabRole::Developer => "entwickler",
+            LabRole::ProductionPlanner => "fertigungsplaner",
+            LabRole::Technician => "laborpersonal",
+        }
+    }
+
+    pub fn from_key(key: &str) -> Option<LabRole> {
+        LabRole::ALL.into_iter().find(|r| r.key() == key)
+    }
+
+    pub fn index(self) -> usize {
+        LabRole::ALL
+            .iter()
+            .position(|r| *r == self)
+            .expect("listed role")
+    }
 }
 
 /// Patents (P7, docs/FORMELN.md).
@@ -1463,6 +1525,7 @@ impl Default for ResearchModel {
             researchers: Vec::new(),
             development: DevelopmentModel::default(),
             patents: None,
+            lab_staff: LabStaffModel::default(),
         }
     }
 }

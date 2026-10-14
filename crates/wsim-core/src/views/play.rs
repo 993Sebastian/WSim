@@ -2823,6 +2823,22 @@ pub struct ResearchCenterView {
     /// Day the first laboratory is ready while all are still being built.
     pub building_until: Option<String>,
     pub labs: Vec<LabView>,
+    /// The staff by role (PD1); empty where the data have no roles (the posts fill themselves).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub staff: Vec<LabStaffView>,
+    /// Posts for people in the laboratories (PD1).
+    #[serde(default)]
+    pub posts: u32,
+}
+
+/// The people of one role in a research center (PD1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LabStaffView {
+    /// `produktmanager`, `entwickler`, `fertigungsplaner` or `laborpersonal`.
+    pub role: String,
+    pub count: u32,
+    /// Weight of one person in the research effort, 0–1.
+    pub research_weight: f64,
 }
 
 /// A laboratory slot of a research center; its utilization sets the researcher posts.
@@ -3479,6 +3495,19 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                     share: crate::labs::lab_share(catalog, s, slot, state.date),
                 })
                 .collect(),
+            staff: catalog
+                .research_model
+                .lab_staff
+                .roles
+                .iter()
+                .map(|&(role, weight)| LabStaffView {
+                    role: role.key().to_owned(),
+                    count: s.lab_staff.get(role),
+                    research_weight: weight,
+                })
+                .collect(),
+            // Posts are few; the cast saturates.
+            posts: crate::lab_staff::capacity(catalog, s, state.date).floor() as u32,
         })
         .collect();
     ResearchOverview {

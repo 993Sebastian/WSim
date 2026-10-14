@@ -3261,6 +3261,42 @@ fn research_plan(
     }
 }
 
+/// Fills the posts of the company's research centers with developers (PD1), the way the
+/// player does it with `HireLabStaff`.
+fn staff_labs(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    date: Date,
+) {
+    if !catalog.research_model.lab_staff.enabled() {
+        return;
+    }
+    for &site in sites {
+        let s = &state.sites[site.index()];
+        if s.kind != SiteType::ResearchCenter {
+            continue;
+        }
+        let room =
+            crate::lab_staff::capacity(catalog, s, date).floor() - f64::from(s.lab_staff.total());
+        if room >= 1.0 {
+            // Posts are few; the cast is exact.
+            let count = room as u32;
+            run(
+                state,
+                catalog,
+                id,
+                &Command::HireLabStaff {
+                    site,
+                    role: crate::catalog::LabRole::Developer,
+                    count,
+                },
+            );
+        }
+    }
+}
+
 /// The research target of the company's first laboratory among `sites` (the rules of
 /// `research_plan` without asking whether the company wants research at all).
 fn plan_research(
@@ -3271,6 +3307,7 @@ fn plan_research(
     (date, gaps): (Date, &[(TechnologyId, f64)]),
     decider: &mut dyn Decider,
 ) {
+    staff_labs(state, catalog, id, sites, date);
     let b = &catalog.ai_model.behavior;
     let (competence, _) = traits(catalog, state, id);
     // Branches the company works in.

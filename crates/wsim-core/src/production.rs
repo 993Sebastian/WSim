@@ -547,6 +547,22 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
             needed[group.index()] += posts;
         }
     }
+    // PD1: hired people the research effort does not count cost wages all the same, in
+    // the first group of researchers.
+    let idle = state
+        .site(site)
+        .map_or(0.0, |s| crate::lab_staff::idle_people(catalog, s));
+    if idle > 0.0
+        && let Some(group) = catalog
+            .research_model
+            .researchers
+            .iter()
+            .copied()
+            .flatten()
+            .next()
+    {
+        needed[group.index()] += idle;
+    }
     needed
 }
 

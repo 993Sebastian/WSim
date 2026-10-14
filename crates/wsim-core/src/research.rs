@@ -105,7 +105,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
                 continue;
             };
             // The researchers not given to products work on the technology (Q1).
-            let researchers = *s.workforce.get(group) * share;
+            let researchers = crate::lab_staff::researchers(catalog, s, group) * share;
             if researchers <= 0.0 {
                 continue;
             }
@@ -221,7 +221,7 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
                 continue;
             };
             let s = &state.sites[index];
-            let researchers = *s.workforce.get(group) * share;
+            let researchers = crate::lab_staff::researchers(catalog, s, group) * share;
             if researchers <= 0.0 {
                 continue;
             }
@@ -386,7 +386,7 @@ fn manufacture(state: &mut GameState, catalog: &Catalog, index: usize, date: Dat
             continue;
         };
         let s = &state.sites[index];
-        let researchers = *s.workforce.get(group) * share;
+        let researchers = crate::lab_staff::researchers(catalog, s, group) * share;
         if researchers <= 0.0 {
             continue;
         }
@@ -433,7 +433,7 @@ fn learn_products(state: &mut GameState, catalog: &Catalog, date: Date) {
             let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
                 continue;
             };
-            let researchers = *s.workforce.get(group) * share;
+            let researchers = crate::lab_staff::researchers(catalog, s, group) * share;
             if researchers <= 0.0 {
                 continue;
             }

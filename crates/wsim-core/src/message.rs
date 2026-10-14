@@ -227,6 +227,7 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_CONCERN: &str = "fehler.befehl.anliegen_unbekannt";
     pub const COMMAND_CONCERN_CLOSED: &str = "fehler.befehl.anliegen_erledigt";
     pub const COMMAND_CANNOT_POSTPONE: &str = "fehler.befehl.vorschlag_aufschub";
+    pub const COMMAND_LAB_FULL: &str = "fehler.befehl.labor_voll";
     pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
     pub const COMMAND_NOT_A_HEAD: &str = "fehler.befehl.keine_leitung";
     pub const COMMAND_SALARY_NOT_HIGHER: &str = "fehler.befehl.gehalt_nicht_hoeher";
@@ -661,6 +662,7 @@ pub mod keys {
         COMMAND_UNKNOWN_CONCERN,
         COMMAND_CONCERN_CLOSED,
         COMMAND_CANNOT_POSTPONE,
+        COMMAND_LAB_FULL,
         COMMAND_UNKNOWN_OPTION,
         COMMAND_NOT_A_HEAD,
         COMMAND_SALARY_NOT_HIGHER,

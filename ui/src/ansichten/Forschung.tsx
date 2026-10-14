@@ -15,6 +15,7 @@ import type {
   Entwicklungswirkung,
   Forschung,
   Kern,
+  LaborRolle,
   Patent,
   Produktforschung,
   Technologie,
@@ -847,6 +848,88 @@ export function ForschungImWerk({
   );
 }
 
+const ROLLEN: Record<string, LaborRolle> = {
+  produktmanager: "ProductManager",
+  entwickler: "Developer",
+  fertigungsplaner: "ProductionPlanner",
+  laborpersonal: "Technician",
+};
+
+/** The staff of the laboratories by role: hire and dismiss with buttons (PD1). */
+function Laborpersonal({ z }: { z: Forschung["centers"][number] }) {
+  const { los, antwort } = useAktion(`laborpersonal/${z.site}`);
+  const personal = z.staff ?? [];
+  if (personal.length === 0) return null;
+  const posts = z.posts ?? 0;
+  const besetzt = personal.reduce((n, p) => n + p.count, 0);
+  return (
+    <section aria-label={t("labor.titel")}>
+      <h4>{t("labor.titel")}</h4>
+      <p className="feld-hilfe">
+        {t("labor.plaetze", { besetzt: formatZahl(besetzt), plaetze: formatZahl(posts) })}
+      </p>
+      <div className="tabelle">
+        <table className="mobil-karten" aria-label={t("labor.titel")}>
+          <thead>
+            <tr>
+              <th>{t("labor.rolle")}</th>
+              <th>{t("labor.anzahl")}</th>
+              <th>{t("labor.wirkung")}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {personal.map((p) => {
+              const rolle = ROLLEN[p.role];
+              if (rolle === undefined) return null;
+              return (
+                <tr key={p.role}>
+                  <th scope="row">{t(`labor.rolle.${p.role}`)}</th>
+                  <td>{formatZahl(p.count)}</td>
+                  <td>
+                    {p.research_weight > 0
+                      ? t("labor.forscht", { gewicht: formatProzent(p.research_weight) })
+                      : t("labor.forscht_nicht")}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      aria-label={`${t("labor.einstellen")}: ${t(`labor.rolle.${p.role}`)}`}
+                      disabled={besetzt >= posts}
+                      onClick={() =>
+                        void los(
+                          [{ HireLabStaff: { site: z.site, role: rolle, count: 1 } }],
+                          t("labor.eingestellt"),
+                        )
+                      }
+                    >
+                      +
+                    </button>{" "}
+                    <button
+                      type="button"
+                      aria-label={`${t("labor.entlassen")}: ${t(`labor.rolle.${p.role}`)}`}
+                      disabled={p.count === 0}
+                      onClick={() =>
+                        void los(
+                          [{ DismissLabStaff: { site: z.site, role: rolle, count: 1 } }],
+                          t("labor.entlassen_ok"),
+                        )
+                      }
+                    >
+                      −
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschung }) {
   const { los, antwort } = useAktion(`zentrum/${z.site}`);
   // "r:<product>" to research (Q6), "p:<product>" to develop (M37), "t:<technology>" for
@@ -950,6 +1033,7 @@ function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschu
             ),
         )}
       </dl>
+      <Laborpersonal z={z} />
       {z.labs.length === 0 && <p className="gedaempft">{t("forschung.erst_labor")}</p>}
       {z.labs.length > 0 && (
         <form

@@ -246,6 +246,18 @@ fn research_center_and_deposit_through_the_interface() {
     let research = session.research().unwrap();
     let center = &research.centers[0];
     assert!(center.ready && center.building_until.is_none());
+    // The laboratory starts empty (PD1): hire developers for all the posts.
+    assert!(center.posts > 0 && center.staff.iter().all(|p| p.count == 0));
+    session
+        .command(
+            json!({"HireLabStaff": {"site": site, "role": "Developer", "count": center.posts}}),
+        )
+        .unwrap();
+    for _ in 0..2 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let research = session.research().unwrap();
+    let center = &research.centers[0];
     assert!(center.researchers > 0.0, "{center:?}");
     let points = research
         .technologies
