@@ -3157,6 +3157,62 @@ export interface Projektszenario {
   penalty: number;
 }
 
+/** The figures a milestone report shows (PD3). */
+export interface Projektkennzahlen {
+  unit_cost: number;
+  price: number;
+  volume_year: number;
+  revenue_year: number;
+  lifecycle_revenue: number;
+  contribution_year: number;
+  plants: number;
+  investment: number;
+  project_cost: number;
+  project_days: number;
+  people: number;
+  payback_years: number;
+  quality: number;
+}
+
+/** A target profile (PM1) or solution path (PM2) with its factors (PD3). */
+export interface Projektwahl {
+  key: string;
+  cost: number;
+  time: number;
+  risk: number;
+  quality: number;
+  preferred: boolean;
+}
+
+/** Decision keys of a milestone (PD3). */
+export type Projektentscheidung = "weiter" | "auflagen" | "schleife" | "pause" | "abbruch";
+
+/** A report at a milestone (PD3). */
+export interface Meilensteinbericht {
+  milestone: number;
+  date: string;
+  kpis: Projektkennzahlen;
+  baseline: Projektkennzahlen | null;
+  /** Relative deviation from the baseline. */
+  deviation: Projektkennzahlen | null;
+  /** `gruen`, `gelb` or `rot`: schedule, budget, quality, risk. */
+  lights: string[];
+  recommendation: Projektentscheidung;
+  causes: string[];
+  /** Decision taken and whether the player took it. */
+  decided: [Projektentscheidung, boolean] | null;
+}
+
+/** A decision a project waits for (PD3). */
+export interface Projektentscheid {
+  milestone: number;
+  deadline: string;
+  recommendation: Projektentscheidung;
+  choices: Projektwahl[];
+  /** `profil`, `weg` or empty. */
+  choice_kind: string;
+}
+
 /** One development project of the company (PD2). */
 export interface Projekt {
   id: number;
@@ -3184,6 +3240,15 @@ export interface Projekt {
   auto: boolean;
   roles: Projektrolle[];
   scenarios: Projektszenario[];
+  profile: string;
+  path: string;
+  conditions: number;
+  loops: number;
+  paused: boolean;
+  /** `alles`, `standard` or `leiter`. */
+  delegation: string;
+  pending: Projektentscheid | null;
+  reports: Meilensteinbericht[];
 }
 
 /** A product a project can start for, at normal tempo and standard trim (PD2). */
@@ -3199,6 +3264,8 @@ export interface Entwicklungsprojekte {
   tempos: string[];
   trims: string[];
   salary_usd_year: number;
+  delegation: string;
+  player_at: number[];
   leads: Projektleiter[];
   projects: Projekt[];
   offers: Projektangebot[];

@@ -2752,3 +2752,11 @@ Vorgabe: `docs/ZUKUNFTSPRODUKTE.md` (92 Produkte, 2027–2085, alle 17 Branchen)
 🟡 Eigene Annahmen bei der Aufnahme:
 - Reihenfolge: ZP1 nach PD2/PD3, weil Zukunftsprodukte über Entwicklungsprojekte freigeschaltet werden (PD2 ersetzt „Produkt erforschen“).
 - Doppelungen mit seit dem 12.10.2026 ergänzten Produkten werden bei der Umsetzung gegen `data/` geprüft und markiert (Hinweis der Vorgabe).
+
+## PD3 – Meilensteinberichte (14.10.2026, eigene Annahmen)
+
+🟡 Vorläufige Werte in `data/parameter/forschungsmodell.yaml` (Block `projekte`), zur Abnahme:
+- Standard-Delegation: Spieler entscheidet bei M2, M4, M6, M7; Frist 7 Tage, danach entscheidet der Projektleiter mit seiner Empfehlung.
+- Absatzanteil des Produkts 0,15 vom offenen Bedarf, Unschärfe der Prognose 0,30 bei M1, sinkend je Meilenstein; Amortisation höchstens 12 Jahre.
+- Die Beispieldaten der Browser-Vorschau (`ui/src/kern/beispiel.json`) werden nicht neu erzeugt, weil sechs E2E-Erwartungen daran hängen.
+- KI-Firmen entscheiden immer über die Empfehlung ihres Projektleiters.

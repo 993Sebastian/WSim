@@ -2890,3 +2890,59 @@ projekte.szenario_weniger: "{n} weniger je Rolle"
 projekte.abbrechen: Projekt abbrechen
 projekte.abgebrochen_ok: "Projekt abgebrochen: {produkt}."
 projekte.als_projekt: Als Projekt entwickeln
+projekte.delegation: "Entscheidung an den Meilensteinen:"
+projekte.delegation.alles: Ich entscheide alles
+projekte.delegation.standard: Standard (ich bei M2, M4, M6, M7)
+projekte.delegation.leiter: Der Projektleiter entscheidet
+projekte.fortsetzen: Projekt fortsetzen
+projekte.entscheidung: Entscheidung am Meilenstein
+projekte.entscheidung_titel: "Entscheidung zu Meilenstein M{meilenstein}"
+projekte.entscheidung_frist: "Bis {datum}, danach entscheidet der Projektleiter."
+projekte.empfehlung: "Empfehlung des Projektleiters: {empfehlung}."
+projekte.entscheid.weiter: Weiter
+projekte.entscheid.auflagen: Weiter mit Auflagen
+projekte.entscheid.schleife: Phase wiederholen
+projekte.entscheid.pause: Pausieren
+projekte.entscheid.abbruch: Abbrechen
+projekte.wahl.profil: Zielprofil
+projekte.wahl.weg: Lösungsweg
+projekte.profil.kosten: Kostengünstig
+projekte.profil.ausgewogen: Ausgewogen
+projekte.profil.qualitaet: Hohe Qualität
+projekte.weg.bewaehrt: Bewährt
+projekte.weg.standard: Standard
+projekte.weg.innovativ: Innovativ
+projekte.wahl_faktoren: "Kosten {kosten}, Dauer {dauer}, Risiko {risiko}"
+projekte.ampel.termin: Termin
+projekte.ampel.budget: Budget
+projekte.ampel.qualitaet: Qualität
+projekte.ampel.risiko: Risiko
+projekte.ampel.gruen: grün
+projekte.ampel.gelb: gelb
+projekte.ampel.rot: rot
+projekte.kennzahlen: Kennzahlen des Berichts
+projekte.kennzahl: Kennzahl
+projekte.prognose: Prognose
+projekte.plan: Plan (M2)
+projekte.abweichung: Abweichung
+projekte.jahre: "{n} Jahre"
+projekte.kz.unit_cost: Herstellkosten je Stück
+projekte.kz.price: Marktpreis
+projekte.kz.volume_year: Absatz je Jahr
+projekte.kz.contribution_year: Deckungsbeitrag je Jahr
+projekte.kz.investment: Investition
+projekte.kz.project_cost: Projektkosten
+projekte.kz.project_days: Projektdauer in Tagen
+projekte.kz.payback_years: Amortisation
+projekte.kz.quality: Qualität
+projekte.ursache.marktpreis: Der Marktpreis hat sich verändert.
+projekte.ursache.herstellkosten: Die Herstellkosten sind gestiegen.
+projekte.ursache.verzug: Das Projekt liegt hinter dem Plan.
+projekte.ursache.unterbesetzung: Es fehlen Leute in einer Rolle.
+projekte.ursache.auflagen: Auflagen erhöhen das Risiko.
+projekte.ursache.schleife: Eine Phase wurde wiederholt.
+projekte.ursache.weg: Der gewählte Lösungsweg wirkt auf Kosten und Risiko.
+projekte.berichte: "Frühere Berichte ({n})"
+projekte.bericht_zeile: "M{meilenstein}, {datum}: {entscheidung} ({von})"
+projekte.von_dir: von dir
+projekte.vom_leiter: vom Projektleiter

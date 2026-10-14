@@ -8,6 +8,8 @@ const projekte: Entwicklungsprojekte = {
   tempos: ["gruendlich", "normal", "beschleunigt"],
   trims: ["basis", "standard", "premium"],
   salary_usd_year: 90_000,
+  delegation: "standard",
+  player_at: [2, 4, 6, 7],
   leads: [
     {
       id: 0,
@@ -78,6 +80,50 @@ const projekte: Entwicklungsprojekte = {
         { delta: -1, days: 160, risk: 0.2, penalty: 0.1 },
         { delta: 0, days: 120, risk: 0.1, penalty: 0 },
         { delta: 1, days: 100, risk: 0.08, penalty: 0 },
+      ],
+      profile: "ausgewogen",
+      path: "",
+      conditions: 0,
+      loops: 0,
+      paused: false,
+      delegation: "standard",
+      pending: {
+        milestone: 2,
+        deadline: "1914-06-08",
+        recommendation: "weiter",
+        choice_kind: "weg",
+        choices: [
+          { key: "bewaehrt", cost: 0.95, time: 0.95, risk: 0.7, quality: -0.03, preferred: false },
+          { key: "standard", cost: 1, time: 1, risk: 1, quality: 0, preferred: true },
+          { key: "innovativ", cost: 1.2, time: 1.1, risk: 1.5, quality: 0.1, preferred: false },
+        ],
+      },
+      reports: [
+        {
+          milestone: 2,
+          date: "1914-06-01",
+          kpis: {
+            unit_cost: 10,
+            price: 14,
+            volume_year: 5000,
+            revenue_year: 70000,
+            lifecycle_revenue: 500000,
+            contribution_year: 20000,
+            plants: 1,
+            investment: 30000,
+            project_cost: 100000,
+            project_days: 300,
+            people: 6,
+            payback_years: 3,
+            quality: 1,
+          },
+          baseline: null,
+          deviation: null,
+          lights: ["gruen", "gelb", "gruen", "rot"],
+          recommendation: "weiter",
+          causes: ["verzug"],
+          decided: null,
+        },
       ],
     },
   ],
@@ -185,6 +231,26 @@ describe("Entwicklungsprojekte", () => {
     fireEvent.click(screen.getByRole("button", { name: "Projekt starten" }));
     expect(gesendet).toContainEqual({
       StartProject: { site: 99, product: "schrauben", lead: 1, tempo: 1, trim: 1 },
+    });
+  });
+
+  it("zeigt den Bericht und sendet die Entscheidung mit dem Lösungsweg", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const gruppe = screen.getByRole("group", { name: "Entscheidung am Meilenstein" });
+    expect(within(gruppe).getByText("Das Projekt liegt hinter dem Plan.")).toBeTruthy();
+    fireEvent.click(within(gruppe).getByRole("radio", { name: /Innovativ/ }));
+    fireEvent.click(within(gruppe).getByRole("button", { name: "Weiter" }));
+    expect(gesendet).toContainEqual({
+      DecideMilestone: { project: 0, decision: "Continue", choice: 2 },
     });
   });
 });

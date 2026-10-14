@@ -178,6 +178,20 @@ export type Befehl =
   | { AssignProjectStaff: { project: number; role: LaborRolle; count: number } }
   | { AutoAssignProject: { project: number } }
   | { AbortProject: { project: number } }
+  | {
+      DecideMilestone: {
+        project: number;
+        decision: "Continue" | "Conditions" | "Loop" | "Pause" | "Abort";
+        choice?: number | null;
+      };
+    }
+  | { ResumeProject: { project: number } }
+  | {
+      SetProjectDelegation: {
+        project?: number | null;
+        mode: "ShowAll" | "Standard" | "LeadDecides";
+      };
+    }
   | { HireProjectLead: { lead: number } }
   | { DismissProjectLead: { lead: number } }
   | { HireLabStaff: { site: number; role: LaborRolle; count: number } }

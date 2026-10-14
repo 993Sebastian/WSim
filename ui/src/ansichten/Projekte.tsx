@@ -3,7 +3,14 @@
 // every figure comes from the view.
 import { useId, useState } from "react";
 import { formatDatum, formatGeld, formatProzent, formatZahl, landName } from "../format";
-import type { Forschung, LaborRolle, Projekt, Projektleiter } from "../kern";
+import type {
+  Forschung,
+  LaborRolle,
+  Meilensteinbericht,
+  Projekt,
+  Projektkennzahlen,
+  Projektleiter,
+} from "../kern";
 import { t } from "../texte";
 import { Rueckmeldung, useAktion } from "./gemeinsam";
 
@@ -13,6 +20,20 @@ export const ROLLEN: Record<string, LaborRolle> = {
   entwickler: "Developer",
   fertigungsplaner: "ProductionPlanner",
   laborpersonal: "Technician",
+};
+
+const DELEGATION: Record<string, "ShowAll" | "Standard" | "LeadDecides"> = {
+  alles: "ShowAll",
+  standard: "Standard",
+  leiter: "LeadDecides",
+};
+
+const ENTSCHEIDUNG: Record<string, "Continue" | "Conditions" | "Loop" | "Pause" | "Abort"> = {
+  weiter: "Continue",
+  auflagen: "Conditions",
+  schleife: "Loop",
+  pause: "Pause",
+  abbruch: "Abort",
 };
 
 const produktName = (p: string) => t(`produkt.${p}`);
@@ -313,6 +334,7 @@ function ProjektKarte({ x }: { x: Projekt }) {
   return (
     <article className="karte projektkarte" aria-label={name}>
       <h4>{name}</h4>
+      {x.pending && <Entscheidung x={x} />}
       <progress value={x.progress} max={1} aria-label={t("projekte.fortschritt")} />
       <dl className="werte">
         <dt>{t("projekte.fortschritt")}</dt>
@@ -452,6 +474,38 @@ function ProjektKarte({ x }: { x: Projekt }) {
           </tbody>
         </table>
       </div>
+      <Berichte x={x} />
+      <p className="feld-hilfe">
+        <label>
+          {t("projekte.delegation")}{" "}
+          <select
+            value={x.delegation}
+            onChange={(e) =>
+              void los([
+                {
+                  SetProjectDelegation: {
+                    project: x.id,
+                    mode: DELEGATION[e.target.value] ?? "Standard",
+                  },
+                },
+              ])
+            }
+          >
+            {Object.keys(DELEGATION).map((k) => (
+              <option key={k} value={k}>
+                {t(`projekte.delegation.${k}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </p>
+      {x.paused && (
+        <div className="knopfreihe links">
+          <button type="button" onClick={() => void los([{ ResumeProject: { project: x.id } }])}>
+            {t("projekte.fortsetzen")}
+          </button>
+        </div>
+      )}
       <div className="knopfreihe links">
         <button
           type="button"
@@ -467,5 +521,162 @@ function ProjektKarte({ x }: { x: Projekt }) {
       </div>
       <Rueckmeldung meldung={antwort} />
     </article>
+  );
+}
+
+/** The decision the project waits for: report, choices and the five decisions. */
+function Entscheidung({ x }: { x: Projekt }) {
+  const { los, antwort } = useAktion(`projekt/${x.id}/entscheid`);
+  const pending = x.pending;
+  const [wahl, setWahl] = useState<number | null>(null);
+  if (!pending) return null;
+  const bericht = x.reports.find((r) => r.milestone === pending.milestone);
+  const gewaehlt = wahl ?? pending.choices.findIndex((c) => c.preferred);
+  const entscheide = (key: string) =>
+    void los([
+      {
+        DecideMilestone: {
+          project: x.id,
+          decision: ENTSCHEIDUNG[key] ?? "Continue",
+          choice: pending.choices.length > 0 ? Math.max(gewaehlt, 0) : null,
+        },
+      },
+    ]);
+  return (
+    <section className="hinweis" role="group" aria-label={t("projekte.entscheidung")}>
+      <h4>{t("projekte.entscheidung_titel", { meilenstein: pending.milestone })}</h4>
+      <p>
+        {t("projekte.entscheidung_frist", { datum: formatDatum(pending.deadline) })}{" "}
+        {t("projekte.empfehlung", {
+          empfehlung: t(`projekte.entscheid.${pending.recommendation}`),
+        })}
+      </p>
+      {bericht && <Bericht b={bericht} />}
+      {pending.choices.length > 0 && (
+        <fieldset>
+          <legend>{t(`projekte.wahl.${pending.choice_kind}`)}</legend>
+          {pending.choices.map((c, i) => (
+            <label key={c.key} className="zeile">
+              <input
+                type="radio"
+                name={`wahl-${x.id}`}
+                checked={gewaehlt === i}
+                onChange={() => setWahl(i)}
+              />{" "}
+              {t(`projekte.${pending.choice_kind}.${c.key}`)}
+              <small className="gedaempft">
+                {" "}
+                {t("projekte.wahl_faktoren", {
+                  kosten: formatProzent(c.cost - 1),
+                  dauer: formatProzent(c.time - 1),
+                  risiko: formatProzent(c.risk - 1),
+                })}
+              </small>
+            </label>
+          ))}
+        </fieldset>
+      )}
+      <div className="knopfreihe links">
+        {Object.keys(ENTSCHEIDUNG).map((k) => (
+          <button
+            key={k}
+            type="button"
+            className={k === pending.recommendation ? "primaer" : undefined}
+            onClick={() => entscheide(k)}
+          >
+            {t(`projekte.entscheid.${k}`)}
+          </button>
+        ))}
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+const KENNZAHLEN: [keyof Projektkennzahlen, "geld" | "zahl" | "jahre" | "prozent"][] = [
+  ["unit_cost", "geld"],
+  ["price", "geld"],
+  ["volume_year", "zahl"],
+  ["contribution_year", "geld"],
+  ["investment", "geld"],
+  ["project_cost", "geld"],
+  ["project_days", "zahl"],
+  ["payback_years", "jahre"],
+  ["quality", "prozent"],
+];
+
+function Bericht({ b }: { b: Meilensteinbericht }) {
+  const wert = (v: number, art: string) =>
+    art === "geld"
+      ? formatGeld(v)
+      : art === "prozent"
+        ? formatProzent(v)
+        : art === "jahre"
+          ? t("projekte.jahre", { n: formatZahl(Math.round(v * 10) / 10) })
+          : formatZahl(Math.round(v));
+  return (
+    <div className="bericht">
+      <p>
+        {["termin", "budget", "qualitaet", "risiko"].map((n, i) => (
+          <span key={n} className={`ampel ampel-${b.lights[i] ?? "gruen"}`}>
+            {t(`projekte.ampel.${n}`)}: {t(`projekte.ampel.${b.lights[i] ?? "gruen"}`)}{" "}
+          </span>
+        ))}
+      </p>
+      <div className="tabelle">
+        <table className="mobil-karten" aria-label={t("projekte.kennzahlen")}>
+          <caption>{t("projekte.kennzahlen")}</caption>
+          <thead>
+            <tr>
+              <th>{t("projekte.kennzahl")}</th>
+              <th>{t("projekte.prognose")}</th>
+              {b.baseline && <th>{t("projekte.plan")}</th>}
+              {b.deviation && <th>{t("projekte.abweichung")}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {KENNZAHLEN.map(([k, art]) => (
+              <tr key={k}>
+                <th scope="row">{t(`projekte.kz.${k}`)}</th>
+                <td>{wert(b.kpis[k], art)}</td>
+                {b.baseline && <td>{wert(b.baseline[k], art)}</td>}
+                {b.deviation && <td>{formatProzent(b.deviation[k])}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {b.causes.length > 0 && (
+        <ul className="liste">
+          {b.causes.map((c) => (
+            <li key={c}>{t(`projekte.ursache.${c}`)}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** Earlier reports of the project with the decision taken. */
+function Berichte({ x }: { x: Projekt }) {
+  const erledigt = x.reports.filter((r) => r.decided !== null);
+  if (erledigt.length === 0) return null;
+  return (
+    <details>
+      <summary>{t("projekte.berichte", { n: erledigt.length })}</summary>
+      {erledigt.map((r) => (
+        <div key={r.milestone}>
+          <h5>
+            {t("projekte.bericht_zeile", {
+              meilenstein: r.milestone,
+              datum: formatDatum(r.date),
+              entscheidung: t(`projekte.entscheid.${r.decided?.[0] ?? "weiter"}`),
+              von: t(r.decided?.[1] ? "projekte.von_dir" : "projekte.vom_leiter"),
+            })}
+          </h5>
+          <Bericht b={r} />
+        </div>
+      ))}
+    </details>
   );
 }
