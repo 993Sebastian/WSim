@@ -5969,3 +5969,73 @@ fn maschinenangebote_werden_geprueft() {
     befund(&outcome, "außerhalb des erlaubten Bereichs 0 bis 1");
     nur_fehler(&outcome, 1);
 }
+
+#[test]
+fn entwicklungsprojekte_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    // Without the block products are researched as before.
+    let data = Daten::neu().laden().data.unwrap();
+    assert!(data.catalog.research_model.projects.is_none());
+    let phase = |id: &str, kosten: f64, dauer: f64| {
+        format!(
+            "      - id: {id}\n        kosten: {kosten}\n        dauer: {dauer}\n        rollen:\n          \
+             - {{id: entwickler, bedarf: 2, wirkung: 0.7}}\n          \
+             - {{id: laborpersonal, bedarf: 1, wirkung: 0.3}}\n"
+        )
+    };
+    let block = format!(
+        "  projekte:\n    punktekosten_usd: 100\n    referenzrate: 10\n    referenzaufwand: 1000\n    \
+         bedarf_exponent: 0.5\n    ueberbesetzung: {{maximum: 0.3, tau: 0.5}}\n    restanteil: 0.1\n    \
+         unterbesetzung: {{abschlag: 0.5, hoechstens: 0.25}}\n    streuung: 0.1\n    gate_kosten: 0.1\n    \
+         phasen:\n{}{}{}{}{}{}    tempo:\n      - {{id: gruendlich, dauer: 1.2, kosten: 1.1, risiko: 0.7}}\n      \
+         - {{id: normal, dauer: 1, kosten: 1, risiko: 1}}\n      \
+         - {{id: beschleunigt, dauer: 0.8, kosten: 1.2, risiko: 1.5}}\n    ausstattung:\n      \
+         - {{id: basis, kosten: 0.8, qualitaet: -0.1}}\n      - {{id: standard, kosten: 1, qualitaet: 0}}\n      \
+         - {{id: premium, kosten: 1.3, qualitaet: 0.1}}\n    projektleiter:\n      gehalt_usd_jahr: 90000\n      \
+         kapazitaet_neu: 1\n      kapazitaet_weiter: 2\n      kandidaten: 4\n      alter_min: 30\n      \
+         alter_max: 60\n      charaktere: [optimistisch, vorsichtig]\n    risiko:\n      basis: 0.02\n      \
+         unterbesetzung: 1.5\n      erfahrung: 0.4\n      branche: 0.3\n      puffer: 0.5\n      fast_track: 1\n",
+        phase("pm0_pm1", 0.1, 0.1),
+        phase("pm1_pm2", 0.1, 0.1),
+        phase("pm2_pm3", 0.1, 0.1),
+        phase("pm4_pm5", 0.3, 0.3),
+        phase("pm5_pm6", 0.2, 0.2),
+        phase("pm6_pm7", 0.1, 0.2),
+    );
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap();
+    assert_eq!(m.phases.len(), 6);
+    assert_eq!(m.tempos.len(), 3);
+    assert!((m.gate_cost - 0.1).abs() < 1e-9);
+
+    let falsch = mit(&block.replace("gate_kosten: 0.1", "gate_kosten: 0.3")).laden();
+    befund(&falsch, "„kosten“ aller Phasen müssen zusammen 1 ergeben");
+    let falsch = mit(&block.replacen("wirkung: 0.3", "wirkung: 0.5", 1)).laden();
+    befund(
+        &falsch,
+        "Wirkungen der Rollen einer Phase müssen zusammen 1 ergeben",
+    );
+    let falsch = mit(&block.replace("id: pm4_pm5", "id: pm3_pm4")).laden();
+    befund(&falsch, "muss „pm4_pm5“ stehen");
+    let falsch = mit(&block.replacen("id: entwickler", "id: ingenieur", 1)).laden();
+    befund(&falsch, "„ingenieur“ ist keine Rolle im Labor");
+    let falsch = mit(&block.replace("alter_min: 30", "alter_min: 70")).laden();
+    befund(&falsch, "muss kleiner als");
+    let falsch = mit(&block.replace("id: normal", "id: mittel")).laden();
+    befund(&falsch, "muss „normal“ stehen");
+}

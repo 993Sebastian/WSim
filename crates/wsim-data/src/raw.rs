@@ -1367,6 +1367,146 @@ pub struct RawResearchModel {
     /// Staff roles of a laboratory (PD1); without the block the posts fill themselves.
     #[serde(rename = "labor", default)]
     pub lab_staff: Option<RawLabStaff>,
+    /// Development projects PM0–PM7 (PD2); without the block products are researched as before.
+    #[serde(rename = "projekte", default)]
+    pub projects: Option<RawProjectModel>,
+}
+
+/// Development projects (PD2, docs/FORMELN.md).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectModel {
+    #[serde(rename = "punktekosten_usd")]
+    pub cost_per_point_usd: f64,
+    #[serde(rename = "referenzrate")]
+    pub reference_rate: f64,
+    #[serde(rename = "referenzaufwand")]
+    pub reference_effort: f64,
+    #[serde(rename = "bedarf_exponent")]
+    pub need_exponent: f64,
+    #[serde(rename = "ueberbesetzung")]
+    pub over: RawOverstaffing,
+    /// Share of a phase's speed that runs without any person in a role.
+    #[serde(rename = "restanteil")]
+    pub rest_share: f64,
+    #[serde(rename = "unterbesetzung")]
+    pub shortfall: RawShortfall,
+    #[serde(rename = "streuung")]
+    pub spread: f64,
+    /// Cost share of the gate PM3→PM4 (preparation of the release, no duration).
+    #[serde(rename = "gate_kosten")]
+    pub gate_cost: f64,
+    #[serde(rename = "phasen")]
+    pub phases: Vec<RawProjectPhase>,
+    #[serde(rename = "tempo")]
+    pub tempos: Vec<RawProjectTempo>,
+    #[serde(rename = "ausstattung")]
+    pub trims: Vec<RawProjectTrim>,
+    #[serde(rename = "projektleiter")]
+    pub lead: RawProjectLead,
+    #[serde(rename = "risiko")]
+    pub risk: RawProjectRisk,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawOverstaffing {
+    #[serde(rename = "maximum")]
+    pub max: f64,
+    #[serde(rename = "tau")]
+    pub tau: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawShortfall {
+    #[serde(rename = "abschlag")]
+    pub penalty: f64,
+    #[serde(rename = "hoechstens")]
+    pub cap: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectPhase {
+    pub id: String,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "dauer")]
+    pub time: f64,
+    #[serde(rename = "rollen")]
+    pub roles: Vec<RawPhaseRole>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPhaseRole {
+    pub id: String,
+    /// People needed at the reference effort.
+    #[serde(rename = "bedarf")]
+    pub need: f64,
+    /// Share of the phase's speed this role carries.
+    #[serde(rename = "wirkung")]
+    pub effect: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectTempo {
+    pub id: String,
+    #[serde(rename = "dauer")]
+    pub time: f64,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "risiko")]
+    pub risk: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectTrim {
+    pub id: String,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "qualitaet")]
+    pub quality: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectLead {
+    #[serde(rename = "gehalt_usd_jahr")]
+    pub salary_usd_year: f64,
+    #[serde(rename = "kapazitaet_neu")]
+    pub capacity_new: u32,
+    #[serde(rename = "kapazitaet_weiter")]
+    pub capacity_further: u32,
+    /// Candidates on the market per laboratory country.
+    #[serde(rename = "kandidaten")]
+    pub candidates: u32,
+    #[serde(rename = "alter_min")]
+    pub age_min: u32,
+    #[serde(rename = "alter_max")]
+    pub age_max: u32,
+    #[serde(rename = "charaktere")]
+    pub characters: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectRisk {
+    #[serde(rename = "basis")]
+    pub base: f64,
+    #[serde(rename = "unterbesetzung")]
+    pub shortfall: f64,
+    #[serde(rename = "erfahrung")]
+    pub experience: f64,
+    #[serde(rename = "branche")]
+    pub branch: f64,
+    #[serde(rename = "puffer")]
+    pub buffer: f64,
+    #[serde(rename = "fast_track")]
+    pub fast_track: f64,
 }
 
 /// Staff roles of a laboratory (PD1).

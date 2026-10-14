@@ -4,8 +4,10 @@ use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
     Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LabRole, LabStaffModel, LearningModel,
-    MaintenanceModel, OperationsModel, PatentModel, ProductionModel, ResearchModel, SiteType,
-    SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
+    MaintenanceModel, OperationsModel, PatentModel, PhaseRole, ProductionModel, ProjectLeadModel,
+    ProjectModel, ProjectPhase, ProjectRiskModel, ProjectTempo, ProjectTrim, ResearchModel,
+    SiteType, SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel,
+    Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -17,7 +19,7 @@ use super::{
 use crate::messages;
 use crate::raw::{
     RawFacilitySizes, RawLabStaff, RawLimits, RawPatents, RawProductDevelopment,
-    RawProductionModel, RawSeries, RawVehicle, RawWay,
+    RawProductionModel, RawProjectModel, RawSeries, RawVehicle, RawWay,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -1614,6 +1616,10 @@ pub(super) fn research_model(
             .map_or_else(LabStaffModel::default, |s| {
                 lab_staff_model(ctx, s, &l.field("labor"))
             }),
+        projects: m
+            .projects
+            .as_ref()
+            .map(|p| project_model(ctx, p, &l.field("projekte"))),
         researchers,
     }
 }
@@ -1635,6 +1641,201 @@ fn lab_staff_model(ctx: &mut Ctx, s: &RawLabStaff, l: &Loc) -> LabStaffModel {
         roles.push((role, weight));
     }
     LabStaffModel { roles }
+}
+
+const PROJECT_PHASES: [&str; 6] = [
+    "pm0_pm1", "pm1_pm2", "pm2_pm3", "pm4_pm5", "pm5_pm6", "pm6_pm7",
+];
+const PROJECT_TEMPOS: [&str; 3] = ["gruendlich", "normal", "beschleunigt"];
+const PROJECT_TRIMS: [&str; 3] = ["basis", "standard", "premium"];
+
+/// Development projects (PD2): six phases in order, each with roles whose effects add up to
+/// one; three tempos and three trims; shares of cost and time add up to one.
+fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
+    let mut phases = Vec::new();
+    for (i, key) in PROJECT_PHASES.iter().enumerate() {
+        let pl = l.field("phasen").index(i);
+        let Some(raw) = p.phases.get(i) else {
+            ctx.error(&l.field("phasen"), messages::project_phase_missing(key));
+            continue;
+        };
+        if raw.id != *key {
+            ctx.error(&pl.field("id"), messages::project_phase_order(&raw.id, key));
+        }
+        let mut roles: Vec<PhaseRole> = Vec::new();
+        for (j, r) in raw.roles.iter().enumerate() {
+            let rl = pl.field("rollen").index(j);
+            let Some(role) = LabRole::from_key(&r.id) else {
+                ctx.error(&rl.field("id"), messages::unknown_lab_role(&r.id));
+                continue;
+            };
+            if roles.iter().any(|x| x.role == role) {
+                ctx.error(&rl.field("id"), messages::duplicate_lab_role(&r.id));
+                continue;
+            }
+            roles.push(PhaseRole {
+                role,
+                need: non_negative(ctx, r.need, &rl.field("bedarf")),
+                effect: in_range(ctx, r.effect, 0.0, 1.0, &rl.field("wirkung")),
+            });
+        }
+        let effects: f64 = roles.iter().map(|r| r.effect).sum();
+        if (effects - 1.0).abs() > 1e-6 {
+            ctx.error(&pl.field("rollen"), messages::project_effects_sum(effects));
+        }
+        phases.push(ProjectPhase {
+            key: raw.id.clone(),
+            cost: in_range(ctx, raw.cost, 0.0, 1.0, &pl.field("kosten")),
+            time: in_range(ctx, raw.time, 0.0, 1.0, &pl.field("dauer")),
+            roles,
+        });
+    }
+    if p.phases.len() > PROJECT_PHASES.len() {
+        ctx.error(&l.field("phasen"), messages::project_phase_extra());
+    }
+    for (name, total) in [
+        (
+            "kosten",
+            phases.iter().map(|x| x.cost).sum::<f64>() + p.gate_cost,
+        ),
+        ("dauer", phases.iter().map(|x| x.time).sum::<f64>()),
+    ] {
+        if (total - 1.0).abs() > 1e-6 {
+            ctx.error(
+                &l.field("phasen"),
+                messages::project_shares_sum(name, total),
+            );
+        }
+    }
+    let mut tempos = Vec::new();
+    for (i, key) in PROJECT_TEMPOS.iter().enumerate() {
+        let tl = l.field("tempo").index(i);
+        let Some(raw) = p.tempos.get(i) else {
+            ctx.error(&l.field("tempo"), messages::project_choice_missing(key));
+            continue;
+        };
+        if raw.id != *key {
+            ctx.error(&tl.field("id"), messages::project_phase_order(&raw.id, key));
+        }
+        tempos.push(ProjectTempo {
+            key: raw.id.clone(),
+            time: positive(ctx, raw.time, &tl.field("dauer")),
+            cost: positive(ctx, raw.cost, &tl.field("kosten")),
+            risk: positive(ctx, raw.risk, &tl.field("risiko")),
+        });
+    }
+    let mut trims = Vec::new();
+    for (i, key) in PROJECT_TRIMS.iter().enumerate() {
+        let tl = l.field("ausstattung").index(i);
+        let Some(raw) = p.trims.get(i) else {
+            ctx.error(
+                &l.field("ausstattung"),
+                messages::project_choice_missing(key),
+            );
+            continue;
+        };
+        if raw.id != *key {
+            ctx.error(&tl.field("id"), messages::project_phase_order(&raw.id, key));
+        }
+        trims.push(ProjectTrim {
+            key: raw.id.clone(),
+            cost: positive(ctx, raw.cost, &tl.field("kosten")),
+            quality: in_range(ctx, raw.quality, -0.5, 0.5, &tl.field("qualitaet")),
+        });
+    }
+    let ll = l.field("projektleiter");
+    if p.lead.age_min >= p.lead.age_max {
+        ctx.error(
+            &ll.field("alter_min"),
+            messages::range_inverted("alter_min", "alter_max"),
+        );
+    }
+    if p.lead.characters.is_empty() {
+        ctx.error(&ll.field("charaktere"), messages::project_no_characters());
+    }
+    ProjectModel {
+        cost_per_point_usd: positive(ctx, p.cost_per_point_usd, &l.field("punktekosten_usd")),
+        reference_rate: positive(ctx, p.reference_rate, &l.field("referenzrate")),
+        reference_effort: positive(ctx, p.reference_effort, &l.field("referenzaufwand")),
+        need_exponent: in_range(ctx, p.need_exponent, 0.0, 2.0, &l.field("bedarf_exponent")),
+        over_max: in_range(
+            ctx,
+            p.over.max,
+            0.0,
+            1.0,
+            &l.field("ueberbesetzung").field("maximum"),
+        ),
+        over_tau: positive(ctx, p.over.tau, &l.field("ueberbesetzung").field("tau")),
+        rest_share: in_range(ctx, p.rest_share, 0.0, 0.5, &l.field("restanteil")),
+        shortfall_penalty: in_range(
+            ctx,
+            p.shortfall.penalty,
+            0.0,
+            1.0,
+            &l.field("unterbesetzung").field("abschlag"),
+        ),
+        shortfall_cap: in_range(
+            ctx,
+            p.shortfall.cap,
+            0.0,
+            1.0,
+            &l.field("unterbesetzung").field("hoechstens"),
+        ),
+        spread: in_range(ctx, p.spread, 0.0, 0.5, &l.field("streuung")),
+        gate_cost: in_range(ctx, p.gate_cost, 0.0, 1.0, &l.field("gate_kosten")),
+        phases,
+        tempos,
+        trims,
+        lead: ProjectLeadModel {
+            salary_usd_year: positive(ctx, p.lead.salary_usd_year, &ll.field("gehalt_usd_jahr")),
+            capacity_new: p.lead.capacity_new.max(1),
+            capacity_further: p.lead.capacity_further.max(1),
+            candidates: p.lead.candidates,
+            age_min: p.lead.age_min,
+            age_max: p.lead.age_max,
+            characters: p.lead.characters.clone(),
+        },
+        risk: ProjectRiskModel {
+            base: in_range(
+                ctx,
+                p.risk.base,
+                0.0,
+                1.0,
+                &l.field("risiko").field("basis"),
+            ),
+            shortfall: non_negative(
+                ctx,
+                p.risk.shortfall,
+                &l.field("risiko").field("unterbesetzung"),
+            ),
+            experience: in_range(
+                ctx,
+                p.risk.experience,
+                0.0,
+                1.0,
+                &l.field("risiko").field("erfahrung"),
+            ),
+            branch: in_range(
+                ctx,
+                p.risk.branch,
+                0.0,
+                1.0,
+                &l.field("risiko").field("branche"),
+            ),
+            buffer: in_range(
+                ctx,
+                p.risk.buffer,
+                0.0,
+                1.0,
+                &l.field("risiko").field("puffer"),
+            ),
+            fast_track: non_negative(
+                ctx,
+                p.risk.fast_track,
+                &l.field("risiko").field("fast_track"),
+            ),
+        },
+    }
 }
 
 /// Patents (P7): term, filing period, cost per country, AI filing.

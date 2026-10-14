@@ -886,3 +886,33 @@ pub fn basic_product_branch(product: &str, actual: &str, branch: &str) -> String
 pub fn basic_product_no_recipe(product: &str) -> String {
     format!("Grundprodukt „{product}“ hat kein Rezept; es könnte nie hergestellt werden.")
 }
+
+pub fn project_phase_missing(key: &str) -> String {
+    format!(
+        "Die Phase „{key}“ fehlt; die sechs Phasen stehen in der Reihenfolge pm0_pm1, pm1_pm2, pm2_pm3, pm4_pm5, pm5_pm6, pm6_pm7."
+    )
+}
+
+pub fn project_phase_extra() -> String {
+    "Es gibt nur sechs Phasen zwischen den Meilensteinen (PM3→PM4 ist das Gate ohne Dauer).".into()
+}
+
+pub fn project_phase_order(found: &str, expected: &str) -> String {
+    format!("An dieser Stelle muss „{expected}“ stehen, nicht „{found}“.")
+}
+
+pub fn project_effects_sum(sum: f64) -> String {
+    format!("Die Wirkungen der Rollen einer Phase müssen zusammen 1 ergeben, nicht {sum}.")
+}
+
+pub fn project_shares_sum(name: &str, sum: f64) -> String {
+    format!("Die Anteile „{name}“ aller Phasen müssen zusammen 1 ergeben, nicht {sum}.")
+}
+
+pub fn project_choice_missing(key: &str) -> String {
+    format!("Der Eintrag „{key}“ fehlt in der Liste (Reihenfolge wie in der Dokumentation).")
+}
+
+pub fn project_no_characters() -> String {
+    "Mindestens ein Charakter für Projektleiter ist nötig.".into()
+}

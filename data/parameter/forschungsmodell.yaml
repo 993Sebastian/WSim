@@ -33,6 +33,96 @@ forschungsmodell:
       - {id: laborpersonal, forschung: 0.5}
       - {id: produktmanager, forschung: 0}
       - {id: fertigungsplaner, forschung: 0}
+  # Entwicklungsprojekte PM0–PM7 (PD2, docs/PRODUKTENTWICKLUNG.md §2–§3, Formeln FORMELN.md PD2). Alle
+  # Werte vorläufig (OFFENE_PUNKTE PD). Der Projektumfang W stammt aus den Forschungspunkten der
+  # fehlenden Technologien; Kosten = W · punktekosten_usd, Dauer = W / referenzrate Tage.
+  projekte:
+    punktekosten_usd: 120          # Lohn + Sachkosten je Forschungspunkt (Näherung)
+    referenzrate: 20               # Punkte je Tag bei Referenzbesetzung
+    referenzaufwand: 10000         # W, für das der Bedarf je Rolle unten gilt
+    bedarf_exponent: 0.5           # Bedarf wächst mit (W / referenzaufwand)^exponent
+    ueberbesetzung: {maximum: 0.30, tau: 0.5}   # höchstens 30 % schneller, abnehmender Ertrag
+    restanteil: 0.1                # Tempo einer Phase ohne jede Person in einer Rolle
+    unterbesetzung: {abschlag: 0.5, hoechstens: 0.25}   # Abschlag auf die Kennzahlen der Rolle
+    streuung: 0.10                 # Endkennzahlen bei PM6 um höchstens ±10 %
+    gate_kosten: 0.05              # Gate PM3→PM4: Vorbereitung der Freigabe, ohne Dauer (Annahme: Rest auf 100 %)
+    # Phasen zwischen den Meilensteinen (PM3→PM4 ist das Gate). Je Rolle: Bedarf (Personen bei
+    # referenzaufwand) und Wirkung (Anteil am Tempo der Phase; Summe 1).
+    phasen:
+      - id: pm0_pm1
+        kosten: 0.05
+        dauer: 0.10
+        rollen:
+          - {id: produktmanager, bedarf: 3, wirkung: 0.60}
+          - {id: entwickler, bedarf: 1, wirkung: 0.30}
+          - {id: fertigungsplaner, bedarf: 0.5, wirkung: 0.05}
+          - {id: laborpersonal, bedarf: 0.5, wirkung: 0.05}
+      - id: pm1_pm2
+        kosten: 0.10
+        dauer: 0.10
+        rollen:
+          - {id: produktmanager, bedarf: 3, wirkung: 0.50}
+          - {id: entwickler, bedarf: 2, wirkung: 0.40}
+          - {id: fertigungsplaner, bedarf: 0.5, wirkung: 0.05}
+          - {id: laborpersonal, bedarf: 0.5, wirkung: 0.05}
+      - id: pm2_pm3
+        kosten: 0.10
+        dauer: 0.10
+        rollen:
+          - {id: produktmanager, bedarf: 1, wirkung: 0.10}
+          - {id: entwickler, bedarf: 6, wirkung: 0.60}
+          - {id: fertigungsplaner, bedarf: 1, wirkung: 0.10}
+          - {id: laborpersonal, bedarf: 3, wirkung: 0.20}
+      - id: pm4_pm5
+        kosten: 0.30
+        dauer: 0.30
+        rollen:
+          - {id: produktmanager, bedarf: 1, wirkung: 0.05}
+          - {id: entwickler, bedarf: 8, wirkung: 0.60}
+          - {id: fertigungsplaner, bedarf: 2, wirkung: 0.20}
+          - {id: laborpersonal, bedarf: 2, wirkung: 0.15}
+      - id: pm5_pm6
+        kosten: 0.25
+        dauer: 0.25
+        rollen:
+          - {id: produktmanager, bedarf: 1, wirkung: 0.05}
+          - {id: entwickler, bedarf: 6, wirkung: 0.45}
+          - {id: fertigungsplaner, bedarf: 4, wirkung: 0.30}
+          - {id: laborpersonal, bedarf: 4, wirkung: 0.20}
+      - id: pm6_pm7
+        kosten: 0.15
+        dauer: 0.15
+        rollen:
+          - {id: produktmanager, bedarf: 3, wirkung: 0.40}
+          - {id: entwickler, bedarf: 1, wirkung: 0.05}
+          - {id: fertigungsplaner, bedarf: 4, wirkung: 0.40}
+          - {id: laborpersonal, bedarf: 2, wirkung: 0.15}
+    # Tempo (PM0): Faktoren auf Dauer, Kosten und Basisrisiko.
+    tempo:
+      - {id: gruendlich, dauer: 1.25, kosten: 1.10, risiko: 0.70}
+      - {id: normal, dauer: 1.00, kosten: 1.00, risiko: 1.00}
+      - {id: beschleunigt, dauer: 0.80, kosten: 1.15, risiko: 1.50}
+    # Zielausstattung (PM0): Faktor auf die Kosten und Änderung der Zielqualität.
+    ausstattung:
+      - {id: basis, kosten: 0.80, qualitaet: -0.10}
+      - {id: standard, kosten: 1.00, qualitaet: 0.0}
+      - {id: premium, kosten: 1.35, qualitaet: 0.10}
+    projektleiter:
+      gehalt_usd_jahr: 90_000      # Preisniveau 1
+      kapazitaet_neu: 1            # eine Neuentwicklung ...
+      kapazitaet_weiter: 2         # ... oder bis zu zwei Weiterentwicklungen
+      kandidaten: 6                # auf dem Markt je Labor-Land
+      alter_min: 32
+      alter_max: 58
+      charaktere: [optimistisch, vorsichtig, sachlich]
+    # Risiko je Phase (Zähler; die Ereignisse folgen mit PD4).
+    risiko:
+      basis: 0.02
+      unterbesetzung: 1.5
+      erfahrung: 0.4
+      branche: 0.3
+      puffer: 0.5
+      fast_track: 1.0
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)

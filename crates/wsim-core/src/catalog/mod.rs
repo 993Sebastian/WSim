@@ -1438,6 +1438,98 @@ pub struct ResearchModel {
     pub patents: Option<PatentModel>,
     /// The staff roles of a laboratory (PD1); empty: the posts fill themselves as before.
     pub lab_staff: LabStaffModel,
+    /// Development projects PM0–PM7 (PD2); `None`: products are researched as before.
+    pub projects: Option<ProjectModel>,
+}
+
+/// Development projects (PD2, docs/FORMELN.md): phases, staffing, tempo, trim and project
+/// leaders.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectModel {
+    /// Cost of one research point in USD at price level 1 (c_pkt).
+    pub cost_per_point_usd: f64,
+    /// Points per day at the reference staffing (r_ref).
+    pub reference_rate: f64,
+    /// Effort the staffing needs are given for (W_ref).
+    pub reference_effort: f64,
+    pub need_exponent: f64,
+    /// Overstaffing speeds a phase up by at most `over_max`; `over_tau` is the curve's scale.
+    pub over_max: f64,
+    pub over_tau: f64,
+    /// Share of a phase's speed that runs without any person in a role (ω₀).
+    pub rest_share: f64,
+    /// Understaffing lowers the figures of the role's area by `shortfall_penalty · (1 − q)`,
+    /// at most `shortfall_cap`.
+    pub shortfall_penalty: f64,
+    pub shortfall_cap: f64,
+    /// Largest spread of the final figures at PM6 (±).
+    pub spread: f64,
+    /// Cost share of the gate PM3→PM4 (no duration); with the phases' shares it makes 1.
+    pub gate_cost: f64,
+    /// The six phases between the milestones in order: 0→1, 1→2, 2→3, 4→5, 5→6, 6→7.
+    pub phases: Vec<ProjectPhase>,
+    /// Tempo: thorough, normal, fast.
+    pub tempos: Vec<ProjectTempo>,
+    /// Target trim: basic, standard, premium.
+    pub trims: Vec<ProjectTrim>,
+    pub lead: ProjectLeadModel,
+    pub risk: ProjectRiskModel,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectPhase {
+    pub key: String,
+    /// Shares of the total cost and duration.
+    pub cost: f64,
+    pub time: f64,
+    /// Need (people at the reference effort) and effect per role.
+    pub roles: Vec<PhaseRole>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PhaseRole {
+    pub role: LabRole,
+    pub need: f64,
+    pub effect: f64,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectTempo {
+    pub key: String,
+    pub time: f64,
+    pub cost: f64,
+    pub risk: f64,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectTrim {
+    pub key: String,
+    pub cost: f64,
+    /// Change of the target quality (share).
+    pub quality: f64,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectLeadModel {
+    pub salary_usd_year: f64,
+    pub capacity_new: u32,
+    pub capacity_further: u32,
+    pub candidates: u32,
+    pub age_min: u32,
+    pub age_max: u32,
+    /// Character keys (texts `projektleiter.charakter.<key>`).
+    pub characters: Vec<String>,
+}
+
+/// Risk factors of a phase (docs/FORMELN.md, PD2; the events follow with PD4).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ProjectRiskModel {
+    pub base: f64,
+    pub shortfall: f64,
+    pub experience: f64,
+    pub branch: f64,
+    pub buffer: f64,
+    pub fast_track: f64,
 }
 
 /// The roles of laboratory staff (PD1, docs/FORMELN.md).
@@ -1526,6 +1618,7 @@ impl Default for ResearchModel {
             development: DevelopmentModel::default(),
             patents: None,
             lab_staff: LabStaffModel::default(),
+            projects: None,
         }
     }
 }
