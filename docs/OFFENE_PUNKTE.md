@@ -2639,9 +2639,12 @@ Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRIT
 - Umrüstung der Anlagen nach WM3 dauert ein Viertel der Bauzeit (§8).
 - Restertrag der Weiterentwicklung nach der dritten Stufe: 20 % der dritten Stufe (§8).
 - **PD11 Entwicklungsleitung (Nachtrag 14.10.2026):** Reservepuffer 10 %, Vorlaufzeit der Einstellung 2 Runden,
-  Abfindung 3 Monatsgehälter, Einarbeitung beim Verschieben 1 Runde (§10). Reihenfolge (Annahme): PD11 nach MG8;
-  PD2/PD3 bauen die Schnittstelle „zuständige Stelle“ (zunächst Spieler oder PL). Nachfrage: oder eigene Einstellkaskade
-  vorziehen und später mit MG8 vereinheitlichen?
+  Abfindung 3 Monatsgehälter, Einarbeitung beim Verschieben 1 Runde (§10). ✅ Annahme (14.10.2026, vom Auftraggeber zur
+  eigenen Entscheidung freigegeben): PD11 nach MG8, die Einstellkaskade wird nicht vorgezogen; PD2/PD3 bauen die
+  Schnittstelle „zuständige Stelle“ (zunächst Spieler oder PL). Weiter änderbar.
+- **Offen/Annahme Docs-Link (14.10.2026):** Der Text des vom Auftraggeber genannten Docs-Dokuments war nicht lesbar
+  (Docs-Verbindung getrennt). Annahme: kein Inhalt eingearbeitet; bei erneuter Verbindung lesen und gegen PD abgleichen.
+- **Annahme Push (14.10.2026):** Commits bleiben lokal, bis der Auftraggeber „Git-Push“ sagt; das Statusboard ist der Stand.
 
 ### Sammelentscheidung 13.10.2026
 ✅ Der Auftraggeber hat angewiesen, zu allen offenen Punkten („bitte abnehmen“) erst einmal die Einschätzung
