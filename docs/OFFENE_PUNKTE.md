@@ -2707,3 +2707,24 @@ angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit d
 - Noch offen (große Teile, eigene Meilensteine nötig): Fallarten der Abteilung und Stellungnahme der Leitung (§9.1),
   Analysten je Branche (§9.2), Strategieklausur (§9.3), zwei Trefferquoten (§9.4), Konkurrenzbeobachtung/Abwehr (§9.5).
   Vorschlag: nach PD1–PD10 angehen, weil sie die Zentralabteilungen insgesamt berühren.
+
+### PD1: Entwurf der Umsetzung (14.10.2026, vor Beginn des Codes)
+Bestand: Labore sind Anlagen eines Forschungszentrums; ihre „Forscherstellen“ (`labs::posts`, voll ausgelastet 20 je Lauf)
+werden über `production::needed_workers` automatisch mit Akademikern der Fachrichtung besetzt (Arbeitsmarkt, Löhne,
+Abwerbung inklusive). Die Forschung (`research.rs`) rechnet `Forscher = Belegschaft der Gruppe · Anteil`.
+🟡 Vorschlag für PD1 (so klein, dass das Spiel in jedem Commit lauffähig bleibt):
+- **Personal als Zustand:** `Site.lab_staff` (je Rolle Zahl: Produktmanager, Entwickler, Fertigungsplaner, Laborpersonal),
+  Befehle `HireLabStaff` / `DismissLabStaff {site, role, count}`; Obergrenze = Arbeitsplätze des Forschungszentrums
+  (Summe der Läufe der laufenden Labore). Rollen, Forschungsgewicht je Rolle und Lohngruppe stehen in
+  `forschungsmodell.yaml` (`labor:`); ohne den Block bleibt das alte Verhalten (Test-Kataloge, ältere Daten).
+- **Wirkung bis PD2:** Die Forscherstellen werden mit dem Anteil `Forschungsgewicht der Eingestellten / Arbeitsplätze`
+  skaliert (`labs::posts`); alle Eingestellten kosten Lohn (Gruppe des Projekts, sonst erste Forschergruppe), auch ohne
+  Nutzen („Unverplantes Personal kostet Gehalt“). Bestehende Labore starten leer, die KI stellt nach denselben Befehlen
+  bis zur Auslastung ein (Entwickler zuerst).
+- **Projektleiter als Person:** erst mit PD2 (sie brauchen Projekte). Sie werden dann `Manager` mit einer Stelle
+  „Projektleitung“ am Forschungszentrum (Alter, Charakter, Branchenstärke, Bilanz wie die übrigen Manager).
+- **Alte Spielstände:** Formatversion erhöhen, Laden alter Stände mit Textschlüssel `fehler.spielstand.zu_alt`.
+- **Oberfläche:** Block „Laborpersonal“ in der Werksansicht des Forschungszentrums (je Rolle +/−, Auslastung der
+  Arbeitsplätze, Monatskosten).
+Offene Frage an den Auftraggeber (ändert das Ergebnis): Soll die Forschung bis PD2 mit dem eingestellten Personal weiterlaufen
+(Vorschlag, wie oben) oder bis zum Abschluss von PD2 ganz ruhen?
