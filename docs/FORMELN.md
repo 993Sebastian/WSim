@@ -6253,3 +6253,36 @@ das Forschungsgewicht g_r (0–1). Die Projektleiter kommen mit den Projekten (P
   Forschergruppe zusätzlich vorgehalten und forscht nicht (`lab_staff::researchers`).
 - KI: stellt Entwickler bis zur Auslastung der Arbeitsplätze ein, über denselben Befehl.
 - Bestehende Labore starten leer; ältere Spielstände behalten ihr Verhalten nicht (Personal fehlt, Forschung ruht, bis eingestellt wird).
+
+## PD2 – Neuentwicklung PM0–PM7 (14.10.2026, Entwurf zur Abnahme)
+Ersetzt „Produkt erforschen“ (Q6/FW) durch Projekte. Alle Zahlen sind Parameter in `entwicklungsmodell.yaml` (vorläufig,
+`docs/OFFENE_PUNKTE.md` PD). Die Technologien bleiben als Bausteine (Aufwand, Erfindungsjahr, Patente) erhalten.
+- **Projektumfang:** Für Produkt p fehlen der Firma die Technologien T_p (`recipe_missing`). Aufwandspunkte W = Σ `effort(t)` über
+  T_p (bisherige Forschungswerte, mit Vorsprungs- und Nachzüglerfaktor). Grundprodukte der Branche und Produkte mit T_p = ∅
+  brauchen kein Projekt. Kosten K₀ = W · c_pkt, Dauer D₀ = W / r_ref (r_ref = Punkte je Tag bei Referenzbesetzung).
+- **Phasen:** Anteile an K₀ und D₀ je Abschnitt (a_k, d_k): PM0→1 5 %/10 %, 1→2 10 %/10 %, 2→3 10 %/10 %, PM4 Gate, 4→5 30 %/30 %,
+  5→6 25 %/25 %, 6→7 15 %/15 %. Hauptbudget bei PM4 = Summe der Anteile danach (70 %); frühere Kosten sind Vorlauf.
+- **Tempo** (PM0): Faktoren auf Dauer, Kosten und Basisrisiko: gründlich (1,25 / 1,10 / 0,70), normal (1 / 1 / 1),
+  beschleunigt (0,80 / 1,15 / 1,50). **Zielausstattung:** Basis / Standard / Premium wirkt auf Kosten (0,8 / 1 / 1,35) und
+  Zielqualität (−10 % / 0 / +10 %, vorläufig).
+- **Personalbedarf** je Rolle r und Abschnitt k: N_{r,k} = ⌈ν_{r,k} · (W / W_ref)^β⌉, ν aus den Daten (Schwerpunkte laut
+  Vorgabe §1: Produktmanager PM0–1/7, Entwickler PM2–6, Fertigungsplaner PM5–7, Laborpersonal PM3/6; Projektleiter genau 1).
+- **Besetzung** q_{r,k} = zugewiesen / N_{r,k}. Wirkung auf die Geschwindigkeit des Abschnitts (Wirkung der Rolle ω_{r,k}, Σ ω = 1):
+  g(q) = q für q ≤ 1; g(q) = 1 + ü_max · (1 − e^{−(q−1)/τ}) für q > 1, mit ü_max = 0,30 (Überbesetzung höchstens 30 %
+  schneller). Tempo des Abschnitts v_k = Σ_r ω_{r,k} · g(q_{r,k}) · (1 + Erfahrung_r · e_r), Dauer D_k = D₀ d_k / (v_k · tempo).
+  Eine Rolle ohne Personal (q = 0) lässt den Abschnitt nur mit dem Restanteil ω₀ laufen (nie Stillstand durch eine Rolle allein).
+- **Risiko** je Abschnitt: p_k = p₀ · Tempo_Risiko · (1 + κ · (1 − min(1, q̄_k))) · (1 − ρ · Erfahrung_PL) · (1 − σ · Branchenstärke)
+  · (1 − λ · Budgetpuffer) · (1 + φ · [Fast-Track]); die Ereignisse selbst kommen mit PD4, hier nur der Zähler.
+- **Kosten laufend:** Pro Tag Kosten_k = K₀ a_k / D_k (steigt bei kürzerer Dauer nicht: bei Überbesetzung zählen die
+  Lohnkosten des Personals, die Projektkosten bleiben K₀ a_k); gebucht als Forschungsaufwand (Konto/Kostenstelle des Labors).
+- **Szenarien** (PL, immer): (0) nach Bedarf, (+n) je Rolle, (−n) je Rolle: dieselbe Formel mit q' = (zugewiesen ± n) / N; Ausgabe
+  Dauer, Risiko, Kennzahlenabschlag. Reine Sicht, ändert nichts.
+- **Kennzahlenabschlag** bei Unterbesetzung: Qualität, Inputmengen, Startausschuss, Rate des Bereichs der Rolle sinken um
+  χ · (1 − q) (höchstens 25 %, vorläufig) und streuen bei PM6 um ε ∈ [−0,10; +0,10] · s (s sinkt mit Besetzung, PL und
+  Branchenstärke); Zufall nur über den Entwicklungsstrom der Firma.
+- **PM5 Komponenten:** je Vorprodukt „herstellbar / am Markt / fehlt“; Optionen Zukauf (Preis · 1,25), Ersatz (−Qualität),
+  Nachentwicklung (+Dauer/Kosten). **PM7:** Freigabe wirkt wie bisher der Erwerb der Technologien (`inventions`, Patente,
+  Produktname M42) und setzt Startbekanntheit aus Produktmanager-Besetzung.
+- **Zuständige Stelle** (Schnittstelle für PD11): `Decider = Player | ProjectLead`; Standard-Delegation wie Vorgabe §7.
+- **KI:** startet Projekte nach demselben Wert wie L1 (Wert des offenen Bedarfs), wählt Tempo „normal“, besetzt über
+  `HireLabStaff`, entscheidet Gates mit der PL-Empfehlung; keine verdeckten Werte.
