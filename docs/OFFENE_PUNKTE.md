@@ -2698,4 +2698,4 @@ angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit d
   alte Spielstände und Aufträge unverändert gelten. Vorschlag: bei Gelegenheit zusammenführen.
 - Noch offen: Spalten je Land in der Matrix (der Kern kennt Länderzellen, die Oberfläche lässt sie unberührt),
   Kennzahlen je Zelle, Zeile „Aktiv in: …“ auf den Managerkarten, Freigabe-Vorschläge der Manager (§10.5),
-  Schalter „gilt auch für Beteiligungen“, Szenario-/Leistungstests §10.6 (bisher: Auflösung und Prüfung der Zellen).
+  Schalter „gilt auch für Beteiligungen“, Leistungstest §10.6. Szenariotests vorhanden: Auflösung/Prüfung der Zellen und „nur halten/gesperrt hält zurück, mit Rückfrage fragt trotz Budget“.

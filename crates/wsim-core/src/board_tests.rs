@@ -1212,3 +1212,58 @@ fn the_branch_release_resolves_from_special_to_general_and_is_checked() {
         );
     }
 }
+
+#[test]
+fn a_held_branch_keeps_the_expansion_back_and_one_with_a_query_asks() {
+    let mut game = new_game(cheap_furnaces());
+    let player = game.player();
+    let (_, works) = mine_and_works(&mut game);
+    hire_sharp(&mut game, head(works));
+    hire_sharp(&mut game, ceo());
+    let c = game.catalog().clone();
+    let mut build = Decision::new(
+        Topic::Expansion,
+        player,
+        Choice {
+            kind: ChoiceKind::Build,
+            steps: Vec::new(),
+        }
+        .then(
+            Command::BuildFacility {
+                site: works,
+                facility: c.facilities.id("ofen").unwrap(),
+                count: 1,
+                size: crate::catalog::FacilitySize::Medium,
+            },
+            true,
+        ),
+    )
+    .at(works);
+    build.choices.truncate(1);
+    let with = |game: &mut Game, stage| {
+        // "All other branches" (a decision without a product) at the company.
+        let mandate = Mandate {
+            release: vec![ReleaseCell {
+                scope: ReleaseScope::Company,
+                branch: None,
+                stage,
+            }],
+            ..Mandate::default()
+        };
+        game.apply(Command::SetMandate { mandate }).unwrap();
+        management::decide_now(game.state(), game.catalog(), &build)
+    };
+    let (verdict, _, _) = management::decide_now(game.state(), game.catalog(), &build);
+    assert_eq!(verdict, Verdict::Rule, "free by default");
+    let (verdict, concerns, _) = with(&mut game, ReleaseStage::Free);
+    assert_eq!(verdict, Verdict::Rule);
+    assert!(concerns.is_empty());
+    let (verdict, concerns, _) = with(&mut game, ReleaseStage::Hold);
+    assert_eq!(verdict, Verdict::Hold);
+    assert!(concerns.is_empty(), "held back without a message");
+    let (verdict, concerns, _) = with(&mut game, ReleaseStage::Locked);
+    assert_eq!((verdict, concerns.len()), (Verdict::Hold, 0));
+    let (verdict, concerns, _) = with(&mut game, ReleaseStage::Ask);
+    assert_eq!(verdict, Verdict::Hold);
+    assert_eq!(concerns.len(), 1, "asked although the budget would do");
+}
