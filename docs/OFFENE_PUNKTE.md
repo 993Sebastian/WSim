@@ -2739,3 +2739,16 @@ Offene Frage an den Auftraggeber (ändert das Ergebnis): Soll die Forschung bis 
 ✅ Antwort des Auftraggebers 14.10.2026 zu PD1: **Weiterlaufen** – die Forschung läuft bis PD2 mit dem eingestellten
 Personal weiter. Klarstellung zu „Stopp“: Gemeint ist der Stopp *am Meilenstein ohne Freigabe* (ein Projekt läuft ohne
 Freigabe der Gate-Entscheidung nicht weiter, PD2/PD3), nicht ein Ruhen der Forschung insgesamt.
+
+### ZP: Zukunftsprodukte ab 2026 – Aufnahme der Vorgabe 14.10.2026
+Vorgabe: `docs/ZUKUNFTSPRODUKTE.md` (92 Produkte, 2027–2085, alle 17 Branchen). Umsetzung als Meilenstein ZP1 (`docs/FORTSCHRITT.md`).
+🟡 Getroffene Annahmen des Auftraggebers (bis auf Widerruf), unverändert übernommen:
+- Erfindungsjahr je Spiel zufällig verschoben (Nah ±2, Mittel ±5, Fern ±10 Jahre), für Spieler und KI gleich.
+- Erfindung wie bei historischen Produkten (Nachzügler-Rabatt danach; Herstellen nur nach eigener Forschung, Lizenz oder Start-up); Vorgriff-Kosten wie bisher.
+- Start-ups für neue Technologien auch nach 2026 (Sperre in BETEILIGUNGEN §5.2 entfällt); der Technologiestopp 2026 (Lastenheft §3, §6) fällt.
+- Alle drei Stufen (Nah/Mittel/Fern); Fern-Produkte mit `annaeherung: true`, Nachjustierung nach Testpartien.
+- Energie wird mit Wasserstoff, Methanol und E-Fuels ausgebaut; das Grundprodukt der Branche bleibt.
+- Preise, Anlagen und Nachfrage legt die Umsetzung als Annäherung nach dem Muster der bestehenden Ketten fest.
+🟡 Eigene Annahmen bei der Aufnahme:
+- Reihenfolge: ZP1 nach PD2/PD3, weil Zukunftsprodukte über Entwicklungsprojekte freigeschaltet werden (PD2 ersetzt „Produkt erforschen“).
+- Doppelungen mit seit dem 12.10.2026 ergänzten Produkten werden bei der Umsetzung gegen `data/` geprüft und markiert (Hinweis der Vorgabe).

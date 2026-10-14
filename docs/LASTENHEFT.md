@@ -484,6 +484,7 @@ Das Spiel wird in sechs Stufen umgesetzt; jede Stufe ist für sich spielbar, und
 3. **Kapitalmarkt:** Börse, Börsengänge, Investoren, Beteiligungen, Start-ups und Ausgründungen, Übernahmen, Insolvenzen, Anleihen; Spiel als reiner Investor oder als Bank (17.3).
 4. **Geschichte:** historische Ereignisse, Regulierung und Umwelt, Währungen und Wechselkurse.
 5. **Breite:** vollständige Produkt- und Technologiedaten bis 2026 (Ziel rund 500 Endprodukte über alle Epochen, Regeln nach 17.2), inklusive Elektronik, Luft- und Raumfahrt, Rüstung; reale Firmen mit Gründungsjahren; Patente und Lizenzen.
+   > Zukunftsprodukte ab 2026 (92 Produkte 2027–2085; der Technologiestopp 2026 aus §3 und §6 fällt): `docs/ZUKUNFTSPRODUKTE.md` (Wunsch vom 14.10.2026, Meilenstein ZP1).
 6. **Feinschliff:** zufällige Ereignisse ab 2027, Töne, Balancing, Leistungsoptimierung.
 
 ### 17.1 Produktionsketten in Stufe 1
