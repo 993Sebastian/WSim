@@ -2699,3 +2699,11 @@ angenommen, bleiben aber änderbar; nachgefragt wird nur, wenn eine Unklarheit d
 - Noch offen: Spalten je Land in der Matrix (der Kern kennt Länderzellen, die Oberfläche lässt sie unberührt),
   Kennzahlen je Zelle, Zeile „Aktiv in: …“ auf den Managerkarten, Freigabe-Vorschläge der Manager (§10.5),
   Schalter „gilt auch für Beteiligungen“, Leistungstest §10.6. Szenariotests vorhanden: Auflösung/Prüfung der Zellen und „nur halten/gesperrt hält zurück, mit Rückfrage fragt trotz Budget“.
+
+### MG9: Strategieabteilung als Denkstelle – Teil 1 (14.10.2026), bitte abnehmen
+- Umgesetzt: echte Arbeitslast der Strategieabteilung (FORMELN „MG9“, `zentrale.yaml` `strategie_last`: je Branche 0,5,
+  je Land 0,25, je Beteiligung 0,5; Annäherung). Sie wirkt auf Abdeckung/Wirkung des Spielers und auf die Größe
+  der KI-Abteilung (n = ⌈Last / Fälle⌉).
+- Noch offen (große Teile, eigene Meilensteine nötig): Fallarten der Abteilung und Stellungnahme der Leitung (§9.1),
+  Analysten je Branche (§9.2), Strategieklausur (§9.3), zwei Trefferquoten (§9.4), Konkurrenzbeobachtung/Abwehr (§9.5).
+  Vorschlag: nach PD1–PD10 angehen, weil sie die Zentralabteilungen insgesamt berühren.

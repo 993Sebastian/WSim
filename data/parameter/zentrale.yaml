@@ -57,4 +57,7 @@ zentrale:
     reihenfolge: [finanzen, marketing, personal, strategie, recht]
     mindestlast: {finanzen: 2, marketing: 2, personal: 10}
     sitz: {anteil_umsatz_min: 0.25, bip_anteil_min: 0.75, amortisation_jahre: 3, sperre_jahre: 10}
+  # Arbeitslast der Strategieabteilung (MG9): 1 + je Branche mit eigenen Werken + je Land mit
+  # eigenen Standorten + je laufender Beteiligung.
+  strategie_last: {je_branche: 0.5, je_land: 0.25, je_beteiligung: 0.5}
   annaeherung: true

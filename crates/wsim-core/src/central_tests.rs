@@ -3,7 +3,9 @@
 
 use crate::board_tests::{buyer_game, buyer_game_with, member, news};
 use crate::calendar::{Date, RoundLength};
-use crate::catalog::{Catalog, CentralAiModel, DepartmentKind, Span, test_support};
+use crate::catalog::{
+    Catalog, CentralAiModel, DepartmentKind, Span, StrategyLoadModel, test_support,
+};
 use crate::central;
 use crate::command::{Command, CommandError};
 use crate::deals::DealObject;
@@ -961,4 +963,33 @@ fn a_takeover_estimate_counts_by_what_the_object_is_worth_when_due() {
         appraisal: None,
     };
     assert!(central::judged_hit(&catalog, game.state(), &old));
+}
+
+#[test]
+fn the_strategy_workload_grows_with_what_the_company_is_in() {
+    let (game, _, _) = buyer_game(1_000.0);
+    let player = game.player();
+    let load = |c: &Catalog| central::workload(c, game.state(), player, DepartmentKind::Strategy);
+    let base = game.catalog().as_ref().clone();
+    assert_eq!(load(&base), 1.0, "without a model the base load");
+    let mut weighted = base.clone();
+    weighted.central.strategy_load = StrategyLoadModel {
+        per_branch: 1.0,
+        per_country: 10.0,
+        per_participation: 100.0,
+    };
+    let own = game
+        .state()
+        .sites
+        .iter()
+        .filter(|s| s.held_by(player))
+        .count();
+    assert!(own > 0);
+    // One branch, one country, no participation in this game.
+    assert_eq!(load(&weighted), 1.0 + 1.0 + 10.0);
+    // Other departments keep their loads.
+    assert_eq!(
+        central::workload(&weighted, game.state(), player, DepartmentKind::Legal),
+        1.0
+    );
 }

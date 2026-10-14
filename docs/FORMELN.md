@@ -6234,3 +6234,10 @@ Stufen `frei` < `mit Rückfrage` < `nur halten` < `gesperrt`; Geltungsbereiche K
   Werke laufen weiter (kein automatischer Rückzug). Der Spieler selbst darf weiter alles.
 - Zellen sind sortiert (Bereich, Ort, Branche; „übrige“ zuerst) und geprüft (Indizes, keine Doppel).
 - Die bisherigen gesperrten Warengruppen/Länder bleiben unverändert daneben bestehen.
+
+### MG9 – Arbeitslast der Strategieabteilung (14.10.2026, Teil 1)
+Last = 1 + `je_branche` · b + `je_land` · l + `je_beteiligung` · p mit b = Branchen der eigenen offenen Standorte,
+l = Länder der eigenen offenen Standorte, p = laufende Beteiligungen (Start-ups im Status „aktiv“ mit Anteil der Firma).
+Abdeckung und Wirkung der Abteilung folgen wie ZA2 (A = min(1, K / Last)); die KI richtet n = ⌈Last / Fälle⌉ Angestellte ein.
+Noch offen aus MANAGER_2 §9: Anstöße im Quartal in der Last, Verteilung der Angestellten auf Branchen (A_b), Fallarten und
+Stellungnahme der Leitung, Klausur, zwei Trefferquoten, Konkurrenzbeobachtung (OFFENE_PUNKTE MG9).

@@ -3,7 +3,7 @@
 
 use wsim_core::catalog::{
     Catalog, CentralAiModel, CentralModel, Department, DepartmentKind, HeadquartersModel,
-    HitRateModel, HqCityModel, RefinanceModel, Span,
+    HitRateModel, HqCityModel, RefinanceModel, Span, StrategyLoadModel,
 };
 use wsim_core::money::Money;
 
@@ -168,6 +168,20 @@ pub(super) fn central_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
             },
         }
     });
+    let strategy_load = c.strategy_load.as_ref().map_or_else(Default::default, |s| {
+        let sl = l.field("strategie_last");
+        StrategyLoadModel {
+            per_branch: in_range(ctx, s.per_branch, 0.0, 10.0, &sl.field("je_branche")),
+            per_country: in_range(ctx, s.per_country, 0.0, 10.0, &sl.field("je_land")),
+            per_participation: in_range(
+                ctx,
+                s.per_participation,
+                0.0,
+                10.0,
+                &sl.field("je_beteiligung"),
+            ),
+        }
+    });
     CentralModel {
         headquarters: HeadquartersModel {
             months: h.months,
@@ -185,6 +199,7 @@ pub(super) fn central_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
         hit_rate,
         ai,
         city,
+        strategy_load,
         provenance: provenance(c.approximation, c.source.as_ref()),
     }
 }

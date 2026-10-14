@@ -453,7 +453,19 @@ pub struct CentralModel {
     /// The city of the headquarters (W2); `None`: no limit by academics, offices at the
     /// price of the data.
     pub city: Option<HqCityModel>,
+    /// What the strategy department has to watch besides its base load (MG9).
+    pub strategy_load: StrategyLoadModel,
     pub provenance: Provenance,
+}
+
+/// The workload of the strategy department by what the company is in (MG9, docs/FORMELN.md):
+/// 1 + per branch · branches with own sites + per country · countries with own sites +
+/// per participation · running participations.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct StrategyLoadModel {
+    pub per_branch: f64,
+    pub per_country: f64,
+    pub per_participation: f64,
 }
 
 /// How the city of the headquarters limits and prices the central departments (W2).

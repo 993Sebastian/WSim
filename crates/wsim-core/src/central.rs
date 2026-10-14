@@ -231,11 +231,17 @@ pub fn head(
 }
 
 /// What a department has to work on in a month (docs/FORMELN.md, ZA2).
-pub fn workload(state: &GameState, company: CompanyId, kind: DepartmentKind) -> f64 {
+pub fn workload(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    kind: DepartmentKind,
+) -> f64 {
     let c = &state.companies[company.index()];
     // Small counts; the casts are exact.
     match kind {
-        DepartmentKind::Strategy | DepartmentKind::Legal => 1.0,
+        DepartmentKind::Legal => 1.0,
+        DepartmentKind::Strategy => strategy_load(catalog, state, company),
         DepartmentKind::Finance => c.loans.len() as f64 + 1.0,
         DepartmentKind::Personnel => state
             .managers
@@ -250,6 +256,34 @@ pub fn workload(state: &GameState, company: CompanyId, kind: DepartmentKind) -> 
                 + 1.0
         }
     }
+}
+
+/// The workload of the strategy department (MG9): the base load 1 plus what the company
+/// is in – its branches, its countries and its running participations.
+fn strategy_load(catalog: &Catalog, state: &GameState, company: CompanyId) -> f64 {
+    let m = &catalog.central.strategy_load;
+    let mut branches = std::collections::BTreeSet::new();
+    let mut countries = std::collections::BTreeSet::new();
+    for s in state.sites.iter().filter(|s| s.held_by(company)) {
+        countries.insert(s.country);
+        if let Some(b) = crate::branch_skill::site_branch(catalog, s) {
+            branches.insert(b);
+        }
+    }
+    let participations = state
+        .ventures
+        .iter()
+        .filter(|v| {
+            v.status == crate::state::VentureStatus::Active
+                && v.owners
+                    .iter()
+                    .any(|o| o.holder == crate::state::Holder::Company(company))
+        })
+        .count();
+    // Small counts; the casts are exact.
+    1.0 + m.per_branch * branches.len() as f64
+        + m.per_country * countries.len() as f64
+        + m.per_participation * participations as f64
 }
 
 /// What a department achieves (docs/FORMELN.md, ZA2).
@@ -281,7 +315,7 @@ pub fn performance(
     let function = &catalog.management.functions[d.function].key;
     let quality = f64::from(management::expertise(&state.managers[&head], function)) / 100.0;
     let capacity = f64::from(n) * d.cases;
-    let load = workload(state, company, kind);
+    let load = workload(catalog, state, company, kind);
     let coverage = if load > 0.0 {
         (capacity / load).min(1.0)
     } else {
@@ -949,7 +983,7 @@ pub fn ai_plan(
         let Some(d) = catalog.central.department(kind) else {
             continue;
         };
-        let load = workload(state, company, kind);
+        let load = workload(catalog, state, company, kind);
         if load < least || d.cases <= 0.0 {
             continue;
         }

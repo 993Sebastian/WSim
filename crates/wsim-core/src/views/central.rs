@@ -228,7 +228,7 @@ pub fn central(game: &Game) -> CentralView {
                 management::shown_level(value, impression)
             });
             let capacity = f64::from(staffed) * d.cases;
-            let workload = central::workload(state, player, kind);
+            let workload = central::workload(c, state, player, kind);
             let reach = match kind {
                 DepartmentKind::Strategy => central::observed_countries(c, state, player).len(),
                 DepartmentKind::Legal => central::legal_technologies(c, state, player).len(),

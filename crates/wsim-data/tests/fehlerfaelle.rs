@@ -3952,6 +3952,24 @@ fn staedte_werden_geprueft() {
         "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
     );
     assert_eq!(f.path.to_string(), "zentrale.stadt.anteil_zentralen");
+
+    // The workload of the strategy department (MG9).
+    let mit_last = ZENTRALE.replace(
+        "  annaeherung: true\n",
+        "  strategie_last: {je_branche: 0.5, je_land: 0.25, je_beteiligung: 0.5}\n  annaeherung: true\n",
+    );
+    let outcome = Daten::neu().datei(datei, &mit_last).laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let m = outcome.data.unwrap().catalog.central.strategy_load;
+    assert!((m.per_branch - 0.5).abs() < 1e-12 && (m.per_participation - 0.5).abs() < 1e-12);
+    let falsch = Daten::neu()
+        .datei(datei, &mit_last.replace("je_land: 0.25", "je_land: 11"))
+        .laden();
+    let f = befund(
+        &falsch,
+        "Wert 11 liegt außerhalb des erlaubten Bereichs 0 bis 10.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.strategie_last.je_land");
 }
 
 const ZOELLE: &str = "\

@@ -2975,10 +2975,24 @@ pub struct RawCentral {
     pub ai: Option<RawCentralAi>,
     #[serde(rename = "stadt", default)]
     pub city: Option<RawHqCity>,
+    #[serde(rename = "strategie_last", default)]
+    pub strategy_load: Option<RawStrategyLoad>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// The workload of the strategy department (MG9).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStrategyLoad {
+    #[serde(rename = "je_branche")]
+    pub per_branch: f64,
+    #[serde(rename = "je_land")]
+    pub per_country: f64,
+    #[serde(rename = "je_beteiligung")]
+    pub per_participation: f64,
 }
 
 /// The city of the headquarters (W2).
