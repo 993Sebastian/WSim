@@ -5976,32 +5976,7 @@ fn entwicklungsprojekte_werden_geprueft() {
     // Without the block products are researched as before.
     let data = Daten::neu().laden().data.unwrap();
     assert!(data.catalog.research_model.projects.is_none());
-    let phase = |id: &str, kosten: f64, dauer: f64| {
-        format!(
-            "      - id: {id}\n        kosten: {kosten}\n        dauer: {dauer}\n        rollen:\n          \
-             - {{id: entwickler, bedarf: 2, wirkung: 0.7}}\n          \
-             - {{id: laborpersonal, bedarf: 1, wirkung: 0.3}}\n"
-        )
-    };
-    let block = format!(
-        "  projekte:\n    punktekosten_usd: 100\n    referenzrate: 10\n    referenzaufwand: 1000\n    \
-         bedarf_exponent: 0.5\n    ueberbesetzung: {{maximum: 0.3, tau: 0.5}}\n    restanteil: 0.1\n    \
-         unterbesetzung: {{abschlag: 0.5, hoechstens: 0.25}}\n    streuung: 0.1\n    gate_kosten: 0.1\n    \
-         phasen:\n{}{}{}{}{}{}    tempo:\n      - {{id: gruendlich, dauer: 1.2, kosten: 1.1, risiko: 0.7}}\n      \
-         - {{id: normal, dauer: 1, kosten: 1, risiko: 1}}\n      \
-         - {{id: beschleunigt, dauer: 0.8, kosten: 1.2, risiko: 1.5}}\n    ausstattung:\n      \
-         - {{id: basis, kosten: 0.8, qualitaet: -0.1}}\n      - {{id: standard, kosten: 1, qualitaet: 0}}\n      \
-         - {{id: premium, kosten: 1.3, qualitaet: 0.1}}\n    projektleiter:\n      gehalt_usd_jahr: 90000\n      \
-         kapazitaet_neu: 1\n      kapazitaet_weiter: 2\n      kandidaten: 4\n      erfahrung_je_projekt: 0.1\n      alter_min: 30\n      \
-         alter_max: 60\n      charaktere: [optimistisch, vorsichtig]\n    risiko:\n      basis: 0.02\n      \
-         unterbesetzung: 1.5\n      erfahrung: 0.4\n      branche: 0.3\n      puffer: 0.5\n      fast_track: 1\n",
-        phase("pm0_pm1", 0.1, 0.1),
-        phase("pm1_pm2", 0.1, 0.1),
-        phase("pm2_pm3", 0.1, 0.1),
-        phase("pm4_pm5", 0.3, 0.3),
-        phase("pm5_pm6", 0.2, 0.2),
-        phase("pm6_pm7", 0.1, 0.2),
-    );
+    let block = projekt_block();
     let mit = |neu: &str| {
         Daten::neu().ersetze(
             datei,
@@ -6038,4 +6013,111 @@ fn entwicklungsprojekte_werden_geprueft() {
     befund(&falsch, "muss kleiner als");
     let falsch = mit(&block.replace("id: normal", "id: mittel")).laden();
     befund(&falsch, "muss „normal“ stehen");
+}
+
+/// The block `projekte` of the research model as the tests use it (PD2).
+fn projekt_block() -> String {
+    let phase = |id: &str, kosten: f64, dauer: f64| {
+        format!(
+            "      - id: {id}\n        kosten: {kosten}\n        dauer: {dauer}\n        rollen:\n          \
+             - {{id: entwickler, bedarf: 2, wirkung: 0.7}}\n          \
+             - {{id: laborpersonal, bedarf: 1, wirkung: 0.3}}\n"
+        )
+    };
+    format!(
+        "  projekte:\n    punktekosten_usd: 100\n    referenzrate: 10\n    referenzaufwand: 1000\n    \
+         bedarf_exponent: 0.5\n    ueberbesetzung: {{maximum: 0.3, tau: 0.5}}\n    restanteil: 0.1\n    \
+         unterbesetzung: {{abschlag: 0.5, hoechstens: 0.25}}\n    streuung: 0.1\n    gate_kosten: 0.1\n    \
+         phasen:\n{}{}{}{}{}{}    tempo:\n      - {{id: gruendlich, dauer: 1.2, kosten: 1.1, risiko: 0.7}}\n      \
+         - {{id: normal, dauer: 1, kosten: 1, risiko: 1}}\n      \
+         - {{id: beschleunigt, dauer: 0.8, kosten: 1.2, risiko: 1.5}}\n    ausstattung:\n      \
+         - {{id: basis, kosten: 0.8, qualitaet: -0.1}}\n      - {{id: standard, kosten: 1, qualitaet: 0}}\n      \
+         - {{id: premium, kosten: 1.3, qualitaet: 0.1}}\n    projektleiter:\n      gehalt_usd_jahr: 90000\n      \
+         kapazitaet_neu: 1\n      kapazitaet_weiter: 2\n      kandidaten: 4\n      erfahrung_je_projekt: 0.1\n      alter_min: 30\n      \
+         alter_max: 60\n      charaktere: [optimistisch, vorsichtig]\n    risiko:\n      basis: 0.02\n      \
+         unterbesetzung: 1.5\n      erfahrung: 0.4\n      branche: 0.3\n      puffer: 0.5\n      fast_track: 1\n",
+        phase("pm0_pm1", 0.1, 0.1),
+        phase("pm1_pm2", 0.1, 0.1),
+        phase("pm2_pm3", 0.1, 0.1),
+        phase("pm4_pm5", 0.3, 0.3),
+        phase("pm5_pm6", 0.2, 0.2),
+        phase("pm6_pm7", 0.1, 0.2),
+    )
+}
+
+#[test]
+fn projektberichte_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let berichte = "    berichte:\n      lebenszyklus_jahre: 10\n      absatzanteil: 0.15\n      \
+         anlagen_ohne_nachfrage: 1\n      auslastung: 0.85\n      unschaerfe: 0.3\n      \
+         genauigkeit_je_pm: 0.6\n      charaktere:\n        optimistisch: {optimismus: 0.2, weg: innovativ}\n        \
+         vorsichtig: {optimismus: -0.1, weg: bewaehrt}\n      ampel:\n        termin: {gelb: 0.1, rot: 0.25}\n        \
+         budget: {gelb: 0.1, rot: 0.25}\n        qualitaet: {gelb: 0.05, rot: 0.15}\n        risiko: {gelb: 0.15, rot: 0.3}\n      \
+         amortisation_max_jahre: 12\n      auflagen_risiko: 0.15\n    entscheidung:\n      spieler_bei: [2, 4, 6, 7]\n      \
+         frist_tage: 7\n    profile:\n      - {id: kosten, kosten: 0.9, dauer: 1, risiko: 1, qualitaet: -0.05}\n      \
+         - {id: ausgewogen, kosten: 1, dauer: 1, risiko: 1, qualitaet: 0}\n      \
+         - {id: qualitaet, kosten: 1.15, dauer: 1.1, risiko: 1, qualitaet: 0.08}\n    loesungswege:\n      \
+         - {id: bewaehrt, kosten: 0.95, dauer: 0.95, risiko: 0.7, qualitaet: -0.03}\n      \
+         - {id: standard, kosten: 1, dauer: 1, risiko: 1, qualitaet: 0}\n      \
+         - {id: innovativ, kosten: 1.2, dauer: 1.1, risiko: 1.5, qualitaet: 0.1}\n";
+    let block = format!("{}{berichte}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap();
+    let r = m.reports.expect("reports");
+    assert_eq!((r.profiles.len(), r.paths.len(), r.traits.len()), (3, 3, 2));
+    assert_eq!(r.traits[0].path, 2);
+    assert_eq!(r.player_at, vec![2, 4, 6, 7]);
+
+    // Without the report blocks the milestones pass by themselves.
+    let alt = mit(&projekt_block()).laden();
+    assert!(
+        alt.data
+            .unwrap()
+            .catalog
+            .research_model
+            .projects
+            .unwrap()
+            .reports
+            .is_none()
+    );
+    // Reports without a decision are an error.
+    let falsch = mit(&block.replace(
+        "    entscheidung:\n      spieler_bei: [2, 4, 6, 7]\n      frist_tage: 7\n",
+        "",
+    ))
+    .laden();
+    befund(&falsch, "Berichte und Entscheidung gehören zusammen");
+    let falsch = mit(&block.replace(
+        "        vorsichtig: {optimismus: -0.1, weg: bewaehrt}\n",
+        "",
+    ))
+    .laden();
+    befund(&falsch, "Für den Charakter „vorsichtig“");
+    let falsch = mit(&block.replace("weg: bewaehrt", "weg: genial")).laden();
+    befund(&falsch, "„genial“ ist kein Lösungsweg");
+    let falsch = mit(&block.replace(
+        "gelb: 0.1, rot: 0.25}\n        budget",
+        "gelb: 0.3, rot: 0.25}\n        budget",
+    ))
+    .laden();
+    befund(&falsch, "muss kleiner als");
+    let falsch = mit(&block.replace("spieler_bei: [2, 4, 6, 7]", "spieler_bei: [2, 9]")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("id: ausgewogen", "id: mittel")).laden();
+    befund(&falsch, "muss „ausgewogen“ stehen");
 }

@@ -3,11 +3,11 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LabRole, LabStaffModel, LearningModel,
-    MaintenanceModel, OperationsModel, PatentModel, PhaseRole, ProductionModel, ProjectLeadModel,
-    ProjectModel, ProjectPhase, ProjectRiskModel, ProjectTempo, ProjectTrim, ResearchModel,
-    SiteType, SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel,
-    Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LabRole, LabStaffModel, LeadTrait,
+    LearningModel, Light, MaintenanceModel, OperationsModel, PatentModel, PhaseRole,
+    ProductionModel, ProjectChoice, ProjectLeadModel, ProjectModel, ProjectPhase,
+    ProjectReportModel, ProjectRiskModel, ProjectTempo, ProjectTrim, ResearchModel, SiteType,
+    SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -18,8 +18,8 @@ use super::{
 };
 use crate::messages;
 use crate::raw::{
-    RawFacilitySizes, RawLabStaff, RawLimits, RawPatents, RawProductDevelopment,
-    RawProductionModel, RawProjectModel, RawSeries, RawVehicle, RawWay,
+    RawFacilitySizes, RawLabStaff, RawLight, RawLimits, RawPatents, RawProductDevelopment,
+    RawProductionModel, RawProjectChoice, RawProjectModel, RawSeries, RawVehicle, RawWay,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -1842,7 +1842,127 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
                 &l.field("risiko").field("fast_track"),
             ),
         },
+        reports: project_reports(ctx, p, l),
     }
+}
+
+const PROJECT_PROFILES: [&str; 3] = ["kosten", "ausgewogen", "qualitaet"];
+const PROJECT_PATHS: [&str; 3] = ["bewaehrt", "standard", "innovativ"];
+
+/// Milestone reports and decisions (PD3): the traffic lights, the leader's traits, the
+/// delegation and the choices at PM1 and PM2. All four blocks belong together.
+fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<ProjectReportModel> {
+    let (Some(r), Some(d)) = (p.reports.as_ref(), p.decision.as_ref()) else {
+        if p.reports.is_some() || p.decision.is_some() {
+            ctx.error(&l.field("berichte"), messages::project_reports_incomplete());
+        }
+        return None;
+    };
+    let rl = l.field("berichte");
+    let choices = |ctx: &mut Ctx, raw: &[RawProjectChoice], keys: &[&str], at: &Loc| {
+        let mut out = Vec::new();
+        for (i, key) in keys.iter().enumerate() {
+            let cl = at.index(i);
+            let Some(c) = raw.get(i) else {
+                ctx.error(at, messages::project_choice_missing(key));
+                continue;
+            };
+            if c.id != *key {
+                ctx.error(&cl.field("id"), messages::project_phase_order(&c.id, key));
+            }
+            out.push(ProjectChoice {
+                key: c.id.clone(),
+                cost: positive(ctx, c.cost, &cl.field("kosten")),
+                time: positive(ctx, c.time, &cl.field("dauer")),
+                risk: positive(ctx, c.risk, &cl.field("risiko")),
+                quality: in_range(ctx, c.quality, -0.5, 0.5, &cl.field("qualitaet")),
+            });
+        }
+        out
+    };
+    let profiles = choices(ctx, &p.profiles, &PROJECT_PROFILES, &l.field("profile"));
+    let paths = choices(ctx, &p.paths, &PROJECT_PATHS, &l.field("loesungswege"));
+    let mut traits = Vec::new();
+    for key in &p.lead.characters {
+        let tl = rl.field("charaktere").field(key);
+        let Some(t) = r.characters.get(key) else {
+            ctx.error(
+                &rl.field("charaktere"),
+                messages::project_character_missing(key),
+            );
+            continue;
+        };
+        let path = PROJECT_PATHS.iter().position(|x| *x == t.path);
+        if path.is_none() {
+            ctx.error(&tl.field("weg"), messages::project_path_unknown(&t.path));
+        }
+        traits.push(LeadTrait {
+            optimism: in_range(ctx, t.optimism, -0.9, 0.9, &tl.field("optimismus")),
+            path: path.unwrap_or(1),
+        });
+    }
+    for key in r.characters.keys() {
+        if !p.lead.characters.contains(key) {
+            ctx.error(
+                &rl.field("charaktere").field(key),
+                messages::project_character_unused(key),
+            );
+        }
+    }
+    let light = |ctx: &mut Ctx, v: &RawLight, at: &Loc| {
+        let yellow = non_negative(ctx, v.yellow, &at.field("gelb"));
+        let red = non_negative(ctx, v.red, &at.field("rot"));
+        if red <= yellow {
+            ctx.error(at, messages::range_inverted("gelb", "rot"));
+        }
+        Light { yellow, red }
+    };
+    let ll = rl.field("ampel");
+    let lights = [
+        light(ctx, &r.lights.schedule, &ll.field("termin")),
+        light(ctx, &r.lights.budget, &ll.field("budget")),
+        light(ctx, &r.lights.quality, &ll.field("qualitaet")),
+        light(ctx, &r.lights.risk, &ll.field("risiko")),
+    ];
+    let dl = l.field("entscheidung");
+    for &m in &d.player_at {
+        if !(1..=7).contains(&m) {
+            ctx.error(
+                &dl.field("spieler_bei"),
+                messages::out_of_range(f64::from(m), 1.0, 7.0),
+            );
+        }
+    }
+    Some(ProjectReportModel {
+        lifecycle_years: positive(ctx, r.lifecycle_years, &rl.field("lebenszyklus_jahre")),
+        capture_share: in_range(ctx, r.capture_share, 0.0, 1.0, &rl.field("absatzanteil")),
+        plants_without_demand: non_negative(
+            ctx,
+            r.plants_without_demand,
+            &rl.field("anlagen_ohne_nachfrage"),
+        ),
+        utilization: in_range(ctx, r.utilization, 0.01, 1.0, &rl.field("auslastung")),
+        uncertainty: in_range(ctx, r.uncertainty, 0.0, 0.9, &rl.field("unschaerfe")),
+        accuracy_per_pm: in_range(
+            ctx,
+            r.accuracy_per_pm,
+            0.0,
+            1.0,
+            &rl.field("genauigkeit_je_pm"),
+        ),
+        traits,
+        lights,
+        payback_max_years: positive(
+            ctx,
+            r.payback_max_years,
+            &rl.field("amortisation_max_jahre"),
+        ),
+        conditions_risk: non_negative(ctx, r.conditions_risk, &rl.field("auflagen_risiko")),
+        player_at: d.player_at.clone(),
+        deadline_days: d.deadline_days,
+        profiles,
+        paths,
+    })
 }
 
 /// Patents (P7): term, filing period, cost per country, AI filing.

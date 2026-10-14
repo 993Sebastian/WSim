@@ -1406,6 +1406,95 @@ pub struct RawProjectModel {
     pub lead: RawProjectLead,
     #[serde(rename = "risiko")]
     pub risk: RawProjectRisk,
+    /// Milestone reports and decisions (PD3); without them the milestones pass by themselves.
+    #[serde(rename = "berichte", default)]
+    pub reports: Option<RawProjectReports>,
+    #[serde(rename = "entscheidung", default)]
+    pub decision: Option<RawProjectDecision>,
+    #[serde(rename = "profile", default)]
+    pub profiles: Vec<RawProjectChoice>,
+    #[serde(rename = "loesungswege", default)]
+    pub paths: Vec<RawProjectChoice>,
+}
+
+/// Report figures, traffic lights and the leader's traits (PD3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectReports {
+    #[serde(rename = "lebenszyklus_jahre")]
+    pub lifecycle_years: f64,
+    #[serde(rename = "absatzanteil")]
+    pub capture_share: f64,
+    #[serde(rename = "anlagen_ohne_nachfrage")]
+    pub plants_without_demand: f64,
+    #[serde(rename = "auslastung")]
+    pub utilization: f64,
+    #[serde(rename = "unschaerfe")]
+    pub uncertainty: f64,
+    #[serde(rename = "genauigkeit_je_pm")]
+    pub accuracy_per_pm: f64,
+    #[serde(rename = "charaktere")]
+    pub characters: std::collections::BTreeMap<String, RawLeadTrait>,
+    #[serde(rename = "ampel")]
+    pub lights: RawLights,
+    #[serde(rename = "amortisation_max_jahre")]
+    pub payback_max_years: f64,
+    #[serde(rename = "auflagen_risiko")]
+    pub conditions_risk: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLeadTrait {
+    #[serde(rename = "optimismus")]
+    pub optimism: f64,
+    #[serde(rename = "weg")]
+    pub path: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLights {
+    #[serde(rename = "termin")]
+    pub schedule: RawLight,
+    #[serde(rename = "budget")]
+    pub budget: RawLight,
+    #[serde(rename = "qualitaet")]
+    pub quality: RawLight,
+    #[serde(rename = "risiko")]
+    pub risk: RawLight,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLight {
+    #[serde(rename = "gelb")]
+    pub yellow: f64,
+    #[serde(rename = "rot")]
+    pub red: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectDecision {
+    #[serde(rename = "spieler_bei")]
+    pub player_at: Vec<u8>,
+    #[serde(rename = "frist_tage")]
+    pub deadline_days: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectChoice {
+    pub id: String,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "dauer")]
+    pub time: f64,
+    #[serde(rename = "risiko")]
+    pub risk: f64,
+    #[serde(rename = "qualitaet")]
+    pub quality: f64,
 }
 
 #[derive(Debug, Deserialize)]

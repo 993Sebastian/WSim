@@ -1474,6 +1474,56 @@ pub struct ProjectModel {
     pub trims: Vec<ProjectTrim>,
     pub lead: ProjectLeadModel,
     pub risk: ProjectRiskModel,
+    /// Milestone reports and decisions (PD3); `None`: the milestones pass by themselves.
+    pub reports: Option<ProjectReportModel>,
+}
+
+/// Milestone reports, traffic lights, decisions and choices (PD3, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectReportModel {
+    pub lifecycle_years: f64,
+    /// Share of the open demand a newcomer reaches.
+    pub capture_share: f64,
+    /// Without open demand: this many plants sell at `utilization`.
+    pub plants_without_demand: f64,
+    pub utilization: f64,
+    /// Largest spread of the forecast (no product managers) and how much their staffing takes.
+    pub uncertainty: f64,
+    pub accuracy_per_pm: f64,
+    /// Per character of `lead.characters`: optimism of the forecast and preferred path.
+    pub traits: Vec<LeadTrait>,
+    /// Traffic lights: schedule, budget, quality, risk.
+    pub lights: [Light; 4],
+    pub payback_max_years: f64,
+    pub conditions_risk: f64,
+    /// Milestones where the player decides under the standard delegation.
+    pub player_at: Vec<u8>,
+    pub deadline_days: u32,
+    /// Target profiles (PM1) and solution paths (PM2).
+    pub profiles: Vec<ProjectChoice>,
+    pub paths: Vec<ProjectChoice>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct LeadTrait {
+    pub optimism: f64,
+    /// Index into the paths.
+    pub path: usize,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Light {
+    pub yellow: f64,
+    pub red: f64,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectChoice {
+    pub key: String,
+    pub cost: f64,
+    pub time: f64,
+    pub risk: f64,
+    pub quality: f64,
 }
 
 #[derive(Clone, Debug, PartialEq)]

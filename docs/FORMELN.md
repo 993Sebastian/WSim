@@ -6286,3 +6286,31 @@ Ersetzt „Produkt erforschen“ (Q6/FW) durch Projekte. Alle Zahlen sind Parame
 - **Zuständige Stelle** (Schnittstelle für PD11): `Decider = Player | ProjectLead`; Standard-Delegation wie Vorgabe §7.
 - **KI:** startet Projekte nach demselben Wert wie L1 (Wert des offenen Bedarfs), wählt Tempo „normal“, besetzt über
   `HireLabStaff`, entscheidet Gates mit der PL-Empfehlung; keine verdeckten Werte.
+
+## PD3 – Meilensteinberichte, Entscheidungen, Delegation (14.10.2026, Entwurf zur Abnahme)
+Vorgabe `docs/PRODUKTENTWICKLUNG.md` §4 und §7. Parameter in `forschungsmodell.yaml` (`projekte.berichte`, `entscheidung`, `profile`,
+`loesungswege`), alle vorläufig (`docs/OFFENE_PUNKTE.md` PD).
+- **Meilenstein:** Am Ende einer Phase entsteht ein Bericht (PM1, PM2, PM3, PM5, PM6, PM7; nach Phase PM2→PM3 folgt sofort das Gate PM4).
+  Danach wird entschieden; bis dahin ruht das Projekt.
+- **Kennzahlen K** (immer dieselben, bei PM2 als **Baseline** eingefroren): Herstellkosten je Stück c (`health::unit_cost` der Hauptrezeptur im
+  Land des Labors bei normaler Auslastung, Vorprodukte zu Marktpreisen), Preis p (Marktpreis dort), Absatz V je Jahr = a · Σ offene
+  Nachfrage aller Länder · 365 (a = `absatzanteil`; ohne offene Nachfrage: eine Anlage zu `auslastung` ausgelastet), Umsatz U = V · p, Lebenszyklus-
+  umsatz = U · `lebenszyklus_jahre`, Deckungsbeitrag D = V · (p − c), Anlagenbedarf n = ⌈V / (Ausstoß einer Anlage je Jahr)⌉ und Investition
+  I = n · Anlagenpreis, Projektaufwand (Kosten, Dauer, Personal = größter Bedarf je Phase), Amortisation T = (Projektkosten + I) / D.
+- **Prognose:** Berichte zeigen K̃ = K · (1 + b) für Umsatz, Deckungsbeitrag und Absatz und K · (1 − b/2) für Kosten, mit b = Optimismus des
+  Charakters des PL + σ · u. σ = `unschaerfe` · (1 − `genauigkeit_je_pm` · min(1, q_PM)) (q_PM = Besetzung der Produktmanager), u ∈ [−1, 1] aus
+  dem Strom `ProjectReport` (Projekt, Meilenstein). Die ungeschönten Werte K bleiben im Projekt (Nachkalkulation PD6, Anzeige nie).
+- **Review (PM4, PM6):** je Kennzahl Wert bei PM2, aktueller Wert, Abweichung (K̃ − Baseline) / Baseline; **Ursachen** (Schlüssel), wenn der
+  Treiber sich um mehr als 2 % bewegt hat: Marktpreis, Herstellkosten, Verzug, Unterbesetzung, Auflagen, gewählter Weg.
+- **Ampeln:** Termin: (Dauer bis PM7 geschätzt − Baseline) / Baseline; Budget: (ausgegeben + Restkosten − Baseline) / Baseline; Qualität:
+  Abschlag durch Unterbesetzung; Risiko: Chance eines Problems bis PM7. Grün unter `gelb`, gelb unter `rot`, sonst rot.
+- **Empfehlung des PL:** Abbruch, wenn T > `amortisation_max_jahre` und mindestens eine Ampel rot; Schleife, wenn Qualität rot und das Gate ab PM3 ist;
+  Auflagen, wenn Termin oder Budget rot und das Risiko nicht rot; sonst weiter. Ton nach Charakter (Textschlüssel `…<charakter>`).
+- **Entscheidungen:** weiter · mit Auflagen (Zähler a + 1, Risiko der folgenden Phasen · (1 + `auflagen_risiko` · a)) · Schleife (die eben
+  beendete Phase läuft erneut, Kosten fallen erneut an) · pausieren (bis `ResumeProject`) · abbrechen. PM1 wählt zusätzlich ein **Zielprofil**,
+  PM2 einen **Lösungsweg** (`profile`, `loesungswege`): Faktoren auf Kosten, Dauer, Risiko und Zielqualität.
+- **Delegation:** je Firma und je Projekt „alles vorlegen“ (Spieler bei PM1–PM7) · Standard (Spieler bei `spieler_bei` = PM2, PM4, PM6, PM7,
+  sonst der PL) · „PL entscheidet alles“. Der PL entscheidet nach seiner Empfehlung (Profil „ausgewogen“, Weg nach Charakter: optimistisch
+  innovativ, vorsichtig bewährt, sonst Standard). KI-Firmen entscheiden immer so. Eine unbeantwortete Entscheidung des Spielers entscheidet der PL nach
+  `frist_tage` mit seiner Empfehlung.
+- **PM7:** „weiter“ gibt das Produkt frei (Technologien, Produkt, Erfahrung des PL); „mit Auflagen“ gibt mit Auflage frei (Zähler für PD4).

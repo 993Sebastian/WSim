@@ -916,3 +916,21 @@ pub fn project_choice_missing(key: &str) -> String {
 pub fn project_no_characters() -> String {
     "Mindestens ein Charakter für Projektleiter ist nötig.".into()
 }
+
+pub fn project_reports_incomplete() -> String {
+    "Berichte und Entscheidung gehören zusammen: Es fehlt „berichte“ oder „entscheidung“.".into()
+}
+
+pub fn project_character_missing(key: &str) -> String {
+    format!(
+        "Für den Charakter „{key}“ der Projektleiter fehlen Optimismus und Weg unter „berichte.charaktere“."
+    )
+}
+
+pub fn project_character_unused(key: &str) -> String {
+    format!("„{key}“ ist kein Charakter der Projektleiter (siehe „projektleiter.charaktere“).")
+}
+
+pub fn project_path_unknown(key: &str) -> String {
+    format!("„{key}“ ist kein Lösungsweg (bewaehrt, standard, innovativ).")
+}

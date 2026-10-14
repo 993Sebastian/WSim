@@ -102,6 +102,7 @@ fn model() -> ProjectModel {
             buffer: 0.5,
             fast_track: 1.0,
         },
+        reports: None,
     }
 }
 

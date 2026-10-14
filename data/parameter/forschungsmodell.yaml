@@ -116,6 +116,36 @@ forschungsmodell:
       alter_min: 32
       alter_max: 58
       charaktere: [optimistisch, vorsichtig, sachlich]
+    # Meilensteinberichte und Entscheidungen (PD3, docs/FORMELN.md PD3); alle Werte vorläufig.
+    berichte:
+      lebenszyklus_jahre: 10
+      absatzanteil: 0.15             # Anteil der offenen Nachfrage, den ein Neueinsteiger erreicht
+      anlagen_ohne_nachfrage: 1      # ohne offene Nachfrage: so viele Anlagen ausgelastet verkaufen
+      auslastung: 0.85
+      unschaerfe: 0.30               # größte Streuung der Prognose (ohne Produktmanager)
+      genauigkeit_je_pm: 0.60        # so viel der Unschärfe nimmt volle Besetzung der Produktmanager
+      charaktere:                    # Optimismus der Prognose und bevorzugter Lösungsweg des PL
+        optimistisch: {optimismus: 0.20, weg: innovativ}
+        vorsichtig: {optimismus: -0.10, weg: bewaehrt}
+        sachlich: {optimismus: 0.0, weg: standard}
+      ampel:
+        termin: {gelb: 0.10, rot: 0.25}
+        budget: {gelb: 0.10, rot: 0.25}
+        qualitaet: {gelb: 0.05, rot: 0.15}
+        risiko: {gelb: 0.15, rot: 0.30}
+      amortisation_max_jahre: 12     # darüber empfiehlt der PL bei roter Ampel den Abbruch
+      auflagen_risiko: 0.15          # Zuschlag auf das Risiko der Phasen je Auflage
+    entscheidung:
+      spieler_bei: [2, 4, 6, 7]      # Standard-Delegation: hier entscheidet der Spieler
+      frist_tage: 7                  # danach entscheidet der PL mit seiner Empfehlung
+    profile:                         # PM1 Zielprofil
+      - {id: kosten, kosten: 0.90, dauer: 1.00, risiko: 1.00, qualitaet: -0.05}
+      - {id: ausgewogen, kosten: 1.00, dauer: 1.00, risiko: 1.00, qualitaet: 0.0}
+      - {id: qualitaet, kosten: 1.15, dauer: 1.10, risiko: 1.00, qualitaet: 0.08}
+    loesungswege:                    # PM2 Lösungsweg
+      - {id: bewaehrt, kosten: 0.95, dauer: 0.95, risiko: 0.70, qualitaet: -0.03}
+      - {id: standard, kosten: 1.00, dauer: 1.00, risiko: 1.00, qualitaet: 0.0}
+      - {id: innovativ, kosten: 1.20, dauer: 1.10, risiko: 1.50, qualitaet: 0.10}
     # Risiko je Phase (Zähler; die Ereignisse folgen mit PD4).
     risiko:
       basis: 0.02
