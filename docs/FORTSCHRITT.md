@@ -130,7 +130,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PD5 | Weiterentwicklung WM0–WM3 mit Stufen und Restertrag | ✅ 15.10.2026 (Daten PD5a, Kern PD5b, Sicht und Oberfläche PD5c; zweite Schicht über M37, Annahmen OFFENE_PUNKTE PD5) |
 | PD6 | Produktvorschläge im Strategiesystem (mit MG6/MG9), Nachkalkulation, Bilanz PL/Strategieabteilung | ✅ |
 | PD7 | Gate-Gremium, Fast-Track, Pilotserie | ✅ 15.10.2026: Gremium mit drei Stimmen (PM3, PM4, PM7), Fast-Track und Pilotserie als Vorschlag des Projektleiters, Risikofelder Branche/Puffer; Sicht und Oberfläche |
-| PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle | ⏳ |
+| PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle | ✅ 15.10.2026: Teilwissen, Plattform, Projektlizenz mit Gebühr, Entwicklungspartnerschaft mit KI-Firmen, Herkunftsfeld für Start-ups; Sicht und Oberfläche |
 | PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ⏳ |
 | PD10 | Balancing und Gleichstellungstests KI/Spieler | ⏳ |
 | PD11 | Entwicklungsleitung: Vorstand, Kontinent, Land, Laborleiter, Budgetkaskade, Eskalation, Branchenfreigabe, KI (`docs/PRODUKTENTWICKLUNG.md` §10; nach MG8) | ⏳ |

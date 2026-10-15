@@ -3008,3 +3008,21 @@ projekte.besonderheiten: Besonderheiten
 projekte.fast_track_aktiv: Fast-Track
 projekte.pilot.geplant: Pilotserie geplant
 projekte.pilot.fertig: Pilotserie abgeschlossen
+lizenz.titel: Lizenzen und Teilwissen
+lizenz.erklaerung: "Du kannst das Know-how eines freigegebenen Projekts einer anderen Firma kaufen: Dein Projekt startet dann in einer späteren Phase. Dafür zahlst du einmal einen Preis und danach eine feste monatliche Gebühr."
+lizenz.teilwissen: "{produkt}: aus abgebrochenen Projekten bleiben {anteil} Wissen; ein neues Projekt wird dadurch kürzer und billiger."
+lizenz.karte: "Lizenz {produkt}"
+lizenz.verkaeufer: Verkäufer
+lizenz.preis: Preis
+lizenz.gebuehren: Gebühren danach
+lizenz.gebuehren_werte: "{summe} insgesamt über {jahre} Jahre"
+lizenz.start: Start deines Projekts
+lizenz.start_ab: "ab Meilenstein M{meilenstein}"
+lizenz.kaufen: Lizenz kaufen und Projekt starten
+projekte.vorsprung: Vorsprung
+projekte.vorsprung_werte: "Teilwissen {wissen}, bekannte Vorprodukte {plattform}"
+projekte.lizenz_von: Lizenz von
+projekte.partner: Entwicklungspartner
+projekte.partner_vorschlagen: Entwicklungspartner vorschlagen
+projekte.partner_fragen: Anfragen
+projekte.partner_ok: Der Partner hat zugesagt und trägt einen Teil der Kosten.

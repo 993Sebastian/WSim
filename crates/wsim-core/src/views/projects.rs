@@ -65,6 +65,28 @@ pub struct ProjectChoiceView {
     pub preferred: bool,
 }
 
+/// A released project of another company whose know-how can be bought (PD8).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LicenseOfferView {
+    /// Number of the seller's project; the command names it.
+    pub project: u32,
+    pub product: String,
+    pub seller: String,
+    pub price_usd: f64,
+    /// All the fees over the fee years.
+    pub fee_usd: f64,
+    pub fee_years: u32,
+    /// The milestone the own project starts at.
+    pub from_milestone: u8,
+}
+
+/// An AI company that can be asked to be the partner of a project (PD8).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PartnerView {
+    pub company: u32,
+    pub name: String,
+}
+
 /// One voice of the gate council (PD7).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct VoiceView {
@@ -158,6 +180,15 @@ pub struct ProjectRowView {
     pub site_name: Option<String>,
     pub lead: String,
     pub lead_id: u32,
+    /// Head start from partial knowledge and from known components (PD8).
+    pub head_start: f64,
+    pub platform: f64,
+    /// Name of the company the licence was bought from (PD8).
+    pub license_from: Option<String>,
+    /// Name of the development partner (PD8).
+    pub partner: Option<String>,
+    /// A partner can still be proposed: before PM4, none yet (PD8).
+    pub can_partner: bool,
     /// Phases 3 and 4 run overlapped (PD7).
     pub fast_track: bool,
     /// `geplant` or `fertig` for a pilot series, empty without one (PD7).
@@ -277,6 +308,12 @@ pub struct ProjectsView {
     pub improvement_targets: Vec<String>,
     /// Product suggestions of the strategy, newest last (PD6).
     pub suggestions: Vec<SuggestionView>,
+    /// Know-how of released projects of other companies for sale (PD8).
+    pub license_offers: Vec<LicenseOfferView>,
+    /// Companies that can be asked for a partnership (PD8); empty without the data.
+    pub partners: Vec<PartnerView>,
+    /// What the company keeps of aborted projects: product and share (PD8).
+    pub knowledge: Vec<(String, f64)>,
     /// Share of the after-calculated suggestions that were hits.
     pub suggestion_hit_rate: Option<f64>,
 }
@@ -407,6 +444,18 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                 site_name: site.name.clone(),
                 lead: lead.map(|l| l.name.clone()).unwrap_or_default(),
                 lead_id: p.lead,
+                head_start: p.head_start,
+                platform: p.platform,
+                license_from: p
+                    .license
+                    .map(|l| state.companies[l.seller.index()].name.clone()),
+                partner: p
+                    .partner
+                    .map(|(c, _)| state.companies[c.index()].name.clone()),
+                can_partner: m.partnership.is_some()
+                    && p.partner.is_none()
+                    && running
+                    && p.phase <= 2,
                 fast_track: p.fast_track,
                 pilot: match p.pilot {
                     1 => "geplant",
@@ -547,6 +596,27 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                 forecast: s.forecast,
                 review: s.review.map(|r| (r.value, r.hit)),
             })
+            .collect(),
+        license_offers: license_offers(game),
+        partners: if m.partnership.is_some() {
+            state
+                .companies
+                .iter()
+                .enumerate()
+                .filter(|(_, c)| c.ai.is_some() && !c.bankrupt)
+                .map(|(i, c)| PartnerView {
+                    company: u32::try_from(i).unwrap_or(u32::MAX),
+                    name: c.name.clone(),
+                })
+                .collect()
+        } else {
+            Vec::new()
+        },
+        knowledge: state
+            .project_knowledge
+            .iter()
+            .filter(|k| k.company == player)
+            .map(|k| (catalog.products.key(k.product).to_owned(), k.share))
             .collect(),
         suggestion_hit_rate: project_suggestions::hit_rate(state, player),
         improvement_targets: m
@@ -782,4 +852,44 @@ fn voice_view(v: &crate::project_gates::Voice) -> VoiceView {
         .to_owned(),
         dissent: v.dissent,
     }
+}
+
+fn license_offers(game: &Game) -> Vec<LicenseOfferView> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let player = game.player();
+    let Some(l) = catalog
+        .research_model
+        .projects
+        .as_ref()
+        .and_then(|m| m.license.as_ref())
+    else {
+        return Vec::new();
+    };
+    let known = &state.companies[player.index()].known_products;
+    state
+        .dev_projects
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| {
+            p.status == ProjectStatus::Released
+                && p.company != player
+                && !known.contains(&p.product)
+                && !state.companies[p.company.index()].bankrupt
+        })
+        .filter_map(|(i, p)| {
+            let (price, fees) = crate::project_deals::license_price(catalog, p)?;
+            Some(LicenseOfferView {
+                project: u32::try_from(i).unwrap_or(u32::MAX),
+                product: catalog.products.key(p.product).to_owned(),
+                seller: state.companies[p.company.index()].name.clone(),
+                price_usd: price.to_usd(),
+                fee_usd: fees.to_usd(),
+                fee_years: l.fee_years,
+                from_milestone: projects::PHASE_END_MILESTONE
+                    .get(usize::from(l.from_phase).saturating_sub(1))
+                    .copied()
+                    .unwrap_or(5),
+            })
+        })
+        .collect()
 }

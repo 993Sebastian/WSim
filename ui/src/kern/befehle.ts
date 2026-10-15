@@ -188,6 +188,16 @@ export type Befehl =
   | { DecideEvent: { project: number; option: number } }
   | { StartSuggestedProject: { suggestion: number; lead: number; tempo: number; trim: number } }
   | { DeclineSuggestion: { suggestion: number } }
+  | {
+      BuyProjectLicense: {
+        seller_project: number;
+        site: number;
+        lead: number;
+        tempo: number;
+        trim: number;
+      };
+    }
+  | { ProposePartnership: { project: number; partner: number } }
   | { StartImprovement: { site: number; product: string; target: number; lead: number } }
   | { ChooseApproach: { project: number; approach: number } }
   | { ReleaseImprovement: { project: number; immediate: boolean } }

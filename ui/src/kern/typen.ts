@@ -3257,6 +3257,12 @@ export interface Projekt {
   site_name: string | null;
   lead: string;
   lead_id: number;
+  /** Head start from partial knowledge and known components (PD8). */
+  head_start: number;
+  platform: number;
+  license_from: string | null;
+  partner: string | null;
+  can_partner: boolean;
   /** Phases 3 and 4 run overlapped (PD7). */
   fast_track: boolean;
   /** A pilot series: planned or done (PD7). */
@@ -3300,6 +3306,23 @@ export interface Projektangebot {
   effort: number;
   cost_usd: number;
   days: number;
+}
+
+/** Know-how of a released project of another company for sale (PD8). */
+export interface Lizenzangebot {
+  project: number;
+  product: string;
+  seller: string;
+  price_usd: number;
+  fee_usd: number;
+  fee_years: number;
+  from_milestone: number;
+}
+
+/** An AI company that can be asked to be the partner of a project (PD8). */
+export interface Partnerfirma {
+  company: number;
+  name: string;
 }
 
 /** A product suggestion of the strategy (PD6). */
@@ -3372,5 +3395,9 @@ export interface Entwicklungsprojekte {
   improvement_stages: number;
   improvement_targets: string[];
   suggestions: Produktvorschlag[];
+  license_offers: Lizenzangebot[];
+  partners: Partnerfirma[];
+  /** Product and share kept from aborted projects. */
+  knowledge: [string, number][];
   suggestion_hit_rate: number | null;
 }

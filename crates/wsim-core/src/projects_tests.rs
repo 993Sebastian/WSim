@@ -1916,6 +1916,10 @@ fn a_partner_carries_its_share_and_gets_the_product() {
     let c = &game.state().companies[partner.index()];
     assert!(c.known_products.contains(&product));
     assert!(c.ledger.cash() < before);
+    // The view names the partner and lists the AI company as a possible partner.
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    assert_eq!(v.projects[0].partner.as_deref(), Some("Rivale AG"));
+    assert!(v.partners.iter().any(|x| x.name == "Rivale AG"));
 }
 
 #[test]

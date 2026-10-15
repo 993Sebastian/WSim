@@ -7,6 +7,7 @@ import type {
   Forschung,
   LaborRolle,
   Meilensteinbericht,
+  Partnerfirma,
   Projekt,
   Projektkennzahlen,
   Projektleiter,
@@ -63,12 +64,13 @@ export function Projekte({
       <NeuesProjekt daten={daten} vorwahl={vorwahl} onZentren={onZentren} />
       <Leiter leiter={p.leads} gehalt={p.salary_usd_year} />
       {p.suggestions.length > 0 && <Vorschlaege daten={daten} />}
+      {(p.license_offers.length > 0 || p.knowledge.length > 0) && <Lizenzen daten={daten} />}
       {p.improvement_targets.length > 0 && <Weiterentwicklungen daten={daten} />}
       <section aria-label={t("projekte.laufend")}>
         <h3>{t("projekte.laufend")}</h3>
         {laufend.length === 0 && <p className="gedaempft">{t("projekte.keine")}</p>}
         {laufend.map((x) => (
-          <ProjektKarte key={x.id} x={x} />
+          <ProjektKarte key={x.id} x={x} partner={p.partners} />
         ))}
       </section>
       {fertig.length > 0 && (
@@ -333,8 +335,9 @@ function Leiter({ leiter, gehalt }: { leiter: Projektleiter[]; gehalt: number })
   );
 }
 
-function ProjektKarte({ x }: { x: Projekt }) {
+function ProjektKarte({ x, partner }: { x: Projekt; partner: Partnerfirma[] }) {
   const { los, antwort } = useAktion(`projekt/${x.id}`);
+  const [partnerId, setPartnerId] = useState(partner[0]?.company ?? -1);
   const name = produktName(x.product);
   const delta = (d: number) =>
     d === 0
@@ -359,6 +362,29 @@ function ProjektKarte({ x }: { x: Projekt }) {
         </dd>
         <dt>{t("projekte.leiter")}</dt>
         <dd>{x.lead}</dd>
+        {(x.head_start > 0 || x.platform > 0) && (
+          <>
+            <dt>{t("projekte.vorsprung")}</dt>
+            <dd>
+              {t("projekte.vorsprung_werte", {
+                wissen: formatProzent(x.head_start),
+                plattform: formatProzent(x.platform),
+              })}
+            </dd>
+          </>
+        )}
+        {x.license_from && (
+          <>
+            <dt>{t("projekte.lizenz_von")}</dt>
+            <dd>{x.license_from}</dd>
+          </>
+        )}
+        {x.partner && (
+          <>
+            <dt>{t("projekte.partner")}</dt>
+            <dd>{x.partner}</dd>
+          </>
+        )}
         {(x.fast_track || x.pilot) && (
           <>
             <dt>{t("projekte.besonderheiten")}</dt>
@@ -542,6 +568,32 @@ function ProjektKarte({ x }: { x: Projekt }) {
             {t("projekte.fortsetzen")}
           </button>
         </div>
+      )}
+      {x.can_partner && partner.length > 0 && (
+        <p className="zeile">
+          <label>
+            {t("projekte.partner_vorschlagen")}{" "}
+            <select value={partnerId} onChange={(e) => setPartnerId(Number(e.target.value))}>
+              {partner.map((c) => (
+                <option key={c.company} value={c.company}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>{" "}
+          <button
+            type="button"
+            disabled={partnerId < 0}
+            onClick={() =>
+              void los(
+                [{ ProposePartnership: { project: x.id, partner: partnerId } }],
+                t("projekte.partner_ok"),
+              )
+            }
+          >
+            {t("projekte.partner_fragen")}
+          </button>
+        </p>
       )}
       <div className="knopfreihe links">
         <button
@@ -1135,6 +1187,119 @@ function Vorschlaege({ daten }: { daten: Forschung }) {
             </li>
           ))}
         </ul>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+/** Know-how of released projects of other companies for sale, and what aborted ones left (PD8). */
+function Lizenzen({ daten }: { daten: Forschung }) {
+  const p = daten.projects;
+  const { los, antwort } = useAktion("projekt/lizenz");
+  const labore = daten.centers.filter((z) => z.ready);
+  const leiter = (p?.leads ?? []).filter((l) => l.hired && !l.busy);
+  const [zentrum, setZentrum] = useState(labore[0]?.site ?? -1);
+  const [leiterId, setLeiterId] = useState(leiter[0]?.id ?? -1);
+  const id = useId();
+  if (!p) return null;
+  const bereit = labore.some((z) => z.site === zentrum) && leiter.some((l) => l.id === leiterId);
+  return (
+    <section aria-label={t("lizenz.titel")}>
+      <h3>{t("lizenz.titel")}</h3>
+      <p className="erklaerung">{t("lizenz.erklaerung")}</p>
+      {p.knowledge.length > 0 && (
+        <ul className="liste">
+          {p.knowledge.map(([produkt, anteil]) => (
+            <li key={produkt}>
+              {t("lizenz.teilwissen", {
+                produkt: produktName(produkt),
+                anteil: formatProzent(anteil),
+              })}
+            </li>
+          ))}
+        </ul>
+      )}
+      {p.license_offers.length > 0 && (
+        <>
+          <div className="feld">
+            <label htmlFor={`${id}-zentrum`}>{t("forschung.zentrum")}</label>
+            <select
+              id={`${id}-zentrum`}
+              value={zentrum}
+              onChange={(e) => setZentrum(Number(e.target.value))}
+            >
+              {labore.map((z) => (
+                <option key={z.site} value={z.site}>
+                  {zentrumName(z)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-leiter`}>{t("projekte.leiter")}</label>
+            <select
+              id={`${id}-leiter`}
+              value={leiterId}
+              onChange={(e) => setLeiterId(Number(e.target.value))}
+            >
+              {leiter.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {p.license_offers.map((o) => (
+            <article
+              key={o.project}
+              className="karte"
+              aria-label={t("lizenz.karte", { produkt: produktName(o.product) })}
+            >
+              <h4>{produktName(o.product)}</h4>
+              <dl className="werte">
+                <dt>{t("lizenz.verkaeufer")}</dt>
+                <dd>{o.seller}</dd>
+                <dt>{t("lizenz.preis")}</dt>
+                <dd>{formatGeld(o.price_usd)}</dd>
+                <dt>{t("lizenz.gebuehren")}</dt>
+                <dd>
+                  {t("lizenz.gebuehren_werte", {
+                    summe: formatGeld(o.fee_usd),
+                    jahre: o.fee_years,
+                  })}
+                </dd>
+                <dt>{t("lizenz.start")}</dt>
+                <dd>{t("lizenz.start_ab", { meilenstein: o.from_milestone })}</dd>
+              </dl>
+              <div className="knopfreihe links">
+                <button
+                  type="button"
+                  className="haupt"
+                  disabled={!bereit}
+                  onClick={() =>
+                    void los(
+                      [
+                        {
+                          BuyProjectLicense: {
+                            seller_project: o.project,
+                            site: zentrum,
+                            lead: leiterId,
+                            tempo: 1,
+                            trim: 1,
+                          },
+                        },
+                      ],
+                      t("projekte.gestartet", { produkt: produktName(o.product) }),
+                    )
+                  }
+                >
+                  {t("lizenz.kaufen")}
+                </button>
+              </div>
+            </article>
+          ))}
+        </>
       )}
       <Rueckmeldung meldung={antwort} />
     </section>

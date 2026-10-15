@@ -8,6 +8,19 @@ const projekte: Entwicklungsprojekte = {
   tempos: ["gruendlich", "normal", "beschleunigt"],
   trims: ["basis", "standard", "premium"],
   salary_usd_year: 90_000,
+  license_offers: [
+    {
+      project: 7,
+      product: "draht",
+      seller: "Rivale AG",
+      price_usd: 250000,
+      fee_usd: 50000,
+      fee_years: 5,
+      from_milestone: 5,
+    },
+  ],
+  partners: [{ company: 3, name: "Rivale AG" }],
+  knowledge: [["schrauben", 0.3]],
   suggestion_hit_rate: 0.5,
   suggestions: [
     {
@@ -147,6 +160,11 @@ const projekte: Entwicklungsprojekte = {
       site_name: null,
       lead: "Anna Weber",
       lead_id: 0,
+      head_start: 0.1,
+      platform: 0.2,
+      license_from: null,
+      partner: null,
+      can_partner: true,
       fast_track: false,
       pilot: "",
       promise: null,
@@ -401,6 +419,32 @@ describe("Entwicklungsprojekte", () => {
     expect(gesendet).toContainEqual({
       DecideMilestone: { project: 0, decision: "Continue", choice: 0 },
     });
+  });
+
+  it("kauft eine Lizenz und fragt einen Entwicklungspartner an", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const lizenz = screen.getByRole("article", { name: /Lizenz Draht/ });
+    expect(within(lizenz).getByText("Rivale AG")).toBeTruthy();
+    expect(within(lizenz).getByText(/ab Meilenstein M5/)).toBeTruthy();
+    fireEvent.click(within(lizenz).getByRole("button", { name: /Lizenz kaufen/ }));
+    expect(gesendet).toContainEqual({
+      BuyProjectLicense: { seller_project: 7, site: 99, lead: 1, tempo: 1, trim: 1 },
+    });
+    // Teilwissen und Vorsprung werden gezeigt, der Partner angefragt.
+    expect(screen.getByText(/Wissen; ein neues Projekt/)).toBeTruthy();
+    const karte = screen.getByRole("article", { name: "Nägel" });
+    expect(within(karte).getByText(/Teilwissen 10 %/)).toBeTruthy();
+    fireEvent.click(within(karte).getByRole("button", { name: "Anfragen" }));
+    expect(gesendet).toContainEqual({ ProposePartnership: { project: 0, partner: 3 } });
   });
 
   it("zeigt das Ereignis und sendet die gewählte Option", async () => {
