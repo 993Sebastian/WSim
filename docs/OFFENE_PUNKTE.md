@@ -2769,3 +2769,16 @@ Vorgabe: `docs/ZUKUNFTSPRODUKTE.md` (92 Produkte, 2027–2085, alle 17 Branchen)
 - Mängelrisiko höchstens 60 %; je Auflage +8 %, beschleunigtes Tempo +6 %, Unterbesetzung bis +20 %.
 - Rückruf 120–400 Tage nach der Freigabe, Kosten 60 % der Projektkosten, 25 % der Markenbekanntheit in der Warengruppe.
 - Branchenstärke, Budgetpuffer und Fast-Track (Felder in `risiko`) wirken noch nicht auf die Ereigniswahrscheinlichkeit; sie folgen mit PD7 (Gate, Fast-Track).
+
+## PV – Privatleben und Privatvermögen (15.10.2026, Vorgabe aufgenommen, eigene Annahmen)
+
+Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mit dem Bestand und Meilensteine PV1–PV8 dort in Abschnitt 20.
+
+🟡 Eigene Annahmen bei der Aufnahme, zur Abnahme:
+- Reihenfolge: PV1–PV8 nach PD10, vor MN6/PD1, PD11 und den Manager-Resten; „direkt nach SU3“ ist überholt.
+- Spielstände: Die Projektregel (Version, Legacy, Beispielstand) bleibt; die Vorgabe „müssen nicht kompatibel bleiben“ wird nur bei ausdrücklichem Wunsch genutzt.
+- PERSON.md §8 „keine privaten Kredite“ entfällt mit PV3 (Hypothek) und PV7 (Wertpapierkredit); Firma und Person haften weiter getrennt.
+- Kinder: Ausbildung ab 16 und Trainee-Pfad ersetzen die Managerkarte mit 25 (PE6).
+- Der Börsenindex aus K1 wird zur Grundlage des Welt-ETF; die Rendite wird über das Wirtschaftsmodell geeicht, nicht eingestellt.
+- KI-Unternehmer werden mit PV8 zu Personen mit Privatvermögen (bisher nicht); größter Einzelposten.
+- Alle Sätze, Zinsen, Kosten und Besitzobjekte sind Startwerte mit `annaeherung: true`.
