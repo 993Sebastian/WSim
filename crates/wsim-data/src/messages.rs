@@ -921,6 +921,26 @@ pub fn project_reports_incomplete() -> String {
     "Berichte und Entscheidung gehören zusammen: Es fehlt „berichte“ oder „entscheidung“.".into()
 }
 
+pub fn project_event_tempo_count(n: usize) -> String {
+    format!("„je_tempo“ braucht einen Wert je Tempo des Modells, also {n}.")
+}
+
+pub fn project_event_empty() -> String {
+    "Der Ereigniskatalog der Projekte darf nicht leer sein.".into()
+}
+
+pub fn project_event_duplicate(id: &str) -> String {
+    format!("Das Projektereignis „{id}“ steht mehrfach im Katalog.")
+}
+
+pub fn project_event_no_phase(id: &str) -> String {
+    format!("Das Projektereignis „{id}“ braucht mindestens eine Phase (0–5).")
+}
+
+pub fn project_event_options(id: &str) -> String {
+    format!("Das Projektereignis „{id}“ braucht zwei oder drei Optionen.")
+}
+
 pub fn project_character_missing(key: &str) -> String {
     format!(
         "Für den Charakter „{key}“ der Projektleiter fehlen Optimismus und Weg unter „berichte.charaktere“."

@@ -6121,3 +6121,52 @@ fn projektberichte_werden_geprueft() {
     let falsch = mit(&block.replace("id: ausgewogen", "id: mittel")).laden();
     befund(&falsch, "muss „ausgewogen“ stehen");
 }
+
+#[test]
+fn projektereignisse_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let ereignisse = "    ereignisse:\n      frist_tage: 7\n      mangel:\n        obergrenze: 0.6\n        \
+         je_auflage: 0.08\n        je_unterbesetzung: 0.2\n        je_tempo: [0, 0, 0.06]\n      \
+         rueckruf:\n        verzug_tage: [120, 400]\n        kosten_anteil: 0.6\n        \
+         bekanntheit_verlust: 0.25\n      katalog:\n        - id: problem\n          phasen: [1, 2]\n          \
+         gewicht: 2\n          empfehlung: 0\n          optionen:\n            \
+         - {id: budget, kosten: 0.2, verzug: 0, qualitaet: 0, mangel: 0}\n            \
+         - {id: verzug, kosten: 0, verzug: 0.25, qualitaet: 0, mangel: 0.05}\n";
+    let block = format!("{}{ereignisse}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let e = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap()
+        .events
+        .expect("events");
+    assert_eq!((e.kinds.len(), e.kinds[0].options.len()), (1, 2));
+    assert_eq!(e.recall_days, (120, 400));
+
+    let falsch = mit(&block.replace("[0, 0, 0.06]", "[0, 0.06]")).laden();
+    befund(&falsch, "„je_tempo“ braucht einen Wert je Tempo");
+    let falsch = mit(&block.replace("phasen: [1, 2]", "phasen: [1, 7]")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("empfehlung: 0", "empfehlung: 2")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("[120, 400]", "[400, 120]")).laden();
+    befund(&falsch, "muss kleiner als");
+    let falsch = mit(&block.replace(
+        "            - {id: verzug, kosten: 0, verzug: 0.25, qualitaet: 0, mangel: 0.05}\n",
+        "",
+    ))
+    .laden();
+    befund(&falsch, "braucht zwei oder drei Optionen");
+}

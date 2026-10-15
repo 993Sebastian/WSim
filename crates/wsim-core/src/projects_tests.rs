@@ -103,6 +103,7 @@ fn model() -> ProjectModel {
             fast_track: 1.0,
         },
         reports: None,
+        events: None,
     }
 }
 

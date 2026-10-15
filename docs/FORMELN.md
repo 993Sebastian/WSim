@@ -6314,3 +6314,25 @@ Vorgabe `docs/PRODUKTENTWICKLUNG.md` §4 und §7. Parameter in `forschungsmodell
   innovativ, vorsichtig bewährt, sonst Standard). KI-Firmen entscheiden immer so. Eine unbeantwortete Entscheidung des Spielers entscheidet der PL nach
   `frist_tage` mit seiner Empfehlung.
 - **PM7:** „weiter“ gibt das Produkt frei (Technologien, Produkt, Erfahrung des PL); „mit Auflagen“ gibt mit Auflage frei (Zähler für PD4).
+
+## PD4 – Projektereignisse, versteckte Mängel, Rückrufe (15.10.2026, Entwurf zur Abnahme)
+Vorgabe `docs/PRODUKTENTWICKLUNG.md` §6. Parameter in `forschungsmodell.yaml` (`projekte.ereignisse`), alle vorläufig. Ohne den Block laufen die
+Projekte wie bisher ohne Ereignisse, Mängel und Rückrufe.
+- **Ereignis im Lauf einer Phase.** An jedem Arbeitstag mit Fortschritt `Δ` (Anteil der Phase) tritt mit der Wahrscheinlichkeit
+  `p = min(1, R · f_risiko · Δ)` ein Ereignis ein. `R` ist das Phasenrisiko aus PD2 (`phase_risk`: Basis × Tempo × (1 + Unterbesetzung) × (1 − Erfahrung)),
+  `f_risiko` das Produkt der Risikofaktoren aus Profil, Lösungsweg und Auflagen (PD3). Je Phase und Projekt höchstens ein Ereignis; ein Projekt ohne Arbeit
+  würfelt nicht. Der Zufall kommt aus dem Strom `ProjectEvent {projekt, phase}`.
+- **Welches Ereignis.** Aus dem Katalog die Arten, deren `phasen` die laufende Phase enthalten, gewichtet mit `gewicht`; eine gleichverteilte Zahl wählt.
+- **Entscheidung.** Das Projekt ruht, bis gewählt ist (wie bei einem Meilenstein). Der Spieler entscheidet, wenn seine Delegation nicht „Der Projektleiter
+  entscheidet“ ist; sonst und bei KI-Firmen wählt der Projektleiter seine `empfehlung`. Nach `frist_tage` ohne Antwort gilt ebenfalls die Empfehlung.
+- **Wirkung einer Option** (auf die laufende Phase mit den Kosten `K_phase` aus PD2): Kosten `+ kosten · K_phase` (gebucht), Fortschritt `− verzug` (Anteil
+  der Phase; negativ = Gewinn, höchstens bis 99 % der Phase), Zielqualität `+ qualitaet` (bleibt für das Projekt), verstecktes Mängelrisiko `+ mangel`.
+- **Verstecktes Mängelrisiko `M`** (0–`obergrenze`), dem Spieler nie angezeigt, nur an den Folgen sichtbar: `M = Σ Optionen.mangel + je_auflage · Auflagen +
+  je_tempo[Tempo] + je_unterbesetzung · Σ Unterdeckung der beendeten Phasen / 6`. Die Unterdeckung einer Phase ist die gewichtete Fehlbesetzung aus PD2
+  (`staffing`, 0–1), gemessen am Phasenende.
+- **Freigabe (PM7).** Mit der Wahrscheinlichkeit `M` hat das Produkt einen Mangel (Strom `ProjectDefect {projekt}`). Dann wird ein **Rückruf** vorgemerkt,
+  fällig `d` Tage nach der Freigabe, `d` gleichverteilt in `verzug_tage`.
+- **Rückruf** am Fälligkeitstag: Kosten `kosten_anteil ·` Projektkosten (Buchung Kostenart Sonstiges, Kostenstelle Produkt), die Bekanntheit der Marke in
+  allen Ländern der Warengruppe sinkt um `bekanntheit_verlust` (Anteil), Meldung an die Firma. Danach ist der Mangel erledigt.
+- Die Kennzahlen der Berichte (PD3) kennen den Mangel nicht; wer Qualität und Termin durch Auflagen und Fast-Track kauft, trägt das Risiko verdeckt.
+- Offene Punkte: `docs/OFFENE_PUNKTE.md` PD4.

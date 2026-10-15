@@ -154,6 +154,65 @@ forschungsmodell:
       branche: 0.3
       puffer: 0.5
       fast_track: 1.0
+    # Ereignisse in den Phasen, versteckte Mängel und Rückrufe (PD4, docs/FORMELN.md).
+    # Kosten: Anteil der Phasenkosten; Verzug: Anteil der Phase (negativ: Gewinn);
+    # Qualität: Änderung der Zielqualität; Mangel: Zuschlag auf das versteckte Mängelrisiko.
+    ereignisse:
+      frist_tage: 7                  # danach wählt der PL seine Empfehlung
+      mangel:
+        obergrenze: 0.60
+        je_auflage: 0.08             # je Meilenstein mit Auflagen
+        je_unterbesetzung: 0.20      # mal Unterdeckung der Phase (0–1)
+        je_tempo: [0.0, 0.0, 0.06]   # gründlich, normal, beschleunigt
+      rueckruf:
+        verzug_tage: [120, 400]      # nach der Freigabe
+        kosten_anteil: 0.60          # der Projektkosten
+        bekanntheit_verlust: 0.25    # Anteil der Bekanntheit in der Warengruppe
+      katalog:
+        - id: technisches_problem
+          phasen: [1, 2, 3, 4]
+          gewicht: 4
+          empfehlung: 0
+          optionen:
+            - {id: budget, kosten: 0.20, verzug: 0.00, qualitaet: 0.00, mangel: 0.00}
+            - {id: abstriche, kosten: 0.00, verzug: 0.00, qualitaet: -0.04, mangel: 0.05}
+            - {id: verzug, kosten: 0.00, verzug: 0.25, qualitaet: 0.00, mangel: 0.00}
+        - id: kostenueberschreitung
+          phasen: [2, 3, 4, 5]
+          gewicht: 3
+          empfehlung: 1
+          optionen:
+            - {id: bezahlen, kosten: 0.15, verzug: 0.00, qualitaet: 0.00, mangel: 0.00}
+            - {id: sparen, kosten: 0.05, verzug: 0.10, qualitaet: -0.02, mangel: 0.02}
+        - id: lieferantenausfall
+          phasen: [3, 4, 5]
+          gewicht: 2
+          empfehlung: 0
+          optionen:
+            - {id: ersatz, kosten: 0.10, verzug: 0.05, qualitaet: 0.00, mangel: 0.00}
+            - {id: warten, kosten: 0.00, verzug: 0.30, qualitaet: 0.00, mangel: 0.00}
+            - {id: umbauen, kosten: 0.05, verzug: 0.10, qualitaet: -0.03, mangel: 0.04}
+        - id: entwickler_abgeworben
+          phasen: [1, 2, 3, 4, 5]
+          gewicht: 2
+          empfehlung: 0
+          optionen:
+            - {id: halten, kosten: 0.12, verzug: 0.00, qualitaet: 0.00, mangel: 0.00}
+            - {id: ersetzen, kosten: 0.04, verzug: 0.20, qualitaet: 0.00, mangel: 0.02}
+        - id: konkurrenz
+          phasen: [0, 1, 2]
+          gewicht: 2
+          empfehlung: 1
+          optionen:
+            - {id: beschleunigen, kosten: 0.15, verzug: -0.15, qualitaet: 0.00, mangel: 0.06}
+            - {id: abwarten, kosten: 0.00, verzug: 0.00, qualitaet: 0.00, mangel: 0.00}
+        - id: durchbruch
+          phasen: [1, 2, 3, 4]
+          gewicht: 1
+          empfehlung: 0
+          optionen:
+            - {id: schneller, kosten: 0.00, verzug: -0.30, qualitaet: 0.00, mangel: 0.00}
+            - {id: besser, kosten: 0.00, verzug: 0.00, qualitaet: 0.04, mangel: 0.00}
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)

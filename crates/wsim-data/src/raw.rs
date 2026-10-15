@@ -1415,6 +1415,75 @@ pub struct RawProjectModel {
     pub profiles: Vec<RawProjectChoice>,
     #[serde(rename = "loesungswege", default)]
     pub paths: Vec<RawProjectChoice>,
+    /// Events during the phases, hidden defects and recalls (PD4).
+    #[serde(rename = "ereignisse", default)]
+    pub events: Option<RawProjectEvents>,
+}
+
+/// Event catalogue, hidden defects and recalls (PD4).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectEvents {
+    #[serde(rename = "frist_tage")]
+    pub deadline_days: u32,
+    #[serde(rename = "mangel")]
+    pub defect: RawProjectDefect,
+    #[serde(rename = "rueckruf")]
+    pub recall: RawProjectRecall,
+    #[serde(rename = "katalog")]
+    pub kinds: Vec<RawProjectEventKind>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectDefect {
+    #[serde(rename = "obergrenze")]
+    pub cap: f64,
+    #[serde(rename = "je_auflage")]
+    pub per_condition: f64,
+    #[serde(rename = "je_unterbesetzung")]
+    pub per_shortfall: f64,
+    #[serde(rename = "je_tempo")]
+    pub per_tempo: Vec<f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectRecall {
+    #[serde(rename = "verzug_tage")]
+    pub days: [u32; 2],
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "bekanntheit_verlust")]
+    pub awareness_loss: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectEventKind {
+    pub id: String,
+    #[serde(rename = "phasen")]
+    pub phases: Vec<u8>,
+    #[serde(rename = "gewicht")]
+    pub weight: f64,
+    #[serde(rename = "empfehlung")]
+    pub recommended: usize,
+    #[serde(rename = "optionen")]
+    pub options: Vec<RawProjectEventOption>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectEventOption {
+    pub id: String,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "verzug")]
+    pub delay: f64,
+    #[serde(rename = "qualitaet")]
+    pub quality: f64,
+    #[serde(rename = "mangel")]
+    pub defect: f64,
 }
 
 /// Report figures, traffic lights and the leader's traits (PD3).

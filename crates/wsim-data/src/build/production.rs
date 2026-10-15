@@ -5,9 +5,10 @@ use std::collections::BTreeMap;
 use wsim_core::catalog::{
     Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LabRole, LabStaffModel, LeadTrait,
     LearningModel, Light, MaintenanceModel, OperationsModel, PatentModel, PhaseRole,
-    ProductionModel, ProjectChoice, ProjectLeadModel, ProjectModel, ProjectPhase,
-    ProjectReportModel, ProjectRiskModel, ProjectTempo, ProjectTrim, ResearchModel, SiteType,
-    SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
+    ProductionModel, ProjectChoice, ProjectEventKind, ProjectEventModel, ProjectEventOption,
+    ProjectLeadModel, ProjectModel, ProjectPhase, ProjectReportModel, ProjectRiskModel,
+    ProjectTempo, ProjectTrim, ResearchModel, SiteType, SizeModel, StartSetup, StorageClass,
+    StorageModel, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -1843,6 +1844,7 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
             ),
         },
         reports: project_reports(ctx, p, l),
+        events: project_events(ctx, p, l),
     }
 }
 
@@ -1962,6 +1964,119 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         deadline_days: d.deadline_days,
         profiles,
         paths,
+    })
+}
+
+/// Events, hidden defects and recalls of the projects (PD4).
+fn project_events(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<ProjectEventModel> {
+    let e = p.events.as_ref()?;
+    let el = l.field("ereignisse");
+    let dl = el.field("mangel");
+    if e.defect.per_tempo.len() != p.tempos.len() {
+        ctx.error(
+            &dl.field("je_tempo"),
+            messages::project_event_tempo_count(p.tempos.len()),
+        );
+    }
+    let per_tempo: Vec<f64> = e
+        .defect
+        .per_tempo
+        .iter()
+        .enumerate()
+        .map(|(i, v)| in_range(ctx, *v, 0.0, 1.0, &dl.field("je_tempo").index(i)))
+        .collect();
+    let rl = el.field("rueckruf");
+    if e.recall.days[0] > e.recall.days[1] {
+        ctx.error(
+            &rl.field("verzug_tage"),
+            messages::range_inverted("von", "bis"),
+        );
+    }
+    if e.kinds.is_empty() {
+        ctx.error(&el.field("katalog"), messages::project_event_empty());
+    }
+    let mut kinds = Vec::new();
+    let mut seen: Vec<&str> = Vec::new();
+    for (i, k) in e.kinds.iter().enumerate() {
+        let kl = el.field("katalog").index(i);
+        if seen.contains(&k.id.as_str()) {
+            ctx.error(&kl.field("id"), messages::project_event_duplicate(&k.id));
+        }
+        seen.push(&k.id);
+        for &ph in &k.phases {
+            if ph > 5 {
+                ctx.error(
+                    &kl.field("phasen"),
+                    messages::out_of_range(f64::from(ph), 0.0, 5.0),
+                );
+            }
+        }
+        if k.phases.is_empty() {
+            ctx.error(&kl.field("phasen"), messages::project_event_no_phase(&k.id));
+        }
+        if !(2..=3).contains(&k.options.len()) {
+            ctx.error(
+                &kl.field("optionen"),
+                messages::project_event_options(&k.id),
+            );
+        }
+        if k.recommended >= k.options.len() {
+            ctx.error(
+                &kl.field("empfehlung"),
+                messages::out_of_range(k.recommended as f64, 0.0, k.options.len() as f64 - 1.0),
+            );
+        }
+        let options = k
+            .options
+            .iter()
+            .enumerate()
+            .map(|(j, o)| {
+                let ol = kl.field("optionen").index(j);
+                ProjectEventOption {
+                    key: o.id.clone(),
+                    cost: in_range(ctx, o.cost, 0.0, 2.0, &ol.field("kosten")),
+                    delay: in_range(ctx, o.delay, -1.0, 1.0, &ol.field("verzug")),
+                    quality: in_range(ctx, o.quality, -0.3, 0.3, &ol.field("qualitaet")),
+                    defect: in_range(ctx, o.defect, 0.0, 1.0, &ol.field("mangel")),
+                }
+            })
+            .collect();
+        kinds.push(ProjectEventKind {
+            key: k.id.clone(),
+            phases: k.phases.clone(),
+            weight: positive(ctx, k.weight, &kl.field("gewicht")),
+            recommended: k.recommended,
+            options,
+        });
+    }
+    Some(ProjectEventModel {
+        deadline_days: e.deadline_days.max(1),
+        defect_cap: in_range(ctx, e.defect.cap, 0.0, 1.0, &dl.field("obergrenze")),
+        defect_per_condition: in_range(
+            ctx,
+            e.defect.per_condition,
+            0.0,
+            1.0,
+            &dl.field("je_auflage"),
+        ),
+        defect_per_shortfall: in_range(
+            ctx,
+            e.defect.per_shortfall,
+            0.0,
+            1.0,
+            &dl.field("je_unterbesetzung"),
+        ),
+        defect_per_tempo: per_tempo,
+        recall_days: (e.recall.days[0], e.recall.days[1]),
+        recall_cost_share: non_negative(ctx, e.recall.cost_share, &rl.field("kosten_anteil")),
+        recall_awareness_loss: in_range(
+            ctx,
+            e.recall.awareness_loss,
+            0.0,
+            1.0,
+            &rl.field("bekanntheit_verlust"),
+        ),
+        kinds,
     })
 }
 

@@ -2760,3 +2760,12 @@ Vorgabe: `docs/ZUKUNFTSPRODUKTE.md` (92 Produkte, 2027–2085, alle 17 Branchen)
 - Absatzanteil des Produkts 0,15 vom offenen Bedarf, Unschärfe der Prognose 0,30 bei M1, sinkend je Meilenstein; Amortisation höchstens 12 Jahre.
 - Die Beispieldaten der Browser-Vorschau (`ui/src/kern/beispiel.json`) werden nicht neu erzeugt, weil sechs E2E-Erwartungen daran hängen.
 - KI-Firmen entscheiden immer über die Empfehlung ihres Projektleiters.
+
+## PD4 – Projektereignisse und Rückrufe (15.10.2026, eigene Annahmen)
+
+🟡 Vorläufige Werte in `data/parameter/forschungsmodell.yaml` (`projekte.ereignisse`), zur Abnahme:
+- Sechs Ereignisarten (technisches Problem, Kostenüberschreitung, Lieferantenausfall, abgeworbener Entwickler, Konkurrenz als Gerücht, Durchbruch); höchstens eines je Phase.
+- Frist 7 Tage, danach gilt die Empfehlung des Projektleiters; bei „Der Projektleiter entscheidet“ und bei KI-Firmen sofort.
+- Mängelrisiko höchstens 60 %; je Auflage +8 %, beschleunigtes Tempo +6 %, Unterbesetzung bis +20 %.
+- Rückruf 120–400 Tage nach der Freigabe, Kosten 60 % der Projektkosten, 25 % der Markenbekanntheit in der Warengruppe.
+- Branchenstärke, Budgetpuffer und Fast-Track (Felder in `risiko`) wirken noch nicht auf die Ereigniswahrscheinlichkeit; sie folgen mit PD7 (Gate, Fast-Track).

@@ -1476,6 +1476,50 @@ pub struct ProjectModel {
     pub risk: ProjectRiskModel,
     /// Milestone reports and decisions (PD3); `None`: the milestones pass by themselves.
     pub reports: Option<ProjectReportModel>,
+    /// Events during the phases, hidden defects and recalls (PD4).
+    pub events: Option<ProjectEventModel>,
+}
+
+/// Events of the phases, hidden defects and recalls (PD4, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectEventModel {
+    pub deadline_days: u32,
+    pub defect_cap: f64,
+    pub defect_per_condition: f64,
+    pub defect_per_shortfall: f64,
+    /// Per tempo of the model.
+    pub defect_per_tempo: Vec<f64>,
+    /// Days from the release to the recall: from, to.
+    pub recall_days: (u32, u32),
+    /// Share of the project's cost a recall costs.
+    pub recall_cost_share: f64,
+    /// Share of the brand awareness in the goods group a recall takes.
+    pub recall_awareness_loss: f64,
+    pub kinds: Vec<ProjectEventKind>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectEventKind {
+    pub key: String,
+    /// Phases (0–5) it can happen in.
+    pub phases: Vec<u8>,
+    pub weight: f64,
+    /// The option the leader recommends.
+    pub recommended: usize,
+    pub options: Vec<ProjectEventOption>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectEventOption {
+    pub key: String,
+    /// Extra cost as a share of the phase's cost.
+    pub cost: f64,
+    /// Share of the phase lost (negative: gained).
+    pub delay: f64,
+    /// Change of the target quality.
+    pub quality: f64,
+    /// Added to the hidden defect risk.
+    pub defect: f64,
 }
 
 /// Milestone reports, traffic lights, decisions and choices (PD3, docs/FORMELN.md).
