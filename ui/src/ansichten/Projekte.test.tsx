@@ -8,6 +8,63 @@ const projekte: Entwicklungsprojekte = {
   tempos: ["gruendlich", "normal", "beschleunigt"],
   trims: ["basis", "standard", "premium"],
   salary_usd_year: 90_000,
+  improvement_stages: 3,
+  improvement_targets: ["kosten", "qualitaet", "ausschuss", "rate", "vorprodukte", "ausstattung"],
+  improvement_offers: [
+    {
+      product: "schrauben",
+      target: "kosten",
+      stages: 1,
+      effort: 1500,
+      cost_usd: 180_000,
+      days: 150,
+    },
+  ],
+  improvements: [
+    {
+      id: 0,
+      product: "naegel",
+      target: "qualitaet",
+      site: 99,
+      site_name: null,
+      lead: "Anna Weber",
+      phase: 1,
+      progress: 0.4,
+      status: "laufend",
+      spent_usd: 12_000,
+      started: "1914-01-10",
+      finished: null,
+      approaches: [
+        { gain: 1.2, cost: 1.16 },
+        { gain: 0.8, cost: 0.84 },
+      ],
+      chosen: null,
+      result: null,
+      expected: null,
+      pending: "ansatz",
+      deadline: "1914-06-05",
+    },
+    {
+      id: 1,
+      product: "schrauben",
+      target: "ausschuss",
+      site: 99,
+      site_name: null,
+      lead: "Anna Weber",
+      phase: 2,
+      progress: 0.9,
+      status: "laufend",
+      spent_usd: 30_000,
+      started: "1914-01-10",
+      finished: null,
+      approaches: [{ gain: 1, cost: 1 }],
+      chosen: 0,
+      result: 1.1,
+      expected: 1,
+      pending: "freigabe",
+      deadline: "1914-06-07",
+    },
+  ],
   delegation: "standard",
   player_at: [2, 4, 6, 7],
   leads: [
@@ -279,5 +336,29 @@ describe("Entwicklungsprojekte", () => {
     expect(within(gruppe).getByText("Technisches Problem")).toBeTruthy();
     fireEvent.click(within(gruppe).getByRole("button", { name: "Verzug in Kauf nehmen" }));
     expect(gesendet).toContainEqual({ DecideEvent: { project: 0, option: 2 } });
+  });
+
+  it("startet eine Weiterentwicklung, wählt einen Ansatz und gibt frei", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Weiterentwicklung starten" }));
+    expect(gesendet).toContainEqual({
+      StartImprovement: { site: 99, product: "schrauben", target: 0, lead: 0 },
+    });
+    const karte = screen.getByRole("article", { name: /Nägel · Qualität/ });
+    fireEvent.click(within(karte).getAllByRole("radio")[1]!);
+    fireEvent.click(within(karte).getByRole("button", { name: "Ansatz wählen" }));
+    expect(gesendet).toContainEqual({ ChooseApproach: { project: 0, approach: 1 } });
+    const frei = screen.getByRole("article", { name: /Schrauben · Ausschuss/ });
+    fireEvent.click(within(frei).getByRole("button", { name: "Alle Werke sofort umrüsten" }));
+    expect(gesendet).toContainEqual({ ReleaseImprovement: { project: 1, immediate: true } });
   });
 });

@@ -186,6 +186,10 @@ export type Befehl =
       };
     }
   | { DecideEvent: { project: number; option: number } }
+  | { StartImprovement: { site: number; product: string; target: number; lead: number } }
+  | { ChooseApproach: { project: number; approach: number } }
+  | { ReleaseImprovement: { project: number; immediate: boolean } }
+  | { AbortImprovement: { project: number } }
   | { ResumeProject: { project: number } }
   | {
       SetProjectDelegation: {

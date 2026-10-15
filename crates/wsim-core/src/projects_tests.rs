@@ -1219,3 +1219,31 @@ fn further_stages_bring_a_fifth_and_the_cap_limits_the_sum() {
     let e = crate::development::effect(&c, game.state(), player, iron);
     assert!((e.quality - 20.0 * 0.9).abs() < 1e-9);
 }
+
+#[test]
+fn the_view_offers_improvements_and_shows_the_running_ones() {
+    let (mut game, site, lead, iron) = improvement_game();
+    // Iron is made by the company: put it into production so the offers appear.
+    let c = game.catalog().clone();
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    assert_eq!(v.improvement_targets.len(), 6);
+    assert_eq!(v.improvement_stages, 3);
+    assert!(v.improvements.is_empty());
+    let _ = (&c, iron);
+    start_improvement(&mut game, site, lead, iron, 1);
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    assert_eq!(v.improvements.len(), 1);
+    let row = &v.improvements[0];
+    assert_eq!(
+        (row.product.as_str(), row.target.as_str()),
+        ("eisen", "qualitaet")
+    );
+    assert_eq!(row.status, "laufend");
+    assert!(row.pending.is_none() && row.approaches.is_empty());
+    // A running target is no longer on offer.
+    assert!(
+        v.improvement_offers
+            .iter()
+            .all(|o| !(o.product == "eisen" && o.target == "qualitaet"))
+    );
+}

@@ -240,7 +240,7 @@ fn product_param(catalog: &Catalog, product: ProductId) -> Param {
 
 fn target_param(w: &ImprovementModel, target: u8) -> Param {
     Param::TextKey(format!(
-        "weiterentwicklung.ziel.{}",
+        "verbesserung.ziel.{}",
         w.targets
             .get(usize::from(target))
             .map_or("", |t| t.key.as_str())

@@ -8,6 +8,7 @@ use super::{iso, usd};
 use crate::catalog::LabRole;
 use crate::game::Game;
 use crate::ids::{Id, ProductId};
+use crate::improvements::{self, ImpPendingKind, ImpStatus};
 use crate::project_reports::{self, DelegationMode, Kpis, LightColor};
 use crate::projects::{self, ProjectStatus};
 
@@ -164,6 +165,52 @@ pub struct ProjectOfferView {
     pub days: f64,
 }
 
+/// An approach the analysis of an improvement project found (PD5).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ApproachView {
+    pub gain: f64,
+    pub cost: f64,
+}
+
+/// An improvement project WM0–WM3 (PD5).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ImprovementRowView {
+    pub id: u32,
+    pub product: String,
+    pub target: String,
+    pub site: u32,
+    pub site_name: Option<String>,
+    pub lead: String,
+    /// Phase 0–2, 3 once released.
+    pub phase: u8,
+    pub progress: f64,
+    /// `laufend`, `freigegeben` or `abgebrochen`.
+    pub status: String,
+    pub spent_usd: f64,
+    pub started: String,
+    pub finished: Option<String>,
+    pub approaches: Vec<ApproachView>,
+    pub chosen: Option<u8>,
+    /// Result of WM2 against the expectation of the chosen approach.
+    pub result: Option<f64>,
+    pub expected: Option<f64>,
+    /// `ansatz` (choose an approach) or `freigabe` (release); none otherwise.
+    pub pending: Option<String>,
+    pub deadline: Option<String>,
+}
+
+/// A step a company can take in an improvement (PD5).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ImprovementOfferView {
+    pub product: String,
+    pub target: String,
+    /// Stages released so far.
+    pub stages: u32,
+    pub effort: f64,
+    pub cost_usd: f64,
+    pub days: f64,
+}
+
 /// The development projects of the player's company.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ProjectsView {
@@ -177,6 +224,13 @@ pub struct ProjectsView {
     pub leads: Vec<ProjectLeadView>,
     pub projects: Vec<ProjectRowView>,
     pub offers: Vec<ProjectOfferView>,
+    /// Improvement projects (PD5); empty without the data.
+    pub improvements: Vec<ImprovementRowView>,
+    pub improvement_offers: Vec<ImprovementOfferView>,
+    /// Stages with full effect per target.
+    pub improvement_stages: u8,
+    /// The targets in the order the commands count them.
+    pub improvement_targets: Vec<String>,
 }
 
 fn delegation_key(d: DelegationMode) -> &'static str {
@@ -408,7 +462,139 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
         leads,
         projects,
         offers,
+        improvements: improvement_rows(game),
+        improvement_offers: improvement_offers(game),
+        improvement_stages: m.improvement.as_ref().map_or(0, |w| w.stages),
+        improvement_targets: m
+            .improvement
+            .as_ref()
+            .map(|w| w.targets.iter().map(|t| t.key.clone()).collect())
+            .unwrap_or_default(),
     })
+}
+
+fn improvement_rows(game: &Game) -> Vec<ImprovementRowView> {
+    let catalog = game.catalog();
+    let state = game.state();
+    let player = game.player();
+    let Some((m, w)) = catalog
+        .research_model
+        .projects
+        .as_ref()
+        .and_then(|m| Some((m, m.improvement.as_ref()?)))
+    else {
+        return Vec::new();
+    };
+    let _ = m;
+    state
+        .improvement_projects
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| p.company == player)
+        .map(|(i, p)| {
+            let site = &state.sites[p.site.index()];
+            let chosen = p.chosen.and_then(|c| p.approaches.get(usize::from(c)));
+            ImprovementRowView {
+                id: u32::try_from(i).unwrap_or(u32::MAX),
+                product: catalog.products.key(p.product).to_owned(),
+                target: w.targets[usize::from(p.target)].key.clone(),
+                site: u32::try_from(p.site.index()).unwrap_or(u32::MAX),
+                site_name: site.name.clone(),
+                lead: state
+                    .project_leads
+                    .get(p.lead as usize)
+                    .map(|l| l.name.clone())
+                    .unwrap_or_default(),
+                phase: p.phase,
+                progress: (f64::from(p.phase.min(3)) + p.progress.clamp(0.0, 1.0)).min(3.0) / 3.0,
+                status: match p.status {
+                    ImpStatus::Running => "laufend",
+                    ImpStatus::Released => "freigegeben",
+                    ImpStatus::Aborted => "abgebrochen",
+                }
+                .to_owned(),
+                spent_usd: usd(p.spent),
+                started: iso(p.started),
+                finished: p.finished.map(iso),
+                approaches: p
+                    .approaches
+                    .iter()
+                    .map(|a| ApproachView {
+                        gain: a.gain,
+                        cost: a.cost,
+                    })
+                    .collect(),
+                chosen: p.chosen,
+                result: p.result,
+                expected: chosen.map(|a| a.gain),
+                pending: p.pending.map(|x| {
+                    match x.kind {
+                        ImpPendingKind::Choose => "ansatz",
+                        ImpPendingKind::Release => "freigabe",
+                    }
+                    .to_owned()
+                }),
+                deadline: p.pending.map(|x| iso(x.deadline)),
+            }
+        })
+        .collect()
+}
+
+/// For every product the player makes: the next step of each target.
+fn improvement_offers(game: &Game) -> Vec<ImprovementOfferView> {
+    let catalog = game.catalog();
+    let state = game.state();
+    let player = game.player();
+    let Some((m, w)) = catalog
+        .research_model
+        .projects
+        .as_ref()
+        .and_then(|m| Some((m, m.improvement.as_ref()?)))
+    else {
+        return Vec::new();
+    };
+    let mut products: Vec<ProductId> = Vec::new();
+    for s in state.sites.iter().filter(|s| s.held_by(player)) {
+        for sl in &s.slots {
+            if let Some(r) = sl.recipe {
+                let p = catalog.recipes.get(r).product;
+                if !products.contains(&p) {
+                    products.push(p);
+                }
+            }
+        }
+    }
+    products.sort();
+    let mut out = Vec::new();
+    for product in products {
+        if !crate::development::can_develop(catalog, state, player, product) {
+            continue;
+        }
+        let Some((_, base)) = crate::development::basis(catalog, product) else {
+            continue;
+        };
+        for (t, target) in w.targets.iter().enumerate() {
+            let t8 = u8::try_from(t).unwrap_or(0);
+            if state.improvement_projects.iter().any(|p| {
+                p.running() && p.company == player && p.product == product && p.target == t8
+            }) {
+                continue;
+            }
+            let stages = improvements::stages_done(state, player, product, t8);
+            let stage = (stages + 1).min(usize::from(w.stages)).max(1);
+            let effort =
+                base * w.effort_share * crate::math::pow(w.effort_growth, (stage - 1) as f64);
+            out.push(ImprovementOfferView {
+                product: catalog.products.key(product).to_owned(),
+                target: target.key.clone(),
+                stages: u32::try_from(stages).unwrap_or(u32::MAX),
+                effort,
+                cost_usd: effort * m.cost_per_point_usd,
+                days: effort / m.reference_rate,
+            });
+        }
+    }
+    out
 }
 
 /// The decision a project waits for, with the choices of PM1 and PM2.

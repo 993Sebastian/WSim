@@ -10,6 +10,7 @@ import type {
   Projekt,
   Projektkennzahlen,
   Projektleiter,
+  Verbesserung,
 } from "../kern";
 import { t } from "../texte";
 import { Rueckmeldung, useAktion } from "./gemeinsam";
@@ -61,6 +62,7 @@ export function Projekte({
       <p className="erklaerung">{t("projekte.erklaerung")}</p>
       <NeuesProjekt daten={daten} vorwahl={vorwahl} onZentren={onZentren} />
       <Leiter leiter={p.leads} gehalt={p.salary_usd_year} />
+      {p.improvement_targets.length > 0 && <Weiterentwicklungen daten={daten} />}
       <section aria-label={t("projekte.laufend")}>
         <h3>{t("projekte.laufend")}</h3>
         {laufend.length === 0 && <p className="gedaempft">{t("projekte.keine")}</p>}
@@ -726,5 +728,231 @@ function Ereignis({ x }: { x: Projekt }) {
       </ul>
       <Rueckmeldung meldung={antwort} />
     </section>
+  );
+}
+
+const zielName = (z: string) => t(`verbesserung.ziel.${z}`);
+
+/** Improvement projects WM0–WM3: start a step, choose an approach, release the gain (PD5). */
+function Weiterentwicklungen({ daten }: { daten: Forschung }) {
+  const p = daten.projects;
+  const { los, antwort } = useAktion("projekt/verbesserung");
+  const id = useId();
+  const labore = daten.centers.filter((z) => z.ready);
+  const leiter = (p?.leads ?? []).filter((l) => l.hired);
+  const angebote = [...(p?.improvement_offers ?? [])].sort(
+    (a, b) =>
+      produktName(a.product).localeCompare(produktName(b.product), "de") ||
+      a.target.localeCompare(b.target),
+  );
+  const [wahl, setWahl] = useState("");
+  const [zentrum, setZentrum] = useState(labore[0]?.site ?? -1);
+  const [leiterId, setLeiterId] = useState(leiter[0]?.id ?? -1);
+  if (!p) return null;
+  const laufend = p.improvements.filter((x) => x.status === "laufend");
+  const fertig = p.improvements.filter((x) => x.status !== "laufend");
+  const gewaehlt = angebote.find((a) => `${a.product}/${a.target}` === wahl) ?? angebote[0];
+  const bereit = gewaehlt !== undefined && zentrum >= 0 && leiter.some((l) => l.id === leiterId);
+  return (
+    <section aria-label={t("verbesserung.titel")}>
+      <h3>{t("verbesserung.titel")}</h3>
+      <p className="erklaerung">{t("verbesserung.erklaerung", { stufen: p.improvement_stages })}</p>
+      {angebote.length === 0 ? (
+        <p className="gedaempft">{t("verbesserung.keine_angebote")}</p>
+      ) : (
+        <form
+          className="formular-zeile"
+          aria-label={t("verbesserung.neu")}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!bereit || !gewaehlt) return;
+            void los(
+              [
+                {
+                  StartImprovement: {
+                    site: zentrum,
+                    product: gewaehlt.product,
+                    target: Math.max(0, p.improvement_targets.indexOf(gewaehlt.target)),
+                    lead: leiterId,
+                  },
+                },
+              ],
+              t("verbesserung.gestartet", {
+                produkt: produktName(gewaehlt.product),
+                ziel: zielName(gewaehlt.target),
+              }),
+            );
+          }}
+        >
+          <div className="feld">
+            <label htmlFor={`${id}-ziel`}>{t("verbesserung.ziel")}</label>
+            <select
+              id={`${id}-ziel`}
+              value={gewaehlt ? `${gewaehlt.product}/${gewaehlt.target}` : ""}
+              onChange={(e) => setWahl(e.target.value)}
+            >
+              {angebote.map((a) => (
+                <option key={`${a.product}/${a.target}`} value={`${a.product}/${a.target}`}>
+                  {t("verbesserung.option", {
+                    produkt: produktName(a.product),
+                    ziel: zielName(a.target),
+                    stufen: a.stages,
+                  })}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-zentrum`}>{t("forschung.zentrum")}</label>
+            <select
+              id={`${id}-zentrum`}
+              value={zentrum}
+              onChange={(e) => setZentrum(Number(e.target.value))}
+            >
+              {labore.map((z) => (
+                <option key={z.site} value={z.site}>
+                  {zentrumName(z)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-leiter`}>{t("projekte.leiter")}</label>
+            <select
+              id={`${id}-leiter`}
+              value={leiterId}
+              onChange={(e) => setLeiterId(Number(e.target.value))}
+            >
+              {leiter.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="haupt" disabled={!bereit}>
+            {t("verbesserung.starten")}
+          </button>
+        </form>
+      )}
+      {gewaehlt && (
+        <p className="feld-hilfe">
+          {t("projekte.schaetzung", {
+            kosten: formatGeld(gewaehlt.cost_usd),
+            tage: formatZahl(Math.ceil(gewaehlt.days)),
+          })}
+        </p>
+      )}
+      {laufend.map((x) => (
+        <WeiterentwicklungKarte key={x.id} x={x} />
+      ))}
+      {fertig.length > 0 && (
+        <ul className="liste">
+          {fertig.map((x) => (
+            <li key={x.id}>
+              {t("verbesserung.fertig_zeile", {
+                produkt: produktName(x.product),
+                ziel: zielName(x.target),
+                status: t(`projekte.status.${x.status}`),
+                datum: x.finished ? formatDatum(x.finished) : "",
+                kosten: formatGeld(x.spent_usd),
+              })}
+            </li>
+          ))}
+        </ul>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+function WeiterentwicklungKarte({ x }: { x: Verbesserung }) {
+  const { los, antwort } = useAktion(`verbesserung/${x.id}`);
+  const [ansatz, setAnsatz] = useState(0);
+  const name = `${produktName(x.product)} · ${zielName(x.target)}`;
+  return (
+    <article className="karte projektkarte" aria-label={name}>
+      <h4>{name}</h4>
+      <progress value={x.progress} max={1} aria-label={t("projekte.fortschritt")} />
+      <p>
+        {t(`verbesserung.phase.${Math.min(x.phase, 2)}`)}{" "}
+        <small className="gedaempft">
+          {t("projekte.kosten_stand", { ausgegeben: formatGeld(x.spent_usd), gesamt: "–" })}
+        </small>
+      </p>
+      {x.result !== null && x.expected !== null && (
+        <p>
+          {t("verbesserung.ergebnis", {
+            erreicht: formatProzent(x.result),
+            erwartet: formatProzent(x.expected),
+          })}
+        </p>
+      )}
+      {x.pending === "ansatz" && (
+        <fieldset>
+          <legend>{t("verbesserung.ansaetze")}</legend>
+          {x.approaches.map((a, i) => (
+            <label key={i} className="zeile">
+              <input
+                type="radio"
+                name={`ansatz-${x.id}`}
+                checked={ansatz === i}
+                onChange={() => setAnsatz(i)}
+              />{" "}
+              {t("verbesserung.ansatz", {
+                nr: i + 1,
+                gewinn: formatProzent(a.gain),
+                kosten: formatProzent(a.cost),
+              })}
+            </label>
+          ))}
+          <div className="knopfreihe links">
+            <button
+              type="button"
+              className="haupt"
+              onClick={() => void los([{ ChooseApproach: { project: x.id, approach: ansatz } }])}
+            >
+              {t("verbesserung.waehlen")}
+            </button>
+          </div>
+        </fieldset>
+      )}
+      {x.pending === "freigabe" && (
+        <div className="knopfreihe links" role="group" aria-label={t("verbesserung.freigabe")}>
+          <button
+            type="button"
+            className="haupt"
+            onClick={() => void los([{ ReleaseImprovement: { project: x.id, immediate: false } }])}
+          >
+            {t("verbesserung.gestaffelt")}
+          </button>
+          <button
+            type="button"
+            onClick={() => void los([{ ReleaseImprovement: { project: x.id, immediate: true } }])}
+          >
+            {t("verbesserung.sofort")}
+          </button>
+        </div>
+      )}
+      {x.deadline && (
+        <p className="feld-hilfe">
+          {t("projekte.entscheidung_frist", { datum: formatDatum(x.deadline) })}
+        </p>
+      )}
+      <div className="knopfreihe links">
+        <button
+          type="button"
+          onClick={() =>
+            void los(
+              [{ AbortImprovement: { project: x.id } }],
+              t("verbesserung.abgebrochen_ok", { produkt: name }),
+            )
+          }
+        >
+          {t("projekte.abbrechen")}
+        </button>
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </article>
   );
 }

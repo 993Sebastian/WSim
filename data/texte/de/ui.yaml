@@ -2952,3 +2952,23 @@ projekte.ereignis.kosten: "Kosten {vorzeichen}{anteil} der Phase"
 projekte.ereignis.verzug: "Verzug {anteil} der Phase"
 projekte.ereignis.gewinn: "Zeitgewinn {anteil} der Phase"
 projekte.ereignis.qualitaet: "Qualität {vorzeichen}{anteil}"
+verbesserung.titel: Weiterentwicklung der Produkte
+verbesserung.erklaerung: "Ein Projekt verbessert eine Kennzahl eines Produkts: erst eine Analyse mit Ansatzpunkten, dann die Optimierung, dann die Freigabe. Je Ziel gibt es {stufen} deutliche Stufen, danach nur noch kleinen Restertrag."
+verbesserung.keine_angebote: Du stellst noch nichts her, das sich weiterentwickeln lässt.
+verbesserung.neu: Weiterentwicklung starten
+verbesserung.ziel: Produkt und Ziel
+verbesserung.option: "{produkt}: {ziel} (Stufen bisher: {stufen})"
+verbesserung.starten: Weiterentwicklung starten
+verbesserung.gestartet: "Weiterentwicklung gestartet: {produkt}, {ziel}."
+verbesserung.abgebrochen_ok: "Weiterentwicklung abgebrochen: {produkt}."
+verbesserung.fertig_zeile: "{produkt} · {ziel}: {status} {datum}, Kosten {kosten}"
+verbesserung.phase.0: "Analyse (WM0 bis WM1)"
+verbesserung.phase.1: "Optimierung (WM1 bis WM2)"
+verbesserung.phase.2: "Freigabevorbereitung (WM2 bis WM3)"
+verbesserung.ergebnis: "Ergebnis {erreicht} bei erwarteten {erwartet}."
+verbesserung.ansaetze: Ansatzpunkte der Analyse
+verbesserung.ansatz: "Ansatz {nr}: erwarteter Gewinn {gewinn}, Kosten {kosten}"
+verbesserung.waehlen: Ansatz wählen
+verbesserung.freigabe: Freigabe
+verbesserung.gestaffelt: Gestaffelt umrüsten
+verbesserung.sofort: Alle Werke sofort umrüsten

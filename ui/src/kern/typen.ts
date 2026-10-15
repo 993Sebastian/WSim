@@ -3279,6 +3279,46 @@ export interface Projektangebot {
   days: number;
 }
 
+/** An approach the analysis of an improvement project found (PD5). */
+export interface Ansatz {
+  gain: number;
+  cost: number;
+}
+
+/** An improvement project WM0–WM3 (PD5). */
+export interface Verbesserung {
+  id: number;
+  product: string;
+  target: string;
+  site: number;
+  site_name: string | null;
+  lead: string;
+  /** 0–2 while running, 3 once released. */
+  phase: number;
+  progress: number;
+  status: "laufend" | "freigegeben" | "abgebrochen";
+  spent_usd: number;
+  started: string;
+  finished: string | null;
+  approaches: Ansatz[];
+  chosen: number | null;
+  result: number | null;
+  expected: number | null;
+  /** `ansatz` or `freigabe`: what the project waits for. */
+  pending: "ansatz" | "freigabe" | null;
+  deadline: string | null;
+}
+
+/** A step a company can take in an improvement (PD5). */
+export interface Verbesserungsangebot {
+  product: string;
+  target: string;
+  stages: number;
+  effort: number;
+  cost_usd: number;
+  days: number;
+}
+
 /** The development projects of the player's company (PD2). */
 export interface Entwicklungsprojekte {
   tempos: string[];
@@ -3289,4 +3329,8 @@ export interface Entwicklungsprojekte {
   leads: Projektleiter[];
   projects: Projekt[];
   offers: Projektangebot[];
+  improvements: Verbesserung[];
+  improvement_offers: Verbesserungsangebot[];
+  improvement_stages: number;
+  improvement_targets: string[];
 }
