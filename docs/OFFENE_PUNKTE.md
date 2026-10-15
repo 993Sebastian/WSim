@@ -2841,3 +2841,13 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
   - Fast-Track und Pilotserie fließen in die Restdauer (`days_left`) und die Restkosten der Berichte ein; die Baseline von PM2 bleibt unverändert, danach erscheint ein Vorsprung gegenüber dem Plan.
   - Der Mängelzuschlag des Fast-Tracks (`mangel`) wirkt auf `total_defect` (Rückruf bei der Freigabe); die Pilotserie senkt das Mängelrisiko über `Projekt.defect` (kann negativ werden und wird mit dem Rest gedeckelt).
   - `ui/src/kern/beispiel.json` wurde für PD7 nicht erneuert: Die Beispieldaten der Browser-Vorschau enthalten keine Entwicklungsprojekte, und eine Neuerzeugung ändert unabhängig davon Namen und Werte, auf die die E2E-Tests (Stellen besetzen u. a.) fest bauen. Bei Bedarf gemeinsam mit angepassten E2E-Werten erneuern.
+
+## PD8 – Teilwissen, Plattform, Lizenz, Partnerschaft, Start-up-Schnittstelle (Entwurf 15.10.2026)
+- Formeln in `docs/FORMELN.md` (PD8); Parameter als `annaeherung: true` in `forschungsmodell.yaml` (`teilwissen`, `plattform`, `lizenz`, `partnerschaft`).
+- **Selbst getroffene Entscheidungen:**
+  - Teilwissen ohne Verfall; es gilt nur für dieselbe Firma und dasselbe Produkt.
+  - Plattform = Anteil bekannter Vorprodukte des ersten Rezepts; wirkt auf die Phasen PM4→PM6.
+  - Projektlizenz nur von freigegebenen Projekten (Know-how-Kauf), Gebühr als feste monatliche Rate statt „je Stück“, weil der Absatz je Produkt erst mit den Marktdaten aus DM zur Verfügung steht.
+  - Die KI bietet jedes freigegebene Projekt an und kauft, wenn es billiger ist als die eigene Entwicklung. Anfragen an den Spieler als Anliegen und Partnerschaften mit dem Spieler als Partner entfallen vorerst (kein Anliegen-Postfach für Projekte).
+  - Entwicklungspartnerschaft nur vor PM4 und nur mit KI-Partnern, Kostenteilung 50 % (Wert in `data/`).
+  - Start-up-Schnittstelle als reines Feld `origin` ohne Wirkung (Vorgabe: „nur Schnittstelle vorbereiten“).

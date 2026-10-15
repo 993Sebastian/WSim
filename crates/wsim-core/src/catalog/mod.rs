@@ -1488,6 +1488,51 @@ pub struct ProjectModel {
     pub fast_track: Option<FastTrackModel>,
     /// Pilot series between PM6 and PM7 on the leader's proposal (PD7).
     pub pilot: Option<PilotModel>,
+    /// What an aborted project leaves behind (PD8).
+    pub knowledge: Option<KnowledgeModel>,
+    /// Known components shorten PM4–PM6 (PD8).
+    pub platform: Option<PlatformModel>,
+    /// Buying the know-how of a released project (PD8).
+    pub license: Option<ProjectLicenseModel>,
+    /// Development partnership with a company (PD8).
+    pub partnership: Option<DevPartnershipModel>,
+}
+
+/// Partial knowledge of aborted projects (PD8).
+#[derive(Clone, Debug, PartialEq)]
+pub struct KnowledgeModel {
+    /// Share of the progress the company keeps.
+    pub share: f64,
+    /// Largest reduction of duration and cost a new project gets.
+    pub effect: f64,
+}
+
+/// Platform strategy (PD8).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PlatformModel {
+    /// Reduction of phases 3 and 4 when all components are known.
+    pub effect: f64,
+}
+
+/// Project licence (PD8).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectLicenseModel {
+    /// Price as a share of the seller project's cost.
+    pub price_share: f64,
+    /// The phase the licensed project starts in.
+    pub from_phase: u8,
+    /// Total fee over the fee years as a share of the seller project's cost.
+    pub fee_share: f64,
+    pub fee_years: u32,
+}
+
+/// Development partnership (PD8).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DevPartnershipModel {
+    /// Share of the costs the partner carries.
+    pub cost_share: f64,
+    /// Chance that an AI company accepts.
+    pub ai_accept: f64,
 }
 
 /// The gate council (PD7, docs/FORMELN.md).

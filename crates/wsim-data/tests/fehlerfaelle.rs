@@ -6315,3 +6315,39 @@ fn projektgremium_fast_track_und_pilot_werden_geprueft() {
     let falsch = mit(&block.replace("behebung: 0.7", "behebung: 2")).laden();
     befund(&falsch, "außerhalb des erlaubten Bereichs");
 }
+
+#[test]
+fn projekt_teilwissen_plattform_lizenz_und_partnerschaft_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let zusatz = "    teilwissen:\n      anteil: 0.6\n      wirkung: 0.5\n    plattform:\n      wirkung: 0.4\n    lizenz:\n      \
+         preis_anteil: 0.5\n      ab_phase: 4\n      gebuehr_anteil: 0.1\n      gebuehr_jahre: 5\n    partnerschaft:\n      \
+         kosten_anteil: 0.5\n      ki_annahme: 0.5\n";
+    let block = format!("{}{zusatz}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap();
+    assert!((m.knowledge.expect("knowledge").share - 0.6).abs() < 1e-9);
+    assert_eq!(m.license.expect("license").from_phase, 4);
+    assert!((m.partnership.expect("partnership").cost_share - 0.5).abs() < 1e-9);
+
+    let falsch = mit(&block.replace("ab_phase: 4", "ab_phase: 9")).laden();
+    befund(&falsch, "zwischen 1 und 5");
+    let falsch = mit(&block.replace("wirkung: 0.5", "wirkung: 1.5")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("kosten_anteil: 0.5", "kosten_anteil: 0.99")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+}

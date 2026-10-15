@@ -11,7 +11,10 @@ use wsim_core::catalog::{
     SizeModel, StartSetup, StorageClass, StorageModel, SuggestionModel, TrainingModel,
     TransportModel, Vehicle, Way,
 };
-use wsim_core::catalog::{CouncilModel, FastTrackModel, PilotModel};
+use wsim_core::catalog::{
+    CouncilModel, DevPartnershipModel, FastTrackModel, KnowledgeModel, PilotModel, PlatformModel,
+    ProjectLicenseModel,
+};
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
 
@@ -1875,6 +1878,10 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
         council: project_council(ctx, p, l),
         fast_track: project_fast_track(ctx, p, l),
         pilot: project_pilot(ctx, p, l),
+        knowledge: project_knowledge(ctx, p, l),
+        platform: project_platform(ctx, p, l),
+        license: project_license(ctx, p, l),
+        partnership: project_partnership(ctx, p, l),
     }
 }
 
@@ -1997,6 +2004,58 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         deadline_days: d.deadline_days,
         profiles,
         paths,
+    })
+}
+
+/// Partial knowledge of aborted projects (PD8).
+fn project_knowledge(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<KnowledgeModel> {
+    let k = p.knowledge.as_ref()?;
+    let kl = l.field("teilwissen");
+    Some(KnowledgeModel {
+        share: in_range(ctx, k.share, 0.0, 1.0, &kl.field("anteil")),
+        effect: in_range(ctx, k.effect, 0.0, 0.9, &kl.field("wirkung")),
+    })
+}
+
+/// Platform strategy (PD8).
+fn project_platform(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<PlatformModel> {
+    let x = p.platform.as_ref()?;
+    Some(PlatformModel {
+        effect: in_range(
+            ctx,
+            x.effect,
+            0.0,
+            0.9,
+            &l.field("plattform").field("wirkung"),
+        ),
+    })
+}
+
+/// Project licence (PD8).
+fn project_license(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<ProjectLicenseModel> {
+    let x = p.license.as_ref()?;
+    let ll = l.field("lizenz");
+    if !(1..=5).contains(&x.from_phase) {
+        ctx.error(
+            &ll.field("ab_phase"),
+            messages::project_license_phase(x.from_phase),
+        );
+    }
+    Some(ProjectLicenseModel {
+        price_share: positive(ctx, x.price_share, &ll.field("preis_anteil")),
+        from_phase: x.from_phase.clamp(1, 5),
+        fee_share: non_negative(ctx, x.fee_share, &ll.field("gebuehr_anteil")),
+        fee_years: x.fee_years.max(1),
+    })
+}
+
+/// Development partnership (PD8).
+fn project_partnership(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<DevPartnershipModel> {
+    let x = p.partnership.as_ref()?;
+    let pl = l.field("partnerschaft");
+    Some(DevPartnershipModel {
+        cost_share: in_range(ctx, x.cost_share, 0.0, 0.9, &pl.field("kosten_anteil")),
+        ai_accept: in_range(ctx, x.ai_accept, 0.0, 1.0, &pl.field("ki_annahme")),
     })
 }
 

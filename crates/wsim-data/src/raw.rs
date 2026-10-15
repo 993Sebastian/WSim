@@ -1433,6 +1433,56 @@ pub struct RawProjectModel {
     /// Pilot series (PD7).
     #[serde(rename = "pilot", default)]
     pub pilot: Option<RawProjectPilot>,
+    /// Partial knowledge of aborted projects (PD8).
+    #[serde(rename = "teilwissen", default)]
+    pub knowledge: Option<RawProjectKnowledge>,
+    /// Platform strategy (PD8).
+    #[serde(rename = "plattform", default)]
+    pub platform: Option<RawProjectPlatform>,
+    /// Project licence (PD8).
+    #[serde(rename = "lizenz", default)]
+    pub license: Option<RawProjectLicense>,
+    /// Development partnership (PD8).
+    #[serde(rename = "partnerschaft", default)]
+    pub partnership: Option<RawProjectPartnership>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectKnowledge {
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "wirkung")]
+    pub effect: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectPlatform {
+    #[serde(rename = "wirkung")]
+    pub effect: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectLicense {
+    #[serde(rename = "preis_anteil")]
+    pub price_share: f64,
+    #[serde(rename = "ab_phase")]
+    pub from_phase: u8,
+    #[serde(rename = "gebuehr_anteil")]
+    pub fee_share: f64,
+    #[serde(rename = "gebuehr_jahre")]
+    pub fee_years: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectPartnership {
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "ki_annahme")]
+    pub ai_accept: f64,
 }
 
 /// The gate council at PM3, PM4 and PM7 (PD7).

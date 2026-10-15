@@ -111,6 +111,10 @@ fn model() -> ProjectModel {
         council: None,
         fast_track: None,
         pilot: None,
+        knowledge: None,
+        platform: None,
+        license: None,
+        partnership: None,
     }
 }
 

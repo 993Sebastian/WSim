@@ -909,6 +909,12 @@ pub fn project_shares_sum(name: &str, sum: f64) -> String {
     format!("Die Anteile „{name}“ aller Phasen müssen zusammen 1 ergeben, nicht {sum}.")
 }
 
+pub fn project_license_phase(phase: u8) -> String {
+    format!(
+        "Die Phase „{phase}“, in der ein lizenziertes Projekt startet, muss zwischen 1 und 5 liegen."
+    )
+}
+
 pub fn project_choice_missing(key: &str) -> String {
     format!("Der Eintrag „{key}“ fehlt in der Liste (Reihenfolge wie in der Dokumentation).")
 }

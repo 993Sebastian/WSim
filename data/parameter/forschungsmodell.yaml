@@ -302,6 +302,20 @@ forschungsmodell:
       ueberlappung: 0.25             # Anteil der Dauer von Phase 3 und 4, der entfällt
       kosten_faktor: 1.10
       mangel: 0.12                   # Zuschlag auf das versteckte Mängelrisiko
+    # Teilwissen, Plattform, Projektlizenz und Entwicklungspartnerschaft (PD8). Vorläufig.
+    teilwissen:
+      anteil: 0.6                    # Anteil des Fortschritts, den ein abgebrochenes Projekt hinterlässt
+      wirkung: 0.5                   # größte Verkürzung von Dauer und Kosten eines neuen Projekts
+    plattform:
+      wirkung: 0.4                   # Verkürzung von PM4→PM6, wenn alle Vorprodukte bekannt sind
+    lizenz:
+      preis_anteil: 0.5              # Preis als Anteil der Kosten des Verkäuferprojekts
+      ab_phase: 4                    # Phase, in der das lizenzierte Projekt startet (4 = PM5→PM6)
+      gebuehr_anteil: 0.10           # Gebühren insgesamt als Anteil der Kosten des Verkäuferprojekts
+      gebuehr_jahre: 5
+    partnerschaft:
+      kosten_anteil: 0.5             # Anteil der Kosten, den der Partner trägt
+      ki_annahme: 0.5                # Chance, dass eine KI-Firma annimmt
     # Pilotserie zwischen PM6 und PM7 auf Vorschlag des Projektleiters (PD7).
     pilot:
       risiko_ab: 0.15                # Mängelrisiko, ab dem der Projektleiter sie vorschlägt
