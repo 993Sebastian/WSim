@@ -1434,7 +1434,7 @@ fn a_started_suggestion_freezes_the_promise_and_the_review_feeds_the_balance() {
 
 // --- PD7: gate council, fast-track, pilot series ---
 
-use crate::catalog::{CouncilModel, FastTrackModel, PilotModel};
+use crate::catalog::{CouncilModel, FastTrackModel, LeadershipModel, PilotModel};
 use crate::project_gates::{self, Stance, Voice, VoiceRole};
 
 fn council_model() -> CouncilModel {
@@ -2161,4 +2161,195 @@ fn the_view_shows_nothing_of_the_projects_of_others() {
     assert!(v.projects.is_empty());
     assert!(v.suggestions.is_empty());
     assert!(v.license_offers.is_empty());
+}
+
+// --- PD11: development leadership ---
+
+fn leadership_model() -> LeadershipModel {
+    LeadershipModel {
+        lead_months: 2,
+        induction_months: 1,
+        severance_months: 3,
+        horizon_months: 3,
+        patience_months: 2,
+        reserve: 0.0,
+        reserve_thrifty: 0.0,
+        reserve_generous: 1.0,
+        budget_share: 0.0,
+        base_share: 1.0,
+    }
+}
+
+fn leader_catalog(model: LeadershipModel) -> Catalog {
+    let mut c = catalog();
+    c.management = crate::catalog::test_support::management().management;
+    c.research_model.projects.as_mut().unwrap().leadership = Some(model);
+    c
+}
+
+/// A lab with a hired head (so the plan is on), without staff and projects.
+fn led_lab(model: LeadershipModel) -> (Game, SiteId) {
+    let mut game = crate::product_research_tests::new_game(leader_catalog(model));
+    let site = lab(&mut game);
+    let manager = crate::management_tests::free(&game)[0];
+    game.apply(Command::HireManager {
+        manager,
+        position: crate::management_tests::head(site),
+    })
+    .unwrap();
+    (game, site)
+}
+
+fn start_steel(game: &mut Game, site: SiteId) {
+    let lead = game
+        .state()
+        .project_leads
+        .iter()
+        .position(|l| l.employer.is_none())
+        .expect("the market has leaders") as u32;
+    game.apply(Command::HireProjectLead { lead }).unwrap();
+    game.apply(Command::StartProject {
+        site,
+        product: steel(game),
+        lead,
+        tempo: 1,
+        trim: 1,
+    })
+    .unwrap();
+}
+
+fn people(game: &Game, site: SiteId) -> u32 {
+    game.state().sites[site.index()].lab_staff.total()
+}
+
+#[test]
+fn the_head_of_a_lab_orders_the_people_a_project_needs_and_they_arrive_after_the_lead_time() {
+    let (mut game, site) = led_lab(leadership_model());
+    days(&mut game, 40);
+    assert_eq!(people(&game, site), 0, "nothing to plan without a project");
+    start_steel(&mut game, site);
+    days(&mut game, 32);
+    assert!(
+        !game.state().dev_orders.is_empty(),
+        "ordered at the next month start"
+    );
+    assert_eq!(people(&game, site), 0, "the people are not there yet");
+    days(&mut game, 62);
+    assert!(people(&game, site) > 0, "arrived after the lead time");
+    assert!(
+        game.state()
+            .company(game.player())
+            .unwrap()
+            .ledger
+            .is_balanced()
+    );
+}
+
+#[test]
+fn without_a_leader_nobody_plans() {
+    let mut game = crate::product_research_tests::new_game(leader_catalog(leadership_model()));
+    let site = lab(&mut game);
+    start_steel(&mut game, site);
+    days(&mut game, 100);
+    assert!(game.state().dev_orders.is_empty());
+    assert_eq!(people(&game, site), 0);
+}
+
+#[test]
+fn only_a_recommendation_when_the_leader_may_not_hire() {
+    let (mut game, site) = led_lab(leadership_model());
+    game.apply(Command::SetDevFrame {
+        unit: crate::state::Unit::Site(site),
+        own: false,
+        dismiss: false,
+        reserve: None,
+        branches: Vec::new(),
+    })
+    .unwrap();
+    start_steel(&mut game, site);
+    let news = days(&mut game, 70);
+    assert!(game.state().dev_orders.is_empty());
+    assert!(
+        news.iter()
+            .any(|m| m.key == crate::message::keys::DEV_LEAD_RECOMMEND)
+    );
+}
+
+#[test]
+fn a_lasting_surplus_is_dismissed_with_severance_if_allowed() {
+    let (mut game, site) = led_lab(leadership_model());
+    days(&mut game, 15);
+    game.apply(Command::HireLabStaff {
+        site,
+        role: LabRole::Developer,
+        count: 2,
+    })
+    .unwrap();
+    days(&mut game, 200);
+    assert_eq!(people(&game, site), 0, "released after the patience");
+    let paid = game
+        .state()
+        .dev_sites
+        .iter()
+        .find(|d| d.site == Some(site))
+        .map(|d| d.severance)
+        .unwrap();
+    assert!(paid > crate::money::Money::ZERO);
+    assert!(
+        game.state()
+            .company(game.player())
+            .unwrap()
+            .ledger
+            .is_balanced()
+    );
+
+    let (mut game, site) = led_lab(leadership_model());
+    game.apply(Command::SetDevFrame {
+        unit: crate::state::Unit::Site(site),
+        own: true,
+        dismiss: false,
+        reserve: None,
+        branches: Vec::new(),
+    })
+    .unwrap();
+    days(&mut game, 15);
+    game.apply(Command::HireLabStaff {
+        site,
+        role: LabRole::Developer,
+        count: 2,
+    })
+    .unwrap();
+    days(&mut game, 200);
+    assert_eq!(people(&game, site), 2, "no dismissals without permission");
+}
+
+#[test]
+fn a_need_beyond_the_budget_is_escalated() {
+    let mut model = leadership_model();
+    model.base_share = 0.0;
+    let (mut game, site) = led_lab(model);
+    start_steel(&mut game, site);
+    let news = days(&mut game, 70);
+    assert!(
+        game.state().dev_orders.is_empty(),
+        "the budget carries nobody"
+    );
+    assert!(
+        news.iter()
+            .any(|m| m.key == crate::message::keys::DEV_LEAD_ESCALATED)
+    );
+}
+
+#[test]
+fn the_plan_replays_to_the_same_state() {
+    let (mut game, site) = led_lab(leadership_model());
+    start_steel(&mut game, site);
+    days(&mut game, 140);
+    let replayed = Game::replay(
+        game.catalog().clone(),
+        game.state().settings.clone(),
+        game.journal(),
+    )
+    .unwrap();
+    assert_eq!(replayed.state_hash(), game.state_hash());
 }

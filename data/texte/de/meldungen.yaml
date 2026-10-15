@@ -279,6 +279,8 @@ fehler.befehl.nur_ueber_projekte: "Produkte werden in Entwicklungsprojekten entw
 fehler.befehl.projekt_unbekannt: Dieses Entwicklungsprojekt gibt es nicht oder es läuft nicht mehr.
 fehler.befehl.projektleiter_nicht_verfuegbar: Dieser Projektleiter gehört nicht zur Firma, ist schon ausgelastet oder nicht mehr zu haben.
 fehler.befehl.projekt_laeuft_schon: Die Firma entwickelt dieses Produkt schon.
+meldung.entwicklungsleitung_eskaliert: "Entwicklungsleitung {standort}: Das Personalbudget reicht nicht. Es fehlen Produktmanager {produktmanager}, Entwickler {entwickler}, Fertigungsplaner {fertigungsplaner}, Laborpersonal {laborpersonal}. Bitte das Budget erhöhen oder entscheiden."
+meldung.entwicklungsleitung_empfiehlt: "Entwicklungsleitung {standort}: Empfehlung zum Personal – Lücke an Produktmanagern {produktmanager}, Entwicklern {entwickler}, Fertigungsplanern {fertigungsplaner}, Laborpersonal {laborpersonal}. Die Leitung stellt nicht selbst ein."
 meldung.projekt_meilenstein: "Entwicklung {produkt}: Meilenstein M{meilenstein} erreicht."
 meldung.projekt_entscheidung_faellig: "Entwicklung {produkt}: Meilenstein M{meilenstein} wartet auf deine Entscheidung."
 meldung.projekt_entschieden: "Entwicklung {produkt}: Der Projektleiter hat zu M{meilenstein} entschieden: {entscheidung}."

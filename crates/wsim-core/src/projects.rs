@@ -973,6 +973,11 @@ pub(crate) fn top_up_market(state: &mut GameState, catalog: &Catalog, date: Date
 }
 
 /// Days until PM7: the current phase at today's staffing, the later ones as staffed to need.
+/// Days the current phase of a running project still takes at full staffing.
+pub fn days_left_in_phase(m: &ProjectModel, p: &DevProject) -> f64 {
+    phase_days(m, usize::from(p.tempo), usize::from(p.phase), p.effort) * (1.0 - p.progress)
+}
+
 pub fn days_left(m: &ProjectModel, p: &DevProject) -> f64 {
     let tempo = usize::from(p.tempo);
     let f = factors(m, p);

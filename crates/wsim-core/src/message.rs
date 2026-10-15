@@ -237,6 +237,8 @@ pub mod keys {
     pub const COMMAND_PARTNERSHIP_DECLINED: &str = "fehler.befehl.partnerschaft_abgelehnt";
     pub const COMMAND_LEAD_UNAVAILABLE: &str = "fehler.befehl.projektleiter_nicht_verfuegbar";
     pub const COMMAND_PROJECT_EXISTS: &str = "fehler.befehl.projekt_laeuft_schon";
+    pub const DEV_LEAD_ESCALATED: &str = "meldung.entwicklungsleitung_eskaliert";
+    pub const DEV_LEAD_RECOMMEND: &str = "meldung.entwicklungsleitung_empfiehlt";
     pub const PROJECT_MILESTONE: &str = "meldung.projekt_meilenstein";
     pub const PROJECT_DECISION_DUE: &str = "meldung.projekt_entscheidung_faellig";
     pub const PROJECT_DECIDED: &str = "meldung.projekt_entschieden";

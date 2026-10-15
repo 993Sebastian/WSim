@@ -3026,6 +3026,22 @@ projekte.partner: Entwicklungspartner
 projekte.partner_vorschlagen: Entwicklungspartner vorschlagen
 projekte.partner_fragen: Anfragen
 projekte.partner_ok: Der Partner hat zugesagt und trägt einen Teil der Kosten.
+leitung_entw.titel: Entwicklungsleitung
+leitung_entw.erklaerung: Die Leitung eines Labors – oder die Fachstelle Forschung von Land, Kontinent und Vorstand – plant das Personal im Voraus, innerhalb des Budgets. Ohne Leitung stellst du selbst ein.
+leitung_entw.leitung: Leitung
+leitung_entw.budget: Kosten / Budget (Jahr)
+leitung_entw.budget_werte: "{kosten} von {budget}"
+leitung_entw.verzug: Verzug (Projektmonate), Abfindungen
+leitung_entw.rahmen: Rahmen
+leitung_entw.ist_ziel: "{ist} (+{unterwegs}) / {ziel}"
+leitung_entw.selbst: Stellt selbst ein
+leitung_entw.entlassen: Darf entlassen
+leitung_entw.abfindung: "Abfindungen {betrag}"
+leitung_entw.gesetzt: Rahmen der Entwicklungsleitung gespeichert.
+leitung_entw.ebene.standort: Laborleiter
+leitung_entw.ebene.land: Entwicklung Land
+leitung_entw.ebene.kontinent: Entwicklung Kontinent
+leitung_entw.ebene.vorstand: Vorstand Entwicklung
 portfolio.titel: Projektportfolio
 portfolio.produkt: Produkt
 portfolio.art: Art

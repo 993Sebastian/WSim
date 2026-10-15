@@ -223,6 +223,9 @@ impl Game {
             product_suggestions: Vec::new(),
             project_knowledge: Vec::new(),
             project_royalties: Vec::new(),
+            dev_frames: Vec::new(),
+            dev_orders: Vec::new(),
+            dev_sites: Vec::new(),
             improvement_projects: Vec::new(),
             improved: Vec::new(),
             concerns: Vec::new(),
@@ -574,6 +577,11 @@ impl Game {
             ));
             crate::management::month_end(&mut self.state, today);
             crate::projects::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::dev_lead::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             crate::private::pay_salary(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
             crate::logistics::month_end(&mut self.state, &self.catalog, today);

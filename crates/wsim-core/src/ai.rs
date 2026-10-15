@@ -3278,6 +3278,10 @@ fn staff_labs(
         if s.kind != SiteType::ResearchCenter {
             continue;
         }
+        // A laboratory with a development leader is staffed by the plan (PD11).
+        if crate::dev_lead::planned(catalog, state, id, site) {
+            continue;
+        }
         let room =
             crate::lab_staff::capacity(catalog, s, date).floor() - f64::from(s.lab_staff.total());
         if room >= 1.0 {

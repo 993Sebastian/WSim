@@ -2187,6 +2187,15 @@ pub struct GameState {
     /// Licence fees between companies (PD8).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub project_royalties: Vec<crate::project_deals::Royalty>,
+    /// Frames of the development leaders by company and unit (PD11).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub dev_frames: Vec<crate::dev_lead::DevFrame>,
+    /// People hired or moved who have not arrived yet (PD11).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub dev_orders: Vec<crate::dev_lead::DevOrder>,
+    /// What the plan keeps per laboratory (PD11), sorted by site.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub dev_sites: Vec<crate::dev_lead::DevSite>,
     /// Improvement projects WM0–WM3 of all companies (PD5).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub improvement_projects: Vec<crate::improvements::ImprovementProject>,

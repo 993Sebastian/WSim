@@ -339,6 +339,16 @@ pub enum Command {
         project: Option<u32>,
         mode: crate::project_reports::DelegationMode,
     },
+    /// Sets what the development leader of a unit may do (PD11).
+    SetDevFrame {
+        unit: crate::state::Unit,
+        own: bool,
+        dismiss: bool,
+        #[serde(default)]
+        reserve: Option<f64>,
+        #[serde(default)]
+        branches: Vec<crate::ids::BranchId>,
+    },
     /// Hires a project leader of the market (PD2).
     HireProjectLead { lead: u32 },
     /// Lets an idle project leader go (PD2).
@@ -2774,6 +2784,27 @@ fn run(
             count,
         } => {
             crate::projects::assign(state, actor, *project, (*role, *count))?;
+        }
+        Command::SetDevFrame {
+            unit,
+            own,
+            dismiss,
+            reserve,
+            branches,
+        } => {
+            crate::dev_lead::set_frame(
+                state,
+                catalog,
+                actor,
+                crate::dev_lead::DevFrame {
+                    company: actor,
+                    unit: *unit,
+                    own: *own,
+                    dismiss: *dismiss,
+                    reserve: *reserve,
+                    branches: branches.clone(),
+                },
+            )?;
         }
         Command::AutoAssignProject { project } => {
             crate::projects::auto_assign(state, actor, *project)?;

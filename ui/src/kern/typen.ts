@@ -3392,6 +3392,26 @@ export interface Verbesserungsangebot {
   days: number;
 }
 
+/** A laboratory with a development leader (PD11); the arrays follow the four lab roles. */
+export interface Leitungszeile {
+  site: number;
+  unit: string;
+  level: "standort" | "land" | "kontinent" | "vorstand";
+  manager: string;
+  own: boolean;
+  dismiss: boolean;
+  reserve: number;
+  have: number[];
+  coming: number[];
+  target: number[];
+  free: number[];
+  posts: number;
+  budget_usd: number;
+  cost_usd: number;
+  delay: number;
+  severance_usd: number;
+}
+
 /** The development projects of the player's company (PD2). */
 export interface Entwicklungsprojekte {
   tempos: string[];
@@ -3412,4 +3432,5 @@ export interface Entwicklungsprojekte {
   /** Product and share kept from aborted projects. */
   knowledge: [string, number][];
   suggestion_hit_rate: number | null;
+  leadership: Leitungszeile[];
 }

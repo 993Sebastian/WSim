@@ -6,6 +6,7 @@ import { formatDatum, formatGeld, formatProzent, formatZahl, landName } from "..
 import type {
   Forschung,
   LaborRolle,
+  Leitungszeile,
   Meilensteinbericht,
   Partnerfirma,
   Projekt,
@@ -15,6 +16,7 @@ import type {
 } from "../kern";
 import { t } from "../texte";
 import { Rueckmeldung, useAktion } from "./gemeinsam";
+import { einheitAus } from "./stellen";
 
 /** The roles of the laboratory by their key in the views. */
 export const ROLLEN: Record<string, LaborRolle> = {
@@ -65,6 +67,7 @@ export function Projekte({
       <Leiter leiter={p.leads} gehalt={p.salary_usd_year} />
       {p.suggestions.length > 0 && <Vorschlaege daten={daten} />}
       {(p.license_offers.length > 0 || p.knowledge.length > 0) && <Lizenzen daten={daten} />}
+      {p.leadership.length > 0 && <Entwicklungsleitung daten={daten} />}
       {p.improvement_targets.length > 0 && <Weiterentwicklungen daten={daten} />}
       {(laufend.length > 0 || p.improvements.some((x) => x.status === "laufend")) && (
         <Portfolio daten={daten} />
@@ -1322,6 +1325,104 @@ function Lizenzen({ daten }: { daten: Forschung }) {
           ))}
         </>
       )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+const LABORROLLEN = ["produktmanager", "entwickler", "fertigungsplaner", "laborpersonal"];
+
+/** Who plans the staff of each laboratory, with what budget, and the frame they work in (PD11). */
+function Entwicklungsleitung({ daten }: { daten: Forschung }) {
+  const p = daten.projects;
+  const { los, antwort } = useAktion("projekt/leitung");
+  if (!p) return null;
+  const setzen = (z: Leitungszeile, aenderung: { own?: boolean; dismiss?: boolean }) =>
+    void los(
+      [
+        {
+          SetDevFrame: {
+            unit: einheitAus(z.unit),
+            own: aenderung.own ?? z.own,
+            dismiss: aenderung.dismiss ?? z.dismiss,
+            reserve: null,
+            branches: [],
+          },
+        },
+      ],
+      t("leitung_entw.gesetzt"),
+    );
+  return (
+    <section aria-label={t("leitung_entw.titel")}>
+      <h3>{t("leitung_entw.titel")}</h3>
+      <p className="erklaerung">{t("leitung_entw.erklaerung")}</p>
+      <div className="tabelle">
+        <table>
+          <thead>
+            <tr>
+              <th>{t("forschung.zentrum")}</th>
+              <th>{t("leitung_entw.leitung")}</th>
+              {LABORROLLEN.map((r) => (
+                <th key={r}>{t(`labor.rolle.${r}`)}</th>
+              ))}
+              <th>{t("leitung_entw.budget")}</th>
+              <th>{t("leitung_entw.verzug")}</th>
+              <th>{t("leitung_entw.rahmen")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {p.leadership.map((z) => {
+              const zentrum = daten.centers.find((c) => c.site === z.site);
+              return (
+                <tr key={z.site}>
+                  <td>{zentrum ? zentrumName(zentrum) : z.site}</td>
+                  <td>
+                    {t(`leitung_entw.ebene.${z.level}`)} · {z.manager}
+                  </td>
+                  {LABORROLLEN.map((r, i) => (
+                    <td key={r}>
+                      {t("leitung_entw.ist_ziel", {
+                        ist: z.have[i] ?? 0,
+                        unterwegs: z.coming[i] ?? 0,
+                        ziel: z.target[i] ?? 0,
+                      })}
+                    </td>
+                  ))}
+                  <td>
+                    {t("leitung_entw.budget_werte", {
+                      kosten: formatGeld(z.cost_usd),
+                      budget: formatGeld(z.budget_usd),
+                    })}
+                  </td>
+                  <td>
+                    {formatZahl(z.delay)}
+                    {z.severance_usd > 0 &&
+                      ` · ${t("leitung_entw.abfindung", { betrag: formatGeld(z.severance_usd) })}`}
+                  </td>
+                  <td>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={z.own}
+                        onChange={(e) => setzen(z, { own: e.target.checked })}
+                      />{" "}
+                      {t("leitung_entw.selbst")}
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={z.dismiss}
+                        onChange={(e) => setzen(z, { dismiss: e.target.checked })}
+                      />{" "}
+                      {t("leitung_entw.entlassen")}
+                    </label>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       <Rueckmeldung meldung={antwort} />
     </section>
   );

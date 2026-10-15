@@ -90,6 +90,32 @@ pub struct LicenseOfferView {
     pub from_milestone: u8,
 }
 
+/// A laboratory led by the development leadership (PD11).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LeadershipRowView {
+    pub site: u32,
+    /// The unit of the leader as in `UnitOrgView::key`.
+    pub unit: String,
+    /// The level of the leader: `standort`, `land`, `kontinent` or `vorstand`.
+    pub level: String,
+    pub manager: String,
+    pub own: bool,
+    pub dismiss: bool,
+    /// Reserve on the need; the data's when not set.
+    pub reserve: f64,
+    /// Per role (product manager, developer, production planner, technician).
+    pub have: [u32; 4],
+    pub coming: [u32; 4],
+    pub target: [u32; 4],
+    pub free: [u32; 4],
+    pub posts: u32,
+    pub budget_usd: f64,
+    pub cost_usd: f64,
+    /// Project months lost to understaffing.
+    pub delay: f64,
+    pub severance_usd: f64,
+}
+
 /// An AI company that can be asked to be the partner of a project (PD8).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PartnerView {
@@ -330,6 +356,8 @@ pub struct ProjectsView {
     pub knowledge: Vec<(String, f64)>,
     /// Share of the after-calculated suggestions that were hits.
     pub suggestion_hit_rate: Option<f64>,
+    /// The laboratories with a development leader (PD11).
+    pub leadership: Vec<LeadershipRowView>,
 }
 
 fn delegation_key(d: DelegationMode) -> &'static str {
@@ -643,6 +671,7 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
             .map(|k| (catalog.products.key(k.product).to_owned(), k.share))
             .collect(),
         suggestion_hit_rate: project_suggestions::hit_rate(state, player),
+        leadership: leadership_rows(game),
         improvement_targets: m
             .improvement
             .as_ref()
@@ -914,6 +943,47 @@ fn license_offers(game: &Game) -> Vec<LicenseOfferView> {
                     .copied()
                     .unwrap_or(5),
             })
+        })
+        .collect()
+}
+
+fn leadership_rows(game: &Game) -> Vec<LeadershipRowView> {
+    let (catalog, state) = (game.catalog(), game.state());
+    let reserve = catalog
+        .research_model
+        .projects
+        .as_ref()
+        .and_then(|m| m.leadership.as_ref())
+        .map_or(0.0, |l| l.reserve);
+    crate::dev_lead::rows(catalog, state, game.player())
+        .into_iter()
+        .map(|r| LeadershipRowView {
+            site: u32::try_from(r.site.index()).unwrap_or(u32::MAX),
+            unit: super::organisation::unit_key(catalog, r.lead.unit),
+            level: match r.lead.unit {
+                crate::state::Unit::Site(_) => "standort",
+                crate::state::Unit::Country(_) => "land",
+                crate::state::Unit::Continent(_) => "kontinent",
+                crate::state::Unit::Board => "vorstand",
+            }
+            .to_owned(),
+            manager: state
+                .managers
+                .get(&r.manager)
+                .map(|m| m.name.clone())
+                .unwrap_or_default(),
+            own: r.frame.own,
+            dismiss: r.frame.dismiss,
+            reserve: r.frame.reserve.unwrap_or(reserve),
+            have: r.have,
+            coming: r.coming,
+            target: r.target,
+            free: r.free,
+            posts: r.posts,
+            budget_usd: r.budget_usd,
+            cost_usd: r.cost_usd,
+            delay: r.delay,
+            severance_usd: r.severance.to_usd(),
         })
         .collect()
 }

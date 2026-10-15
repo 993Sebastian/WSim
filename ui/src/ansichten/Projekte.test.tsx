@@ -22,6 +22,26 @@ const projekte: Entwicklungsprojekte = {
   partners: [{ company: 3, name: "Rivale AG" }],
   knowledge: [["schrauben", 0.3]],
   suggestion_hit_rate: 0.5,
+  leadership: [
+    {
+      site: 99,
+      unit: "land:AAA",
+      level: "land",
+      manager: "Frau Beispiel",
+      own: true,
+      dismiss: false,
+      reserve: 0.1,
+      have: [0, 4, 0, 1],
+      coming: [0, 2, 0, 0],
+      target: [0, 7, 0, 1],
+      free: [0, 1, 0, 0],
+      posts: 12,
+      budget_usd: 600000,
+      cost_usd: 450000,
+      delay: 1.5,
+      severance_usd: 0,
+    },
+  ],
   suggestions: [
     {
       id: 0,
@@ -528,5 +548,31 @@ describe("Entwicklungsprojekte", () => {
     });
     fireEvent.click(within(karte).getByRole("button", { name: "Ablehnen" }));
     expect(gesendet).toContainEqual({ DeclineSuggestion: { suggestion: 0 } });
+  });
+
+  it("zeigt die Entwicklungsleitung und speichert den Rahmen", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const abschnitt = screen.getByRole("region", { name: "Entwicklungsleitung" });
+    expect(within(abschnitt).getByText(/Entwicklung Land · Frau Beispiel/)).toBeTruthy();
+    expect(within(abschnitt).getByText("4 (+2) / 7")).toBeTruthy();
+    fireEvent.click(within(abschnitt).getByRole("checkbox", { name: /Darf entlassen/ }));
+    expect(gesendet).toContainEqual({
+      SetDevFrame: {
+        unit: { Country: "AAA" },
+        own: true,
+        dismiss: true,
+        reserve: null,
+        branches: [],
+      },
+    });
   });
 });

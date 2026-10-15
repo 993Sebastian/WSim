@@ -209,6 +209,15 @@ export type Befehl =
         mode: "ShowAll" | "Standard" | "LeadDecides";
       };
     }
+  | {
+      SetDevFrame: {
+        unit: Einheit;
+        own: boolean;
+        dismiss: boolean;
+        reserve?: number | null;
+        branches?: string[];
+      };
+    }
   | { HireProjectLead: { lead: number } }
   | { DismissProjectLead: { lead: number } }
   | { HireLabStaff: { site: number; role: LaborRolle; count: number } }
