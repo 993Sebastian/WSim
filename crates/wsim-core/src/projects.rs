@@ -128,6 +128,12 @@ pub struct DevProject {
     /// Target quality the event options changed.
     #[serde(default)]
     pub bonus_quality: f64,
+    /// The state program the project runs under (PD9).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subsidy: Option<crate::project_policy::Subsidy>,
+    /// The company was the first to release the product (PD9).
+    #[serde(default)]
+    pub first_mover: bool,
     /// Head start from partial knowledge and from known components (PD8).
     #[serde(default)]
     pub head_start: f64,
@@ -445,6 +451,8 @@ pub(crate) fn start(
         event_phase: None,
         defect: 0.0,
         bonus_quality: 0.0,
+        subsidy: crate::project_policy::pick_subsidy(state, catalog, site, state.date),
+        first_mover: false,
         head_start,
         platform,
         license: None,
@@ -773,6 +781,7 @@ pub(crate) fn book(state: &mut GameState, index: usize, amount: Money) {
     );
     // The project's cost counts in full, whoever pays.
     state.dev_projects[index].spent += total;
+    crate::project_policy::grant(state, index, total);
 }
 
 pub(crate) fn milestone_message(
@@ -810,6 +819,11 @@ pub(crate) fn release(
     for t in crate::product_research::missing(catalog, state, company, product) {
         crate::research::acquire(state, catalog, company.index(), t, date, &mut news);
     }
+    let already_known = state
+        .companies
+        .iter()
+        .enumerate()
+        .any(|(i, c)| i != company.index() && c.known_products.contains(&product));
     let c = &mut state.companies[company.index()];
     c.known_products.insert(product);
     c.product_points.remove(&product);
@@ -825,6 +839,12 @@ pub(crate) fn release(
     let p = &mut state.dev_projects[index];
     p.status = ProjectStatus::Released;
     p.finished = Some(date);
+    news.extend(crate::project_policy::first_mover(
+        state,
+        catalog,
+        index,
+        already_known,
+    ));
     crate::project_deals::drop_knowledge(state, company, product);
     crate::project_deals::start_royalty(state, catalog, index, date);
     // The partner of a development partnership gets the product too (PD8).

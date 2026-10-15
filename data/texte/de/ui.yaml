@@ -3026,3 +3026,19 @@ projekte.partner: Entwicklungspartner
 projekte.partner_vorschlagen: Entwicklungspartner vorschlagen
 projekte.partner_fragen: Anfragen
 projekte.partner_ok: Der Partner hat zugesagt und trägt einen Teil der Kosten.
+portfolio.titel: Projektportfolio
+portfolio.produkt: Produkt
+portfolio.art: Art
+portfolio.phase: Stand
+portfolio.ampel: Ampel
+portfolio.budget: Kosten / Budget
+portfolio.personen: Personen
+portfolio.zuschuss: Zuschuss
+portfolio.neu: Neuentwicklung
+portfolio.weiter: Weiterentwicklung
+portfolio.meilenstein: "M{erreicht}, nächster M{naechster}"
+portfolio.stufe: "Phase {phase} von 3"
+projekte.foerderung: Förderung
+projekte.foerderung_werte: "{programm}: {anteil} der Kosten, bisher {erhalten}"
+projekte.erster: Erster am Markt
+projekte.erster_text: "Ihr habt das Produkt als Erste freigegeben: mehr Bekanntheit und Ruf im Land des Labors."

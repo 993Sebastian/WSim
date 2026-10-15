@@ -66,6 +66,9 @@ export function Projekte({
       {p.suggestions.length > 0 && <Vorschlaege daten={daten} />}
       {(p.license_offers.length > 0 || p.knowledge.length > 0) && <Lizenzen daten={daten} />}
       {p.improvement_targets.length > 0 && <Weiterentwicklungen daten={daten} />}
+      {(laufend.length > 0 || p.improvements.some((x) => x.status === "laufend")) && (
+        <Portfolio daten={daten} />
+      )}
       <section aria-label={t("projekte.laufend")}>
         <h3>{t("projekte.laufend")}</h3>
         {laufend.length === 0 && <p className="gedaempft">{t("projekte.keine")}</p>}
@@ -371,6 +374,24 @@ function ProjektKarte({ x, partner }: { x: Projekt; partner: Partnerfirma[] }) {
                 plattform: formatProzent(x.platform),
               })}
             </dd>
+          </>
+        )}
+        {x.subsidy && (
+          <>
+            <dt>{t("projekte.foerderung")}</dt>
+            <dd>
+              {t("projekte.foerderung_werte", {
+                programm: t(`projektfoerderung.${x.subsidy.program}`),
+                anteil: formatProzent(x.subsidy.share),
+                erhalten: formatGeld(x.subsidy.received_usd),
+              })}
+            </dd>
+          </>
+        )}
+        {x.first_mover && (
+          <>
+            <dt>{t("projekte.erster")}</dt>
+            <dd>{t("projekte.erster_text")}</dd>
           </>
         )}
         {x.license_from && (
@@ -1302,6 +1323,75 @@ function Lizenzen({ daten }: { daten: Forschung }) {
         </>
       )}
       <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+/** All running projects at a glance: phase, traffic light, budget, people, subsidy (PD9). */
+function Portfolio({ daten }: { daten: Forschung }) {
+  const p = daten.projects;
+  if (!p) return null;
+  const rang = { gruen: 0, gelb: 1, rot: 2 } as Record<string, number>;
+  const ampel = (x: Projekt): string => {
+    const letzter = x.reports[x.reports.length - 1];
+    if (!letzter) return "gruen";
+    return letzter.lights.reduce((a, b) => ((rang[b] ?? 0) > (rang[a] ?? 0) ? b : a), "gruen");
+  };
+  const neu = p.projects.filter((x) => x.status === "laufend");
+  const weiter = p.improvements.filter((x) => x.status === "laufend");
+  return (
+    <section aria-label={t("portfolio.titel")}>
+      <h3>{t("portfolio.titel")}</h3>
+      <div className="tabelle">
+        <table className="mobil-karten" aria-label={t("portfolio.titel")}>
+          <thead>
+            <tr>
+              <th>{t("portfolio.produkt")}</th>
+              <th>{t("portfolio.art")}</th>
+              <th>{t("portfolio.phase")}</th>
+              <th>{t("portfolio.ampel")}</th>
+              <th>{t("portfolio.budget")}</th>
+              <th>{t("portfolio.personen")}</th>
+              <th>{t("portfolio.zuschuss")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {neu.map((x) => (
+              <tr key={`n${x.id}`}>
+                <th scope="row">{produktName(x.product)}</th>
+                <td>{t("portfolio.neu")}</td>
+                <td>
+                  {t("portfolio.meilenstein", {
+                    erreicht: x.milestone,
+                    naechster: x.next_milestone ?? 7,
+                  })}
+                </td>
+                <td>
+                  <span className={`ampel ampel-${ampel(x)}`}>
+                    {t(`projekte.ampel.${ampel(x)}`)}
+                  </span>
+                </td>
+                <td>
+                  {formatGeld(x.spent_usd)} / {formatGeld(x.budget_usd)}
+                </td>
+                <td>{x.roles.reduce((s, r) => s + r.assigned, 0)}</td>
+                <td>{x.subsidy ? formatGeld(x.subsidy.received_usd) : "–"}</td>
+              </tr>
+            ))}
+            {weiter.map((x) => (
+              <tr key={`w${x.id}`}>
+                <th scope="row">{produktName(x.product)}</th>
+                <td>{t("portfolio.weiter")}</td>
+                <td>{t("portfolio.stufe", { phase: x.phase + 1 })}</td>
+                <td>–</td>
+                <td>{formatGeld(x.spent_usd)}</td>
+                <td>–</td>
+                <td>–</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

@@ -282,6 +282,7 @@ fehler.befehl.projekt_laeuft_schon: Die Firma entwickelt dieses Produkt schon.
 meldung.projekt_meilenstein: "Entwicklung {produkt}: Meilenstein M{meilenstein} erreicht."
 meldung.projekt_entscheidung_faellig: "Entwicklung {produkt}: Meilenstein M{meilenstein} wartet auf deine Entscheidung."
 meldung.projekt_entschieden: "Entwicklung {produkt}: Der Projektleiter hat zu M{meilenstein} entschieden: {entscheidung}."
+meldung.projekt_erster: "Entwicklung {produkt}: Ihr seid die Ersten mit diesem Produkt. Bekanntheit und Ruf steigen im Land des Labors."
 meldung.projekt_pilot_mangel: "Entwicklung {produkt}: Die Pilotserie hat einen Mangel aufgedeckt. Die Nacharbeit kostet Zeit, danach ist das Risiko deutlich kleiner."
 meldung.projekt_pilot_ohne_befund: "Entwicklung {produkt}: Die Pilotserie lief ohne Befund. Das Risiko versteckter Mängel sinkt, die Qualität steigt leicht."
 meldung.projekt_automatisch_entschieden: "Entwicklung {produkt}: Zu M{meilenstein} kam keine Entscheidung, der Projektleiter hat entschieden: {entscheidung}."

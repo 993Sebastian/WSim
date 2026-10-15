@@ -114,6 +114,8 @@ fn hypothetical(
         defect: 0.0,
         bonus_quality: 0.0,
         head_start: 0.0,
+        subsidy: None,
+        first_mover: false,
         platform: 0.0,
         license: None,
         partner: None,

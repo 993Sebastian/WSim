@@ -3257,6 +3257,10 @@ export interface Projekt {
   site_name: string | null;
   lead: string;
   lead_id: number;
+  /** The state program and what it paid so far (PD9). */
+  subsidy: Projektfoerderung | null;
+  /** The company was the first to release the product (PD9). */
+  first_mover: boolean;
   /** Head start from partial knowledge and known components (PD8). */
   head_start: number;
   platform: number;
@@ -3306,6 +3310,14 @@ export interface Projektangebot {
   effort: number;
   cost_usd: number;
   days: number;
+}
+
+/** The state program a project runs under (PD9). */
+export interface Projektfoerderung {
+  program: string;
+  share: number;
+  received_usd: number;
+  cap_usd: number;
 }
 
 /** Know-how of a released project of another company for sale (PD8). */

@@ -290,6 +290,8 @@ fn staffing_changes_the_duration_but_not_the_cost() {
             defect: 0.0,
             bonus_quality: 0.0,
             head_start: 0.0,
+            subsidy: None,
+            first_mover: false,
             platform: 0.0,
             license: None,
             partner: None,
@@ -1941,4 +1943,103 @@ fn a_company_can_decline_the_partnership() {
         Err(CommandError::PartnershipDeclined)
     );
     assert!(game.state().dev_projects[0].partner.is_none());
+}
+
+// --- PD9: state programs, first mover ---
+
+use crate::catalog::{FirstMoverModel, SubsidyProgram};
+
+fn policy_game(cap_usd: f64) -> Game {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.risk.base = 0.0;
+    m.reports = Some(report_model());
+    m.first_mover = Some(FirstMoverModel {
+        awareness: 0.25,
+        reputation: 0.05,
+    });
+    m.subsidies = vec![
+        SubsidyProgram {
+            key: "klein".into(),
+            from_year: 1900,
+            to_year: 2100,
+            share: 0.1,
+            cap_usd,
+        },
+        SubsidyProgram {
+            key: "gross".into(),
+            from_year: 1900,
+            to_year: 2100,
+            share: 0.2,
+            cap_usd,
+        },
+        SubsidyProgram {
+            key: "spaeter".into(),
+            from_year: 1990,
+            to_year: 2100,
+            share: 0.9,
+            cap_usd,
+        },
+    ];
+    let mut game = crate::product_research_tests::new_game(c);
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    game
+}
+
+#[test]
+fn a_state_program_pays_a_share_of_the_cost_up_to_its_cap() {
+    // A high cap: the best program valid in the year pays 20 % of everything.
+    let mut game = policy_game(1.0e12);
+    running(&mut game);
+    let s = game.state().dev_projects[0].subsidy.expect("a program");
+    assert_eq!(s.program, 1);
+    run_out_all(&mut game);
+    let p = &game.state().dev_projects[0];
+    let got = p.subsidy.unwrap().received.to_usd();
+    assert!((got - 0.2 * p.spent.to_usd()).abs() < 1.0, "{got}");
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    let view = v.projects[0].subsidy.as_ref().unwrap();
+    assert_eq!(view.program, "gross");
+    assert!((view.received_usd - got).abs() < 1.0);
+
+    // A small cap stops the payments.
+    let mut game = policy_game(1_000.0);
+    running(&mut game);
+    run_out_all(&mut game);
+    let s = game.state().dev_projects[0].subsidy.unwrap();
+    assert_eq!(s.received, s.cap);
+}
+
+#[test]
+fn the_first_company_to_release_a_product_gets_awareness_and_reputation() {
+    let mut game = policy_game(1.0e12);
+    running(&mut game);
+    let (company, product, site) = {
+        let p = &game.state().dev_projects[0];
+        (p.company, p.product, p.site)
+    };
+    let country = game.state().sites[site.index()].country;
+    let group = game.catalog().products.get(product).goods_group;
+    let before_aw = game.state().companies[company.index()].awareness(country, group);
+    let before_rep = game.state().companies[company.index()].reputation(country);
+    run_out_all(&mut game);
+    assert!(game.state().dev_projects[0].first_mover);
+    let c = &game.state().companies[company.index()];
+    assert!(c.awareness(country, group) > before_aw);
+    assert!((c.reputation(country) - (before_rep + 0.05)).abs() < 1e-9);
+
+    // Another company already knows the product: no bonus.
+    let mut game = policy_game(1.0e12);
+    running(&mut game);
+    let rival = ai_company(&mut game);
+    let product = game.state().dev_projects[0].product;
+    game.state_mut().companies[rival.index()]
+        .known_products
+        .insert(product);
+    run_out_all(&mut game);
+    assert!(!game.state().dev_projects[0].first_mover);
 }

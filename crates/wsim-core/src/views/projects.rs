@@ -65,6 +65,16 @@ pub struct ProjectChoiceView {
     pub preferred: bool,
 }
 
+/// The state program a project runs under (PD9).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SubsidyView {
+    /// Key of the program in the texts.
+    pub program: String,
+    pub share: f64,
+    pub received_usd: f64,
+    pub cap_usd: f64,
+}
+
 /// A released project of another company whose know-how can be bought (PD8).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LicenseOfferView {
@@ -180,6 +190,10 @@ pub struct ProjectRowView {
     pub site_name: Option<String>,
     pub lead: String,
     pub lead_id: u32,
+    /// The state program and what it paid so far (PD9).
+    pub subsidy: Option<SubsidyView>,
+    /// The company was the first to release the product (PD9).
+    pub first_mover: bool,
     /// Head start from partial knowledge and from known components (PD8).
     pub head_start: f64,
     pub platform: f64,
@@ -444,6 +458,16 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                 site_name: site.name.clone(),
                 lead: lead.map(|l| l.name.clone()).unwrap_or_default(),
                 lead_id: p.lead,
+                subsidy: p.subsidy.and_then(|s| {
+                    let program = m.subsidies.get(s.program as usize)?;
+                    Some(SubsidyView {
+                        program: program.key.clone(),
+                        share: s.share,
+                        received_usd: s.received.to_usd(),
+                        cap_usd: s.cap.to_usd(),
+                    })
+                }),
+                first_mover: p.first_mover,
                 head_start: p.head_start,
                 platform: p.platform,
                 license_from: p

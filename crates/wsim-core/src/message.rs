@@ -241,6 +241,7 @@ pub mod keys {
     pub const PROJECT_DECISION_DUE: &str = "meldung.projekt_entscheidung_faellig";
     pub const PROJECT_DECIDED: &str = "meldung.projekt_entschieden";
     pub const PROJECT_AUTO_DECIDED: &str = "meldung.projekt_automatisch_entschieden";
+    pub const PROJECT_FIRST_MOVER: &str = "meldung.projekt_erster";
     pub const PROJECT_PILOT_FOUND: &str = "meldung.projekt_pilot_mangel";
     pub const PROJECT_PILOT_CLEAR: &str = "meldung.projekt_pilot_ohne_befund";
     pub const IMPROVEMENT_CHOOSE: &str = "meldung.weiterentwicklung_ansaetze";
@@ -702,6 +703,7 @@ pub mod keys {
         PROJECT_DECISION_DUE,
         PROJECT_DECIDED,
         PROJECT_AUTO_DECIDED,
+        PROJECT_FIRST_MOVER,
         PROJECT_PILOT_FOUND,
         PROJECT_PILOT_CLEAR,
         IMPROVEMENT_CHOOSE,

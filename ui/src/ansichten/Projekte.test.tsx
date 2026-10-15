@@ -160,6 +160,8 @@ const projekte: Entwicklungsprojekte = {
       site_name: null,
       lead: "Anna Weber",
       lead_id: 0,
+      subsidy: { program: "wiederaufbau", share: 0.15, received_usd: 12000, cap_usd: 400000 },
+      first_mover: true,
       head_start: 0.1,
       platform: 0.2,
       license_from: null,
@@ -419,6 +421,25 @@ describe("Entwicklungsprojekte", () => {
     expect(gesendet).toContainEqual({
       DecideMilestone: { project: 0, decision: "Continue", choice: 0 },
     });
+  });
+
+  it("zeigt das Portfolio mit Förderung und Erstankunft", async () => {
+    const { kern, uebersicht } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const tabelle = screen.getByRole("table", { name: "Projektportfolio" });
+    expect(within(tabelle).getByText("Neuentwicklung")).toBeTruthy();
+    expect(within(tabelle).getByText("M2, nächster M3")).toBeTruthy();
+    const karte = screen.getByRole("article", { name: "Nägel" });
+    expect(within(karte).getByText(/Wiederaufbauprogramm: 15 % der Kosten/)).toBeTruthy();
+    expect(within(karte).getByText(/als Erste freigegeben/)).toBeTruthy();
   });
 
   it("kauft eine Lizenz und fragt einen Entwicklungspartner an", async () => {

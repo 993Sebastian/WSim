@@ -131,7 +131,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PD6 | Produktvorschläge im Strategiesystem (mit MG6/MG9), Nachkalkulation, Bilanz PL/Strategieabteilung | ✅ |
 | PD7 | Gate-Gremium, Fast-Track, Pilotserie | ✅ 15.10.2026: Gremium mit drei Stimmen (PM3, PM4, PM7), Fast-Track und Pilotserie als Vorschlag des Projektleiters, Risikofelder Branche/Puffer; Sicht und Oberfläche |
 | PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle | ✅ 15.10.2026: Teilwissen, Plattform, Projektlizenz mit Gebühr, Entwicklungspartnerschaft mit KI-Firmen, Herkunftsfeld für Start-ups; Sicht und Oberfläche |
-| PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ⏳ |
+| PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ✅ 15.10.2026: First-Mover-Bonus (Bekanntheit, Ruf), Förderprogramme nach Epoche mit Zuschuss am Projekt, Portfolio-Ansicht |
 | PD10 | Balancing und Gleichstellungstests KI/Spieler | ⏳ |
 | PD11 | Entwicklungsleitung: Vorstand, Kontinent, Land, Laborleiter, Budgetkaskade, Eskalation, Branchenfreigabe, KI (`docs/PRODUKTENTWICKLUNG.md` §10; Reihenfolge (Auftraggeber, 15.10.2026): direkt nach PD10, vor der Auswertung MN6/PD1) | ⏳ |
 | PV1 | Privatleben und Privatvermögen: Nettovermögen nach Klassen, Einkommen- und Kapitalertragsteuer, Spielerhintergrund, Zeitbudget und Gesundheit (`docs/PRIVATLEBEN_VERMOEGEN.md`; Wunsch vom 15.10.2026) | ⏳ Vorgabe aufgenommen 15.10.2026; Reihenfolge (Auftraggeber): nach den Manager-Resten, danach E2E, dann ZP1 |
