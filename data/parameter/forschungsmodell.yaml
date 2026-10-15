@@ -316,6 +316,16 @@ forschungsmodell:
     partnerschaft:
       kosten_anteil: 0.5             # Anteil der Kosten, den der Partner trägt
       ki_annahme: 0.5                # Chance, dass eine KI-Firma annimmt
+    # Bonus für die erste Firma, die ein Produkt freigibt, im Land des Labors (PD9). Vorläufig.
+    erstankunft:
+      bekanntheit: 0.25              # Anteil der fehlenden Bekanntheit der Warengruppe
+      ruf: 0.05
+    # Staatliche Förderprogramme für Entwicklungsprojekte nach Epoche (PD9). Vorläufig, geschätzt.
+    foerderung:
+      - {id: industrieforschung, von: 1900, bis: 1939, anteil: 0.05, deckel_usd: 150000, annaeherung: true}
+      - {id: wiederaufbau, von: 1945, bis: 1964, anteil: 0.15, deckel_usd: 400000, annaeherung: true}
+      - {id: technologiefoerderung, von: 1965, bis: 1999, anteil: 0.20, deckel_usd: 1000000, annaeherung: true}
+      - {id: innovationsprogramm, von: 2000, bis: 2100, anteil: 0.25, deckel_usd: 5000000, annaeherung: true}
     # Pilotserie zwischen PM6 und PM7 auf Vorschlag des Projektleiters (PD7).
     pilot:
       risiko_ab: 0.15                # Mängelrisiko, ab dem der Projektleiter sie vorschlägt

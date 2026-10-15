@@ -12,8 +12,8 @@ use wsim_core::catalog::{
     TransportModel, Vehicle, Way,
 };
 use wsim_core::catalog::{
-    CouncilModel, DevPartnershipModel, FastTrackModel, KnowledgeModel, PilotModel, PlatformModel,
-    ProjectLicenseModel,
+    CouncilModel, DevPartnershipModel, FastTrackModel, FirstMoverModel, KnowledgeModel, PilotModel,
+    PlatformModel, ProjectLicenseModel, SubsidyProgram,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -1882,6 +1882,8 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
         platform: project_platform(ctx, p, l),
         license: project_license(ctx, p, l),
         partnership: project_partnership(ctx, p, l),
+        first_mover: project_first_mover(ctx, p, l),
+        subsidies: project_subsidies(ctx, p, l),
     }
 }
 
@@ -2005,6 +2007,44 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         profiles,
         paths,
     })
+}
+
+/// First-mover bonus (PD9).
+fn project_first_mover(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<FirstMoverModel> {
+    let x = p.first_mover.as_ref()?;
+    let fl = l.field("erstankunft");
+    Some(FirstMoverModel {
+        awareness: in_range(ctx, x.awareness, 0.0, 1.0, &fl.field("bekanntheit")),
+        reputation: in_range(ctx, x.reputation, 0.0, 0.5, &fl.field("ruf")),
+    })
+}
+
+/// State programs for development projects (PD9).
+fn project_subsidies(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Vec<SubsidyProgram> {
+    let mut out: Vec<SubsidyProgram> = Vec::new();
+    for (i, x) in p.subsidies.iter().enumerate() {
+        let sl = l.field("foerderung").index(i);
+        if x.from_year > x.to_year {
+            ctx.error(
+                &sl.field("von"),
+                messages::project_subsidy_years(x.from_year, x.to_year),
+            );
+        }
+        if out.iter().any(|o| o.key == x.id) {
+            ctx.error(&sl.field("id"), messages::project_subsidy_duplicate(&x.id));
+        }
+        if !x.approximation {
+            ctx.error(&sl, messages::project_subsidy_estimate(&x.id));
+        }
+        out.push(SubsidyProgram {
+            key: x.id.clone(),
+            from_year: x.from_year,
+            to_year: x.to_year,
+            share: in_range(ctx, x.share, 0.0, 0.9, &sl.field("anteil")),
+            cap_usd: positive(ctx, x.cap_usd, &sl.field("deckel_usd")),
+        });
+    }
+    out
 }
 
 /// Partial knowledge of aborted projects (PD8).

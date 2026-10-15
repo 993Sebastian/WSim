@@ -2640,7 +2640,7 @@ Vorgabe: `docs/PRODUKTENTWICKLUNG.md`. Umsetzung in PD1–PD10 (`docs/FORTSCHRIT
 - Restertrag der Weiterentwicklung nach der dritten Stufe: 20 % der dritten Stufe (§8).
 - **PD11 Entwicklungsleitung (Nachtrag 14.10.2026):** Reservepuffer 10 %, Vorlaufzeit der Einstellung 2 Runden,
   Abfindung 3 Monatsgehälter, Einarbeitung beim Verschieben 1 Runde (§10). ✅ Annahme (14.10.2026, vom Auftraggeber zur
-  eigenen Entscheidung freigegeben): PD11 nach MG8, die Einstellkaskade wird nicht vorgezogen; PD2/PD3 bauen die
+  eigenen Entscheidung freigegeben): PD11 nach MG8, die Einstellkaskade wird nicht vorgezogen (**überholt am 15.10.2026**: Der Auftraggeber setzt PD11 direkt nach PD10; PD11 bringt seine eigene Besetzung über die vorhandenen Manager-Befehle mit und wartet nicht auf MG8 §8.2–8.4, die Kaskade beim Einstellen folgt später und wird dann angebunden); PD2/PD3 bauen die
   Schnittstelle „zuständige Stelle“ (zunächst Spieler oder PL). Weiter änderbar.
 - **Offen/Annahme Docs-Link (14.10.2026):** Der Text des vom Auftraggeber genannten Docs-Dokuments war nicht lesbar
   (Docs-Verbindung getrennt). Annahme: kein Inhalt eingearbeitet; bei erneuter Verbindung lesen und gegen PD abgleichen.
@@ -2852,3 +2852,9 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
   - Entwicklungspartnerschaft nur vor PM4 und nur mit KI-Partnern, Kostenteilung 50 % (Wert in `data/`).
   - Start-up-Schnittstelle als reines Feld `origin` ohne Wirkung (Vorgabe: „nur Schnittstelle vorbereiten“).
 - **PD8b (Kern, 15.10.2026):** Die Kosten eines Projekts zählen in `spent` voll, auch wenn ein Partner den Anteil zahlt (Grundlage für Lizenzpreis und Berichte). Eine abgelehnte Partnerschaft bleibt für dasselbe Projekt abgelehnt (der Wurf hängt nur am Projekt). Der KI-Kauf einer Lizenz (`project_deals::ai_license`) ist nur über die gemeinsame Befehlsprüfung abgedeckt, noch nicht durch einen eigenen Szenariotest (dafür braucht es eine Testwelt mit KI-Labor und Vorschlag); der Weltlauf-Vergleich mit PD10 prüft es mit.
+
+## PD9 – First-Mover, Förderprogramme, Portfolio (Entwurf 15.10.2026)
+- Formeln in `docs/FORMELN.md` (PD9); Parameter als `annaeherung: true` in `forschungsmodell.yaml` (`erstankunft`, `foerderung`).
+- **Selbst getroffene Entscheidungen:** „Region“ des First-Mover-Bonus ist das Land des Labors. „Erste“ heißt: keine andere Firma kennt das Produkt. Die Förderprogramme sind vier grobe Epochenprogramme (1900–1939, 1945–1964, 1965–1999, 2000–2100) ohne Länderbindung, mit Anteil 5/15/20/25 % und Deckel je Projekt; die Verknüpfung mit den Ausschreibungen (MN2) entfällt, weil dort Warengruppen und keine Entwicklungsprojekte ausgeschrieben werden. Der Zuschuss mindert die Forschungskosten der Firma, nicht die Projektkosten in `spent`. Die Portfolio-Ansicht ist eine reine Darstellung der vorhandenen Sicht.
+
+- **Reihenfolge (Auftraggeber, 15.10.2026, ersetzt die frühere):** PD9 → PD10 → **PD11** → Auswertung MN6/PD1 → Manager-Reste (MG8 §8.2–8.4, MG9, MG10) → PV1–PV8 → E2E → RB1–RB4 → DM1–DM6 → ZP1. WG1–WG5 bleiben zurückgestellt.

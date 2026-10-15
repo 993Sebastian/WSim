@@ -115,6 +115,8 @@ fn model() -> ProjectModel {
         platform: None,
         license: None,
         partnership: None,
+        first_mover: None,
+        subsidies: Vec::new(),
     }
 }
 

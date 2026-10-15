@@ -909,6 +909,18 @@ pub fn project_shares_sum(name: &str, sum: f64) -> String {
     format!("Die Anteile „{name}“ aller Phasen müssen zusammen 1 ergeben, nicht {sum}.")
 }
 
+pub fn project_subsidy_years(from: i32, to: i32) -> String {
+    format!("Das Förderprogramm endet vor seinem Beginn: von {from} bis {to}.")
+}
+
+pub fn project_subsidy_duplicate(id: &str) -> String {
+    format!("Das Förderprogramm „{id}“ steht mehrfach in der Liste.")
+}
+
+pub fn project_subsidy_estimate(id: &str) -> String {
+    format!("Das Förderprogramm „{id}“ ist geschätzt und braucht „annaeherung: true“.")
+}
+
 pub fn project_license_phase(phase: u8) -> String {
     format!(
         "Die Phase „{phase}“, in der ein lizenziertes Projekt startet, muss zwischen 1 und 5 liegen."

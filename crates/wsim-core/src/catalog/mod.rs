@@ -1496,6 +1496,30 @@ pub struct ProjectModel {
     pub license: Option<ProjectLicenseModel>,
     /// Development partnership with a company (PD8).
     pub partnership: Option<DevPartnershipModel>,
+    /// Bonus for the first company to release a product (PD9).
+    pub first_mover: Option<FirstMoverModel>,
+    /// State programs that pay a share of the project cost (PD9).
+    pub subsidies: Vec<SubsidyProgram>,
+}
+
+/// First-mover bonus (PD9).
+#[derive(Clone, Debug, PartialEq)]
+pub struct FirstMoverModel {
+    /// Share of the missing brand awareness gained in the country of the laboratory.
+    pub awareness: f64,
+    /// Reputation gained there.
+    pub reputation: f64,
+}
+
+/// A state program for development projects (PD9).
+#[derive(Clone, Debug, PartialEq)]
+pub struct SubsidyProgram {
+    pub key: String,
+    pub from_year: i32,
+    pub to_year: i32,
+    pub share: f64,
+    /// Largest sum per project at price level 1.
+    pub cap_usd: f64,
 }
 
 /// Partial knowledge of aborted projects (PD8).

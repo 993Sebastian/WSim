@@ -1445,6 +1445,37 @@ pub struct RawProjectModel {
     /// Development partnership (PD8).
     #[serde(rename = "partnerschaft", default)]
     pub partnership: Option<RawProjectPartnership>,
+    /// First-mover bonus (PD9).
+    #[serde(rename = "erstankunft", default)]
+    pub first_mover: Option<RawProjectFirstMover>,
+    /// State programs (PD9).
+    #[serde(rename = "foerderung", default)]
+    pub subsidies: Vec<RawProjectSubsidy>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectFirstMover {
+    #[serde(rename = "bekanntheit")]
+    pub awareness: f64,
+    #[serde(rename = "ruf")]
+    pub reputation: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectSubsidy {
+    pub id: String,
+    #[serde(rename = "von")]
+    pub from_year: i32,
+    #[serde(rename = "bis")]
+    pub to_year: i32,
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "deckel_usd")]
+    pub cap_usd: f64,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
 }
 
 #[derive(Debug, Deserialize)]

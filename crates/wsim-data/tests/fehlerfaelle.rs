@@ -6351,3 +6351,44 @@ fn projekt_teilwissen_plattform_lizenz_und_partnerschaft_werden_geprueft() {
     let falsch = mit(&block.replace("kosten_anteil: 0.5", "kosten_anteil: 0.99")).laden();
     befund(&falsch, "außerhalb des erlaubten Bereichs");
 }
+
+#[test]
+fn projekt_erstankunft_und_foerderung_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let zusatz = "    erstankunft:\n      bekanntheit: 0.25\n      ruf: 0.05\n    foerderung:\n      \
+         - {id: a, von: 1900, bis: 1939, anteil: 0.05, deckel_usd: 150000, annaeherung: true}\n      \
+         - {id: b, von: 1945, bis: 1964, anteil: 0.15, deckel_usd: 400000, annaeherung: true}\n";
+    let block = format!("{}{zusatz}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap();
+    assert!((m.first_mover.expect("first mover").awareness - 0.25).abs() < 1e-9);
+    assert_eq!(m.subsidies.len(), 2);
+
+    let falsch = mit(&block.replace("von: 1900, bis: 1939", "von: 1950, bis: 1939")).laden();
+    befund(&falsch, "endet vor seinem Beginn");
+    let falsch = mit(&block.replace("{id: b,", "{id: a,")).laden();
+    befund(&falsch, "mehrfach");
+    let falsch = mit(&block.replace(
+        "deckel_usd: 400000, annaeherung: true",
+        "deckel_usd: 400000",
+    ))
+    .laden();
+    befund(&falsch, "geschätzt");
+    let falsch = mit(&block.replace("anteil: 0.15", "anteil: 1.5")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+}
