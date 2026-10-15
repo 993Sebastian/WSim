@@ -3410,6 +3410,12 @@ pub(crate) fn answer(
                 if let Some(f) = file {
                     state.followups.push(f);
                 }
+                // A staff the player chose for a department is reviewed for its head.
+                if let Some(Command::StaffDepartment { department, .. }) =
+                    option.steps.first().map(|s| &s.command)
+                {
+                    crate::dept_staff::register(state, catalog, actor, *department, c.manager);
+                }
                 // A hire the player chose for a head's concern is reviewed for the head.
                 if option.kind == ChoiceKind::Hire
                     && let Some(Command::HireManager { manager, position }) =

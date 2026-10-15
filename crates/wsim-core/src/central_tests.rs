@@ -993,3 +993,120 @@ fn the_strategy_workload_grows_with_what_the_company_is_in() {
         1.0
     );
 }
+
+// --- MG8: the staff of a department as a decision of its head ---
+
+/// A finance department with a head and one employee, and loans for more work than it
+/// covers.
+fn busy_finance() -> Game {
+    let mut game = new_game(test_support::management());
+    mine_and_works(&mut game);
+    hire_sharp(&mut game, member("finanzen"));
+    staff(&mut game, DepartmentKind::Finance, 1);
+    for _ in 0..7 {
+        game.apply(Command::TakeLoan {
+            amount: usd(10_000.0),
+            years: 5,
+        })
+        .unwrap();
+    }
+    game
+}
+
+#[test]
+fn an_understaffed_department_head_asks_for_more_staff() {
+    let mut game = busy_finance();
+    let player = game.player();
+    let cov = central::performance(
+        game.catalog(),
+        game.state(),
+        player,
+        DepartmentKind::Finance,
+    )
+    .unwrap()
+    .coverage;
+    assert!(cov < 0.8, "{cov}");
+    days(&mut game, 31);
+    let c = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.decision.topic == Topic::StaffNeed)
+        .expect("a question about the staff")
+        .clone();
+    assert_eq!(c.reason, ConcernReason::StaffNeed);
+    let Some(Command::StaffDepartment { staff, .. }) = c.decision.choices[0]
+        .steps
+        .first()
+        .map(|s| s.command.clone())
+    else {
+        panic!("first option sets the staff");
+    };
+    assert!(staff > 1);
+    // Not asked twice.
+    days(&mut game, 31);
+    let n = game
+        .state()
+        .concerns
+        .iter()
+        .filter(|c| {
+            c.decision.topic == Topic::StaffNeed && c.status == crate::state::ConcernStatus::Open
+        })
+        .count();
+    assert_eq!(n, 1);
+    // The player follows: the department grows and a file waits for the review.
+    game.apply(Command::AnswerConcern {
+        concern: c.id,
+        answer: management::ConcernAnswer::Choose(0),
+    })
+    .unwrap();
+    assert_eq!(
+        central::staff(game.state(), player, DepartmentKind::Finance),
+        staff
+    );
+    assert_eq!(game.state().staff_files.len(), 1);
+}
+
+#[test]
+fn a_ceo_with_the_switch_sets_the_staff_within_the_limit_and_the_file_is_reviewed() {
+    let mut game = busy_finance();
+    let player = game.player();
+    hire_sharp(
+        &mut game,
+        crate::state::Position::new(Unit::Board, crate::state::Role::Head),
+    );
+    game.apply(Command::SetHiringByHead {
+        position: crate::state::Position::new(Unit::Board, crate::state::Role::Head),
+        enabled: true,
+    })
+    .unwrap();
+    let judged = game
+        .state()
+        .managers
+        .values()
+        .map(|m| m.judged)
+        .sum::<u32>();
+    let mut seen = Vec::new();
+    for _ in 0..40 {
+        for _ in 0..31 {
+            let report = game.advance(RoundLength::Day, |_| {});
+            seen.extend(report.messages.into_iter().map(|m| m.key));
+        }
+    }
+    assert!(seen.iter().any(|k| k == keys::STAFF_NEED_SET));
+    assert!(central::staff(game.state(), player, DepartmentKind::Finance) > 1);
+    // A year on, the decision was reviewed for the head of the department.
+    assert!(
+        seen.iter()
+            .any(|k| k == keys::STAFF_NEED_HIT || k == keys::STAFF_NEED_MISS)
+    );
+    assert!(
+        game.state()
+            .managers
+            .values()
+            .map(|m| m.judged)
+            .sum::<u32>()
+            > judged
+    );
+    assert!(game.state().companies[0].ledger.is_balanced());
+}

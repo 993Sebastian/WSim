@@ -369,6 +369,7 @@ pub mod keys {
     pub const MANAGER_SUCCESSOR_GONE: &str = "meldung.manager.nachfolger_weg";
     pub const STEP_SUCCESSOR: &str = "schritt.nachfolger";
     pub const STEP_HIRE: &str = "schritt.einstellen";
+    pub const STEP_STAFF_DEPARTMENT: &str = "schritt.abteilung_personal";
     pub const STEP_PROMOTE: &str = "schritt.befoerdern";
     pub const STEP_EXTEND: &str = "schritt.verlaengern";
     pub const STEP_VACANT: &str = "schritt.unbesetzt";
@@ -422,6 +423,9 @@ pub mod keys {
     pub const VENTURE_STAKE_BEST_BID: &str = "meldung.startup.anteil_bestes_gebot";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
+    pub const STAFF_NEED_SET: &str = "meldung.abteilung.personal_gesetzt";
+    pub const STAFF_NEED_HIT: &str = "meldung.abteilung.personal_treffer";
+    pub const STAFF_NEED_MISS: &str = "meldung.abteilung.personal_fehlgriff";
     pub const MANAGER_HIRE_HIT: &str = "meldung.manager.einstellung_treffer";
     pub const MANAGER_HIRE_MISS: &str = "meldung.manager.einstellung_fehlgriff";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -835,6 +839,7 @@ pub mod keys {
         MANAGER_SUCCESSOR_GONE,
         STEP_SUCCESSOR,
         STEP_HIRE,
+        STEP_STAFF_DEPARTMENT,
         STEP_PROMOTE,
         STEP_EXTEND,
         STEP_VACANT,
@@ -884,6 +889,9 @@ pub mod keys {
         VENTURE_STAKE_BEST_BID,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
+        STAFF_NEED_SET,
+        STAFF_NEED_HIT,
+        STAFF_NEED_MISS,
         MANAGER_HIRE_HIT,
         MANAGER_HIRE_MISS,
         MANAGER_POACH,

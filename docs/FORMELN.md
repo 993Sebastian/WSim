@@ -6532,3 +6532,26 @@ Trefferquote). Eine Meldung berichtet das Ergebnis.
 **Offen (MG8c/d):** Personalabteilung mit mehr Kandidaten und genauerem Eindruck (§8.3: hier nur über `K`),
 Abwerbeziele, Personalbedarf aller Zentralabteilungen (§8.4), abwerbbare Manager fremder Firmen als
 Kandidaten, Entlassungen durch Leitungen nur als Anliegen.
+
+## MG8d – Personalbedarf der Zentralabteilungen (15.10.2026)
+
+Vorgabe: `docs/MANAGER_2.md` §8.4, für das Hauptunternehmen des Spielers (KI-Firmen behalten `ai_plan`).
+
+**Empfehlung.** Die Leitung einer Abteilung mit Leitung schätzt die Last
+`L' = L · (1 + e)`, `e` gleichverteilt in ±`schaetzfehler · (1 − Urteilsvermögen/100)`
+(Strom des Managers und Tages), und empfiehlt `n = ⌈L' / faelle⌉ · f_Stil`, mindestens 1, höchstens die
+Zahl, die der freie Akademikerpool der Hauptsitzstadt hergibt (`max_staff` = Pool − Stellen anderer Firmen
+am selben Ort). `f_Stil` = Feld `personal` der Stilart (offensiv 1,2; vorsichtig 0,85; sonst 1).
+
+**Wann.** Jedes Quartal (Monat durch 3 teilbar) für jede Abteilung mit Leitung, außerdem in jedem Monat, in dem die
+Abdeckung unter `unterdeckt_ab` liegt oder die Last unter `ueberbesetzt_ab` der Kapazität (ohne
+Mitarbeiter: sofort). Ist die Empfehlung gleich dem Bestand oder fragt schon ein offenes Anliegen, geschieht nichts.
+
+**Entscheiden.** Mehrkosten `ΔK = Jahreskosten(n) − Jahreskosten(Bestand)` (Lohn + Büro). Hat der CEO den Schalter
+„stellt ein“ und liegt `ΔK` bei oder unter der Freigabegrenze der Abteilung (Beteiligungs-Vorgabe, sonst
+`grenze_usd`), setzt die Leitung die Zahl selbst (`StaffDepartment`) und meldet es. Sonst entsteht ein
+Anliegen „Personalbedarf“ mit „auf n setzen“ und „so lassen“.
+
+**Akte.** Beide Wege legen eine `StaffFile` an. Nach `abteilung_wirkzeit_monate` gilt sie als Treffer, wenn die
+Abteilung ihre Last deckt (`Abdeckung ≥ unterdeckt_ab`) und ausgelastet ist (`Last ≥ ueberbesetzt_ab · Kapazität`).
+Der Ausgang zählt in der Trefferquote der Leitung.

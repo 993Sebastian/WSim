@@ -483,6 +483,21 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             options: v.staffing.options.clamp(1, 6),
             review_months: v.staffing.review_months.clamp(1, 60),
             hit_satisfaction: u8::try_from(v.staffing.hit_satisfaction.min(100)).unwrap_or(100),
+            under: in_range(
+                ctx,
+                v.staffing.under,
+                0.0,
+                1.0,
+                &l.field("personal").field("unterdeckt_ab"),
+            ),
+            over: in_range(
+                ctx,
+                v.staffing.over,
+                0.0,
+                1.0,
+                &l.field("personal").field("ueberbesetzt_ab"),
+            ),
+            dept_review_months: v.staffing.dept_review_months.clamp(1, 60),
             limit_usd: non_negative(
                 ctx,
                 v.staffing.limit_usd,
@@ -758,6 +773,7 @@ fn style(ctx: &mut Ctx, v: &RawStyleModel, l: &Loc) -> wsim_core::catalog::Style
             optimism: in_range(ctx, k.optimism, -0.5, 0.5, &loc.field("optimismus")),
             deviation: in_range(ctx, k.deviation, 0.0, 1.0, &loc.field("abweichung")),
             objection: non_negative(ctx, k.objection, &loc.field("einwand")),
+            staff: in_range(ctx, k.staff, 0.3, 3.0, &loc.field("personal")),
         });
     }
     if kinds.iter().map(|k| k.share).sum::<f64>() <= 0.0 {

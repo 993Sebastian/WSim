@@ -941,6 +941,7 @@ pub fn styles() -> crate::catalog::StyleModel {
                     optimism,
                     deviation,
                     objection,
+                    staff: if key == "offensiv" { 1.2 } else { 1.0 },
                 }
             },
         )

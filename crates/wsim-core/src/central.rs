@@ -230,6 +230,49 @@ pub fn head(
     management::holder(state, company, &head_position(catalog, kind)?)
 }
 
+/// The most employees a department could have now: those it has plus what the academics of
+/// the headquarters' city leave after the posts of all companies (docs/FORMELN.md, MG8).
+pub fn max_staff(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    kind: DepartmentKind,
+) -> u32 {
+    let Some(d) = catalog.central.department(kind) else {
+        return 0;
+    };
+    let hq = state.companies[company.index()].headquarters;
+    let city = hq_city(catalog, state, company).map(|x| x.key.clone());
+    let pool = city_academics(
+        catalog,
+        state,
+        hq,
+        city_in(catalog, hq, city.as_deref()),
+        d.labor_group,
+    );
+    // The others' posts in the same place and group.
+    let others: f64 = state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(i, c)| *i != company.index() && !c.bankrupt && c.headquarters == hq)
+        .map(|(_, c)| {
+            c.departments
+                .iter()
+                .filter(|(k, _)| {
+                    catalog
+                        .central
+                        .department(**k)
+                        .is_some_and(|x| x.labor_group == d.labor_group)
+                })
+                .map(|(_, &n)| f64::from(n))
+                .sum::<f64>()
+        })
+        .sum();
+    // Posts are small counts; the cast saturates.
+    (pool - others).max(0.0).floor().min(f64::from(u32::MAX)) as u32
+}
+
 /// What a department has to work on in a month (docs/FORMELN.md, ZA2).
 pub fn workload(
     catalog: &Catalog,

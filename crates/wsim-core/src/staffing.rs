@@ -102,6 +102,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     update_satisfaction(state, catalog, date);
     resignations(state, catalog, date, &mut streams, &mut news);
     review_hires(state, catalog, date, &mut news);
+    crate::dept_staff::month_start(state, catalog, date, &mut news);
     heads_hire(state, catalog, &mut streams, &mut news);
     ai_staffing(state, catalog, date, &mut news);
     ai_competence(state, catalog);

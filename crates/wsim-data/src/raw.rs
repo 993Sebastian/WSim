@@ -2842,6 +2842,15 @@ pub struct RawStaffing {
     pub hit_satisfaction: u32,
     #[serde(rename = "grenze_usd", default = "RawStaffing::limit_default")]
     pub limit_usd: f64,
+    #[serde(rename = "unterdeckt_ab", default = "RawStaffing::under_default")]
+    pub under: f64,
+    #[serde(rename = "ueberbesetzt_ab", default = "RawStaffing::over_default")]
+    pub over: f64,
+    #[serde(
+        rename = "abteilung_wirkzeit_monate",
+        default = "RawStaffing::review_default"
+    )]
+    pub dept_review_months: u32,
 }
 
 impl RawStaffing {
@@ -2862,6 +2871,12 @@ impl RawStaffing {
     }
     fn limit_default() -> f64 {
         250_000.0
+    }
+    fn under_default() -> f64 {
+        0.8
+    }
+    fn over_default() -> f64 {
+        0.6
     }
 }
 
@@ -2895,6 +2910,15 @@ pub struct RawStyleKind {
     pub deviation: f64,
     #[serde(rename = "einwand")]
     pub objection: f64,
+    /// Factor on the recommended staff of a department (MG8).
+    #[serde(rename = "personal", default = "RawStyleKind::staff_default")]
+    pub staff: f64,
+}
+
+impl RawStyleKind {
+    fn staff_default() -> f64 {
+        1.0
+    }
 }
 
 #[derive(Debug, Deserialize)]

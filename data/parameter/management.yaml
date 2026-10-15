@@ -236,8 +236,8 @@ management:
   # andere Option zu empfehlen; einwand: Faktor auf die Einwandschance.
   stil:
     arten:
-      - {id: offensiv, anteil: 0.25, abwarten: -0.2, spanne: 1.2, optimismus: 0.10, abweichung: 0.05, einwand: 1.5}
-      - {id: vorsichtig, anteil: 0.30, abwarten: 0.3, spanne: 1.0, optimismus: -0.10, abweichung: 0.0, einwand: 0.5}
+      - {id: offensiv, anteil: 0.25, abwarten: -0.2, spanne: 1.2, optimismus: 0.10, abweichung: 0.05, einwand: 1.5, personal: 1.2}
+      - {id: vorsichtig, anteil: 0.30, abwarten: 0.3, spanne: 1.0, optimismus: -0.10, abweichung: 0.0, einwand: 0.5, personal: 0.85}
       - {id: zahlengetrieben, anteil: 0.30, abwarten: 0.0, spanne: 0.6, optimismus: 0.0, abweichung: 0.0, einwand: 1.0}
       - {id: querdenker, anteil: 0.15, abwarten: 0.0, spanne: 1.6, optimismus: 0.0, abweichung: 0.15, einwand: 1.5}
     # Begründungen, aus denen 1–2 als Lieblingsbegründung gezogen werden (Texte
@@ -267,5 +267,11 @@ management:
     wirkzeit_monate: 12
     treffer_zufriedenheit: 60
     grenze_usd: 250000
+    # Personalbedarf der Zentralabteilungen (MG8, FORMELN MG8): Ihre Leitung empfiehlt jedes
+    # Quartal die Sollzahl; außer der Reihe, wenn die Abdeckung unter unterdeckt_ab fällt oder
+    # die Last unter ueberbesetzt_ab der Kapazität liegt. Akte nach abteilung_wirkzeit_monate.
+    unterdeckt_ab: 0.8
+    ueberbesetzt_ab: 0.6
+    abteilung_wirkzeit_monate: 12
 
   annaeherung: true

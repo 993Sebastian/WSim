@@ -55,10 +55,12 @@ pub enum Topic {
     Dividend,
     /// A head's choice among candidates for a free position (MG8).
     Hiring,
+    /// The head of a central department recommends its staff (MG8).
+    StaffNeed,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 27] = [
+    pub const ALL: [Topic; 28] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -86,6 +88,7 @@ impl Topic {
         Topic::Succession,
         Topic::Dividend,
         Topic::Hiring,
+        Topic::StaffNeed,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -121,6 +124,7 @@ impl Topic {
             Topic::Succession => "nachfolge",
             Topic::Dividend => "dividende",
             Topic::Hiring => "einstellung",
+            Topic::StaffNeed => "personalbedarf",
         }
     }
 }

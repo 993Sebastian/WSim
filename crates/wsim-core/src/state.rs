@@ -603,6 +603,8 @@ pub enum ConcernReason {
     Dividend,
     /// A head asks whom to hire for a free position (MG8).
     Hiring,
+    /// A department head recommends a new staff (MG8).
+    StaffNeed,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -2195,6 +2197,9 @@ pub struct GameState {
     /// Licence fees between companies (PD8).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub project_royalties: Vec<crate::project_deals::Royalty>,
+    /// Staff decisions of department heads waiting for their review (MG8).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub staff_files: Vec<crate::dept_staff::StaffFile>,
     /// Hires by heads waiting for their review (MG8), oldest first.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub hire_files: Vec<crate::staffing::HireFile>,

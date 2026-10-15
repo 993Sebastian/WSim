@@ -1853,6 +1853,8 @@ anliegen.grund.ruhestand: Ein Manager geht bald in den Ruhestand – wer ihm fol
 anliegen.grund.unbesetzt: Die Stelle ist durch einen Todesfall frei geworden.
 anliegen.grund.einstellung: Eine Leitung sucht Verstärkung. Das Gehalt des besten Bewerbers liegt über der Freigabegrenze Personal; sie legt dir die besten Bewerber vor.
 thema.einstellung: Einstellung
+thema.personalbedarf: Personalbedarf einer Abteilung
+anliegen.grund.personalbedarf: Die Leitung einer Zentralabteilung empfiehlt eine andere Mitarbeiterzahl; die Mehrkosten liegen über ihrer Freigabegrenze oder der CEO stellt nicht selbst ein.
 option.einstellen: Einstellen
 anliegen.grund.dividende: Das Jahr ist abgeschlossen. Dein CEO schlägt die Dividende vor; Ende Januar wird ausgezahlt, ohne Antwort nach der bisherigen Politik.
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."

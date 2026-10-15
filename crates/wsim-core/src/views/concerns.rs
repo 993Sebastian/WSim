@@ -237,6 +237,7 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Vacancy => "unbesetzt",
         ConcernReason::Dividend => "dividende",
         ConcernReason::Hiring => "einstellung",
+        ConcernReason::StaffNeed => "personalbedarf",
     }
 }
 
@@ -547,6 +548,23 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                     .with("gehalt", Param::Money(demand.max(j.salary))),
                 None => message(keys::STEP_SUCCESSOR).with("gehalt", Param::Money(demand)),
             }
+        }
+        Command::StaffDepartment { department, staff } => {
+            let company = state.main_company?;
+            m(keys::STEP_STAFF_DEPARTMENT)
+                .with(
+                    "abteilung",
+                    Param::TextKey(format!("abteilung.{}", department.key())),
+                )
+                .with(
+                    "bisher",
+                    integer(i64::from(crate::central::staff(
+                        state,
+                        company,
+                        *department,
+                    ))),
+                )
+                .with("auf", integer(i64::from(*staff)))
         }
         Command::HireManager { manager, position } => {
             let x = state.managers.get(manager)?;

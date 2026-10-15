@@ -21,6 +21,7 @@ pub mod country_model;
 pub mod currency;
 pub mod deals;
 pub mod decision;
+pub mod dept_staff;
 pub mod dev_lead;
 pub mod development;
 pub mod dividends;

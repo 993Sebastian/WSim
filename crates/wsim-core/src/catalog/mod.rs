@@ -239,6 +239,12 @@ pub struct StaffingModel {
     pub hit_satisfaction: u8,
     /// Yearly salary up to which a head hires alone when no limit is set (USD).
     pub limit_usd: f64,
+    /// Coverage below which, and load share of the capacity below which, a department head
+    /// recommends a new staff outside the quarterly review (MG8).
+    pub under: f64,
+    pub over: f64,
+    /// Months until the file on a staff decision is reviewed.
+    pub dept_review_months: u32,
 }
 
 impl Default for StaffingModel {
@@ -251,6 +257,9 @@ impl Default for StaffingModel {
             review_months: 12,
             hit_satisfaction: 60,
             limit_usd: 250_000.0,
+            under: 0.8,
+            over: 0.6,
+            dept_review_months: 12,
         }
     }
 }
@@ -278,6 +287,8 @@ pub struct StyleKind {
     pub optimism: f64,
     pub deviation: f64,
     pub objection: f64,
+    /// Factor on the staff a department head recommends (MG8).
+    pub staff: f64,
 }
 
 /// Industry experience of managers (MG5, docs/MANAGER_2.md 5).
