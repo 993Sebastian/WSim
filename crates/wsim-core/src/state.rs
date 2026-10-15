@@ -2178,6 +2178,9 @@ pub struct GameState {
     /// Who decides at the milestones of a company's projects (PD3); missing: standard.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub project_delegation: BTreeMap<CompanyId, crate::project_reports::DelegationMode>,
+    /// Product suggestions of the strategy (PD6); the index is their number.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub product_suggestions: Vec<crate::project_suggestions::Suggestion>,
     /// Improvement projects WM0–WM3 of all companies (PD5).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub improvement_projects: Vec<crate::improvements::ImprovementProject>,

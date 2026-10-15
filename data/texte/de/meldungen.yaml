@@ -287,6 +287,9 @@ meldung.projekt_ereignis: "Entwicklung {produkt}: {ereignis} – das Projekt war
 meldung.projekt_ereignis_entschieden: "Entwicklung {produkt}: {ereignis} – gewählt: {option}."
 meldung.projekt_ereignis_automatisch: "Entwicklung {produkt}: {ereignis} – der Projektleiter hat entschieden: {option}."
 meldung.projekt_rueckruf: "Rückruf bei {produkt}: Ein verborgener Mangel kostet {kosten} und schadet dem Ruf der Marke."
+meldung.produktvorschlag: "Neuer Produktvorschlag der Strategie: {produkt}."
+meldung.nachkalkulation: "Nachkalkulation {produkt}: Wert {wert} gegenüber der Zusage."
+fehler.befehl.vorschlag_unbekannt: Diesen offenen Produktvorschlag gibt es nicht.
 meldung.weiterentwicklung_ansaetze: "Weiterentwicklung {produkt} ({ziel}): Die Analyse hat Ansatzpunkte gefunden – bitte wählen."
 meldung.weiterentwicklung_ergebnis: "Weiterentwicklung {produkt} ({ziel}): Ergebnis {erreicht} bei erwarteten {erwartet}."
 meldung.weiterentwicklung_freigabe: "Weiterentwicklung {produkt} ({ziel}) ist bereit zur Freigabe – bitte wählen."

@@ -187,7 +187,7 @@ fn initial_plan(m: &ProjectModel, p: &DevProject) -> (f64, f64) {
 }
 
 /// The unbiased figures of the project today.
-fn truth_kpis(state: &GameState, catalog: &Catalog, p: &DevProject) -> Kpis {
+pub(crate) fn truth_kpis(state: &GameState, catalog: &Catalog, p: &DevProject) -> Kpis {
     let Some((m, rm)) = models(catalog) else {
         return Kpis::default();
     };
@@ -262,7 +262,7 @@ fn payback(k: &Kpis) -> f64 {
 
 /// What the leader shows for the true figures: the volume and thus revenue, margin and
 /// plants are too high by his bias, the unit cost too low by half of it.
-fn forecast(truth: &Kpis, bias: f64) -> Kpis {
+pub(crate) fn forecast(truth: &Kpis, bias: f64) -> Kpis {
     let mut k = *truth;
     let volume = truth.volume_year * bias;
     let per_plant = if truth.plants > 0.0 {

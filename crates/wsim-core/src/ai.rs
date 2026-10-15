@@ -3453,6 +3453,10 @@ fn plan_research(
         };
         if crate::projects::enabled(catalog) {
             start_project(state, catalog, id, (c, p));
+            // The best open product suggestion becomes a project (PD6).
+            if let Some(cmd) = crate::project_suggestions::ai_accept(state, catalog, id) {
+                run(state, catalog, id, &cmd);
+            }
             // The best seller gets an improvement project, one at a time (PD5).
             if let Some(d) = development_target(state, catalog, id, Some(c))
                 && let Some(cmd) = crate::improvements::ai_start(state, catalog, id, (c, d))

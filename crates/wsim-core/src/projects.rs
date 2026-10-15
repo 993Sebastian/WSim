@@ -43,6 +43,11 @@ pub struct ProjectLead {
     /// The day the leader came on the market.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub entered: Option<Date>,
+    /// Sum of the values of the after-calculations and their number (PD6).
+    #[serde(default)]
+    pub balance_sum: f64,
+    #[serde(default)]
+    pub balance_count: u32,
 }
 
 /// Where a project stands.
@@ -126,6 +131,9 @@ pub struct DevProject {
     /// Sum of the staffing gaps at the ends of the phases.
     #[serde(default)]
     pub shortfall_sum: f64,
+    /// The forecast of the suggestion the project started from, frozen (PD6).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub promise: Option<crate::project_suggestions::Promise>,
 }
 
 fn middle() -> u8 {
@@ -415,6 +423,7 @@ pub(crate) fn start(
         defect: 0.0,
         bonus_quality: 0.0,
         shortfall_sum: 0.0,
+        promise: None,
     });
     state.sites[site.index()].staffing_due = true;
     Ok(())
@@ -539,6 +548,11 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     let Some(m) = catalog.research_model.projects.as_ref() else {
         return news;
     };
+    if date.day() == 1 {
+        news.extend(crate::project_suggestions::month_start(
+            state, catalog, date,
+        ));
+    }
     // Decisions left open past their deadline, and what commands produced since yesterday.
     news.extend(crate::project_reports::resolve_due(state, catalog, date));
     news.extend(crate::project_events::resolve_due(state, catalog, date));
@@ -837,6 +851,8 @@ pub(crate) fn top_up_market(state: &mut GameState, catalog: &Catalog, date: Date
                 aborted: 0,
                 employer: None,
                 entered: Some(date),
+                balance_sum: 0.0,
+                balance_count: 0,
             });
         }
     }

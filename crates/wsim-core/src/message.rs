@@ -231,6 +231,7 @@ pub mod keys {
     pub const COMMAND_PROJECTS_OFF: &str = "fehler.befehl.projekte_aus";
     pub const COMMAND_USE_PROJECTS: &str = "fehler.befehl.nur_ueber_projekte";
     pub const COMMAND_UNKNOWN_PROJECT: &str = "fehler.befehl.projekt_unbekannt";
+    pub const COMMAND_UNKNOWN_SUGGESTION: &str = "fehler.befehl.vorschlag_unbekannt";
     pub const COMMAND_LEAD_UNAVAILABLE: &str = "fehler.befehl.projektleiter_nicht_verfuegbar";
     pub const COMMAND_PROJECT_EXISTS: &str = "fehler.befehl.projekt_laeuft_schon";
     pub const PROJECT_MILESTONE: &str = "meldung.projekt_meilenstein";
@@ -241,6 +242,8 @@ pub mod keys {
     pub const IMPROVEMENT_RESULT: &str = "meldung.weiterentwicklung_ergebnis";
     pub const IMPROVEMENT_RELEASE: &str = "meldung.weiterentwicklung_freigabe";
     pub const IMPROVEMENT_DONE: &str = "meldung.weiterentwicklung_fertig";
+    pub const PRODUCT_SUGGESTION: &str = "meldung.produktvorschlag";
+    pub const PRODUCT_REVIEW: &str = "meldung.nachkalkulation";
     pub const PROJECT_EVENT: &str = "meldung.projekt_ereignis";
     pub const PROJECT_EVENT_DECIDED: &str = "meldung.projekt_ereignis_entschieden";
     pub const PROJECT_EVENT_AUTO: &str = "meldung.projekt_ereignis_automatisch";
@@ -684,6 +687,7 @@ pub mod keys {
         COMMAND_PROJECTS_OFF,
         COMMAND_USE_PROJECTS,
         COMMAND_UNKNOWN_PROJECT,
+        COMMAND_UNKNOWN_SUGGESTION,
         COMMAND_LEAD_UNAVAILABLE,
         COMMAND_PROJECT_EXISTS,
         PROJECT_MILESTONE,
@@ -694,6 +698,8 @@ pub mod keys {
         IMPROVEMENT_RESULT,
         IMPROVEMENT_RELEASE,
         IMPROVEMENT_DONE,
+        PRODUCT_SUGGESTION,
+        PRODUCT_REVIEW,
         PROJECT_EVENT,
         PROJECT_EVENT_DECIDED,
         PROJECT_EVENT_AUTO,

@@ -279,6 +279,7 @@ fn staffing_changes_the_duration_but_not_the_cost() {
             defect: 0.0,
             bonus_quality: 0.0,
             shortfall_sum: 0.0,
+            promise: None,
         },
     );
     let normal = projects::scenario(&m, &p, 0.5, 0);
@@ -1246,5 +1247,155 @@ fn the_view_offers_improvements_and_shows_the_running_ones() {
         v.improvement_offers
             .iter()
             .all(|o| !(o.product == "eisen" && o.target == "qualitaet"))
+    );
+}
+
+use crate::catalog::SuggestionModel;
+use crate::project_suggestions::{self, SuggestionStatus};
+
+fn suggestion_game() -> (Game, SiteId, u32) {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.reports = Some(report_model());
+    m.suggestions = Some(SuggestionModel {
+        open_max: 2,
+        valid_days: 60,
+        branch_bonus: 0.5,
+        uncertainty: 0.35,
+        accuracy: 0.6,
+        review_years: 2,
+        tolerance: 0.5,
+        hit_from: 0.6,
+        weights: [0.25, 0.25, 0.5],
+    });
+    let mut game = crate::product_research_tests::new_game(c);
+    let site = lab(&mut game);
+    days(&mut game, 15);
+    let posts = crate::lab_staff::capacity(
+        game.catalog(),
+        &game.state().sites[site.index()],
+        game.date(),
+    )
+    .floor() as u32;
+    game.apply(Command::HireLabStaff {
+        site,
+        role: LabRole::Developer,
+        count: posts,
+    })
+    .unwrap();
+    let lead = game
+        .state()
+        .project_leads
+        .iter()
+        .position(|l| l.employer.is_none())
+        .expect("the market has leaders") as u32;
+    game.apply(Command::HireProjectLead { lead }).unwrap();
+    // Every market of every product has open demand so that the strategy finds something.
+    for (_, markets) in game.state_mut().markets.iter_mut() {
+        for (_, mk) in markets.iter_mut() {
+            mk.open_demand = 1000.0;
+        }
+    }
+    (game, site, lead)
+}
+
+fn until_suggestion(game: &mut Game) -> u32 {
+    let player = game.player();
+    for _ in 0..70 {
+        if let Some(i) = game
+            .state()
+            .product_suggestions
+            .iter()
+            .position(|s| s.company == player && s.status == SuggestionStatus::Open)
+        {
+            return i as u32;
+        }
+        days(game, 1);
+    }
+    panic!("no suggestion turned up");
+}
+
+#[test]
+fn the_strategy_suggests_a_product_and_the_player_can_decline_it() {
+    let (mut game, _, _) = suggestion_game();
+    let i = until_suggestion(&mut game);
+    let s = &game.state().product_suggestions[i as usize];
+    assert!(s.forecast.project_cost > 0.0 && s.forecast.project_days > 0.0);
+    assert!(s.expires > s.created);
+    assert_eq!(
+        game.apply(Command::DeclineSuggestion { suggestion: 99 }),
+        Err(CommandError::UnknownSuggestion)
+    );
+    game.apply(Command::DeclineSuggestion { suggestion: i })
+        .unwrap();
+    assert_eq!(
+        game.state().product_suggestions[i as usize].status,
+        SuggestionStatus::Declined
+    );
+    assert_eq!(
+        game.apply(Command::DeclineSuggestion { suggestion: i }),
+        Err(CommandError::UnknownSuggestion)
+    );
+    // At most `open_max` stay open and an open one expires.
+    days(&mut game, 200);
+    let open = game
+        .state()
+        .product_suggestions
+        .iter()
+        .filter(|s| s.status == SuggestionStatus::Open)
+        .count();
+    assert!(open <= 2);
+}
+
+#[test]
+fn a_started_suggestion_freezes_the_promise_and_the_review_feeds_the_balance() {
+    let (mut game, _, lead) = suggestion_game();
+    let player = game.player();
+    let i = until_suggestion(&mut game);
+    let forecast = game.state().product_suggestions[i as usize].forecast;
+    game.apply(Command::StartSuggestedProject {
+        suggestion: i,
+        lead,
+        tempo: 1,
+        trim: 1,
+    })
+    .unwrap();
+    let pi = game.state().dev_projects.len() - 1;
+    let promise = game.state().dev_projects[pi].promise.expect("promise");
+    assert_eq!(promise.suggestion, i);
+    assert_eq!(promise.forecast, forecast);
+    assert_eq!(
+        game.state().product_suggestions[i as usize].status,
+        SuggestionStatus::Started(pi as u32)
+    );
+    // Without the mark a suggestion cannot start twice.
+    assert_eq!(
+        game.apply(Command::StartSuggestedProject {
+            suggestion: i,
+            lead,
+            tempo: 1,
+            trim: 1
+        }),
+        Err(CommandError::UnknownSuggestion)
+    );
+    // Release the project at once and let two years pass.
+    {
+        let s = game.state_mut();
+        let date = s.date;
+        let p = &mut s.dev_projects[pi];
+        p.status = ProjectStatus::Released;
+        p.finished = Some(date);
+    }
+    assert!(game.state().project_leads[lead as usize].balance_count == 0);
+    days(&mut game, 365 * 2 + 40);
+    let s = &game.state().product_suggestions[i as usize];
+    let review = s.review.expect("the after-calculation took place");
+    assert!((0.0..=1.0).contains(&review.value));
+    let l = &game.state().project_leads[lead as usize];
+    assert_eq!(l.balance_count, 1);
+    assert!((l.balance_sum - review.value).abs() < 1e-12);
+    assert_eq!(
+        project_suggestions::hit_rate(game.state(), player),
+        Some(if review.hit { 1.0 } else { 0.0 })
     );
 }

@@ -128,6 +128,11 @@ pub enum Stream {
     ProjectOutcome {
         project: u32,
     },
+    /// The product suggestion of a company in a month (PD6).
+    ProductSuggestion {
+        company: u32,
+        month: u32,
+    },
     /// An event in a phase of a project on a day (PD4).
     ProjectEvent {
         project: u32,
@@ -264,6 +269,9 @@ impl Stream {
                 (39 << 56) | (u64::from(project) << 24) | u64::from(day)
             }
             Stream::ProjectDefect { project } => (40 << 56) | u64::from(project),
+            Stream::ProductSuggestion { company, month } => {
+                (43 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
             Stream::ProjectApproach { project } => (41 << 56) | u64::from(project),
             Stream::ProjectOutcome { project } => (42 << 56) | u64::from(project),
             Stream::ProjectLeads { continent, month } => {

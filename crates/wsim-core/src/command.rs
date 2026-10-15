@@ -296,6 +296,15 @@ pub enum Command {
         #[serde(default)]
         choice: Option<u8>,
     },
+    /// Starts the project of an open product suggestion and freezes its forecast (PD6).
+    StartSuggestedProject {
+        suggestion: u32,
+        lead: u32,
+        tempo: u8,
+        trim: u8,
+    },
+    /// Declines a product suggestion (PD6).
+    DeclineSuggestion { suggestion: u32 },
     /// Starts an improvement project WM0–WM3 for a target of a product (PD5).
     StartImprovement {
         site: SiteId,
@@ -865,6 +874,8 @@ pub enum CommandError {
     UseProjects,
     /// No such project, or not running (PD2).
     UnknownProject,
+    /// No such open suggestion (PD6).
+    UnknownSuggestion,
     /// The project leader is not the company's or is busy (PD2).
     LeadUnavailable,
     /// The company develops this product already (PD2).
@@ -1214,6 +1225,7 @@ impl CommandError {
             CommandError::ProjectsOff => e(keys::COMMAND_PROJECTS_OFF),
             CommandError::UseProjects => e(keys::COMMAND_USE_PROJECTS),
             CommandError::UnknownProject => e(keys::COMMAND_UNKNOWN_PROJECT),
+            CommandError::UnknownSuggestion => e(keys::COMMAND_UNKNOWN_SUGGESTION),
             CommandError::LeadUnavailable => e(keys::COMMAND_LEAD_UNAVAILABLE),
             CommandError::ProjectExists => e(keys::COMMAND_PROJECT_EXISTS),
             CommandError::NothingToDecide => e(keys::COMMAND_NOTHING_TO_DECIDE),
@@ -2755,6 +2767,23 @@ fn run(
             choice,
         } => {
             crate::project_reports::decide(state, catalog, actor, *project, (*decision, *choice))?;
+        }
+        Command::StartSuggestedProject {
+            suggestion,
+            lead,
+            tempo,
+            trim,
+        } => {
+            crate::project_suggestions::start(
+                state,
+                catalog,
+                actor,
+                (*suggestion, *lead),
+                (*tempo, *trim),
+            )?;
+        }
+        Command::DeclineSuggestion { suggestion } => {
+            crate::project_suggestions::decline(state, actor, *suggestion)?;
         }
         Command::StartImprovement {
             site,
