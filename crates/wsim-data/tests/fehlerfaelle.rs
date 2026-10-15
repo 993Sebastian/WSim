@@ -6280,7 +6280,7 @@ fn projektvorschlaege_werden_geprueft() {
 #[test]
 fn projektgremium_fast_track_und_pilot_werden_geprueft() {
     let datei = "parameter/forschungsmodell.yaml";
-    let zusatz = "    gremium:\n      unschaerfe: 0.5\n      genauigkeit: 0.6\n      schwelle: 0.25\n      pause_mehrheit: 3\n    \
+    let zusatz = "    gremium:\n      unschaerfe: 0.5\n      genauigkeit: 0.6\n      schwelle: 0.25\n      pause_mehrheit: 3\n      schleifen_max: 2\n    \
          fast_track:\n      erfahrung_min: 0.3\n      ueberlappung: 0.25\n      kosten_faktor: 1.1\n      mangel: 0.12\n    \
          pilot:\n      risiko_ab: 0.15\n      dauer_anteil: 0.3\n      kosten_anteil: 0.25\n      aufdeckung_faktor: 2.5\n      \
          behebung: 0.7\n      nacharbeit: 0.15\n      qualitaet_bonus: 0.03\n      beruhigung: 0.4\n";

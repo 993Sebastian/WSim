@@ -1447,6 +1447,8 @@ pub struct RawProjectCouncil {
     pub threshold: f64,
     #[serde(rename = "pause_mehrheit")]
     pub pause_majority: u32,
+    #[serde(rename = "schleifen_max")]
+    pub max_loops: u32,
 }
 
 /// Fast-track: overlapping phases on the leader's proposal (PD7).

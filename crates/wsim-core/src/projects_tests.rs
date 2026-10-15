@@ -283,6 +283,8 @@ fn staffing_changes_the_duration_but_not_the_cost() {
             event_phase: None,
             defect: 0.0,
             bonus_quality: 0.0,
+            fast_track: false,
+            pilot: 0,
             shortfall_sum: 0.0,
             promise: None,
         },
@@ -1414,4 +1416,283 @@ fn a_started_suggestion_freezes_the_promise_and_the_review_feeds_the_balance() {
         project_suggestions::hit_rate(game.state(), player),
         Some(if review.hit { 1.0 } else { 0.0 })
     );
+}
+
+// --- PD7: gate council, fast-track, pilot series ---
+
+use crate::catalog::{CouncilModel, FastTrackModel, PilotModel};
+use crate::project_gates::{self, Stance, Voice, VoiceRole};
+
+fn council_model() -> CouncilModel {
+    CouncilModel {
+        uncertainty: 0.0,
+        accuracy: 0.0,
+        threshold: 0.25,
+        pause_majority: 3,
+        max_loops: 2,
+    }
+}
+
+fn fast_track_model() -> FastTrackModel {
+    FastTrackModel {
+        experience_min: 0.0,
+        overlap: 0.25,
+        cost_factor: 1.1,
+        defect: 0.12,
+    }
+}
+
+fn pilot_model() -> PilotModel {
+    PilotModel {
+        risk_from: 0.0,
+        duration_share: 0.3,
+        cost_share: 0.25,
+        detection: 1_000.0,
+        repair: 0.7,
+        rework: 0.15,
+        quality_bonus: 0.03,
+        calm: 0.4,
+    }
+}
+
+/// A game where the leader decides everything and proposes both extras.
+fn gates_game(fast_track: bool, pilot: bool, defect: bool) -> Game {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.risk.base = 0.0;
+    let mut rm = report_model();
+    for t in &mut rm.traits {
+        t.fast_track = 1.0;
+        t.pilot = 1.0;
+    }
+    m.reports = Some(rm);
+    m.council = Some(council_model());
+    m.fast_track = fast_track.then(fast_track_model);
+    m.pilot = pilot.then(pilot_model);
+    if defect {
+        m.events = Some(ProjectEventModel {
+            deadline_days: 5,
+            defect_cap: 1.0,
+            defect_per_condition: 0.0,
+            defect_per_shortfall: 0.0,
+            defect_per_tempo: vec![0.3; 3],
+            recall_days: (10, 20),
+            recall_cost_share: 0.5,
+            recall_awareness_loss: 0.25,
+            kinds: Vec::new(),
+        });
+    }
+    let mut game = crate::product_research_tests::new_game(c);
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    running(&mut game);
+    game
+}
+
+fn run_out(game: &mut Game) {
+    for _ in 0..3000 {
+        if game.state().dev_projects[0].status != ProjectStatus::Running {
+            break;
+        }
+        days(game, 1);
+    }
+}
+
+#[test]
+fn the_council_speaks_at_the_gates_only() {
+    let mut game = gates_game(false, false, false);
+    run_out(&mut game);
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.status, ProjectStatus::Released);
+    for r in &p.reports {
+        let expected = matches!(r.milestone, 3 | 4 | 7);
+        assert_eq!(!r.council.is_empty(), expected, "PM{}", r.milestone);
+        if expected {
+            assert_eq!(r.council.len(), 3);
+        }
+    }
+    // The same seed gives the same voices.
+    let mut again = gates_game(false, false, false);
+    run_out(&mut again);
+    let a: Vec<_> = p.reports.iter().map(|r| r.council.clone()).collect();
+    let b: Vec<_> = again.state().dev_projects[0]
+        .reports
+        .iter()
+        .map(|r| r.council.clone())
+        .collect();
+    assert_eq!(a, b);
+}
+
+fn voices(stances: [Stance; 3]) -> Vec<Voice> {
+    [VoiceRole::Finance, VoiceRole::Technology, VoiceRole::Market]
+        .into_iter()
+        .zip(stances)
+        .map(|(role, stance)| Voice {
+            role,
+            stance,
+            dissent: false,
+        })
+        .collect()
+}
+
+#[test]
+fn a_council_against_turns_the_decision_back_a_step() {
+    let mut game = gates_game(false, false, false);
+    run_out(&mut game);
+    let against = voices([Stance::Against, Stance::Against, Stance::Doubt]);
+    let all_against = voices([Stance::Against; 3]);
+    let fine = voices([Stance::For, Stance::Doubt, Stance::Against]);
+    let adjusted =
+        |rec, v: &[Voice], ms| project_gates::adjusted(game.state(), game.catalog(), 0, ms, rec, v);
+    assert_eq!(
+        adjusted(Decision::Continue, &fine, 4),
+        (Decision::Continue, false)
+    );
+    assert_eq!(
+        adjusted(Decision::Continue, &against, 4),
+        (Decision::Conditions, true)
+    );
+    assert_eq!(
+        adjusted(Decision::Conditions, &against, 4),
+        (Decision::Loop, true)
+    );
+    // Abort stays; no loops past the limit.
+    assert_eq!(
+        adjusted(Decision::Abort, &against, 4),
+        (Decision::Abort, false)
+    );
+    // PM7 with all three against pauses the player's own project.
+    assert_eq!(
+        adjusted(Decision::Continue, &all_against, 7),
+        (Decision::Pause, true)
+    );
+    assert_eq!(project_gates::majority(&all_against), -3);
+}
+
+#[test]
+fn fast_track_overlaps_the_phases_and_adds_cost_and_risk() {
+    let mut plain = gates_game(false, false, false);
+    run_out(&mut plain);
+    let mut fast = gates_game(true, false, false);
+    run_out(&mut fast);
+    let (a, b) = (
+        &plain.state().dev_projects[0],
+        &fast.state().dev_projects[0],
+    );
+    assert!(!a.fast_track && b.fast_track);
+    assert!(b.finished < a.finished, "{:?} {:?}", b.finished, a.finished);
+    assert!(b.spent > a.spent);
+    // The leader's proposal is on the pending decision of PM3 and the report is marked.
+    assert!(b.reports.iter().any(|r| r.milestone == 3));
+    let m = fast.catalog().research_model.projects.clone().unwrap();
+    assert!((project_gates::phase_adjust(&m, b, 3).0 - 0.75).abs() < 1e-9);
+    assert!((project_gates::phase_adjust(&m, b, 5).0 - 1.0).abs() < 1e-9);
+    assert!((project_gates::extra_defect(fast.catalog(), b) - 0.12).abs() < 1e-9);
+}
+
+#[test]
+fn a_pilot_series_finds_a_defect_and_the_rework_takes_time() {
+    let mut plain = gates_game(false, false, true);
+    run_out(&mut plain);
+    let mut pilot = gates_game(false, true, true);
+    run_out(&mut pilot);
+    let (a, b) = (
+        &plain.state().dev_projects[0],
+        &pilot.state().dev_projects[0],
+    );
+    assert_eq!(b.pilot, 2);
+    assert!(b.finished > a.finished);
+    assert!(b.spent > a.spent);
+    // A found defect (the chance is sure) takes most of the hidden risk away.
+    let before = crate::project_events::total_defect(plain.catalog(), a);
+    let after = crate::project_events::total_defect(pilot.catalog(), b);
+    assert!(after < before * 0.5, "{after} {before}");
+}
+
+#[test]
+fn a_pilot_without_a_defect_lifts_the_quality() {
+    let mut pilot = gates_game(false, true, false);
+    run_out(&mut pilot);
+    let p = &pilot.state().dev_projects[0];
+    assert_eq!(p.pilot, 2);
+    assert!((p.bonus_quality - 0.03).abs() < 1e-9);
+}
+
+#[test]
+fn branch_strength_and_the_buffer_lower_the_event_risk() {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.risk.branch = 0.5;
+    m.risk.buffer = 0.5;
+    m.risk.branch_ref = 1.0;
+    m.risk.buffer_ref = 1.0;
+    let mut game = crate::product_research_tests::new_game(c);
+    running(&mut game);
+    let f = project_gates::risk_factor(game.state(), game.catalog(), 0);
+    assert!(f <= 1.0 && f > 0.0, "{f}");
+    // Without the reference values the fields do nothing.
+    let mut game = crate::product_research_tests::new_game(catalog());
+    running(&mut game);
+    assert!((project_gates::risk_factor(game.state(), game.catalog(), 0) - 1.0).abs() < 1e-9);
+}
+
+#[test]
+fn the_player_takes_or_declines_the_pilot_at_pm6() {
+    let build = || {
+        let mut c = catalog();
+        let m = c.research_model.projects.as_mut().unwrap();
+        m.risk.base = 0.0;
+        let mut rm = report_model();
+        for t in &mut rm.traits {
+            t.pilot = 1.0;
+        }
+        m.reports = Some(rm);
+        m.pilot = Some(pilot_model());
+        let mut game = crate::product_research_tests::new_game(c);
+        running(&mut game);
+        game
+    };
+    let until_pm6 = |game: &mut Game| loop {
+        let p = until_pending(game, 3000).expect("a decision is due");
+        if p.milestone == 6 {
+            return p;
+        }
+        game.apply(Command::DecideMilestone {
+            project: 0,
+            decision: Decision::Continue,
+            choice: None,
+        })
+        .unwrap();
+    };
+    let mut game = build();
+    let pending = until_pm6(&mut game);
+    assert!(pending.proposal);
+    assert_eq!(
+        game.apply(Command::DecideMilestone {
+            project: 0,
+            decision: Decision::Continue,
+            choice: Some(2),
+        }),
+        Err(CommandError::InvalidQuantity)
+    );
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Continue,
+        choice: Some(1),
+    })
+    .unwrap();
+    assert_eq!(game.state().dev_projects[0].pilot, 1);
+
+    let mut game = build();
+    until_pm6(&mut game);
+    game.apply(Command::DecideMilestone {
+        project: 0,
+        decision: Decision::Continue,
+        choice: Some(0),
+    })
+    .unwrap();
+    assert_eq!(game.state().dev_projects[0].pilot, 0);
 }

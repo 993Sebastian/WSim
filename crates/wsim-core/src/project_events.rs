@@ -70,6 +70,14 @@ pub fn defect_risk(m: &ProjectEventModel, p: &DevProject) -> f64 {
         .clamp(0.0, m.defect_cap)
 }
 
+/// The hidden defect risk including what the fast-track adds (PD7), 0–cap.
+pub fn total_defect(catalog: &Catalog, p: &DevProject) -> f64 {
+    let Some(m) = model(catalog) else {
+        return 0.0;
+    };
+    (defect_risk(m, p) + crate::project_gates::extra_defect(catalog, p)).clamp(0.0, m.defect_cap)
+}
+
 /// Rolls today's event of a working project: `step` is today's share of the phase,
 /// `shortfall` the staffing gap today.
 pub(crate) fn roll(
@@ -93,7 +101,9 @@ pub(crate) fn roll(
         .get(p.lead as usize)
         .map_or(0.0, |l| l.experience);
     let f = projects::factors(pm, p);
-    let risk = projects::phase_risk(pm, usize::from(p.tempo), shortfall, experience) * f.risk;
+    let risk = projects::phase_risk(pm, usize::from(p.tempo), shortfall, experience)
+        * f.risk
+        * crate::project_gates::risk_factor(state, catalog, index);
     let chance = (risk * step).min(1.0);
     let mut rng = SimRng::for_stream(
         state.settings.seed,
@@ -290,7 +300,7 @@ pub(crate) fn on_release(state: &mut GameState, catalog: &Catalog, index: usize,
     let Some(m) = model(catalog) else {
         return;
     };
-    let risk = defect_risk(m, &state.dev_projects[index]);
+    let risk = total_defect(catalog, &state.dev_projects[index]);
     let mut rng = SimRng::for_stream(
         state.settings.seed,
         Stream::ProjectDefect {

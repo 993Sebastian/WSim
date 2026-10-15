@@ -2009,6 +2009,7 @@ fn project_council(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Counci
         accuracy: in_range(ctx, c.accuracy, 0.0, 1.0, &cl.field("genauigkeit")),
         threshold: in_range(ctx, c.threshold, 0.0, 1.0, &cl.field("schwelle")),
         pause_majority: c.pause_majority.clamp(1, 3),
+        max_loops: c.max_loops,
     })
 }
 

@@ -128,6 +128,12 @@ pub struct DevProject {
     /// Target quality the event options changed.
     #[serde(default)]
     pub bonus_quality: f64,
+    /// Phases 3 and 4 run overlapped (PD7).
+    #[serde(default)]
+    pub fast_track: bool,
+    /// Pilot series: 0 none, 1 planned (runs with the last phase), 2 done (PD7).
+    #[serde(default)]
+    pub pilot: u8,
     /// Sum of the staffing gaps at the ends of the phases.
     #[serde(default)]
     pub shortfall_sum: f64,
@@ -422,6 +428,8 @@ pub(crate) fn start(
         event_phase: None,
         defect: 0.0,
         bonus_quality: 0.0,
+        fast_track: false,
+        pilot: 0,
         shortfall_sum: 0.0,
         promise: None,
     });
@@ -599,11 +607,14 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             (usize::from(p.tempo), usize::from(p.trim), p.progress)
         };
         let f = factors(m, &state.dev_projects[index]);
-        let days = (phase_days(m, tempo, phase, effort) * f.time).max(1e-9);
+        let (adjust_time, adjust_cost) =
+            crate::project_gates::phase_adjust(m, &state.dev_projects[index], phase);
+        let days = (phase_days(m, tempo, phase, effort) * f.time * adjust_time).max(1e-9);
         let step = (speed / days).min(1.0 - progress);
         let cost = Money::from_usd(
             phase_cost_usd(m, (tempo, trim), phase, effort)
                 * f.cost
+                * adjust_cost
                 * step
                 * price_level(state, site),
         )
@@ -619,12 +630,43 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             continue;
         }
         state.dev_projects[index].shortfall_sum += shortfall;
+        // A pilot series may send the last phase back into rework (PD7).
+        let (rework, pilot_news) = pilot_step(state, catalog, index);
+        news.extend(pilot_news);
+        if rework {
+            continue;
+        }
         // The phase is done: the milestones it ends at.
         news.extend(on_phase_end(state, catalog, index, date));
     }
     // Improvement projects take the people the development projects left free (PD5).
     news.extend(crate::improvements::simulate_day(state, catalog, date));
     news
+}
+
+/// The pilot series ends with the last phase: a defect found means rework, a clear result
+/// goes on to PM7. Returns whether the phase goes on and the news (PD7).
+fn pilot_step(state: &mut GameState, catalog: &Catalog, index: usize) -> (bool, Vec<Message>) {
+    if state.dev_projects[index].phase != 5 {
+        return (false, Vec::new());
+    }
+    let Some(result) = crate::project_gates::pilot_result(state, catalog, index) else {
+        return (false, Vec::new());
+    };
+    let p = &state.dev_projects[index];
+    let news = if state.is_main(p.company) {
+        let key = match result {
+            crate::project_gates::PilotResult::Found => keys::PROJECT_PILOT_FOUND,
+            crate::project_gates::PilotResult::Clear => keys::PROJECT_PILOT_CLEAR,
+        };
+        vec![Message::new(MessageKind::Info, key).with(
+            "produkt",
+            Param::TextKey(format!("produkt.{}", catalog.products.key(p.product))),
+        )]
+    } else {
+        Vec::new()
+    };
+    (result == crate::project_gates::PilotResult::Found, news)
 }
 
 /// A phase ended: the project moves on, the gate costs its preparation, and the
@@ -879,7 +921,8 @@ pub fn days_left(m: &ProjectModel, p: &DevProject) -> f64 {
         } else {
             1.0
         };
-        days += phase_days(m, tempo, phase, p.effort) * f.time * left / speed.max(1e-9);
+        let (adjust, _) = crate::project_gates::phase_adjust(m, p, phase);
+        days += phase_days(m, tempo, phase, p.effort) * f.time * adjust * left / speed.max(1e-9);
     }
     days
 }

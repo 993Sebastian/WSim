@@ -59,6 +59,7 @@ pub mod product_names;
 pub mod product_research;
 pub mod production;
 pub mod project_events;
+pub mod project_gates;
 pub mod project_reports;
 pub mod project_suggestions;
 pub mod projects;

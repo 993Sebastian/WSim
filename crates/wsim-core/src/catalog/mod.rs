@@ -1501,6 +1501,8 @@ pub struct CouncilModel {
     pub threshold: f64,
     /// At PM7 a majority this far against pauses the project.
     pub pause_majority: u32,
+    /// A council downgrade into a loop only while the project ran fewer loops than this.
+    pub max_loops: u32,
 }
 
 /// Fast-track: phases 3 and 4 overlap (PD7).

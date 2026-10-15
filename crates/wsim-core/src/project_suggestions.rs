@@ -113,6 +113,8 @@ fn hypothetical(
         event_phase: None,
         defect: 0.0,
         bonus_quality: 0.0,
+        fast_track: false,
+        pilot: 0,
         shortfall_sum: 0.0,
         promise: None,
     }

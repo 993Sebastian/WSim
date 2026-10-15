@@ -295,6 +295,7 @@ forschungsmodell:
       genauigkeit: 0.6               # Anteil, den eine voll besetzte Abteilung abbaut
       schwelle: 0.25                 # ab hier dafür bzw. dagegen
       pause_mehrheit: 3              # bei PM7 pausiert das Projekt, wenn so viele dagegen sind
+      schleifen_max: 2               # das Gremium stuft nur in eine Schleife zurück, solange weniger Schleifen liefen
     # Fast-Track auf Vorschlag des Projektleiters (PD7): Phasen 3 und 4 überlappen.
     fast_track:
       erfahrung_min: 0.3

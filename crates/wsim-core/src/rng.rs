@@ -128,6 +128,20 @@ pub enum Stream {
     ProjectOutcome {
         project: u32,
     },
+    /// The voices of the gate council at a milestone (PD7).
+    GateCouncil {
+        project: u32,
+        milestone: u8,
+    },
+    /// The leader's proposal of fast-track or a pilot at a milestone (PD7).
+    ProjectProposal {
+        project: u32,
+        milestone: u8,
+    },
+    /// The result of a pilot series (PD7).
+    ProjectPilot {
+        project: u32,
+    },
     /// The product suggestion of a company in a month (PD6).
     ProductSuggestion {
         company: u32,
@@ -274,6 +288,13 @@ impl Stream {
             }
             Stream::ProjectApproach { project } => (41 << 56) | u64::from(project),
             Stream::ProjectOutcome { project } => (42 << 56) | u64::from(project),
+            Stream::GateCouncil { project, milestone } => {
+                (44 << 56) | (u64::from(project) << 8) | u64::from(milestone)
+            }
+            Stream::ProjectProposal { project, milestone } => {
+                (45 << 56) | (u64::from(project) << 8) | u64::from(milestone)
+            }
+            Stream::ProjectPilot { project } => (46 << 56) | u64::from(project),
             Stream::ProjectLeads { continent, month } => {
                 (37 << 56) | (u64::from(continent) << 32) | u64::from(month)
             }

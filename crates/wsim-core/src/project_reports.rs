@@ -98,6 +98,12 @@ pub struct MilestoneReport {
     /// Schedule, budget, quality, risk.
     pub lights: [LightColor; 4],
     pub recommendation: Decision,
+    /// The voices of the gate council (PD7), none without one.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub council: Vec<crate::project_gates::Voice>,
+    /// The council turned the decision of the leader back a step (PD7).
+    #[serde(default)]
+    pub council_changed: bool,
     /// Keys of what moved since PM2 (`marktpreis`, `herstellkosten`, `verzug` …).
     pub causes: Vec<String>,
     /// The factor of the leader's bias on volume (1 + b).
@@ -113,7 +119,11 @@ pub struct Pending {
     pub deadline: Date,
     /// The phase that ended; a loop runs it again.
     pub ended_phase: u8,
+    /// What counts when nobody asked decides: the leader's, after the council (PD7).
     pub recommendation: Decision,
+    /// The leader proposes fast-track (PM3) or a pilot series (PM6) (PD7).
+    #[serde(default)]
+    pub proposal: bool,
 }
 
 fn models(catalog: &Catalog) -> Option<(&ProjectModel, &ProjectReportModel)> {
@@ -155,6 +165,11 @@ fn people(m: &ProjectModel, effort: f64) -> f64 {
 }
 
 /// Cost still to come in USD at price level 1.
+/// What the rest of the project still costs (USD at price level 1).
+pub(crate) fn open_cost(m: &ProjectModel, p: &DevProject) -> f64 {
+    remaining_cost(m, p)
+}
+
 fn remaining_cost(m: &ProjectModel, p: &DevProject) -> f64 {
     let f = projects::factors(m, p);
     let at = (usize::from(p.tempo), usize::from(p.trim));
@@ -165,7 +180,8 @@ fn remaining_cost(m: &ProjectModel, p: &DevProject) -> f64 {
         } else {
             1.0
         };
-        rest += projects::phase_cost_usd(m, at, phase, p.effort) * f.cost * left;
+        let (_, adjust) = crate::project_gates::phase_adjust(m, p, phase);
+        rest += projects::phase_cost_usd(m, at, phase, p.effort) * f.cost * adjust * left;
         if phase == 2 {
             rest += projects::gate_cost_usd(m, at, p.effort) * f.cost;
         }
@@ -444,6 +460,10 @@ fn raise(
     let price_level = projects::price_level(state, p.site);
     let lights = lights(m, rm, p, &truth, experience, price_level);
     let recommendation = recommend(rm, &lights, &truth, milestone);
+    let voices = crate::project_gates::council(state, catalog, index, milestone, &truth);
+    let (effective, council_changed) =
+        crate::project_gates::adjusted(state, catalog, index, milestone, recommendation, &voices);
+    let proposal = crate::project_gates::propose(state, catalog, index, milestone, &lights);
     let report = MilestoneReport {
         milestone,
         date,
@@ -451,6 +471,8 @@ fn raise(
         truth,
         lights,
         recommendation,
+        council: voices,
+        council_changed,
         causes: causes(rm, p, &truth, &lights),
         bias,
         decided: None,
@@ -463,6 +485,7 @@ fn raise(
     let default_choice = match milestone {
         1 => Some(1),
         2 => Some(lead_path(state, rm, p)),
+        3 | 6 => Some(u8::from(proposal)),
         _ => None,
     };
     let p = &mut state.dev_projects[index];
@@ -472,7 +495,8 @@ fn raise(
         raised: date,
         deadline,
         ended_phase,
-        recommendation,
+        recommendation: effective,
+        proposal,
     });
     let mut news = Vec::new();
     if ask {
@@ -487,7 +511,7 @@ fn raise(
             catalog,
             index,
             date,
-            (recommendation, default_choice),
+            (effective, default_choice),
             false,
         );
         if own {
@@ -499,7 +523,7 @@ fn raise(
                         "entscheidung",
                         Param::TextKey(format!(
                             "projekte.entscheidung.{}",
-                            decision_key(recommendation)
+                            decision_key(effective)
                         )),
                     ),
             );
@@ -556,6 +580,18 @@ fn apply(
         match milestone {
             1 if usize::from(c) < rm.profiles.len() => p.profile = c,
             2 if usize::from(c) < rm.paths.len() => p.path = c,
+            3 if c == 1
+                && pending.proposal
+                && matches!(decision, Decision::Continue | Decision::Conditions) =>
+            {
+                p.fast_track = true;
+            }
+            6 if c == 1
+                && pending.proposal
+                && matches!(decision, Decision::Continue | Decision::Conditions) =>
+            {
+                p.pilot = 1;
+            }
             _ => {}
         }
     }
@@ -633,6 +669,7 @@ pub(crate) fn decide(
         (_, None) => true,
         (1, Some(c)) => usize::from(c) < rm.profiles.len(),
         (2, Some(c)) => usize::from(c) < rm.paths.len(),
+        (3 | 6, Some(c)) => c <= u8::from(pending.proposal),
         _ => false,
     };
     if !valid_choice {
@@ -709,6 +746,7 @@ pub(crate) fn resolve_due(state: &mut GameState, catalog: &Catalog, date: Date) 
         let choice = match pending.milestone {
             1 => Some(1),
             2 => Some(lead_path(state, rm, p)),
+            3 | 6 => Some(u8::from(pending.proposal)),
             _ => None,
         };
         let name = format!("produkt.{}", catalog.products.key(p.product));
