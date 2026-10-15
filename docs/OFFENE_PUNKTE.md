@@ -2802,3 +2802,15 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - Nachkalkulation 2 Jahre nach PM7; Wert 0 bei 50 % Abweichung; Gewichte Termin 25 %, Budget 25 %, Kennzahlen 50 %; Treffer ab 0,6.
 - Die Bilanz des Projektleiters wird gespeichert und in der Personalansicht gezeigt; eine Wirkung auf seinen Marktwert (Gehaltsforderung) folgt erst mit PD11 (Entwicklungsleitung).
 - KI: nimmt den besten offenen Vorschlag an, wenn Labor und Projektleiter frei sind und die Amortisation unter `amortisation_max_jahre` liegt.
+
+## RB1–RB4 – Rundenbericht überarbeiten (`docs/RUNDENBERICHT_2.md`, 15.10.2026)
+
+- Reihenfolge (Auftraggeber): PD7–PD10 → MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → E2E → RB1–RB4 → ZP1. WG1–WG5 bleiben zurückgestellt.
+- 🟡 Marktanteil mengenbasiert (Vorschlag), wertbasiert wäre die Alternative.
+- 🟡 Mehrere Fertigungsländer: Zeile zeigt das Land mit der größten Menge, aufklappbar je Land (Vorschlag).
+- 🟡 Werke mit Engpass starten aufgeklappt (Vorschlag: ja).
+- 🟡 Auslastungsfarben: ab 85 % grün, 60–84 % gelb, darunter rot (Werte in `data/`).
+- 🟡 Höchstzahl „Bitte ansehen“: 5 (Wert in `data/`).
+- 🟡 Schwelle „Marktanteil stark gefallen“: Vorschlag 25 % relativ zur Vorrunde (Wert in `data/`).
+- Offener Punkt (nicht jetzt umsetzen): **Entgangener Absatz / nicht bediente Nachfrage** gehört nicht in den Rundenbericht, sondern an eine strategische Stelle (Strategieabteilung bzw. Produktmanagement, Produktdiversifikation); Anbindung bei MG9/Strategievorschlägen prüfen.
+- Alte Spielstände müssen für den neuen Bericht nicht kompatibel bleiben (Vorgabe); ich halte trotzdem die Formatversion/Beispielstände nach CLAUDE.md ein, soweit der Zustand betroffen ist.

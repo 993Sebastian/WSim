@@ -365,6 +365,8 @@ Der Spieler plant, wählt die Länge der nächsten Runde und lässt die Welt lau
 
 ### 13.2 Rundenbericht
 
+> **Ersetzt (15.10.2026):** Der Rundenbericht wird nach `docs/RUNDENBERICHT_2.md` (RB1–RB4) überarbeitet; bei Widerspruch gilt dieses Dokument.
+
 - Finanzergebnis der Runde und Veränderung zum Vorzeitraum.
 - Wichtige Ereignisse in der Welt.
 - Aktionen der Wettbewerber (neue Produkte, Preissenkungen, Übernahmen, Pleiten).
