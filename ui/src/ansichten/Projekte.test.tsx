@@ -147,6 +147,8 @@ const projekte: Entwicklungsprojekte = {
       site_name: null,
       lead: "Anna Weber",
       lead_id: 0,
+      fast_track: false,
+      pilot: "",
       promise: null,
       tempo: "normal",
       trim: "standard",
@@ -184,6 +186,7 @@ const projekte: Entwicklungsprojekte = {
         deadline: "1914-06-08",
         recommendation: "weiter",
         choice_kind: "weg",
+        proposal: "",
         choices: [
           { key: "bewaehrt", cost: 0.95, time: 0.95, risk: 0.7, quality: -0.03, preferred: false },
           { key: "standard", cost: 1, time: 1, risk: 1, quality: 0, preferred: true },
@@ -224,6 +227,12 @@ const projekte: Entwicklungsprojekte = {
           lights: ["gruen", "gelb", "gruen", "rot"],
           recommendation: "weiter",
           causes: ["verzug"],
+          council: [
+            { role: "finanzen", stance: "dafuer", dissent: false },
+            { role: "technik", stance: "bedenken", dissent: false },
+            { role: "markt", stance: "dagegen", dissent: true },
+          ],
+          council_changed: true,
           decided: null,
         },
       ],
@@ -232,7 +241,7 @@ const projekte: Entwicklungsprojekte = {
   offers: [{ product: "schrauben", effort: 5000, cost_usd: 500_000, days: 250 }],
 };
 
-async function kernMitProjekten() {
+async function kernMitProjekten(anpassen?: (p: typeof projekte) => void) {
   const vorschau = vorschauKern(0);
   const uebersicht = await vorschau.neuesSpiel({
     seed: 1,
@@ -250,7 +259,9 @@ async function kernMitProjekten() {
     ...vorschau,
     forschung: async () => {
       const d: Forschung = await vorschau.forschung();
-      d.projects = projekte;
+      const kopie = structuredClone(projekte);
+      anpassen?.(kopie);
+      d.projects = kopie;
       d.centers = [
         {
           site: 99,
@@ -353,6 +364,42 @@ describe("Entwicklungsprojekte", () => {
     fireEvent.click(within(gruppe).getByRole("button", { name: "Weiter" }));
     expect(gesendet).toContainEqual({
       DecideMilestone: { project: 0, decision: "Continue", choice: 2 },
+    });
+  });
+
+  it("zeigt das Gremium und sendet den Vorschlag des Projektleiters mit", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten((p) => {
+      const pend = p.projects[0]?.pending;
+      if (pend) {
+        pend.milestone = 6;
+        pend.choices = [];
+        pend.choice_kind = "";
+        pend.proposal = "pilot";
+      }
+      const bericht = p.projects[0]?.reports[0];
+      if (bericht) bericht.milestone = 6;
+    });
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const gruppe = screen.getByRole("group", { name: "Entscheidung am Meilenstein" });
+    expect(within(gruppe).getByText(/Finanzen: dafür/)).toBeTruthy();
+    expect(within(gruppe).getByText(/Markt: dagegen/)).toBeTruthy();
+    expect(within(gruppe).getByText(/Gegenmeinung/)).toBeTruthy();
+    expect(within(gruppe).getByText(/mehrheitlich dagegen/)).toBeTruthy();
+    // Der Vorschlag ist vorgewählt; abwählen lehnt ihn ab.
+    const haken = within(gruppe).getByRole("checkbox", { name: /Pilotserie annehmen/ });
+    expect((haken as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(haken);
+    fireEvent.click(within(gruppe).getByRole("button", { name: "Weiter" }));
+    expect(gesendet).toContainEqual({
+      DecideMilestone: { project: 0, decision: "Continue", choice: 0 },
     });
   });
 

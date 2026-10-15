@@ -359,6 +359,19 @@ function ProjektKarte({ x }: { x: Projekt }) {
         </dd>
         <dt>{t("projekte.leiter")}</dt>
         <dd>{x.lead}</dd>
+        {(x.fast_track || x.pilot) && (
+          <>
+            <dt>{t("projekte.besonderheiten")}</dt>
+            <dd>
+              {[
+                x.fast_track ? t("projekte.fast_track_aktiv") : null,
+                x.pilot ? t(`projekte.pilot.${x.pilot}`) : null,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </dd>
+          </>
+        )}
         {x.promise && (
           <>
             <dt>{t("vorschlag.zusage")}</dt>
@@ -553,6 +566,7 @@ function Entscheidung({ x }: { x: Projekt }) {
   const { los, antwort } = useAktion(`projekt/${x.id}/entscheid`);
   const pending = x.pending;
   const [wahl, setWahl] = useState<number | null>(null);
+  const [mitVorschlag, setMitVorschlag] = useState(true);
   if (!pending) return null;
   const bericht = x.reports.find((r) => r.milestone === pending.milestone);
   const gewaehlt = wahl ?? pending.choices.findIndex((c) => c.preferred);
@@ -562,7 +576,12 @@ function Entscheidung({ x }: { x: Projekt }) {
         DecideMilestone: {
           project: x.id,
           decision: ENTSCHEIDUNG[key] ?? "Continue",
-          choice: pending.choices.length > 0 ? Math.max(gewaehlt, 0) : null,
+          choice:
+            pending.choices.length > 0
+              ? Math.max(gewaehlt, 0)
+              : pending.proposal
+                ? Number(mitVorschlag)
+                : null,
         },
       },
     ]);
@@ -576,6 +595,17 @@ function Entscheidung({ x }: { x: Projekt }) {
         })}
       </p>
       {bericht && <Bericht b={bericht} />}
+      {pending.proposal && (
+        <label className="zeile">
+          <input
+            type="checkbox"
+            checked={mitVorschlag}
+            onChange={(e) => setMitVorschlag(e.target.checked)}
+          />{" "}
+          {t(`projekte.vorschlag.${pending.proposal}`)}
+          <small className="gedaempft"> {t(`projekte.vorschlag.${pending.proposal}_hilfe`)}</small>
+        </label>
+      )}
       {pending.choices.length > 0 && (
         <fieldset>
           <legend>{t(`projekte.wahl.${pending.choice_kind}`)}</legend>
@@ -670,6 +700,22 @@ function Bericht({ b }: { b: Meilensteinbericht }) {
           </tbody>
         </table>
       </div>
+      {b.council.length > 0 && (
+        <div className="gremium">
+          <h5>{t("projekte.gremium")}</h5>
+          <ul className="liste">
+            {b.council.map((v) => (
+              <li key={v.role}>
+                {t(`projekte.gremium.${v.role}`)}: {t(`projekte.gremium.${v.stance}`)}
+                {v.dissent && (
+                  <small className="gedaempft"> {t("projekte.gremium.gegenmeinung")}</small>
+                )}
+              </li>
+            ))}
+          </ul>
+          {b.council_changed && <p className="gedaempft">{t("projekte.gremium.zurueckgestuft")}</p>}
+        </div>
+      )}
       {b.causes.length > 0 && (
         <ul className="liste">
           {b.causes.map((c) => (

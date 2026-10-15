@@ -1514,6 +1514,15 @@ fn the_council_speaks_at_the_gates_only() {
             assert_eq!(r.council.len(), 3);
         }
     }
+    // The view carries the voices as plain keys.
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    let r = v.projects[0]
+        .reports
+        .iter()
+        .find(|r| r.milestone == 4)
+        .unwrap();
+    assert_eq!(r.council.len(), 3);
+    assert!(["dafuer", "bedenken", "dagegen"].contains(&r.council[0].stance.as_str()));
     // The same seed gives the same voices.
     let mut again = gates_game(false, false, false);
     run_out(&mut again);

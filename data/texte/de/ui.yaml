@@ -2991,3 +2991,20 @@ vorschlag.fehlschlag: daneben
 vorschlag.zusage: Zusage des Vorschlags
 vorschlag.zusage_werte: "Kosten {kosten}, {tage} Tage, Deckungsbeitrag {beitrag} je Jahr"
 vorschlag.bilanz: "Nachkalkulation {wert} ({n}×)"
+projekte.gremium: Gremium
+projekte.gremium.finanzen: Finanzen
+projekte.gremium.technik: Technik
+projekte.gremium.markt: Markt
+projekte.gremium.dafuer: dafür
+projekte.gremium.bedenken: hat Bedenken
+projekte.gremium.dagegen: dagegen
+projekte.gremium.gegenmeinung: (Gegenmeinung)
+projekte.gremium.zurueckgestuft: Das Gremium war mehrheitlich dagegen; wo der Projektleiter entscheidet, wird die Entscheidung um eine Stufe zurückgenommen.
+projekte.vorschlag.fast_track: Fast-Track annehmen
+projekte.vorschlag.fast_track_hilfe: "Der Projektleiter schlägt vor, die Phasen M4 bis M6 zu überlappen: kürzer, etwas teurer, deutlich mehr Risiko."
+projekte.vorschlag.pilot: Pilotserie annehmen
+projekte.vorschlag.pilot_hilfe: "Der Projektleiter schlägt eine Pilotserie vor M7 vor: kostet Zeit und Geld, deckt Mängel auf oder hebt die Qualität."
+projekte.besonderheiten: Besonderheiten
+projekte.fast_track_aktiv: Fast-Track
+projekte.pilot.geplant: Pilotserie geplant
+projekte.pilot.fertig: Pilotserie abgeschlossen

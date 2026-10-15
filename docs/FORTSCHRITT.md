@@ -129,7 +129,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PD4 | Ereigniskatalog, Kennzahlenstreuung, versteckte Mängel, Rückrufe | ✅ 15.10.2026 (Daten PD4a, Kern PD4b, Sicht und Oberfläche PD4c; Annahmen OFFENE_PUNKTE PD4; Kennzahlenstreuung lief schon mit PD3) |
 | PD5 | Weiterentwicklung WM0–WM3 mit Stufen und Restertrag | ✅ 15.10.2026 (Daten PD5a, Kern PD5b, Sicht und Oberfläche PD5c; zweite Schicht über M37, Annahmen OFFENE_PUNKTE PD5) |
 | PD6 | Produktvorschläge im Strategiesystem (mit MG6/MG9), Nachkalkulation, Bilanz PL/Strategieabteilung | ✅ |
-| PD7 | Gate-Gremium, Fast-Track, Pilotserie | ⏳ |
+| PD7 | Gate-Gremium, Fast-Track, Pilotserie | ✅ 15.10.2026: Gremium mit drei Stimmen (PM3, PM4, PM7), Fast-Track und Pilotserie als Vorschlag des Projektleiters, Risikofelder Branche/Puffer; Sicht und Oberfläche |
 | PD8 | Teilwissen, Plattform, Lizenzen, Entwicklungspartnerschaft, Start-up-Schnittstelle | ⏳ |
 | PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ⏳ |
 | PD10 | Balancing und Gleichstellungstests KI/Spieler | ⏳ |

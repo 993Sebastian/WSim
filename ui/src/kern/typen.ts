@@ -3202,8 +3202,20 @@ export interface Meilensteinbericht {
   lights: string[];
   recommendation: Projektentscheidung;
   causes: string[];
+  /** The voices of the gate council at PM3, PM4 and PM7 (PD7). */
+  council: Gremiumstimme[];
+  /** The council turned the leader's decision back a step. */
+  council_changed: boolean;
   /** Decision taken and whether the player took it. */
   decided: [Projektentscheidung, boolean] | null;
+}
+
+/** One voice of the gate council (PD7). */
+export interface Gremiumstimme {
+  role: "finanzen" | "technik" | "markt";
+  stance: "dafuer" | "bedenken" | "dagegen";
+  /** The voice stands against the other two. */
+  dissent: boolean;
 }
 
 /** A decision a project waits for (PD3). */
@@ -3214,6 +3226,8 @@ export interface Projektentscheid {
   choices: Projektwahl[];
   /** `profil`, `weg` or empty. */
   choice_kind: string;
+  /** What the leader proposes with this milestone (PD7). */
+  proposal: "fast_track" | "pilot" | "";
 }
 
 /** One option of a project event (PD4). */
@@ -3243,6 +3257,10 @@ export interface Projekt {
   site_name: string | null;
   lead: string;
   lead_id: number;
+  /** Phases 3 and 4 run overlapped (PD7). */
+  fast_track: boolean;
+  /** A pilot series: planned or done (PD7). */
+  pilot: "geplant" | "fertig" | "";
   /** What the suggestion promised, frozen at the start (PD6). */
   promise: Projektkennzahlen | null;
   tempo: string;

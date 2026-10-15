@@ -65,6 +65,17 @@ pub struct ProjectChoiceView {
     pub preferred: bool,
 }
 
+/// One voice of the gate council (PD7).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct VoiceView {
+    /// `finanzen`, `technik` or `markt`.
+    pub role: String,
+    /// `dafuer`, `bedenken` or `dagegen`.
+    pub stance: String,
+    /// The voice stands against the other two.
+    pub dissent: bool,
+}
+
 /// A report at a milestone (PD3).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MilestoneReportView {
@@ -81,6 +92,10 @@ pub struct MilestoneReportView {
     pub recommendation: String,
     /// Keys of what moved since PM2.
     pub causes: Vec<String>,
+    /// The voices of the gate council at PM3, PM4 and PM7 (PD7).
+    pub council: Vec<VoiceView>,
+    /// The council turned the leader's decision back a step (PD7).
+    pub council_changed: bool,
     /// How it was decided: key of the decision and whether the player did.
     pub decided: Option<(String, bool)>,
 }
@@ -95,6 +110,8 @@ pub struct PendingView {
     pub choices: Vec<ProjectChoiceView>,
     /// What kind the choices are: `profil` or `weg`; empty without choices.
     pub choice_kind: String,
+    /// What the leader proposes with this milestone: `fast_track`, `pilot` or empty (PD7).
+    pub proposal: String,
 }
 
 /// One option of an event (PD4).
@@ -141,6 +158,10 @@ pub struct ProjectRowView {
     pub site_name: Option<String>,
     pub lead: String,
     pub lead_id: u32,
+    /// Phases 3 and 4 run overlapped (PD7).
+    pub fast_track: bool,
+    /// `geplant` or `fertig` for a pilot series, empty without one (PD7).
+    pub pilot: String,
     /// What the suggestion promised, frozen at the start (PD6).
     pub promise: Option<Kpis>,
     pub tempo: String,
@@ -386,6 +407,13 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                 site_name: site.name.clone(),
                 lead: lead.map(|l| l.name.clone()).unwrap_or_default(),
                 lead_id: p.lead,
+                fast_track: p.fast_track,
+                pilot: match p.pilot {
+                    1 => "geplant",
+                    2 => "fertig",
+                    _ => "",
+                }
+                .to_owned(),
                 promise: p.promise.map(|x| x.forecast),
                 tempo: m.tempos[usize::from(p.tempo)].key.clone(),
                 trim: m.trims[usize::from(p.trim)].key.clone(),
@@ -449,6 +477,8 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                         lights: r.lights.iter().map(|&l| light_key(l).to_owned()).collect(),
                         recommendation: project_reports::decision_key(r.recommendation).to_owned(),
                         causes: r.causes.clone(),
+                        council: r.council.iter().map(voice_view).collect(),
+                        council_changed: r.council_changed,
                         decided: r.decided.map(|d| {
                             (
                                 project_reports::decision_key(d.decision).to_owned(),
@@ -674,7 +704,20 @@ fn pending_view(
     Some(PendingView {
         milestone: pending.milestone,
         deadline: iso(pending.deadline),
-        recommendation: project_reports::decision_key(pending.recommendation).to_owned(),
+        recommendation: project_reports::decision_key(
+            p.reports
+                .iter()
+                .rev()
+                .find(|r| r.milestone == pending.milestone)
+                .map_or(pending.recommendation, |r| r.recommendation),
+        )
+        .to_owned(),
+        proposal: match (pending.proposal, pending.milestone) {
+            (true, 3) => "fast_track",
+            (true, 6) => "pilot",
+            _ => "",
+        }
+        .to_owned(),
         choices: if kind.is_empty() {
             Vec::new()
         } else {
@@ -720,4 +763,23 @@ fn event_view(catalog: &crate::catalog::Catalog, p: &projects::DevProject) -> Op
             })
             .collect(),
     })
+}
+
+fn voice_view(v: &crate::project_gates::Voice) -> VoiceView {
+    use crate::project_gates::{Stance, VoiceRole};
+    VoiceView {
+        role: match v.role {
+            VoiceRole::Finance => "finanzen",
+            VoiceRole::Technology => "technik",
+            VoiceRole::Market => "markt",
+        }
+        .to_owned(),
+        stance: match v.stance {
+            Stance::For => "dafuer",
+            Stance::Doubt => "bedenken",
+            Stance::Against => "dagegen",
+        }
+        .to_owned(),
+        dissent: v.dissent,
+    }
 }
