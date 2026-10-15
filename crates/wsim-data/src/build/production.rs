@@ -12,7 +12,7 @@ use wsim_core::catalog::{
     TransportModel, Vehicle, Way,
 };
 use wsim_core::catalog::{
-    CouncilModel, DevPartnershipModel, FastTrackModel, FirstMoverModel, KnowledgeModel, PilotModel,
+    CouncilModel, DevPartnershipModel, LeadershipModel, FastTrackModel, FirstMoverModel, KnowledgeModel, PilotModel,
     PlatformModel, ProjectLicenseModel, SubsidyProgram,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
@@ -1878,6 +1878,7 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
         council: project_council(ctx, p, l),
         fast_track: project_fast_track(ctx, p, l),
         pilot: project_pilot(ctx, p, l),
+        leadership: project_leadership(ctx, p, l),
         knowledge: project_knowledge(ctx, p, l),
         platform: project_platform(ctx, p, l),
         license: project_license(ctx, p, l),
@@ -2121,6 +2122,33 @@ fn project_fast_track(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Fas
         overlap: in_range(ctx, f.overlap, 0.0, 0.9, &fl.field("ueberlappung")),
         cost_factor: in_range(ctx, f.cost_factor, 1.0, 3.0, &fl.field("kosten_faktor")),
         defect: in_range(ctx, f.defect, 0.0, 1.0, &fl.field("mangel")),
+    })
+}
+
+/// Development leadership of the laboratories (PD11).
+fn project_leadership(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<LeadershipModel> {
+    let x = p.leadership.as_ref()?;
+    let ll = l.field("leitung");
+    let months = |ctx: &mut Ctx, v: u32, max: u32, name: &str| {
+        in_range(ctx, f64::from(v), 0.0, f64::from(max), &ll.field(name)) as u32
+    };
+    Some(LeadershipModel {
+        lead_months: months(ctx, x.lead_months, 12, "vorlauf_monate"),
+        induction_months: months(ctx, x.induction_months, 6, "einarbeitung_monate"),
+        severance_months: months(ctx, x.severance_months, 12, "abfindung_monate"),
+        horizon_months: months(ctx, x.horizon_months, 12, "vorausschau_monate").max(1),
+        patience_months: months(ctx, x.patience_months, 12, "geduld_monate"),
+        reserve: in_range(ctx, x.reserve, 0.0, 1.0, &ll.field("reserve")),
+        reserve_thrifty: in_range(ctx, x.reserve_thrifty, 0.0, 5.0, &ll.field("reserve_sparsam")),
+        reserve_generous: in_range(
+            ctx,
+            x.reserve_generous,
+            0.0,
+            5.0,
+            &ll.field("reserve_grosszuegig"),
+        ),
+        budget_share: in_range(ctx, x.budget_share, 0.0, 1.0, &ll.field("budget_anteil")),
+        base_share: in_range(ctx, x.base_share, 0.0, 1.0, &ll.field("grundausstattung")),
     })
 }
 

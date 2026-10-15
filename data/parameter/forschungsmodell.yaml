@@ -326,6 +326,20 @@ forschungsmodell:
       - {id: wiederaufbau, von: 1945, bis: 1964, anteil: 0.15, deckel_usd: 400000, annaeherung: true}
       - {id: technologiefoerderung, von: 1965, bis: 1999, anteil: 0.20, deckel_usd: 1000000, annaeherung: true}
       - {id: innovationsprogramm, von: 2000, bis: 2100, anteil: 0.25, deckel_usd: 5000000, annaeherung: true}
+    # Entwicklungsleitung (PD11, docs/FORMELN.md): Einstellen mit Vorlauf, Abfindung, Einarbeitung,
+    # Reserve und Budgetkaskade vom Vorstand Entwicklung bis zum Laborleiter.
+    leitung:
+      vorlauf_monate: 2              # von der Entscheidung bis die Leute da sind
+      einarbeitung_monate: 1         # Versetzte arbeiten so lange ohne Wirkung
+      abfindung_monate: 3            # Monatsgehälter bei Entlassung
+      vorausschau_monate: 3          # so weit im Voraus wird der Bedarf der Phasen geplant
+      geduld_monate: 2               # so lange muss ein Überhang bestehen, bevor verschoben/entlassen wird
+      reserve: 0.10                  # Reserve auf den Bedarf
+      reserve_sparsam: 0.3           # Faktor auf die Reserve bei sparsamem Leiter
+      reserve_grosszuegig: 1.8       # Faktor bei großzügigem Leiter
+      budget_anteil: 0.04            # Entwicklungsbudget als Anteil am Umsatz der nächsten zwölf Monate
+      grundausstattung: 0.5          # Anteil der Arbeitsplätze eines Labors, den das Budget mindestens trägt
+      annaeherung: true
     # Pilotserie zwischen PM6 und PM7 auf Vorschlag des Projektleiters (PD7).
     pilot:
       risiko_ab: 0.15                # Mängelrisiko, ab dem der Projektleiter sie vorschlägt

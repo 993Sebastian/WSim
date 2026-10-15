@@ -6453,3 +6453,53 @@ Keine neue Formel, nur Prüfungen über PD3–PD9 (alle Funktionen eingeschaltet
   gleichen Kosten, Ende, Stimmen des Gremiums und Zuschuss; die Schwierigkeit ändert nur das Verhalten.
 - **Sichtbarkeit:** Projekte, Vorschläge und Lizenzangebote anderer Firmen erscheinen nicht in der eigenen Sicht.
 - **Weltlauf:** `wsim-cli run --ki N --welt` zeigt eine Zeile „Entwicklungsprojekte“ mit Zählern je Seite.
+
+## PD11 – Entwicklungsleitung (15.10.2026)
+
+Vorgabe: `docs/PRODUKTENTWICKLUNG.md` §10. Die Ebenen sind die Stellen des Manager-Systems; PD11 gibt
+ihnen die Aufgabe, das Laborpersonal zu planen.
+
+**Ebenen und Zuständigkeit.** Für ein Labor `s` der Firma `f` ist die Reihe der Leitungen:
+Laborleiter (Leitung des Standorts), Fachstelle Forschung des Landes, Fachstelle Forschung des
+Kontinents, Fachstelle Forschung des Vorstands („Vorstand Entwicklung“). Zuständig ist die erste
+besetzte Stelle der Reihe, `lead(s)`. Ist keine besetzt, plant niemand: Der Spieler stellt von Hand
+ein (wie bisher), die KI nach ihren eigenen Regeln.
+
+**Rahmen je Stelle** (`DevFrame`, Standard aus den Daten, änderbar mit `SetDevFrame`): `selbst`
+(stellt selbst ein; sonst nur Empfehlung), `entlassen` (Entlassen erlaubt), `reserve` (Anteil,
+sonst `leitung.reserve`) und `branchen` (freigegebene Branchen; leer: alle, MG10 hängt sich hier an).
+
+**Bedarf** je Rolle `r` im Labor `s` in Monat `t`:
+`jetzt_r` = Summe von `need(p.phase, r)` über die laufenden Projekte des Labors in der Freigabe;
+`bald_r` = Summe von `need(p.phase + 1, r)` über die Projekte, deren Phase in höchstens
+`vorausschau_monate` endet; `B_r = max(jetzt_r, bald_r)`.
+Ziel `Z_r = ceil(B_r · (1 + reserve · c))` mit dem Charakterfaktor
+`c = lerp(reserve_grosszuegig, reserve_sparsam, risiko/100)` (`risiko` des Leiters, 0–100: wer Risiko
+liebt, besetzt knapp). Ein sparsamer Leiter riskiert Unterbesetzung, ein großzügiger kostet mehr.
+
+**Einstellen.** Bestand `N_r` (im Labor), unterwegs `U_r` (bestellt oder versetzt, noch nicht da).
+Lücke `L_r = Z_r − N_r − U_r > 0`: Bestellung über `min(L_r, freie Arbeitsplätze, bezahlbare)`
+Leute, die nach `vorlauf_monate` eintreffen (der Befehl `HireLabStaff` wird dann mit derselben
+Prüfung ausgeführt). Im Modus „nur Empfehlung“ wird statt der Bestellung ein Hinweis mit dem Bedarf
+an die nächsthöhere Ebene bzw. den Spieler gegeben.
+
+**Budgetkaskade.** Gesamtbudget je Jahr `G = max(grundausstattung · Σ Arbeitsplätze · Lohn,
+budget_anteil · Umsatz der Firma in zwölf Monaten)`. Der Vorstand verteilt auf die Labore nach
+Arbeitsplätzen; ein Labor nutzt `Personal · Lohn · 12 ≤ Budget`. Was ein Labor nicht braucht, geht
+zuerst an die Labore desselben Landes, die es brauchen (Landesleitung), dann an die des Kontinents,
+dann des Unternehmens. Reicht es danach nicht, **eskaliert** der Bedarf als Meldung mit
+Begründung (Lücke je Rolle, Kosten, Szenarien der Projektleiter) an den Spieler bzw. CEO; höchstens
+einmal im Monat je Labor.
+
+**Überhang** `Ü_r = N_r − max(Z_r, im Einsatz)` bleibt `geduld_monate`: dann (1) Versetzen in ein
+Labor derselben Landes-/Kontinentebene mit Lücke (kommt nach `einarbeitung_monate` an und wirkt bis
+dahin nicht), sonst (2) Entlassen, wenn der Rahmen es erlaubt, mit Abfindung
+`abfindung_monate · Monatslohn` als Personalkosten des Labors. Nur freie Leute (`free`) werden
+bewegt.
+
+**Bilanz je Ebene:** Auslastung = zugewiesene / angestellte Leute, Personalkosten des Monats,
+Verzug durch Unterbesetzung = Summe der Tage, die Projekte des Labors wegen Lücken länger
+brauchten (Unterbesetzung aus PD2).
+
+**Gleichstellung:** KI-Firmen nutzen denselben Planer (`dev_lead::plan`) mit den Stellen, die ihnen
+das Manager-System besetzt; der KI-Schnellweg `staff_labs` entfällt dann für Labore mit Leitung.

@@ -1488,6 +1488,8 @@ pub struct ProjectModel {
     pub fast_track: Option<FastTrackModel>,
     /// Pilot series between PM6 and PM7 on the leader's proposal (PD7).
     pub pilot: Option<PilotModel>,
+    /// Development leadership of the laboratories (PD11).
+    pub leadership: Option<LeadershipModel>,
     /// What an aborted project leaves behind (PD8).
     pub knowledge: Option<KnowledgeModel>,
     /// Known components shorten PM4–PM6 (PD8).
@@ -1584,6 +1586,30 @@ pub struct FastTrackModel {
     pub cost_factor: f64,
     /// Hidden defect risk added.
     pub defect: f64,
+}
+
+/// Development leadership (PD11, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct LeadershipModel {
+    /// Months from the decision to hire until the people arrive.
+    pub lead_months: u32,
+    /// Months a moved person works without effect.
+    pub induction_months: u32,
+    /// Monthly wages paid when someone is dismissed.
+    pub severance_months: u32,
+    /// Months ahead the needs of the phases are planned.
+    pub horizon_months: u32,
+    /// Months a surplus must last before people are moved or dismissed.
+    pub patience_months: u32,
+    /// Reserve on top of the need, as a share.
+    pub reserve: f64,
+    /// Factor on the reserve of a thrifty / a generous leader.
+    pub reserve_thrifty: f64,
+    pub reserve_generous: f64,
+    /// Development budget as a share of the company's turnover in twelve months.
+    pub budget_share: f64,
+    /// Share of the posts of a laboratory the budget funds at least.
+    pub base_share: f64,
 }
 
 /// Pilot series (PD7).

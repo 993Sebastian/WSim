@@ -6278,6 +6278,40 @@ fn projektvorschlaege_werden_geprueft() {
 }
 
 #[test]
+fn entwicklungsleitung_wird_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let zusatz = "    leitung:\n      vorlauf_monate: 2\n      einarbeitung_monate: 1\n      abfindung_monate: 3\n      \
+         vorausschau_monate: 3\n      geduld_monate: 2\n      reserve: 0.1\n      reserve_sparsam: 0.3\n      \
+         reserve_grosszuegig: 1.8\n      budget_anteil: 0.04\n      grundausstattung: 0.5\n";
+    let block = format!("{}{zusatz}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap();
+    let l = m.leadership.expect("leadership");
+    assert_eq!((l.lead_months, l.severance_months), (2, 3));
+    assert!((l.reserve_generous - 1.8).abs() < 1e-9);
+
+    let falsch = mit(&block.replace("reserve: 0.1", "reserve: 1.5")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("vorlauf_monate: 2", "vorlauf_monate: 40")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+}
+
+#[test]
 fn projektgremium_fast_track_und_pilot_werden_geprueft() {
     let datei = "parameter/forschungsmodell.yaml";
     let zusatz = "    gremium:\n      unschaerfe: 0.5\n      genauigkeit: 0.6\n      schwelle: 0.25\n      pause_mehrheit: 3\n      schleifen_max: 2\n    \

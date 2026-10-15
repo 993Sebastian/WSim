@@ -1433,6 +1433,9 @@ pub struct RawProjectModel {
     /// Pilot series (PD7).
     #[serde(rename = "pilot", default)]
     pub pilot: Option<RawProjectPilot>,
+    /// Development leadership: levels, budget cascade, lead times (PD11).
+    #[serde(rename = "leitung", default)]
+    pub leadership: Option<RawProjectLeadership>,
     /// Partial knowledge of aborted projects (PD8).
     #[serde(rename = "teilwissen", default)]
     pub knowledge: Option<RawProjectKnowledge>,
@@ -1544,6 +1547,33 @@ pub struct RawProjectFastTrack {
     pub cost_factor: f64,
     #[serde(rename = "mangel")]
     pub defect: f64,
+}
+
+/// Development leadership (PD11).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectLeadership {
+    #[serde(rename = "vorlauf_monate")]
+    pub lead_months: u32,
+    #[serde(rename = "einarbeitung_monate")]
+    pub induction_months: u32,
+    #[serde(rename = "abfindung_monate")]
+    pub severance_months: u32,
+    #[serde(rename = "vorausschau_monate")]
+    pub horizon_months: u32,
+    #[serde(rename = "geduld_monate")]
+    pub patience_months: u32,
+    pub reserve: f64,
+    #[serde(rename = "reserve_sparsam")]
+    pub reserve_thrifty: f64,
+    #[serde(rename = "reserve_grosszuegig")]
+    pub reserve_generous: f64,
+    #[serde(rename = "budget_anteil")]
+    pub budget_share: f64,
+    #[serde(rename = "grundausstattung")]
+    pub base_share: f64,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
 }
 
 /// Pilot series between PM6 and PM7 (PD7).
