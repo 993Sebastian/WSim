@@ -6386,3 +6386,39 @@ und fließt mit MG9 in dessen Ansicht „Strategievorschläge“ und Trefferquot
 - **KI.** Eine KI-Firma nimmt den besten offenen Vorschlag an, wenn sie ein freies Labor und einen freien Projektleiter hat und die prognostizierte Amortisation unter
   `amortisation_max_jahre` (PD3) liegt; sonst lehnt sie ab.
 - **Spielstände.** Neue Felder (Vorschläge, Zusage am Projekt, Bilanz am Projektleiter) sind optional; ältere Spielstände beginnen ohne Vorschläge.
+
+## PD7 – Gate-Gremium, Fast-Track, Pilotserie, Risikofelder (15.10.2026, Entwurf zur Abnahme)
+Vorgabe `docs/PRODUKTENTWICKLUNG.md` §9 (Gate-Gremium, Fast-Track, Pilotserie) und §6 (Risiko). Parameter in `forschungsmodell.yaml` (`projekte.gremium`, `projekte.fast_track`, `projekte.pilot`), alle vorläufig. Ohne einen Block gibt es die Funktion nicht; ältere Daten und Spielstände laufen unverändert. Alles gilt für Spieler und KI gleich (CLAUDE.md); nur die Entscheidung am Vorschlag unterscheidet sich nach Delegation (PD3).
+
+### Risikofelder (die bisher unwirksamen Felder aus PD2)
+- Das Phasenrisiko `phase_risk` (Zähler der Ereignisse, PD4) wird erweitert:
+  `r = basis · tempo · (1 + unterbesetzung · L) · (1 − erfahrung · E) · (1 − branche · B) · (1 − puffer · P) · (1 + fast_track · F)`, mindestens 0.
+  `L` Unterbesetzung wie bisher, `E` Erfahrung des Projektleiters. **`B` Branchenstärke** = `min(1, Anzahl der fertigen Anlagen der Firma in der Branche des Produkts / branche_anlagen_ref)` (0 ohne Anlage in der Branche). **`P` Budgetpuffer** = `clamp((Kasse / noch offene Projektkosten − 1) / puffer_ref, 0, 1)`; die Kasse ist die der Firma, die offenen Projektkosten kommen aus `scenario`. **`F`** 1, solange das Projekt im Fast-Track läuft (Phasen 3 und 4), sonst 0.
+- Das versteckte Mängelrisiko `defect_risk` (PD4) bekommt `+ fast_track.mangel` für ein Fast-Track-Projekt und `− pilot.aufdeckung · (…)` nach einer Pilotserie (unten).
+
+### Gate-Gremium (PM3, PM4, PM7)
+- Beim Eintreffen eines dieser Meilensteine (nur mit Berichtsmodell, PD3) äußern sich bis zu drei **Stimmen**, bevor entschieden wird: **Finanzen**, **Technik**, **Markt**. Die Stimmen sind Rollen des Gremiums, keine einzelnen Manager; hat die Firma einen CEO bzw. Vorstand (MA5), tragen sie dessen Namen und Charakter (Textschlüssel `gremium.<stimme>.<haltung>`), sonst bleiben sie namenlos. Sie ändern nicht die Zahlen des Berichts, sie bewerten sie.
+- **Wertung** je Stimme, in [−1, 1] begrenzt:
+  Finanzen `w_F = 1 − 2 · Amortisation / amortisation_max` (Amortisation des Berichts, PD3; schlechter als das Doppelte der Grenze: −1);
+  Technik `w_T = 1 − 2 · (R / R_rot)`, `R` der Risikowert der Ampel des Berichts, `R_rot` die rote Schwelle (`projekte.berichte`);
+  Markt `w_M = clamp((Umsatzprognose / Umsatzprognose bei PM2) − 1, −1, 1) · 2`; ohne Baseline (vor PM2) 0. Bei PM7 zählt statt der Umsatzprognose die Abweichung der Kennzahlen zur Baseline (`1 − |Abweichung| / toleranz`, auf [−1, 1] gestreckt).
+  Wahrgenommen wird `ŵ = w + σ · u` mit `σ = gremium.unschaerfe · (1 − gremium.genauigkeit · S)`, `S` Stärke der Strategieabteilung (`central::strength`, 0 ohne Abteilung), `u` in [−1, 1] aus Strom `GateCouncil {projekt, meilenstein, stimme}` (einmal gewürfelt, am Projekt gespeichert).
+- **Haltung:** `ŵ ≥ schwelle` dafür, `ŵ ≤ −schwelle` dagegen, sonst bedenklich. **Gegenmeinung:** Mit Wahrscheinlichkeit `gegenmeinung[charakter]` dreht eine Stimme ihre Haltung (dafür ↔ dagegen), wenn die beiden anderen übereinstimmen; so gibt es auch bei klarer Lage manchmal Widerspruch (Strom `GateCouncil`, `u` für den Wurf). Sie bleibt als „Gegenmeinung“ gekennzeichnet.
+- **Mehrheit** `M` = Zahl der Dafür minus Zahl der Dagegen. Das Gremium ist für den Spieler **beratend**. Wo nicht der Spieler entscheidet (KI, Delegation „Der Projektleiter entscheidet“, Frist abgelaufen), gilt: bei `M < 0` wird die Wahl des Projektleiters um eine Stufe zurückgestuft (weiter → mit Auflagen, mit Auflagen → Schleife), bei `M ≤ −3` am PM7 pausiert das Projekt statt freizugeben. Ein Gremium, das die Entscheidung kippt, erscheint im Bericht.
+- **Trefferquote des Gremiums** wird nicht geführt (Abgrenzung zu MG9); das Gremium hat keine eigene Bilanz.
+
+### Fast-Track (nur auf Vorschlag des Projektleiters)
+- **Vorschlag** beim Eintreffen von PM3, wenn alle gelten: Tempo nicht „gründlich“, Projektleiter erfahren genug (`E ≥ fast_track.erfahrung_min`), Phasen 3 und 4 noch nicht gestartet, und mindestens eines: das Projekt liegt hinter dem Plan (Termin-Ampel gelb oder rot) oder ein Konkurrenzgerücht (PD4-Ereignis „Konkurrenz entwickelt dasselbe Produkt“) lief in diesem Projekt. Der optimistische Projektleiter schlägt es mit Wahrscheinlichkeit `fast_track.optimist` auch ohne Anlass vor (Strom `ProjectFastTrack {projekt}`).
+- **Entscheidung:** annehmen / ablehnen als Entscheidung (Delegation wie PD3, Frist `frist_tage`; danach wählt der Projektleiter: optimistisch annehmen, sonst ablehnen). Ein Projekt schlägt höchstens einmal vor.
+- **Wirkung** (Phasen 3 und 4, PM4→PM6): Dauer beider Phasen `· (1 − überlappung)`, Kosten `· kosten_faktor`, Ereignisrisiko `· (1 + fast_track · F)` (siehe oben) und `defect += fast_track.mangel`. Die Gates bleiben; der Bericht zeigt das Fast-Track-Etikett.
+
+### Pilotserie / Testmarkt (zwischen PM6 und PM7, nur auf Vorschlag)
+- **Vorschlag** beim Eintreffen von PM6, wenn das versteckte Mängelrisiko `≥ pilot.risiko_ab` oder die Qualität unter dem Ziel (Abweichung gelb oder rot) liegt; der vorsichtige Projektleiter schlägt sie mit Wahrscheinlichkeit `pilot.vorsicht` auch sonst vor (Strom `ProjectPilot {projekt}`).
+- **Entscheidung:** annehmen / ablehnen (Delegation und Frist wie beim Fast-Track; Projektleiter nimmt an, wenn das Mängelrisiko `≥ pilot.risiko_ab` oder der Charakter vorsichtig ist).
+- **Ablauf:** Zusatzphase von `pilot.dauer_anteil` der Dauer von PM6→PM7 und Kosten `pilot.kosten_anteil` der Kosten von PM6→PM7. Die kleine Menge läuft im Land des Labors (Region) und wird nicht am Markt verbucht (keine Erlöse, die Kosten laufen als Forschung).
+- **Ergebnis** am Ende (Strom `ProjectPilot`, `u` in [−1, 1]): Mit Wahrscheinlichkeit `min(1, defect · pilot.aufdeckung_faktor)` wird ein Mangel **aufgedeckt**: `defect → defect · (1 − pilot.behebung)`, Verzug `pilot.nacharbeit` der Phase PM6→PM7 (Fortschritt der Zusatzphase bleibt, die Nacharbeit läuft nach), Meldung „Mangel gefunden“. Sonst **hebt** sie die Qualität: Zielqualität `+ pilot.qualitaet_bonus` (begrenzt auf 1) und `defect → defect · (1 − pilot.beruhigung)`, Meldung „Pilot ohne Befund“. In beiden Fällen entsteht ein Pilotbericht (Textschlüssel, Zahlen) im Projektverlauf.
+
+### Spielstände, Sichten, KI
+- Neue Felder am Projekt (Gremium je Meilenstein, Fast-Track-Zustand, Pilotzustand, ausstehender Vorschlag) sind optional; ältere Spielstände laufen ohne sie (keine neue Formatversion nötig).
+- Die Projektsicht zeigt die Stimmen des Gremiums (Haltung, Gegenmeinung, Mehrheit), Vorschläge von Fast-Track und Pilot als Entscheidung mit Frist, und die Etiketten „Fast-Track“ / „Pilotserie“.
+- **KI:** Das Gremium wirkt auf KI-Projekte wie auf delegierte (Rückstufung bei `M < 0`); Fast-Track und Pilotserie entscheidet der Projektleiter wie oben. Keine Sonderregeln.

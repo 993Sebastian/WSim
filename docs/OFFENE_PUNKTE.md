@@ -2805,7 +2805,7 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 
 ## RB1–RB4 – Rundenbericht überarbeiten (`docs/RUNDENBERICHT_2.md`, 15.10.2026)
 
-- Reihenfolge (Auftraggeber): PD7–PD10 → MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → E2E → RB1–RB4 → ZP1. WG1–WG5 bleiben zurückgestellt.
+- Reihenfolge (Auftraggeber): PD7–PD10 → MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → E2E → RB1–RB4 → DM1–DM6 → ZP1. WG1–WG5 bleiben zurückgestellt.
 - 🟡 Marktanteil mengenbasiert (Vorschlag), wertbasiert wäre die Alternative.
 - 🟡 Mehrere Fertigungsländer: Zeile zeigt das Land mit der größten Menge, aufklappbar je Land (Vorschlag).
 - 🟡 Werke mit Engpass starten aufgeklappt (Vorschlag: ja).
@@ -2824,3 +2824,11 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - Studien-Fehler wird einmal gewürfelt und gespeichert (eigener Zufallsstrom, Determinismus).
 - Die Segmentgrößen koppeln an Wohlstand der Region; die Kopplung an Inflation ist „sofern sinnvoll“: Vorschlag nein, solange die Preise in Kaufkraft 2026 geführt werden.
 - Ausdrücklich nicht im Umfang: Varianten je Anlage, Öko-Segment, Fertigungsqualität der Maschinen, Kano-Modell.
+
+## PD7 – Gate-Gremium, Fast-Track, Pilotserie (Entwurf 15.10.2026)
+- Formeln in `docs/FORMELN.md` (PD7); Parameter werden mit PD7b in `forschungsmodell.yaml` (`projekte.gremium`, `projekte.fast_track`, `projekte.pilot`) als `annaeherung: true` angelegt.
+- **Annahme Stimmen:** Das Gremium sind drei Rollen (Finanzen, Technik, Markt), keine festen Manager; mit CEO/Vorstand (MA5) tragen sie dessen Namen und Charakter. „CEO bzw. Bereichsleiter“ aus der Vorgabe wird so abgebildet, weil die Bereichsleiter-Stellen (MG8/MG9) noch nicht fertig sind. Mit den Manager-Resten kann die Zuordnung auf echte Stelleninhaber umgestellt werden.
+- **Annahme beratend:** Für den Spieler ist das Gremium Information; nur bei Entscheidungen ohne Spieler (KI, Delegation, Frist) stuft es zurück. Vorschlag; Alternative wäre ein Vetorecht für alle.
+- **Annahme Branchenstärke und Puffer:** `B` = fertige Anlagen der Firma in der Branche (Referenz in `data/`), `P` = Kasse gegen offene Projektkosten; ein eigener Budgetrahmen je Projekt (PM0 der Vorgabe) existiert im Code nicht, daher die Kasse. Alternative: Budgetrahmen am Projekt einführen (größerer Eingriff, PD3 betroffen).
+- **Annahme Pilot:** Die Pilotserie läuft im Land des Labors; die Wahl einer Pilotregion (Vorgabe: „in einer Region“) folgt mit DM (Produktdiversifikation, Marktforschung), wenn Regionsdaten pro Produkt vorliegen.
+- Das Gremium führt keine eigene Trefferquote (Abgrenzung zu MG9/ZA3).
