@@ -2775,7 +2775,7 @@ Vorgabe: `docs/ZUKUNFTSPRODUKTE.md` (92 Produkte, 2027–2085, alle 17 Branchen)
 Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mit dem Bestand und Meilensteine PV1–PV8 dort in Abschnitt 20.
 
 🟡 Eigene Annahmen bei der Aufnahme, zur Abnahme:
-- Reihenfolge: PV1–PV8 nach PD10, vor MN6/PD1, PD11 und den Manager-Resten; „direkt nach SU3“ ist überholt.
+- Reihenfolge (Auftraggeber, 15.10.2026, ersetzt meinen ersten Vorschlag): PD5 → PD6–PD10 → Auswertung MN6/PD1 → PD11 → Manager-Reste (MG8 §8.2–8.4, MG9, MG10) → PV1–PV8 → ZP1 → E2E; „direkt nach SU3“ ist überholt. WG1–WG5 bleiben zurückgestellt.
 - Spielstände: Die Projektregel (Version, Legacy, Beispielstand) bleibt; die Vorgabe „müssen nicht kompatibel bleiben“ wird nur bei ausdrücklichem Wunsch genutzt.
 - PERSON.md §8 „keine privaten Kredite“ entfällt mit PV3 (Hypothek) und PV7 (Wertpapierkredit); Firma und Person haften weiter getrennt.
 - Kinder: Ausbildung ab 16 und Trainee-Pfad ersetzen die Managerkarte mit 25 (PE6).

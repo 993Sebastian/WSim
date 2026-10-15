@@ -359,8 +359,9 @@ mit der Übersicht und bekommt je Meilenstein seine Reiter.
 
 ### 20.3 Annahmen und Abweichungen (Eintrag in `docs/OFFENE_PUNKTE.md`, Abschnitt PV)
 
-1. **Reihenfolge:** „direkt nach SU3“ ist längst überholt (SU3, PE1–PE6 und K1–K4 sind fertig). PV1–PV8 folgen
-   nach PD10 und vor der Auswertung MN6/PD1 (siehe Statusboard). Der Auftraggeber kann das umstellen.
+1. **Reihenfolge (Auftraggeber, 15.10.2026):** „direkt nach SU3“ ist überholt (SU3, PE1–PE6 und K1–K4 sind fertig).
+   PV1–PV8 folgen **nach den Manager-Resten** (MG8 §8.2–8.4, MG9, MG10) und **direkt vor ZP1**. Gesamtreihenfolge:
+   PD5 → PD6–PD10 → Auswertung MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → ZP1 → E2E. WG1–WG5 bleiben zurückgestellt.
 2. **Spielstände:** Die Vorgabe sagt „müssen nicht kompatibel bleiben“; die Projektregel (CLAUDE.md) verlangt
    Version, Legacy-Einlesen und Beispielstand. Vorläufig gilt die Projektregel (Serde-Vorgaben, kein
    Formatbruch ohne Not); wer Brüche will, sagt es.
