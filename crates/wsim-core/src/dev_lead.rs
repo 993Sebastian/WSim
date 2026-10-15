@@ -326,9 +326,7 @@ pub(crate) fn set_frame(
         Some(f) => *f = frame,
         None => {
             state.dev_frames.push(frame);
-            state
-                .dev_frames
-                .sort_by(|a, b| (a.company, a.unit).cmp(&(b.company, b.unit)));
+            state.dev_frames.sort_by_key(|f| (f.company, f.unit));
         }
     }
     Ok(())
@@ -518,8 +516,8 @@ fn run_plan(
     }
     {
         let d = site_state(state, plan.site);
-        for i in 0..4 {
-            d.surplus[i] = if surplus[i] > 0 { d.surplus[i] + 1 } else { 0 };
+        for (kept, &now) in d.surplus.iter_mut().zip(&surplus) {
+            *kept = if now > 0 { *kept + 1 } else { 0 };
         }
     }
     let patient: [bool; 4] = {
