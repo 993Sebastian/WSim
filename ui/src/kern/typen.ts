@@ -1508,6 +1508,9 @@ export interface Manager {
   /** Estimates of targets judged so far, and the hit rate (null before the first; ZA3). */
   judged: number;
   hit_rate: number | null;
+  /** His feeling for people: reviewed hires and the share of hits (MG8). */
+  hire_judged?: number;
+  hire_rate?: number | null;
   /** Age today, the age at which he plans to retire and the day (PE1). */
   age?: number | null;
   retires_at?: number | null;

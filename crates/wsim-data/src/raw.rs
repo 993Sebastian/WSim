@@ -2830,6 +2830,39 @@ pub struct RawSkills {
 pub struct RawStaffing {
     #[serde(rename = "einstellungen_monat")]
     pub per_month: u32,
+    #[serde(rename = "kandidaten", default = "RawStaffing::candidates_default")]
+    pub candidates: u32,
+    #[serde(rename = "je_personal", default = "RawStaffing::per_personnel_default")]
+    pub per_personnel: u32,
+    #[serde(rename = "optionen", default = "RawStaffing::options_default")]
+    pub options: u32,
+    #[serde(rename = "wirkzeit_monate", default = "RawStaffing::review_default")]
+    pub review_months: u32,
+    #[serde(rename = "treffer_zufriedenheit", default = "RawStaffing::hit_default")]
+    pub hit_satisfaction: u32,
+    #[serde(rename = "grenze_usd", default = "RawStaffing::limit_default")]
+    pub limit_usd: f64,
+}
+
+impl RawStaffing {
+    fn candidates_default() -> u32 {
+        3
+    }
+    fn per_personnel_default() -> u32 {
+        2
+    }
+    fn options_default() -> u32 {
+        3
+    }
+    fn review_default() -> u32 {
+        12
+    }
+    fn hit_default() -> u32 {
+        60
+    }
+    fn limit_default() -> f64 {
+        250_000.0
+    }
 }
 
 /// Style, favourite reasons and objections of managers (MG7).

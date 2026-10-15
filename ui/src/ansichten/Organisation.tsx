@@ -118,6 +118,8 @@ export function AlleFaehigkeiten({ m }: { m: Manager }) {
         ))}
         <dt>{t("organisation.trefferquote")}</dt>
         <dd>{trefferquote(m.hit_rate, m.judged)}</dd>
+        <dt>{t("organisation.personalgespuer")}</dt>
+        <dd>{trefferquote(m.hire_rate ?? null, m.hire_judged ?? 0)}</dd>
         {m.style && (
           <>
             <dt>{t("stil.titel")}</dt>

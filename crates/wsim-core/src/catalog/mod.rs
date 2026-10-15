@@ -228,11 +228,30 @@ pub struct ManagementModel {
 pub struct StaffingModel {
     /// Positions a head with the switch fills at most per month.
     pub per_month: u32,
+    /// Candidates a head weighs for a position, and one more per this many cases of an
+    /// active personnel department (MG8).
+    pub candidates: u32,
+    pub per_personnel: u32,
+    /// Candidates put to the player as options.
+    pub options: u32,
+    /// Months until a hire is reviewed, and the satisfaction that counts as a hit.
+    pub review_months: u32,
+    pub hit_satisfaction: u8,
+    /// Yearly salary up to which a head hires alone when no limit is set (USD).
+    pub limit_usd: f64,
 }
 
 impl Default for StaffingModel {
     fn default() -> Self {
-        Self { per_month: 1 }
+        Self {
+            per_month: 1,
+            candidates: 3,
+            per_personnel: 2,
+            options: 3,
+            review_months: 12,
+            hit_satisfaction: 60,
+            limit_usd: 250_000.0,
+        }
     }
 }
 

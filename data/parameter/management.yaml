@@ -252,7 +252,20 @@ management:
   # Schalter „stellt ein“ höchstens je Monat – zuerst Fachstellen der eigenen Einheit, dann
   # freie Leitungen der Einheiten darunter (CEO → Kontinent → Land → Standort); sie erben den
   # Schalter.
+  #
+  # Einstellen als Entscheidung (MG8, FORMELN MG8): Eine Leitung prüft kandidaten Bewerber
+  # (mit arbeitender Personalabteilung + ⌊K / je_personal⌋), legt dem Spieler die besten
+  # optionen vor, wenn das Jahresgehalt über grenze_usd liegt (die Freigabegrenze
+  # „Personal“ der Beteiligungs-Vorgabe ersetzt sie), und bekommt nach wirkzeit_monate eine
+  # Akte: Treffer, wenn der Eingestellte noch da ist und mindestens treffer_zufriedenheit
+  # zufrieden.
   personal:
     einstellungen_monat: 2
+    kandidaten: 3
+    je_personal: 2
+    optionen: 3
+    wirkzeit_monate: 12
+    treffer_zufriedenheit: 60
+    grenze_usd: 250000
 
   annaeherung: true

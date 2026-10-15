@@ -1458,6 +1458,7 @@ zentrale.ziel_option: "{land} – Steuer {steuer}, Lohn {lohn}"
 zentrale.kosten: "Kosten jetzt {betrag}; Dauer {monate} Monate; {anteil} der Angestellten der Zentrale ziehen mit."
 zentrale.verlegt: "Der Umzug nach {land} beginnt; er dauert {monate} Monate."
 organisation.trefferquote: Trefferquote
+organisation.personalgespuer: Personalgespür
 organisation.reiter_chronik: Chronik
 chronik.titel: Chronik der Entscheidungen
 chronik.hilfe: Jede Entscheidung über ein Anliegen mit Prognose, Messung nach der Wirkzeit und dem Urteil, ob die Empfehlung die bessere war. Zeilen gegen die Empfehlung sind hervorgehoben.
@@ -1850,6 +1851,9 @@ anliegen.grund.freigabe: "Kostet mehr als die Freigabegrenze der Abteilung ({gre
 anliegen.grund.beteiligung: "Das Budget für Beteiligungen reicht in diesem Jahr nicht mehr (übrig: {rest})."
 anliegen.grund.ruhestand: Ein Manager geht bald in den Ruhestand – wer ihm folgt, entscheidest du.
 anliegen.grund.unbesetzt: Die Stelle ist durch einen Todesfall frei geworden.
+anliegen.grund.einstellung: Eine Leitung sucht Verstärkung. Das Gehalt des besten Bewerbers liegt über der Freigabegrenze Personal; sie legt dir die besten Bewerber vor.
+thema.einstellung: Einstellung
+option.einstellen: Einstellen
 anliegen.grund.dividende: Das Jahr ist abgeschlossen. Dein CEO schlägt die Dividende vor; Ende Januar wird ausgezahlt, ohne Antwort nach der bisherigen Politik.
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen

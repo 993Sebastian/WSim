@@ -368,10 +368,12 @@ pub mod keys {
     pub const MANAGER_DIED_SUCCESSOR: &str = "meldung.manager.tod_nachfolger";
     pub const MANAGER_SUCCESSOR_GONE: &str = "meldung.manager.nachfolger_weg";
     pub const STEP_SUCCESSOR: &str = "schritt.nachfolger";
+    pub const STEP_HIRE: &str = "schritt.einstellen";
     pub const STEP_PROMOTE: &str = "schritt.befoerdern";
     pub const STEP_EXTEND: &str = "schritt.verlaengern";
     pub const STEP_VACANT: &str = "schritt.unbesetzt";
     pub const BECAUSE_SUCCESSOR: &str = "anliegen.begruendung.nachfolger";
+    pub const BECAUSE_HIRE: &str = "anliegen.begruendung.einstellen";
     pub const BECAUSE_EXTEND: &str = "anliegen.begruendung.verlaengern";
     pub const BECAUSE_VACANT: &str = "anliegen.begruendung.unbesetzt";
     pub const COMMAND_NO_BONDS: &str = "fehler.befehl.keine_anleihen";
@@ -420,6 +422,8 @@ pub mod keys {
     pub const VENTURE_STAKE_BEST_BID: &str = "meldung.startup.anteil_bestes_gebot";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
+    pub const MANAGER_HIRE_HIT: &str = "meldung.manager.einstellung_treffer";
+    pub const MANAGER_HIRE_MISS: &str = "meldung.manager.einstellung_fehlgriff";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
     pub const MANAGER_POACH: &str = "meldung.manager.abwerbung";
     pub const MANAGER_POACH_DECIDED: &str = "meldung.manager.abwerbung_entschieden";
@@ -830,10 +834,12 @@ pub mod keys {
         MANAGER_DIED_SUCCESSOR,
         MANAGER_SUCCESSOR_GONE,
         STEP_SUCCESSOR,
+        STEP_HIRE,
         STEP_PROMOTE,
         STEP_EXTEND,
         STEP_VACANT,
         BECAUSE_SUCCESSOR,
+        BECAUSE_HIRE,
         BECAUSE_EXTEND,
         BECAUSE_VACANT,
         COMMAND_NO_BONDS,
@@ -878,6 +884,8 @@ pub mod keys {
         VENTURE_STAKE_BEST_BID,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
+        MANAGER_HIRE_HIT,
+        MANAGER_HIRE_MISS,
         MANAGER_POACH,
         MANAGER_POACH_DECIDED,
         MANAGER_LEFT,

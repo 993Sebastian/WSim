@@ -184,6 +184,7 @@ pub(super) fn decode_v2(
         product_suggestions: Vec::new(),
         project_knowledge: Vec::new(),
         project_royalties: Vec::new(),
+        hire_files: Vec::new(),
         dev_frames: Vec::new(),
         dev_orders: Vec::new(),
         dev_sites: Vec::new(),

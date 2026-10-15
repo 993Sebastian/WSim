@@ -236,6 +236,7 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Retirement => "ruhestand",
         ConcernReason::Vacancy => "unbesetzt",
         ConcernReason::Dividend => "dividende",
+        ConcernReason::Hiring => "einstellung",
     }
 }
 
@@ -547,6 +548,19 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 None => message(keys::STEP_SUCCESSOR).with("gehalt", Param::Money(demand)),
             }
         }
+        Command::HireManager { manager, position } => {
+            let x = state.managers.get(manager)?;
+            let demand =
+                management::salary_demand(catalog, state, state.main_company?, x, position);
+            m(keys::STEP_HIRE)
+                .with("name", Param::Text(x.name.clone()))
+                .with(
+                    "alter",
+                    integer(aging::age_of(x, state.date).unwrap_or(0).into()),
+                )
+                .with("staerke", integer(management::strength(x).round() as i64))
+                .with("gehalt", Param::Money(demand))
+        }
         Command::ExtendContract { manager, years } => {
             let x = state.managers.get(manager)?;
             let raise = catalog.life.extension_raise;
@@ -637,6 +651,12 @@ fn department_because(catalog: &Catalog, state: &GameState, c: &Concern) -> Opti
         Command::AppointSuccessor { manager, .. } => {
             let x = state.managers.get(&manager)?;
             m(keys::BECAUSE_SUCCESSOR)
+                .with("name", Param::Text(x.name.clone()))
+                .with("staerke", integer(management::strength(x).round() as i64))
+        }
+        Command::HireManager { manager, .. } => {
+            let x = state.managers.get(&manager)?;
+            m(keys::BECAUSE_HIRE)
                 .with("name", Param::Text(x.name.clone()))
                 .with("staerke", integer(management::strength(x).round() as i64))
         }

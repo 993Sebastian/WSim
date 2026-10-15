@@ -478,6 +478,16 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
                 }
                 n.clamp(1, 20)
             },
+            candidates: v.staffing.candidates.clamp(1, 20),
+            per_personnel: v.staffing.per_personnel.clamp(1, 20),
+            options: v.staffing.options.clamp(1, 6),
+            review_months: v.staffing.review_months.clamp(1, 60),
+            hit_satisfaction: u8::try_from(v.staffing.hit_satisfaction.min(100)).unwrap_or(100),
+            limit_usd: non_negative(
+                ctx,
+                v.staffing.limit_usd,
+                &l.field("personal").field("grenze_usd"),
+            ),
         },
         provenance: provenance(v.approximation, v.source.as_ref()),
     }

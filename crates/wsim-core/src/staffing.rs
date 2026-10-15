@@ -101,6 +101,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     experience(state, catalog, date, &mut streams);
     update_satisfaction(state, catalog, date);
     resignations(state, catalog, date, &mut streams, &mut news);
+    review_hires(state, catalog, date, &mut news);
     heads_hire(state, catalog, &mut streams, &mut news);
     ai_staffing(state, catalog, date, &mut news);
     ai_competence(state, catalog);
@@ -358,16 +359,16 @@ pub(crate) fn candidates(
         .collect()
 }
 
-/// The candidate a head picks for a specialist position (docs/FORMELN.md, MA6): the one
-/// with the most expertise with a chance after its judgment, else the one that looks
-/// best to the company.
-fn head_pick(
+/// The candidates a head weighs for a position, best first (docs/FORMELN.md, MG8): by
+/// expertise in the function, as the head sees it after its judgment; candidates in the
+/// order of their numbers break ties.
+fn rank(
     catalog: &Catalog,
     state: &GameState,
     company: CompanyId,
     (pool, key): (&[ManagerId], &str),
     (judgment, rng): (u8, &mut SimRng),
-) -> Option<ManagerId> {
+) -> Vec<ManagerId> {
     let base = catalog.management.concerns.recommend_base;
     let sees_true = rng.chance(base + (1.0 - base) * f64::from(judgment) / 100.0);
     let share = management::impression_share(catalog, state, company);
@@ -381,15 +382,9 @@ fn head_pick(
             management::shown_level(value, management::shown_impression(offset, share))
         }
     };
-    // The first of the best: candidates in the order of their numbers.
-    let mut best: Option<(ManagerId, u8)> = None;
-    for id in pool {
-        let s = score(id);
-        if best.is_none_or(|(_, b)| s > b) {
-            best = Some((*id, s));
-        }
-    }
-    best.map(|(id, _)| id)
+    let mut ranked: Vec<(ManagerId, u8)> = pool.iter().map(|id| (*id, score(id))).collect();
+    ranked.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    ranked.into_iter().map(|(id, _)| id).collect()
 }
 
 /// Heads with the switch fill a free specialist position of their unit with work, at most
@@ -453,56 +448,292 @@ fn heads_hire(
             };
             let pool = if focused.is_empty() { all } else { focused };
             let judgment = state.managers[&boss].judgment;
-            let Some(pick) = head_pick(
+            let ranked = rank(
                 catalog,
                 state,
                 company,
                 (&pool, &key),
                 (judgment, streams.of(boss)),
-            ) else {
+            );
+            if ranked.is_empty() {
                 continue;
-            };
-            let salary = management::salary_demand(
+            }
+            if hire_one(
+                state,
+                catalog,
+                (company, &head, boss),
+                (&position, &ranked),
+                news,
+            ) {
+                hired += 1;
+            }
+        }
+    }
+}
+
+/// A head fills one position: it looks at as many candidates as it can (docs/FORMELN.md,
+/// MG8), hires the best alone if the salary is within the limit, else asks the player
+/// with the best ones as options. True when the position counts as dealt with this month.
+fn hire_one(
+    state: &mut GameState,
+    catalog: &Catalog,
+    (company, head, boss): (CompanyId, &Position, ManagerId),
+    (position, ranked): (&Position, &[ManagerId]),
+    news: &mut Vec<Message>,
+) -> bool {
+    let model = catalog.management.staffing;
+    let k = crate::central::cases(
+        catalog,
+        state,
+        company,
+        crate::catalog::DepartmentKind::Personnel,
+    );
+    // Cases are few; the cast is exact.
+    let looked = (model.candidates + k as u32 / model.per_personnel.max(1)) as usize;
+    let examined = &ranked[..ranked.len().min(looked)];
+    let salary_of = |state: &GameState, id: ManagerId| {
+        management::salary_demand(catalog, state, company, &state.managers[&id], position)
+    };
+    let head_salary = state.managers[&boss]
+        .job
+        .as_ref()
+        .map_or(Money::ZERO, |j| j.salary);
+    let (_, per_year) = management::budget(catalog, state, company, head, head_salary);
+    let left = per_year - management::spent(state, company, head);
+    // Candidates the budget of the head carries.
+    let affordable: Vec<ManagerId> = examined
+        .iter()
+        .copied()
+        .filter(|&id| salary_of(state, id) <= left)
+        .collect();
+    let Some(&best) = affordable.first() else {
+        return false;
+    };
+    let salary = salary_of(state, best);
+    let limit = state.companies[company.index()]
+        .participations
+        .limits
+        .get(&crate::catalog::DepartmentKind::Personnel)
+        .copied()
+        .unwrap_or_else(|| Money::from_usd(model.limit_usd).unwrap_or(Money::ZERO));
+    let muted = management::position_state(state, company, head)
+        .is_some_and(|p| p.muted.contains(&Topic::Hiring));
+    // The player decides in his companies unless the head may decide alone.
+    if state.is_main(company) && salary > limit && !muted {
+        return ask_hiring(
+            state,
+            catalog,
+            (company, head, boss),
+            (position, &affordable),
+        );
+    }
+    let hire = Command::HireManager {
+        manager: best,
+        position: position.clone(),
+    };
+    if command::execute(state, catalog, company, &hire).is_err() {
+        return false;
+    }
+    management::count_spent(state, company, head, salary);
+    register_hire(
+        state,
+        catalog,
+        (company, head, boss),
+        (best, position),
+        salary,
+    );
+    // A head hired this way builds the organisation on (MG8).
+    if position.role == Role::Head {
+        management::position_state_mut(state, company, position).hires = true;
+    }
+    if state.is_main(company) {
+        news.push(
+            about(
                 catalog,
                 state,
-                company,
-                &state.managers[&pick],
-                &position,
-            );
-            let head_salary = state.managers[&boss]
-                .job
-                .as_ref()
-                .map_or(Money::ZERO, |j| j.salary);
-            let (_, per_year) = management::budget(catalog, state, company, &head, head_salary);
-            if salary > per_year - management::spent(state, company, &head) {
-                continue;
-            }
-            let hire = Command::HireManager {
-                manager: pick,
+                MessageKind::Info,
+                keys::MANAGER_HIRED_BY_HEAD,
+                best,
+            )
+            .with("leitung", management::position_param(state, head))
+            .with("gehalt", Param::Money(salary))
+            .with(
+                "alternativen",
+                Param::Integer(i64::try_from(affordable.len() - 1).unwrap_or(0)),
+            ),
+        );
+    }
+    true
+}
+
+/// The concern „Wen einstellen?“: the best candidates as options, leaving the position
+/// free as the last (docs/FORMELN.md, MG8). True when asked (or already asked).
+fn ask_hiring(
+    state: &mut GameState,
+    catalog: &Catalog,
+    (company, head, boss): (CompanyId, &Position, ManagerId),
+    (position, affordable): (&Position, &[ManagerId]),
+) -> bool {
+    let model = catalog.management.staffing;
+    let today = state.date;
+    let asked = |c: &Concern| {
+        c.company == company
+            && c.decision.topic == Topic::Hiring
+            && c.decision.choices.iter().any(|ch| {
+                ch.steps.iter().any(|s| {
+                    matches!(&s.command, Command::HireManager { position: p, .. } if p == position)
+                        || matches!(&s.command, Command::LeaveVacant { position: p } if p == position)
+                })
+            })
+    };
+    if state
+        .concerns
+        .iter()
+        .any(|c| asked(c) && c.status == ConcernStatus::Open)
+    {
+        return true;
+    }
+    let blocked = management::position_state(state, company, head)
+        .and_then(|p| p.blocked.get(&Topic::Hiring).copied());
+    if blocked.is_some_and(|until| until > today) {
+        return false;
+    }
+    let mut choices = Vec::new();
+    let mut options = Vec::new();
+    for &id in affordable.iter().take(model.options as usize) {
+        let salary =
+            management::salary_demand(catalog, state, company, &state.managers[&id], position);
+        choices.push(Choice::one(
+            ChoiceKind::Hire,
+            Command::HireManager {
+                manager: id,
                 position: position.clone(),
-            };
-            if command::execute(state, catalog, company, &hire).is_err() {
-                continue;
-            }
-            management::count_spent(state, company, &head, salary);
-            hired += 1;
-            // A head hired this way builds the organisation on (MG8).
-            if position.role == Role::Head {
-                management::position_state_mut(state, company, &position).hires = true;
-            }
-            if state.is_main(company) {
-                news.push(
-                    about(
-                        catalog,
-                        state,
-                        MessageKind::Info,
-                        keys::MANAGER_HIRED_BY_HEAD,
-                        pick,
-                    )
-                    .with("leitung", management::position_param(state, &head))
-                    .with("gehalt", Param::Money(salary)),
-                );
-            }
+            },
+        ));
+        options.push(ConcernOption {
+            amount: salary,
+            forecast: None,
+            once: Money::ZERO,
+        });
+    }
+    choices.push(Choice::one(
+        ChoiceKind::Vacant,
+        Command::LeaveVacant {
+            position: position.clone(),
+        },
+    ));
+    options.push(ConcernOption {
+        amount: Money::ZERO,
+        forecast: None,
+        once: Money::ZERO,
+    });
+    let id = state.next_concern;
+    state.next_concern += 1;
+    let deadline =
+        today.add_days(i32::try_from(catalog.management.concerns.deadline_days).unwrap_or(30));
+    state.concerns.push(Concern {
+        id,
+        company,
+        position: head.clone(),
+        manager: boss,
+        decision: Decision {
+            topic: Topic::Hiring,
+            company,
+            site: position.site(),
+            product: None,
+            choices,
+            rule: 0,
+        },
+        recommended: 0,
+        options,
+        reason: ConcernReason::Hiring,
+        path: Vec::new(),
+        parts: Vec::new(),
+        created: today,
+        deadline,
+        status: ConcernStatus::Open,
+        closed: None,
+        memory: None,
+        dissent: None,
+    });
+    true
+}
+
+/// A hire by a head waiting for its review (docs/FORMELN.md, MG8).
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct HireFile {
+    pub company: CompanyId,
+    /// The head who decided, and the manager he hired.
+    pub head: ManagerId,
+    pub asker: Position,
+    pub hired: ManagerId,
+    pub position: Position,
+    pub salary: Money,
+    pub due: Date,
+}
+
+/// Keeps the file of a hire a head decided; reviewed after the effect time.
+pub(crate) fn register_hire(
+    state: &mut GameState,
+    catalog: &Catalog,
+    (company, asker, head): (CompanyId, &Position, ManagerId),
+    (hired, position): (ManagerId, &Position),
+    salary: Money,
+) {
+    let due = state
+        .date
+        .add_months(catalog.management.staffing.review_months);
+    state.hire_files.push(HireFile {
+        company,
+        head,
+        asker: asker.clone(),
+        hired,
+        position: position.clone(),
+        salary,
+        due,
+    });
+}
+
+/// The reviews of hires that are due: a hit is a hired manager who is still in the job and
+/// at least as satisfied as the data asks; it counts for the head's feeling for people.
+fn review_hires(state: &mut GameState, catalog: &Catalog, today: Date, news: &mut Vec<Message>) {
+    let (due, rest): (Vec<HireFile>, Vec<HireFile>) = std::mem::take(&mut state.hire_files)
+        .into_iter()
+        .partition(|f| f.due <= today);
+    state.hire_files = rest;
+    for f in due {
+        let hit = state
+            .managers
+            .get(&f.hired)
+            .and_then(|m| m.job.as_ref())
+            .is_some_and(|j| {
+                j.company == f.company
+                    && j.position == f.position
+                    && satisfaction(catalog, j) >= catalog.management.staffing.hit_satisfaction
+            });
+        if let Some(m) = state.managers.get_mut(&f.head) {
+            m.hire_judged += 1;
+            m.hire_hits += u32::from(hit);
+        }
+        if state.is_main(f.company) && state.managers.contains_key(&f.hired) {
+            news.push(
+                about(
+                    catalog,
+                    state,
+                    if hit {
+                        MessageKind::Success
+                    } else {
+                        MessageKind::Warning
+                    },
+                    if hit {
+                        keys::MANAGER_HIRE_HIT
+                    } else {
+                        keys::MANAGER_HIRE_MISS
+                    },
+                    f.hired,
+                )
+                .with("leitung", management::position_param(state, &f.asker)),
+            );
         }
     }
 }

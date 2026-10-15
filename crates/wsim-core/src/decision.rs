@@ -53,10 +53,12 @@ pub enum Topic {
     Succession,
     /// The CEO's proposal of the year's dividend (PE4).
     Dividend,
+    /// A head's choice among candidates for a free position (MG8).
+    Hiring,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 26] = [
+    pub const ALL: [Topic; 27] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -83,6 +85,7 @@ impl Topic {
         Topic::Venture,
         Topic::Succession,
         Topic::Dividend,
+        Topic::Hiring,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -117,6 +120,7 @@ impl Topic {
             Topic::Venture => "startup",
             Topic::Succession => "nachfolge",
             Topic::Dividend => "dividende",
+            Topic::Hiring => "einstellung",
         }
     }
 }
@@ -155,6 +159,8 @@ pub enum ChoiceKind {
     Extend,
     /// Leaving the position free (PE1).
     Vacant,
+    /// A candidate a head chose for a free position (MG8).
+    Hire,
 }
 
 impl ChoiceKind {
@@ -183,6 +189,7 @@ impl ChoiceKind {
             ChoiceKind::Promote => "befoerdern",
             ChoiceKind::Extend => "verlaengern",
             ChoiceKind::Vacant => "unbesetzt",
+            ChoiceKind::Hire => "einstellen",
         }
     }
 }

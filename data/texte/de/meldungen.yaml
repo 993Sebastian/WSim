@@ -349,7 +349,9 @@ meldung.startup.anteil_verkauft: "{firma} kauft deinen Anteil an {name} für {be
 meldung.startup.anteil_nicht_verkauft: "Für deinen Anteil an {name} hat keine Firma geboten. Er bleibt bei dir."
 meldung.startup.anteil_bestes_gebot: "Für deinen Anteil an {name} bot keine Firma deinen Mindestpreis von {mindestpreis}; das beste Gebot kam von {firma} mit {betrag}. Der Anteil bleibt bei dir."
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
-meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
+meldung.manager.einstellung_treffer: "Einstellung nach einem Jahr: {name} ({stelle}, {ort}) ist zufrieden im Amt – die Wahl der Leitung ({leitung}) war ein Treffer."
+meldung.manager.einstellung_fehlgriff: "Einstellung nach einem Jahr: {name} ({stelle}, {ort}) ist gegangen oder unzufrieden – die Wahl der Leitung ({leitung}) war kein Treffer."
+meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr, {alternativen} weitere Bewerber geprüft."
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."
 meldung.manager.abwerbung_entschieden: "{firma} wollte {name} ({stelle}, {ort}) für {angebot} im Jahr abwerben. Die Personalstelle hat selbst entschieden: {option}."
 meldung.manager.gewechselt: "{name} ({stelle}, {ort}) wechselt zu {firma}."
@@ -417,6 +419,7 @@ schritt.beteiligen: "{betrag} an {name} zusagen ({ziel}, Runde der Phase {phase}
 schritt.gehalt_erhoehen: "Gehalt von {name} auf {gehalt} im Jahr erhöhen (bisher {bisher})."
 schritt.dividende_anteil: "Dividendenpolitik: {anteil} % des Jahresüberschusses ausschütten, auch in den nächsten Jahren."
 schritt.dividende_betrag: "Dividendenpolitik: {betrag} im Jahr ausschütten."
+schritt.einstellen: "{name} ({alter} Jahre, Stärke {staerke}) wird eingestellt – Gehalt {gehalt} im Jahr."
 schritt.nachfolger: "{name} ({alter} Jahre, Stärke {staerke}) aus dem Managermarkt übernimmt die Stelle – Gehalt {gehalt} im Jahr."
 schritt.befoerdern: "{name} ({alter} Jahre, Stärke {staerke}, bisher {bisher}) übernimmt die Stelle – Gehalt {gehalt} im Jahr; die bisherige Stelle wird frei."
 schritt.verlaengern: "{name} bitten, {jahre} Jahre länger zu bleiben – Gehalt {gehalt} im Jahr (+{aufschlag} %); Zusage etwa {chance} %."
@@ -445,6 +448,7 @@ anliegen.begruendung.halten: "Das Angebot liegt {anteil} % über dem Gehalt – 
 anliegen.begruendung.umschuldung: "Spart rund {betrag} Zinsen im Jahr; die Gebühr kostet einmal {gebuehr}."
 anliegen.begruendung.startup: "Erfolgschance etwa {chance} %, Wert bei Erfolg rund {wert}; für jeden Dollar im Mittel das {faktor}-Fache zurück – oder alles verloren."
 anliegen.begruendung.gehaltsrunde: "{name} ist unzufrieden und verdient {anteil} % unter dem Marktwert – ohne Erhöhung droht die Kündigung."
+anliegen.begruendung.einstellen: "{name} hat mit Stärke {staerke} unter den geprüften Bewerbern am besten abgeschnitten."
 anliegen.begruendung.nachfolger: "{name} ist mit Stärke {staerke} die stärkste Wahl für die Stelle."
 anliegen.begruendung.verlaengern: Es gibt keinen geeigneten Nachfolger – besser, die Stelle bleibt noch besetzt.
 anliegen.begruendung.unbesetzt: Es gibt keinen geeigneten Nachfolger.

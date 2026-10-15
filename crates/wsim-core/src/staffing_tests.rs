@@ -932,3 +932,104 @@ fn the_market_lists_managers_of_other_companies_with_what_they_ask() {
         );
     }
 }
+
+// --- MG8: hiring as a decision with a file ---
+
+fn limited_game(limit: Money) -> (Game, SiteId, ManagerId) {
+    let mut c = test_support::management();
+    c.management.budget_floor = (5.0, 10.0);
+    let mut game = new_game(c);
+    let (_, works) = mine_and_works(&mut game);
+    let boss = hire_sharp(&mut game, head(works));
+    game.state_mut().companies[0]
+        .participations
+        .limits
+        .insert(crate::catalog::DepartmentKind::Personnel, limit);
+    game.apply(Command::SetHiringByHead {
+        position: head(works),
+        enabled: true,
+    })
+    .unwrap();
+    (game, works, boss)
+}
+
+#[test]
+fn a_hire_above_the_limit_is_put_to_the_player_with_options() {
+    let (mut game, works, _) = limited_game(Money::ZERO);
+    to_next_month(&mut game);
+    let state = game.state();
+    let open: Vec<_> = state
+        .concerns
+        .iter()
+        .filter(|c| c.decision.topic == Topic::Hiring && c.status == ConcernStatus::Open)
+        .collect();
+    assert_eq!(open.len(), 1, "one question for the position");
+    let c = open[0];
+    assert!(c.decision.choices.len() >= 2);
+    assert_eq!(
+        c.decision.choices.last().map(|x| x.kind),
+        Some(ChoiceKind::Vacant)
+    );
+    // Nobody was hired yet.
+    let filled = management::positions(game.catalog(), state, CompanyId(0), Unit::Site(works))
+        .into_iter()
+        .filter(|p| p.role != Role::Head && management::holder(state, CompanyId(0), p).is_some())
+        .count();
+    assert_eq!(filled, 0);
+    // Asking again next month does not pile up questions.
+    to_next_month(&mut game);
+    let again = game
+        .state()
+        .concerns
+        .iter()
+        .filter(|c| c.decision.topic == Topic::Hiring && c.status == ConcernStatus::Open)
+        .count();
+    assert_eq!(again, 1);
+}
+
+#[test]
+fn a_chosen_hire_is_reviewed_for_the_head_after_the_effect_time() {
+    let (mut game, works, boss) = limited_game(Money::ZERO);
+    to_next_month(&mut game);
+    let id = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.decision.topic == Topic::Hiring && c.status == ConcernStatus::Open)
+        .map(|c| c.id)
+        .unwrap();
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: ConcernAnswer::Choose(0),
+    })
+    .unwrap();
+    assert_eq!(game.state().hire_files.len(), 1);
+    let hired = game.state().hire_files[0].hired;
+    assert!(job(&game, hired).position.unit == Unit::Site(works));
+    // Twelve months on the review is done: a hit or a miss, counted for the head.
+    let mut keys = Vec::new();
+    for _ in 0..13 {
+        keys.extend(to_next_month(&mut game));
+    }
+    assert!(game.state().hire_files.is_empty());
+    assert_eq!(game.state().managers[&boss].hire_judged, 1);
+    assert!(
+        keys.iter()
+            .any(|k| k == keys::MANAGER_HIRE_HIT || k == keys::MANAGER_HIRE_MISS)
+    );
+}
+
+#[test]
+fn within_the_limit_the_head_hires_alone_and_the_file_waits_for_the_review() {
+    let (mut game, _, boss) = limited_game(Money::from_usd(10_000_000.0).unwrap());
+    let keys = to_next_month(&mut game);
+    assert!(keys.iter().any(|k| k == keys::MANAGER_HIRED_BY_HEAD));
+    assert_eq!(game.state().hire_files.len(), 1);
+    assert_eq!(game.state().hire_files[0].head, boss);
+    assert!(
+        game.state()
+            .concerns
+            .iter()
+            .all(|c| c.decision.topic != Topic::Hiring)
+    );
+}

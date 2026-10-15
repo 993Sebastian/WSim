@@ -601,6 +601,8 @@ pub enum ConcernReason {
     Vacancy,
     /// The CEO proposes the year's dividend (PE4).
     Dividend,
+    /// A head asks whom to hire for a free position (MG8).
+    Hiring,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -856,6 +858,12 @@ pub struct Manager {
     pub judged: u32,
     #[serde(default, skip_serializing_if = "no_count")]
     pub hits: u32,
+    /// Hires he decided that were reviewed, and the hits among them (MG8: his feeling for
+    /// people).
+    #[serde(default, skip_serializing_if = "no_count")]
+    pub hire_judged: u32,
+    #[serde(default, skip_serializing_if = "no_count")]
+    pub hire_hits: u32,
     /// Day of birth (PE1); drawn with him, for older saves when loading.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub born: Option<Date>,
@@ -2187,6 +2195,9 @@ pub struct GameState {
     /// Licence fees between companies (PD8).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub project_royalties: Vec<crate::project_deals::Royalty>,
+    /// Hires by heads waiting for their review (MG8), oldest first.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub hire_files: Vec<crate::staffing::HireFile>,
     /// Frames of the development leaders by company and unit (PD11).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dev_frames: Vec<crate::dev_lead::DevFrame>,

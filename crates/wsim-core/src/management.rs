@@ -941,6 +941,8 @@ pub(crate) fn draw(
         entered: None,
         judged: 0,
         hits: 0,
+        hire_judged: 0,
+        hire_hits: 0,
         born: None,
         retire_offset: 0,
         extended: 0,
@@ -3407,6 +3409,24 @@ pub(crate) fn answer(
                 carry_out(state, catalog, actor, option)?;
                 if let Some(f) = file {
                     state.followups.push(f);
+                }
+                // A hire the player chose for a head's concern is reviewed for the head.
+                if option.kind == ChoiceKind::Hire
+                    && let Some(Command::HireManager { manager, position }) =
+                        option.steps.first().map(|s| &s.command)
+                {
+                    let salary = state
+                        .managers
+                        .get(manager)
+                        .and_then(|m| m.job.as_ref())
+                        .map_or(Money::ZERO, |j| j.salary);
+                    crate::staffing::register_hire(
+                        state,
+                        catalog,
+                        (actor, &c.position, c.manager),
+                        (*manager, position),
+                        salary,
+                    );
                 }
                 return Ok(());
             }

@@ -6503,3 +6503,32 @@ brauchten (Unterbesetzung aus PD2).
 
 **Gleichstellung:** KI-Firmen nutzen denselben Planer (`dev_lead::plan`) mit den Stellen, die ihnen
 das Manager-System besetzt; der KI-Schnellweg `staff_labs` entfällt dann für Labore mit Leitung.
+
+## MG8b – Einstellen als Entscheidung mit Akte (15.10.2026)
+
+Vorgabe: `docs/MANAGER_2.md` §8.2. Ersetzt in „Leitung stellt ein“ (MA6) die feste Wahl des besten Bewerbers.
+
+**Prüfung.** Eine Leitung mit Schalter „stellt ein“ nimmt je Monat höchstens `einstellungen_monat` freie
+Stellen vor (Kaskade nach §8.1 wie bisher). Für eine Stelle prüft sie die ersten
+`n = kandidaten + ⌊K_Personal / je_personal⌋` Bewerber des Pools (`K_Personal` = Fälle der Personalabteilung,
+0 ohne arbeitende Abteilung), geordnet nach der Fachkompetenz, die sie nach ihrem Urteilsvermögen sieht
+(`rank`; gleiche Stärke: kleinere Nummer). Bewerber, deren Gehaltsforderung nicht ins Restbudget der Leitung
+passt, scheiden aus.
+
+**Freigabegrenze Personal.** Grenze `G` = Eintrag `Personnel` der Beteiligungs-Vorgabe (ZA2), sonst
+`grenze_usd` aus den Daten. Liegt das Gehalt des Besten bei oder unter `G`, stellt die Leitung selbst ein;
+die Meldung nennt die Zahl der geprüften Alternativen. Darüber (und bei `G = 0` immer) entsteht im
+Hauptunternehmen des Spielers ein Anliegen „Einstellung“ mit den besten `optionen` Bewerbern (Gehalt, Alter,
+Stärke) und „Stelle offen lassen“; ihre Empfehlung ist der beste Bewerber. Ein offenes Anliegen zur selben
+Stelle wird nicht doppelt gestellt; nach einer Ablehnung gilt die Sperre `sperre_tage`, bei „nie fragen“
+entscheidet die Leitung selbst. KI-Firmen und weitere Firmen stellen immer selbst ein.
+
+**Akte.** Jede Einstellung einer Leitung (selbst oder auf Antwort des Spielers) bekommt einen Eintrag
+`HireFile`. Nach `wirkzeit_monate` gilt sie als **Treffer**, wenn der Eingestellte noch auf der Stelle
+arbeitet und seine Zufriedenheit mindestens `treffer_zufriedenheit` beträgt. Die Leitung zählt
+`hire_judged` und `hire_hits` (ihr **Personalgespür** = Treffer / geprüft, in der Managerkarte neben der
+Trefferquote). Eine Meldung berichtet das Ergebnis.
+
+**Offen (MG8c/d):** Personalabteilung mit mehr Kandidaten und genauerem Eindruck (§8.3: hier nur über `K`),
+Abwerbeziele, Personalbedarf aller Zentralabteilungen (§8.4), abwerbbare Manager fremder Firmen als
+Kandidaten, Entlassungen durch Leitungen nur als Anliegen.

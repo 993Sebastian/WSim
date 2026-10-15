@@ -44,6 +44,12 @@ pub struct ManagerView {
     /// is none before the first judgment.
     pub judged: u32,
     pub hit_rate: Option<f64>,
+    /// His feeling for people (MG8): the hires he decided that were reviewed, and the share
+    /// that were hits; none before the first review.
+    #[serde(default)]
+    pub hire_judged: u32,
+    #[serde(default)]
+    pub hire_rate: Option<f64>,
     /// Age today and the age at which he plans to retire, with the day (PE1).
     pub age: Option<u32>,
     pub retires_at: Option<u32>,
@@ -680,6 +686,8 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
         skills,
         judged: m.judged,
         hit_rate: (m.judged > 0).then(|| crate::central::hit_rate(c, m)),
+        hire_judged: m.hire_judged,
+        hire_rate: (m.hire_judged > 0).then(|| f64::from(m.hire_hits) / f64::from(m.hire_judged)),
         age: crate::aging::age_of(m, game.state().date),
         retires_at: crate::aging::retirement_age(c, m),
         retirement: crate::aging::retirement(c, m).map(iso),
