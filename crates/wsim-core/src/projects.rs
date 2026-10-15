@@ -111,6 +111,21 @@ pub struct DevProject {
     /// The reports at the milestones, newest last.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub reports: Vec<MilestoneReport>,
+    /// An event the project waits to be decided (PD4).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub event: Option<crate::project_events::PendingEvent>,
+    /// The phase an event already happened in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub event_phase: Option<u8>,
+    /// Hidden defect risk the event options added.
+    #[serde(default)]
+    pub defect: f64,
+    /// Target quality the event options changed.
+    #[serde(default)]
+    pub bonus_quality: f64,
+    /// Sum of the staffing gaps at the ends of the phases.
+    #[serde(default)]
+    pub shortfall_sum: f64,
 }
 
 fn middle() -> u8 {
@@ -124,7 +139,7 @@ impl DevProject {
 
     /// Runs today: running, not waiting for a decision, not on hold.
     pub fn active(&self) -> bool {
-        self.running() && self.pending.is_none() && !self.paused
+        self.running() && self.pending.is_none() && self.event.is_none() && !self.paused
     }
 }
 
@@ -160,6 +175,7 @@ pub fn factors(m: &ProjectModel, p: &DevProject) -> Factors {
         }
         f.risk *= 1.0 + r.conditions_risk * f64::from(p.conditions);
     }
+    f.quality += p.bonus_quality;
     f
 }
 
@@ -394,6 +410,11 @@ pub(crate) fn start(
         queued: Vec::new(),
         baseline: None,
         reports: Vec::new(),
+        event: None,
+        event_phase: None,
+        defect: 0.0,
+        bonus_quality: 0.0,
+        shortfall_sum: 0.0,
     });
     state.sites[site.index()].staffing_due = true;
     Ok(())
@@ -520,6 +541,8 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     };
     // Decisions left open past their deadline, and what commands produced since yesterday.
     news.extend(crate::project_reports::resolve_due(state, catalog, date));
+    news.extend(crate::project_events::resolve_due(state, catalog, date));
+    news.extend(crate::project_events::run_recalls(state, catalog, date));
     for site in &mut state.sites {
         site.lab_staff.assigned = [0; 4];
     }
@@ -555,7 +578,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             staff.assigned[role.index()] += give;
             assigned[role.index()] = give;
         }
-        let (speed, _) = staffing(m, phase, effort, assigned);
+        let (speed, shortfall) = staffing(m, phase, effort, assigned);
         let (tempo, trim, progress) = {
             let p = &mut state.dev_projects[index];
             p.assigned = assigned;
@@ -573,9 +596,15 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         .unwrap_or(Money::ZERO);
         book(state, index, cost);
         state.dev_projects[index].progress += step;
-        if state.dev_projects[index].progress < 1.0 - 1e-9 {
+        news.extend(crate::project_events::roll(
+            state, catalog, index, date, step, shortfall,
+        ));
+        if state.dev_projects[index].event.is_some()
+            || state.dev_projects[index].progress < 1.0 - 1e-9
+        {
             continue;
         }
+        state.dev_projects[index].shortfall_sum += shortfall;
         // The phase is done: the milestones it ends at.
         news.extend(on_phase_end(state, catalog, index, date));
     }
@@ -698,6 +727,7 @@ pub(crate) fn release(
     let p = &mut state.dev_projects[index];
     p.status = ProjectStatus::Released;
     p.finished = Some(date);
+    crate::project_events::on_release(state, catalog, index, date);
     if state.is_main(company) {
         news.push(
             Message::new(MessageKind::Success, keys::PRODUCT_RESEARCHED).with(
@@ -847,7 +877,7 @@ pub fn overall_progress(m: &ProjectModel, p: &DevProject) -> f64 {
     let current = m
         .phases
         .get(usize::from(p.phase))
-        .map_or(0.0, |ph| ph.time * p.progress);
+        .map_or(0.0, |ph| ph.time * p.progress.max(0.0));
     (done + current).min(1.0)
 }
 

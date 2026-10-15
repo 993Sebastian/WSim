@@ -1,0 +1,27 @@
+# Ereignisse in den Phasen der Entwicklungsprojekte (PD4)
+projektereignis.technisches_problem.titel: Technisches Problem
+projektereignis.technisches_problem.text: Ein Bauteil verhält sich anders als berechnet. Das Team braucht eine Lösung.
+projektereignis.technisches_problem.budget: Mehr Budget für eine saubere Lösung
+projektereignis.technisches_problem.abstriche: Zielabstriche bei der Qualität hinnehmen
+projektereignis.technisches_problem.verzug: Verzug in Kauf nehmen
+projektereignis.kostenueberschreitung.titel: Kostenüberschreitung
+projektereignis.kostenueberschreitung.text: Die Phase wird teurer als geplant.
+projektereignis.kostenueberschreitung.bezahlen: Mehrkosten bezahlen
+projektereignis.kostenueberschreitung.sparen: Sparen und etwas langsamer arbeiten
+projektereignis.lieferantenausfall.titel: Lieferantenausfall
+projektereignis.lieferantenausfall.text: Ein Zulieferer fällt für Versuchsmaterial aus.
+projektereignis.lieferantenausfall.ersatz: Teuren Ersatz beschaffen
+projektereignis.lieferantenausfall.warten: Auf den Lieferanten warten
+projektereignis.lieferantenausfall.umbauen: Den Aufbau auf anderes Material umbauen
+projektereignis.entwickler_abgeworben.titel: Schlüsselentwickler abgeworben
+projektereignis.entwickler_abgeworben.text: Ein Wettbewerber wirbt einen wichtigen Entwickler ab.
+projektereignis.entwickler_abgeworben.halten: Mit Prämie halten
+projektereignis.entwickler_abgeworben.ersetzen: Ersatz einarbeiten
+projektereignis.konkurrenz.titel: Konkurrenz entwickelt dasselbe Produkt
+projektereignis.konkurrenz.text: Es heißt, ein Wettbewerber arbeite an demselben Produkt.
+projektereignis.konkurrenz.beschleunigen: Beschleunigen, mit mehr Risiko
+projektereignis.konkurrenz.abwarten: Ruhig weiterarbeiten
+projektereignis.durchbruch.titel: Durchbruch
+projektereignis.durchbruch.text: Das Team findet einen unerwartet guten Weg.
+projektereignis.durchbruch.schneller: Die Phase verkürzen
+projektereignis.durchbruch.besser: Die Qualität erhöhen

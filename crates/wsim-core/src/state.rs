@@ -2178,6 +2178,9 @@ pub struct GameState {
     /// Who decides at the milestones of a company's projects (PD3); missing: standard.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub project_delegation: BTreeMap<CompanyId, crate::project_reports::DelegationMode>,
+    /// Recalls of released products with a hidden defect (PD4).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub recalls: Vec<crate::project_events::Recall>,
     /// Messages commands produced for the next round's report (PD3); not saved.
     #[serde(skip)]
     pub project_news: Vec<crate::message::Message>,

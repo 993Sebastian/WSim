@@ -237,6 +237,10 @@ pub mod keys {
     pub const PROJECT_DECISION_DUE: &str = "meldung.projekt_entscheidung_faellig";
     pub const PROJECT_DECIDED: &str = "meldung.projekt_entschieden";
     pub const PROJECT_AUTO_DECIDED: &str = "meldung.projekt_automatisch_entschieden";
+    pub const PROJECT_EVENT: &str = "meldung.projekt_ereignis";
+    pub const PROJECT_EVENT_DECIDED: &str = "meldung.projekt_ereignis_entschieden";
+    pub const PROJECT_EVENT_AUTO: &str = "meldung.projekt_ereignis_automatisch";
+    pub const PROJECT_RECALL: &str = "meldung.projekt_rueckruf";
     pub const COMMAND_NOTHING_TO_DECIDE: &str = "fehler.befehl.keine_entscheidung";
     pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
     pub const COMMAND_NOT_A_HEAD: &str = "fehler.befehl.keine_leitung";
@@ -682,6 +686,10 @@ pub mod keys {
         PROJECT_DECISION_DUE,
         PROJECT_DECIDED,
         PROJECT_AUTO_DECIDED,
+        PROJECT_EVENT,
+        PROJECT_EVENT_DECIDED,
+        PROJECT_EVENT_AUTO,
+        PROJECT_RECALL,
         COMMAND_NOTHING_TO_DECIDE,
         COMMAND_UNKNOWN_OPTION,
         COMMAND_NOT_A_HEAD,

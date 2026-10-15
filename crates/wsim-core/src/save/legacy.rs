@@ -180,6 +180,7 @@ pub(super) fn decode_v2(
         next_manager: 0,
         dev_projects: Vec::new(),
         project_leads: Vec::new(),
+        recalls: Vec::new(),
         project_delegation: BTreeMap::new(),
         project_news: Vec::new(),
         concerns: Vec::new(),

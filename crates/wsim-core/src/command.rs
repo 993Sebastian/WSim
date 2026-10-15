@@ -296,6 +296,8 @@ pub enum Command {
         #[serde(default)]
         choice: Option<u8>,
     },
+    /// The owner chooses an option of the event a project waits for (PD4).
+    DecideEvent { project: u32, option: u8 },
     /// A project on hold goes on (PD3).
     ResumeProject { project: u32 },
     /// Who decides at the milestones: for the company, or for one project (PD3).
@@ -2740,6 +2742,9 @@ fn run(
             choice,
         } => {
             crate::project_reports::decide(state, catalog, actor, *project, (*decision, *choice))?;
+        }
+        Command::DecideEvent { project, option } => {
+            crate::project_events::decide(state, catalog, actor, *project, *option)?;
         }
         Command::ResumeProject { project } => {
             crate::project_reports::resume(state, catalog, actor, *project)?;

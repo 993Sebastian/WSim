@@ -272,6 +272,11 @@ fn staffing_changes_the_duration_but_not_the_cost() {
             queued: Vec::new(),
             baseline: None,
             reports: Vec::new(),
+            event: None,
+            event_phase: None,
+            defect: 0.0,
+            bonus_quality: 0.0,
+            shortfall_sum: 0.0,
         },
     );
     let normal = projects::scenario(&m, &p, 0.5, 0);
@@ -745,4 +750,171 @@ fn a_hopeless_product_makes_the_leader_recommend_to_stop() {
         .expect("an abort is recommended");
     assert!(r.truth.payback_years > 12.0 && r.lights.contains(&LightColor::Red));
     assert_eq!(p.status, ProjectStatus::Aborted);
+}
+
+use crate::catalog::{ProjectEventKind, ProjectEventModel, ProjectEventOption};
+
+fn option(key: &str, cost: f64, delay: f64, defect: f64) -> ProjectEventOption {
+    ProjectEventOption {
+        key: key.into(),
+        cost,
+        delay,
+        quality: 0.0,
+        defect,
+    }
+}
+
+/// An event in nearly every phase: the risk is huge, one kind fits all phases.
+fn game_with_events(defect: f64) -> Game {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.risk.base = 50.0;
+    m.events = Some(ProjectEventModel {
+        deadline_days: 5,
+        defect_cap: 1.0,
+        defect_per_condition: 0.0,
+        defect_per_shortfall: 0.0,
+        defect_per_tempo: vec![0.0; 3],
+        recall_days: (10, 20),
+        recall_cost_share: 0.5,
+        recall_awareness_loss: 0.25,
+        kinds: vec![ProjectEventKind {
+            key: "problem".into(),
+            phases: vec![0, 1, 2, 3, 4, 5],
+            weight: 1.0,
+            recommended: 0,
+            options: vec![
+                option("budget", 0.2, 0.0, defect),
+                option("verzug", 0.0, 0.25, 0.0),
+            ],
+        }],
+    });
+    crate::product_research_tests::new_game(c)
+}
+
+fn until_event(game: &mut Game, limit: u32) -> Option<crate::project_events::PendingEvent> {
+    for _ in 0..limit {
+        if let Some(e) = game.state().dev_projects[0].event {
+            return Some(e);
+        }
+        days(game, 1);
+    }
+    game.state().dev_projects[0].event
+}
+
+#[test]
+fn an_event_stops_the_project_until_an_option_is_chosen() {
+    let mut game = game_with_events(0.1);
+    running(&mut game);
+    let event = until_event(&mut game, 3000).expect("an event turns up");
+    assert_eq!(event.deadline, event.raised.add_days(5));
+    let p = &game.state().dev_projects[0];
+    let (phase, progress, spent) = (p.phase, p.progress, p.spent);
+    // The project stands still while the event waits.
+    days(&mut game, 2);
+    let p = &game.state().dev_projects[0];
+    assert_eq!((p.phase, p.progress, p.spent), (phase, progress, spent));
+    // A wrong option is refused; the right one costs money and adds the hidden defect.
+    assert_eq!(
+        game.apply(Command::DecideEvent {
+            project: 0,
+            option: 5
+        }),
+        Err(CommandError::InvalidQuantity)
+    );
+    game.apply(Command::DecideEvent {
+        project: 0,
+        option: 0,
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[0];
+    assert!(p.event.is_none());
+    assert!(p.spent > spent);
+    assert!((p.defect - 0.1).abs() < 1e-9);
+    assert_eq!(
+        game.apply(Command::DecideEvent {
+            project: 0,
+            option: 0
+        }),
+        Err(CommandError::NothingToDecide)
+    );
+}
+
+#[test]
+fn an_unanswered_event_is_decided_by_the_leader_after_the_deadline() {
+    let mut game = game_with_events(0.0);
+    running(&mut game);
+    let event = until_event(&mut game, 3000).expect("an event turns up");
+    let mut waited = 0;
+    while game.state().dev_projects[0].event.is_some() && waited < 10 {
+        days(&mut game, 1);
+        waited += 1;
+    }
+    assert!(game.state().dev_projects[0].event.is_none());
+    assert!(waited >= 4, "waited {waited} days for {event:?}");
+}
+
+#[test]
+fn the_leader_decides_events_at_once_when_the_owner_leaves_everything_to_him() {
+    let mut game = game_with_events(0.0);
+    running(&mut game);
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: crate::project_reports::DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    for _ in 0..3000 {
+        days(&mut game, 1);
+        assert!(game.state().dev_projects[0].event.is_none());
+        if game.state().dev_projects[0].event_phase.is_some() {
+            return;
+        }
+    }
+    panic!("no event happened");
+}
+
+#[test]
+fn a_hidden_defect_comes_back_as_a_recall_with_costs() {
+    let mut game = game_with_events(1.0);
+    running(&mut game);
+    // Choose the option with the defect at every event until the product is released.
+    for _ in 0..6000 {
+        if game.state().dev_projects[0].event.is_some() {
+            game.apply(Command::DecideEvent {
+                project: 0,
+                option: 0,
+            })
+            .unwrap();
+        }
+        if game.state().dev_projects[0].status == ProjectStatus::Released {
+            break;
+        }
+        days(&mut game, 1);
+    }
+    assert_eq!(game.state().dev_projects[0].status, ProjectStatus::Released);
+    assert_eq!(game.state().recalls.len(), 1);
+    let due = game.state().recalls[0].due;
+    let released = game.state().dev_projects[0].finished.unwrap();
+    assert!((10..=20).contains(&released.days_until(due)));
+    let player = game.state().main_company.unwrap().index();
+    let before = game.state().companies[player].ledger.cash();
+    let mut news = Vec::new();
+    while game.date() <= due {
+        news.extend(days(&mut game, 1));
+    }
+    assert!(game.state().recalls.is_empty());
+    assert!(news.iter().any(|m| m.key == keys::PROJECT_RECALL));
+    assert!(game.state().companies[player].ledger.cash() < before);
+    assert!(game.state().companies[player].ledger.is_balanced());
+}
+
+#[test]
+fn without_the_event_block_nothing_happens() {
+    let mut c = catalog();
+    c.research_model.projects.as_mut().unwrap().risk.base = 50.0;
+    let mut game = crate::product_research_tests::new_game(c);
+    running(&mut game);
+    days(&mut game, 400);
+    let p = &game.state().dev_projects[0];
+    assert!(p.event.is_none() && p.event_phase.is_none() && game.state().recalls.is_empty());
 }

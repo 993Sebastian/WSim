@@ -283,6 +283,10 @@ meldung.projekt_meilenstein: "Entwicklung {produkt}: Meilenstein M{meilenstein} 
 meldung.projekt_entscheidung_faellig: "Entwicklung {produkt}: Meilenstein M{meilenstein} wartet auf deine Entscheidung."
 meldung.projekt_entschieden: "Entwicklung {produkt}: Der Projektleiter hat zu M{meilenstein} entschieden: {entscheidung}."
 meldung.projekt_automatisch_entschieden: "Entwicklung {produkt}: Zu M{meilenstein} kam keine Entscheidung, der Projektleiter hat entschieden: {entscheidung}."
+meldung.projekt_ereignis: "Entwicklung {produkt}: {ereignis} – das Projekt wartet auf deine Entscheidung."
+meldung.projekt_ereignis_entschieden: "Entwicklung {produkt}: {ereignis} – gewählt: {option}."
+meldung.projekt_ereignis_automatisch: "Entwicklung {produkt}: {ereignis} – der Projektleiter hat entschieden: {option}."
+meldung.projekt_rueckruf: "Rückruf bei {produkt}: Ein verborgener Mangel kostet {kosten} und schadet dem Ruf der Marke."
 fehler.befehl.keine_entscheidung: Bei diesem Projekt wartet keine Entscheidung.
 fehler.befehl.vorschlag_aufschub: Nur ein Strategievorschlag lässt sich zurückstellen, und nur einmal.
 fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.

@@ -120,6 +120,15 @@ pub enum Stream {
         project: u32,
         milestone: u8,
     },
+    /// An event in a phase of a project on a day (PD4).
+    ProjectEvent {
+        project: u32,
+        day: u32,
+    },
+    /// Whether a released product has a hidden defect (PD4).
+    ProjectDefect {
+        project: u32,
+    },
     /// New project leaders on the market of a continent in a month (PD2).
     ProjectLeads {
         continent: u16,
@@ -243,6 +252,10 @@ impl Stream {
             Stream::ProjectReport { project, milestone } => {
                 (38 << 56) | (u64::from(project) << 8) | u64::from(milestone)
             }
+            Stream::ProjectEvent { project, day } => {
+                (39 << 56) | (u64::from(project) << 24) | u64::from(day)
+            }
+            Stream::ProjectDefect { project } => (40 << 56) | u64::from(project),
             Stream::ProjectLeads { continent, month } => {
                 (37 << 56) | (u64::from(continent) << 32) | u64::from(month)
             }

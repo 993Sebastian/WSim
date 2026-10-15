@@ -219,6 +219,7 @@ impl Game {
             project_leads: Vec::new(),
             project_delegation: BTreeMap::new(),
             project_news: Vec::new(),
+            recalls: Vec::new(),
             concerns: Vec::new(),
             next_concern: 0,
             followups: Vec::new(),
