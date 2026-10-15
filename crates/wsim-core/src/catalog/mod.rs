@@ -1480,6 +1480,25 @@ pub struct ProjectModel {
     pub events: Option<ProjectEventModel>,
     /// Improvement projects WM0–WM3 (PD5).
     pub improvement: Option<ImprovementModel>,
+    /// Product suggestions and their after-calculation (PD6).
+    pub suggestions: Option<SuggestionModel>,
+}
+
+/// Product suggestions and the after-calculation (PD6, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct SuggestionModel {
+    pub open_max: u32,
+    pub valid_days: u32,
+    pub branch_bonus: f64,
+    /// Spread of the forecast without a strategy department.
+    pub uncertainty: f64,
+    /// Share of the spread a fully staffed department removes.
+    pub accuracy: f64,
+    pub review_years: u32,
+    pub tolerance: f64,
+    pub hit_from: f64,
+    /// Weights of schedule, budget and figures in the total value.
+    pub weights: [f64; 3],
 }
 
 /// Improvement projects WM0–WM3 (PD5, docs/FORMELN.md).

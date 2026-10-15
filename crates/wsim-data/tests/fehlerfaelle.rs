@@ -6240,3 +6240,39 @@ fn projektweiterentwicklung_wird_geprueft() {
     let falsch = mit(&block.replace("min: 2, max: 4", "min: 5, max: 4")).laden();
     befund(&falsch, "Zahl der Ansätze");
 }
+
+#[test]
+fn projektvorschlaege_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let vorschlaege = "    vorschlaege:\n      offen_max: 3\n      gueltig_tage: 180\n      branchenbonus: 0.5\n      \
+         unschaerfe: 0.35\n      genauigkeit: 0.6\n      nachkalkulation_jahre: 2\n      toleranz: 0.5\n      \
+         treffer_ab: 0.6\n      gewichte: {termin: 0.25, budget: 0.25, kennzahlen: 0.5}\n";
+    let block = format!("{}{vorschlaege}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let v = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap()
+        .suggestions
+        .expect("suggestions");
+    assert_eq!((v.open_max, v.review_years), (3, 2));
+
+    let falsch = mit(&block.replace("kennzahlen: 0.5", "kennzahlen: 0.4")).laden();
+    befund(&falsch, "ergeben");
+    let falsch = mit(&block.replace("unschaerfe: 0.35", "unschaerfe: 1.5")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("toleranz: 0.5", "toleranz: 0")).laden();
+    assert!(!falsch.report.findings().is_empty());
+}

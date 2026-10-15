@@ -274,6 +274,17 @@ forschungsmodell:
           je_stufe: 1.0
           obergrenze: 0.6
           wirkung: {qualitaet: 2.0, menge: 0.025}
+    # Produktvorschläge der Strategie und Nachkalkulation (PD6, docs/FORMELN.md). Vorläufig.
+    vorschlaege:
+      offen_max: 3                   # offene Vorschläge je Firma
+      gueltig_tage: 180
+      branchenbonus: 0.5             # Aufschlag auf den Wert für Produkte der eigenen Branchen
+      unschaerfe: 0.35               # Streuung der Prognose ohne Strategieabteilung
+      genauigkeit: 0.6               # Anteil, den eine voll besetzte Abteilung abbaut
+      nachkalkulation_jahre: 2
+      toleranz: 0.5                  # relative Abweichung, bei der der Wert 0 ist
+      treffer_ab: 0.6
+      gewichte: {termin: 0.25, budget: 0.25, kennzahlen: 0.5}
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)

@@ -8,7 +8,8 @@ use wsim_core::catalog::{
     OperationsModel, PatentModel, PhaseRole, ProductionModel, ProjectChoice, ProjectEventKind,
     ProjectEventModel, ProjectEventOption, ProjectLeadModel, ProjectModel, ProjectPhase,
     ProjectReportModel, ProjectRiskModel, ProjectTempo, ProjectTrim, ResearchModel, SiteType,
-    SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
+    SizeModel, StartSetup, StorageClass, StorageModel, SuggestionModel, TrainingModel,
+    TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -1859,6 +1860,7 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
         reports: project_reports(ctx, p, l),
         events: project_events(ctx, p, l),
         improvement: project_improvement(ctx, p, l),
+        suggestions: project_suggestions(ctx, p, l),
     }
 }
 
@@ -1978,6 +1980,32 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         deadline_days: d.deadline_days,
         profiles,
         paths,
+    })
+}
+
+/// Product suggestions and after-calculation of the projects (PD6).
+fn project_suggestions(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<SuggestionModel> {
+    let s = p.suggestions.as_ref()?;
+    let sl = l.field("vorschlaege");
+    let wl = sl.field("gewichte");
+    let weights = [s.weights.schedule, s.weights.budget, s.weights.figures];
+    let sum: f64 = weights.iter().sum();
+    if (sum - 1.0).abs() > 1e-6 {
+        ctx.error(&wl, messages::project_shares_sum("gewichte", sum));
+    }
+    for (w, name) in weights.iter().zip(["termin", "budget", "kennzahlen"]) {
+        in_range(ctx, *w, 0.0, 1.0, &wl.field(name));
+    }
+    Some(SuggestionModel {
+        open_max: s.open_max.max(1),
+        valid_days: s.valid_days.max(1),
+        branch_bonus: non_negative(ctx, s.branch_bonus, &sl.field("branchenbonus")),
+        uncertainty: in_range(ctx, s.uncertainty, 0.0, 0.9, &sl.field("unschaerfe")),
+        accuracy: in_range(ctx, s.accuracy, 0.0, 1.0, &sl.field("genauigkeit")),
+        review_years: s.review_years.max(1),
+        tolerance: positive(ctx, s.tolerance, &sl.field("toleranz")),
+        hit_from: in_range(ctx, s.hit_from, 0.0, 1.0, &sl.field("treffer_ab")),
+        weights,
     })
 }
 

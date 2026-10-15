@@ -2792,3 +2792,13 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - Freigabe „gestaffelt“ (Wirkung wächst in 90 Tagen) oder „sofort“ gegen 20 % der Projektkosten.
 - Ein Projektleiter führt bis zu `kapazitaet_weiter` (2) Weiterentwicklungen, zusammen mit seinen Neuentwicklungen.
 - KI: startet jährlich für ihr umsatzstärkstes Produkt das Ziel mit der kleinsten Stufe, wenn es sich bezahlt macht.
+
+## PD6 – Produktvorschläge und Nachkalkulation (15.10.2026, eigene Annahmen)
+
+🟡 Vorläufige Werte in `data/parameter/forschungsmodell.yaml` (`projekte.vorschlaege`), zur Abnahme:
+- **Eigener Eintragstyp:** Die Vorgabe verlangt EIN System mit MG6/MG9. Die Strategieabteilung (MG9) ist erst zum Teil umgesetzt; deshalb sind die Produktvorschläge zunächst ein eigener Typ mit Ansicht im Reiter Entwicklungsprojekte. Die Verschmelzung mit „Strategievorschläge“ und der Trefferquote folgt mit MG9 (Manager-Reste).
+- Höchstens 3 offene Vorschläge je Firma, gültig 180 Tage, einer je Monat; Wert = offener Bedarf mal Richtpreis durch Projektaufwand, +50 % für Produkte der eigenen Branchen.
+- Prognose-Streuung ±35 %, bei voll besetzter Strategieabteilung 60 % davon abgebaut (Stärke aus `central::strength`).
+- Nachkalkulation 2 Jahre nach PM7; Wert 0 bei 50 % Abweichung; Gewichte Termin 25 %, Budget 25 %, Kennzahlen 50 %; Treffer ab 0,6.
+- Die Bilanz des Projektleiters wird gespeichert und in der Personalansicht gezeigt; eine Wirkung auf seinen Marktwert (Gehaltsforderung) folgt erst mit PD11 (Entwicklungsleitung).
+- KI: nimmt den besten offenen Vorschlag an, wenn Labor und Projektleiter frei sind und die Amortisation unter `amortisation_max_jahre` liegt.

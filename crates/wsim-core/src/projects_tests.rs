@@ -105,6 +105,7 @@ fn model() -> ProjectModel {
         reports: None,
         events: None,
         improvement: None,
+        suggestions: None,
     }
 }
 

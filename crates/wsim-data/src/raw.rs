@@ -1421,6 +1421,44 @@ pub struct RawProjectModel {
     /// Improvement projects WM0–WM3 (PD5).
     #[serde(rename = "weiterentwicklung", default)]
     pub improvement: Option<RawProjectImprovement>,
+    /// Product suggestions and the after-calculation (PD6).
+    #[serde(rename = "vorschlaege", default)]
+    pub suggestions: Option<RawProjectSuggestions>,
+}
+
+/// Product suggestions of the strategy and their after-calculation (PD6).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectSuggestions {
+    #[serde(rename = "offen_max")]
+    pub open_max: u32,
+    #[serde(rename = "gueltig_tage")]
+    pub valid_days: u32,
+    #[serde(rename = "branchenbonus")]
+    pub branch_bonus: f64,
+    #[serde(rename = "unschaerfe")]
+    pub uncertainty: f64,
+    #[serde(rename = "genauigkeit")]
+    pub accuracy: f64,
+    #[serde(rename = "nachkalkulation_jahre")]
+    pub review_years: u32,
+    #[serde(rename = "toleranz")]
+    pub tolerance: f64,
+    #[serde(rename = "treffer_ab")]
+    pub hit_from: f64,
+    #[serde(rename = "gewichte")]
+    pub weights: RawSuggestionWeights,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSuggestionWeights {
+    #[serde(rename = "termin")]
+    pub schedule: f64,
+    #[serde(rename = "budget")]
+    pub budget: f64,
+    #[serde(rename = "kennzahlen")]
+    pub figures: f64,
 }
 
 /// Improvement projects (PD5): effort, approaches, outcome, phases and targets.

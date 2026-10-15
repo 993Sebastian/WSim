@@ -6362,3 +6362,27 @@ nur die Weiterentwicklung nach M37/Q1 (Punkte je Produkt); sie bleibt in jedem F
 - **KI.** Eine Firma mit Forschungszentrum, freiem Projektleiter und freien Leuten startet jährlich für ihr umsatzstärkstes Produkt das Ziel mit der kleinsten Stufe
   (Reihenfolge der Daten), wenn der Nutzen der Stufe sich in `entwicklung_amortisation_jahre` bezahlt macht (Regel wie M37); sie wählt wie ein Projektleiter.
 - **Spielstände.** Neue Felder (Projekte der Weiterentwicklung, freigegebene Stufen je Firma, Produkt und Ziel) sind optional; ältere Spielstände beginnen ohne Stufen.
+
+## PD6 – Produktvorschläge, eingefrorene Vorschlagswerte, Nachkalkulation (15.10.2026, Entwurf zur Abnahme)
+Vorgabe `docs/PRODUKTENTWICKLUNG.md` §5. Parameter in `forschungsmodell.yaml` (`projekte.vorschlaege`), alle vorläufig. Ohne den Block gibt es keine Vorschläge;
+Projekte starten frei wie bisher (dann gilt nur die Baseline bei PM2). **Abgrenzung:** Die Vorgabe verlangt ein gemeinsames Strategiesystem mit MG6/MG9. Die
+Strategieabteilung (MG9) ist erst zum Teil umgesetzt; bis dahin ist der Produktvorschlag ein eigener Eintragstyp mit der Ansicht „Vorschläge“ im Reiter Entwicklungsprojekte
+und fließt mit MG9 in dessen Ansicht „Strategievorschläge“ und Trefferquote (`docs/OFFENE_PUNKTE.md` PD6).
+- **Erzeugung.** Am ersten Tag jedes Monats prüft jede Firma mit fertigem Forschungszentrum (Spieler wie KI, gleiche Regeln): hat sie weniger als `offen_max` offene Vorschläge,
+  entsteht höchstens einer. Kandidat ist das Produkt mit dem besten Wert `V / W`: `W` der Projektaufwand (`project_effort`), `V` der offene Bedarf (Summe `open_demand` über
+  alle Märkte) mal Richtpreis, mal `1 + branchenbonus`, wenn die Firma in der Branche des Produkts herstellt. Ausgeschlossen: Produkte mit laufendem Projekt, mit offenem
+  Vorschlag oder mit abgelehntem Vorschlag der letzten 12 Monate. Die Reihenfolge bei Gleichstand folgt der Produkt-ID, der Zufall kommt nicht ins Spiel.
+- **Werte des Vorschlags.** Aus den unverzerrten Kennzahlen eines gedachten Projekts im ersten Labor (Tempo normal, Ausstattung Standard, Profil ausgewogen, Weg Standard)
+  `K = truth_kpis(...)` (PD3) wird die Prognose `P = K · (1 + σ · u)` je Kennzahl mit `u` in [−1, 1] (Strom `ProductSuggestion {firma, monat}`, je Kennzahl ein Zug) und
+  `σ = unschaerfe · (1 − genauigkeit · S)`; `S` ist die Stärke der Strategieabteilung (`central::strength`, 0 ohne Abteilung). Zu jedem Vorschlag gehören außerdem Projektdauer,
+  Projektkosten, Personal und die Begründung (Textschlüssel nach dem größten Posten: Bedarfslücke, Branchennähe, Amortisation).
+- **Annehmen.** `StartSuggestedProject` startet das Projekt wie `StartProject` mit Projektleiter, Tempo und Ausstattung aus dem Befehl; die Prognose `P`, Dauer und Kosten
+  werden am Projekt **eingefroren** (Zusage). `DeclineSuggestion` lehnt ab. Ein offener Vorschlag verfällt nach `gueltig_tage` Tagen.
+- **Nachkalkulation.** `nachkalkulation_jahre` nach der Freigabe (PM7) wird Ist gegen Zusage verglichen. Je Kennzahl `d = |Ist − Zusage| / max(|Zusage|, ε)`, Wert
+  `w = max(0, 1 − d / toleranz)`. Kennzahlen: Herstellkosten, Deckungsbeitrag je Jahr, Qualität (Wert 0–1 aus dem Mittel), Termin (Dauer Ist gegen Zusage) und Budget
+  (Projektkosten Ist gegen Zusage). Gesamtwert `G = gewicht_termin · w_Termin + gewicht_budget · w_Budget + gewicht_kennzahlen · Mittel(w_Kennzahlen)`.
+- **Bilanz.** `G` fließt in die Bilanz des Projektleiters (laufendes Mittel `bilanz`, Zahl der Nachkalkulationen) und in die Trefferquote des Vorschlagenden: ein
+  Vorschlag ist ein Treffer, wenn `G ≥ treffer_ab`. Die Trefferquote einer Firma ist der Anteil der Treffer an ihren nachkalkulierten Vorschlägen.
+- **KI.** Eine KI-Firma nimmt den besten offenen Vorschlag an, wenn sie ein freies Labor und einen freien Projektleiter hat und die prognostizierte Amortisation unter
+  `amortisation_max_jahre` (PD3) liegt; sonst lehnt sie ab.
+- **Spielstände.** Neue Felder (Vorschläge, Zusage am Projekt, Bilanz am Projektleiter) sind optional; ältere Spielstände beginnen ohne Vorschläge.
