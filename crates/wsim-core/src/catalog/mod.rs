@@ -1478,6 +1478,54 @@ pub struct ProjectModel {
     pub reports: Option<ProjectReportModel>,
     /// Events during the phases, hidden defects and recalls (PD4).
     pub events: Option<ProjectEventModel>,
+    /// Improvement projects WM0–WM3 (PD5).
+    pub improvement: Option<ImprovementModel>,
+}
+
+/// Improvement projects WM0–WM3 (PD5, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ImprovementModel {
+    /// Stages with full effect; further ones bring `rest_share` of it.
+    pub stages: u8,
+    pub rest_share: f64,
+    /// Effort of stage n: base · effort_share · effort_growth^(n − 1).
+    pub effort_share: f64,
+    pub effort_growth: f64,
+    /// Days the effect needs to build up when the plants are converted step by step.
+    pub retrofit_days: u32,
+    /// Share of the project's cost an immediate release costs.
+    pub immediate_cost_share: f64,
+    pub deadline_days: u32,
+    /// Fewest and most approaches the analysis finds.
+    pub approaches: (u8, u8),
+    pub approach_spread: f64,
+    pub approach_cost_slope: f64,
+    pub outcome_spread: f64,
+    pub outcome_experience: f64,
+    pub outcome_shortfall: f64,
+    /// The three phases WM0→WM1, WM1→WM2, WM2→WM3.
+    pub phases: Vec<ProjectPhase>,
+    /// Targets in the order of the data: cost, quality, scrap, rate, inputs, equipment.
+    pub targets: Vec<ImprovementTarget>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ImprovementTarget {
+    pub key: String,
+    /// Effect per stage in units of the effects below, at most `cap`.
+    pub per_stage: f64,
+    pub cap: f64,
+    pub effect: ImprovementEffect,
+}
+
+/// What one unit of a target's effect changes at a site.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct ImprovementEffect {
+    pub labor: f64,
+    pub inputs: f64,
+    pub quality: f64,
+    pub scrap: f64,
+    pub output: f64,
 }
 
 /// Events of the phases, hidden defects and recalls (PD4, docs/FORMELN.md).

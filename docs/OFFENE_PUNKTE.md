@@ -2782,3 +2782,13 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - Der Börsenindex aus K1 wird zur Grundlage des Welt-ETF; die Rendite wird über das Wirtschaftsmodell geeicht, nicht eingestellt.
 - KI-Unternehmer werden mit PV8 zu Personen mit Privatvermögen (bisher nicht); größter Einzelposten.
 - Alle Sätze, Zinsen, Kosten und Besitzobjekte sind Startwerte mit `annaeherung: true`.
+
+## PD5 – Weiterentwicklungsprojekte WM0–WM3 (15.10.2026, eigene Annahmen)
+
+🟡 Vorläufige Werte in `data/parameter/forschungsmodell.yaml` (`projekte.weiterentwicklung`), zur Abnahme:
+- Die Projekte sind eine **zweite Schicht** über der Weiterentwicklung nach Punkten (M37/Q1); beide bleiben bestehen, Obergrenzen je Ziel verhindern ein Aufschaukeln.
+- Sechs Ziele: Herstellkosten, Qualität, Ausschuss, Fertigungsrate, Vorprodukte, Ausstattung; drei Stufen, danach 20 % Restertrag.
+- Aufwand der Stufe n = Basis des Produkts · 0,15 · 1,5^(n−1); drei Phasen (25 / 50 / 25 % der Zeit); Ansätze 2–4 mit ±35 % Streuung des Gewinns; Ergebnis ±30 %.
+- Freigabe „gestaffelt“ (Wirkung wächst in 90 Tagen) oder „sofort“ gegen 20 % der Projektkosten.
+- Ein Projektleiter führt bis zu `kapazitaet_weiter` (2) Weiterentwicklungen, zusammen mit seinen Neuentwicklungen.
+- KI: startet jährlich für ihr umsatzstärkstes Produkt das Ziel mit der kleinsten Stufe, wenn es sich bezahlt macht.

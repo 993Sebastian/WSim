@@ -6336,3 +6336,29 @@ Projekte wie bisher ohne Ereignisse, Mängel und Rückrufe.
   allen Ländern der Warengruppe sinkt um `bekanntheit_verlust` (Anteil), Meldung an die Firma. Danach ist der Mangel erledigt.
 - Die Kennzahlen der Berichte (PD3) kennen den Mangel nicht; wer Qualität und Termin durch Auflagen und Fast-Track kauft, trägt das Risiko verdeckt.
 - Offene Punkte: `docs/OFFENE_PUNKTE.md` PD4.
+
+## PD5 – Weiterentwicklungsprojekte WM0–WM3 (15.10.2026, Entwurf zur Abnahme)
+Vorgabe `docs/PRODUKTENTWICKLUNG.md` §8. Parameter in `forschungsmodell.yaml` (`projekte.weiterentwicklung`), alle vorläufig. Ohne den Block gibt es
+nur die Weiterentwicklung nach M37/Q1 (Punkte je Produkt); sie bleibt in jedem Fall bestehen, die Projekte legen eine zweite Schicht darüber.
+- **Ziel.** Ein Projekt verbessert eine Kennzahl eines Produkts: `kosten` (Arbeit und Vorprodukte je Durchlauf), `qualitaet`, `ausschuss`, `rate`
+  (Menge je Durchlauf), `vorprodukte` (Vorprodukte je Durchlauf), `ausstattung` (Qualität und Menge zusammen). Je Firma, Produkt und Ziel läuft höchstens ein Projekt.
+- **Aufwand.** Für die nächste Stufe `n = s + 1` (s: bisher erreichte Stufen des Ziels): `W = B(p) · anteil · wachstum^(min(n, stufen) − 1)`. `B(p)` ist die Basis des
+  Produkts aus `development::basis` (wie M37). Von Stufe `stufen + 1` an bleibt der Aufwand der letzten Stufe (Restertrag).
+- **Dauer, Kosten, Personal.** Drei Phasen (`wm0_wm1` Analyse, `wm1_wm2` Optimierung, `wm2_wm3` Freigabevorbereitung) mit Kosten- und Zeitanteilen und Rollen wie in
+  PD2: Bedarf `ceil(need · (W / W_ref)^e)`, Tempo der Phase aus der Besetzung (`gain`), Kosten `W · c_pkt · Kostenanteil · Preisniveau`. Ein Projektleiter führt bis zu
+  `kapazitaet_weiter` Weiterentwicklungen gleichzeitig (zusammen mit seinen Neuentwicklungen höchstens diese Zahl).
+- **WM1 (Ansatzpunkte).** Am Ende der Analyse entstehen `k` Ansätze, `k` gleichverteilt in `[ansaetze.min, ansaetze.max]` (Strom `ProjectApproach {projekt}`).
+  Ansatz i: erwarteter Gewinn `e_i = 1 + streuung · u_i` (u_i in [−1, 1]), Kostenfaktor `c_i = 1 + kosten_steigung · (e_i − 1)` (mindestens 0,5). Der Spieler wählt
+  (Delegation wie PD3: nicht „Der Projektleiter entscheidet“); sonst wählt der Projektleiter: optimistisch den höchsten Gewinn, vorsichtig den niedrigsten Kostenfaktor,
+  sachlich den besten Gewinn je Kostenfaktor. Frist `frist_tage`, danach wählt er.
+- **WM2 (Ergebnis).** Am Ende der Optimierung: tatsächlicher Gewinn `r = e · (1 + σ · u)` mit `σ = ergebnis.streuung · (1 − erfahrung · E_PL) · (1 + unterbesetzung · Unterdeckung)`,
+  `u` in [−1, 1] (Strom `ProjectOutcome {projekt}`). Kosten der Phasen 2 und 3 laufen mit `c_i`. Das Ergebnis wird gemeldet (über oder unter Erwartung), keine Entscheidung.
+- **WM3 (Freigabe).** Nach der dritten Phase wählt der Spieler (oder der Projektleiter, dann „gestaffelt“): **gestaffelt** – die Wirkung steigt in `umruestung_tage` Tagen
+  linear von 0 auf voll, ohne Zusatzkosten – oder **sofort** – volle Wirkung vom Freigabetag an gegen `sofort_kosten_anteil · Projektkosten`.
+- **Wirkung.** Je Firma f, Produkt p, Ziel z: `S = Σ_i r_i · w_i · ramp_i(t)` über die freigegebenen Stufen, `w_i = 1` für Stufe 1–`stufen`, `w_i = restanteil` darüber.
+  `E_z = min(S · je_stufe_z, obergrenze_z)`. Auf die Faktoren des Standorts wirkt (zusätzlich zu `development::effect`): Arbeit `· (1 − E · wirkung.arbeit)`, Vorprodukte
+  `· (1 − E · wirkung.vorprodukte)`, Qualität `+ E · wirkung.qualitaet`, Ausschuss `· (1 − E · wirkung.ausschuss)`, Menge `· (1 + E · wirkung.menge)`. Die Obergrenzen sichern,
+  dass sich die Wirkungen mit M37, Lernkurve (BP1) und Branchenstärke nicht aufschaukeln.
+- **KI.** Eine Firma mit Forschungszentrum, freiem Projektleiter und freien Leuten startet jährlich für ihr umsatzstärkstes Produkt das Ziel mit der kleinsten Stufe
+  (Reihenfolge der Daten), wenn der Nutzen der Stufe sich in `entwicklung_amortisation_jahre` bezahlt macht (Regel wie M37); sie wählt wie ein Projektleiter.
+- **Spielstände.** Neue Felder (Projekte der Weiterentwicklung, freigegebene Stufen je Firma, Produkt und Ziel) sind optional; ältere Spielstände beginnen ohne Stufen.

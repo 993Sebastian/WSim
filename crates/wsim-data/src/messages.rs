@@ -921,6 +921,10 @@ pub fn project_reports_incomplete() -> String {
     "Berichte und Entscheidung gehören zusammen: Es fehlt „berichte“ oder „entscheidung“.".into()
 }
 
+pub fn improvement_approaches() -> String {
+    "Die Zahl der Ansätze braucht 1 ≤ min ≤ max ≤ 6.".into()
+}
+
 pub fn project_event_tempo_count(n: usize) -> String {
     format!("„je_tempo“ braucht einen Wert je Tempo des Modells, also {n}.")
 }

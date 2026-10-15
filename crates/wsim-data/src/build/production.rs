@@ -3,12 +3,12 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LabRole, LabStaffModel, LeadTrait,
-    LearningModel, Light, MaintenanceModel, OperationsModel, PatentModel, PhaseRole,
-    ProductionModel, ProjectChoice, ProjectEventKind, ProjectEventModel, ProjectEventOption,
-    ProjectLeadModel, ProjectModel, ProjectPhase, ProjectReportModel, ProjectRiskModel,
-    ProjectTempo, ProjectTrim, ResearchModel, SiteType, SizeModel, StartSetup, StorageClass,
-    StorageModel, TrainingModel, TransportModel, Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, ImprovementEffect, ImprovementModel,
+    ImprovementTarget, LabRole, LabStaffModel, LeadTrait, LearningModel, Light, MaintenanceModel,
+    OperationsModel, PatentModel, PhaseRole, ProductionModel, ProjectChoice, ProjectEventKind,
+    ProjectEventModel, ProjectEventOption, ProjectLeadModel, ProjectModel, ProjectPhase,
+    ProjectReportModel, ProjectRiskModel, ProjectTempo, ProjectTrim, ResearchModel, SiteType,
+    SizeModel, StartSetup, StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -20,7 +20,8 @@ use super::{
 use crate::messages;
 use crate::raw::{
     RawFacilitySizes, RawLabStaff, RawLight, RawLimits, RawPatents, RawProductDevelopment,
-    RawProductionModel, RawProjectChoice, RawProjectModel, RawSeries, RawVehicle, RawWay,
+    RawProductionModel, RawProjectChoice, RawProjectModel, RawProjectPhase, RawSeries, RawVehicle,
+    RawWay,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -1650,13 +1651,18 @@ const PROJECT_PHASES: [&str; 6] = [
 const PROJECT_TEMPOS: [&str; 3] = ["gruendlich", "normal", "beschleunigt"];
 const PROJECT_TRIMS: [&str; 3] = ["basis", "standard", "premium"];
 
-/// Development projects (PD2): six phases in order, each with roles whose effects add up to
-/// one; three tempos and three trims; shares of cost and time add up to one.
-fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
+/// The phases of a project kind in the order of `keys`, each with roles whose effects add up
+/// to one (shared by the development projects and the improvement projects).
+fn project_phases(
+    ctx: &mut Ctx,
+    raw_phases: &[RawProjectPhase],
+    keys: &[&str],
+    l: &Loc,
+) -> Vec<ProjectPhase> {
     let mut phases = Vec::new();
-    for (i, key) in PROJECT_PHASES.iter().enumerate() {
+    for (i, key) in keys.iter().enumerate() {
         let pl = l.field("phasen").index(i);
-        let Some(raw) = p.phases.get(i) else {
+        let Some(raw) = raw_phases.get(i) else {
             ctx.error(&l.field("phasen"), messages::project_phase_missing(key));
             continue;
         };
@@ -1691,9 +1697,16 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
             roles,
         });
     }
-    if p.phases.len() > PROJECT_PHASES.len() {
+    if raw_phases.len() > keys.len() {
         ctx.error(&l.field("phasen"), messages::project_phase_extra());
     }
+    phases
+}
+
+/// Development projects (PD2): six phases in order, each with roles whose effects add up to
+/// one; three tempos and three trims; shares of cost and time add up to one.
+fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
+    let phases = project_phases(ctx, &p.phases, &PROJECT_PHASES, l);
     for (name, total) in [
         (
             "kosten",
@@ -1845,6 +1858,7 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
         },
         reports: project_reports(ctx, p, l),
         events: project_events(ctx, p, l),
+        improvement: project_improvement(ctx, p, l),
     }
 }
 
@@ -1964,6 +1978,114 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         deadline_days: d.deadline_days,
         profiles,
         paths,
+    })
+}
+
+const IMPROVEMENT_PHASES: [&str; 3] = ["wm0_wm1", "wm1_wm2", "wm2_wm3"];
+const IMPROVEMENT_TARGETS: [&str; 6] = [
+    "kosten",
+    "qualitaet",
+    "ausschuss",
+    "rate",
+    "vorprodukte",
+    "ausstattung",
+];
+
+/// Improvement projects WM0–WM3 (PD5): three phases, six targets in a fixed order.
+fn project_improvement(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<ImprovementModel> {
+    let w = p.improvement.as_ref()?;
+    let wl = l.field("weiterentwicklung");
+    let phases = project_phases(ctx, &w.phases, &IMPROVEMENT_PHASES, &wl);
+    for (name, total) in [
+        ("kosten", phases.iter().map(|x| x.cost).sum::<f64>()),
+        ("dauer", phases.iter().map(|x| x.time).sum::<f64>()),
+    ] {
+        if (total - 1.0).abs() > 1e-6 {
+            ctx.error(
+                &wl.field("phasen"),
+                messages::project_shares_sum(name, total),
+            );
+        }
+    }
+    let al = wl.field("ansaetze");
+    if w.approaches.min == 0 || w.approaches.min > w.approaches.max || w.approaches.max > 6 {
+        ctx.error(&al, messages::improvement_approaches());
+    }
+    let mut targets = Vec::new();
+    for (i, key) in IMPROVEMENT_TARGETS.iter().enumerate() {
+        let tl = wl.field("ziele").index(i);
+        let Some(raw) = w.targets.get(i) else {
+            ctx.error(&wl.field("ziele"), messages::project_choice_missing(key));
+            continue;
+        };
+        if raw.id != *key {
+            ctx.error(&tl.field("id"), messages::project_phase_order(&raw.id, key));
+        }
+        let el = tl.field("wirkung");
+        targets.push(ImprovementTarget {
+            key: raw.id.clone(),
+            per_stage: in_range(ctx, raw.per_stage, 0.0, 1.0, &tl.field("je_stufe")),
+            cap: in_range(ctx, raw.cap, 0.0, 1.0, &tl.field("obergrenze")),
+            effect: ImprovementEffect {
+                labor: in_range(ctx, raw.effect.labor, 0.0, 1.0, &el.field("arbeit")),
+                inputs: in_range(ctx, raw.effect.inputs, 0.0, 1.0, &el.field("vorprodukte")),
+                quality: in_range(ctx, raw.effect.quality, 0.0, 50.0, &el.field("qualitaet")),
+                scrap: in_range(ctx, raw.effect.scrap, 0.0, 1.0, &el.field("ausschuss")),
+                output: in_range(ctx, raw.effect.output, 0.0, 1.0, &el.field("menge")),
+            },
+        });
+    }
+    if w.targets.len() > IMPROVEMENT_TARGETS.len() {
+        ctx.error(&wl.field("ziele"), messages::project_phase_extra());
+    }
+    Some(ImprovementModel {
+        stages: w.stages.max(1),
+        rest_share: in_range(ctx, w.rest_share, 0.0, 1.0, &wl.field("restanteil")),
+        effort_share: positive(ctx, w.effort.share, &wl.field("aufwand").field("anteil")),
+        effort_growth: in_range(
+            ctx,
+            w.effort.growth,
+            1.0,
+            5.0,
+            &wl.field("aufwand").field("wachstum"),
+        ),
+        retrofit_days: w.retrofit_days,
+        immediate_cost_share: in_range(
+            ctx,
+            w.immediate_cost_share,
+            0.0,
+            2.0,
+            &wl.field("sofort_kosten_anteil"),
+        ),
+        deadline_days: w.deadline_days.max(1),
+        approaches: (w.approaches.min, w.approaches.max),
+        approach_spread: in_range(ctx, w.approaches.spread, 0.0, 0.9, &al.field("streuung")),
+        approach_cost_slope: non_negative(
+            ctx,
+            w.approaches.cost_slope,
+            &al.field("kosten_steigung"),
+        ),
+        outcome_spread: in_range(
+            ctx,
+            w.outcome.spread,
+            0.0,
+            0.9,
+            &wl.field("ergebnis").field("streuung"),
+        ),
+        outcome_experience: in_range(
+            ctx,
+            w.outcome.experience,
+            0.0,
+            1.0,
+            &wl.field("ergebnis").field("erfahrung"),
+        ),
+        outcome_shortfall: non_negative(
+            ctx,
+            w.outcome.shortfall,
+            &wl.field("ergebnis").field("unterbesetzung"),
+        ),
+        phases,
+        targets,
     })
 }
 

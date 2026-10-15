@@ -1418,6 +1418,93 @@ pub struct RawProjectModel {
     /// Events during the phases, hidden defects and recalls (PD4).
     #[serde(rename = "ereignisse", default)]
     pub events: Option<RawProjectEvents>,
+    /// Improvement projects WM0–WM3 (PD5).
+    #[serde(rename = "weiterentwicklung", default)]
+    pub improvement: Option<RawProjectImprovement>,
+}
+
+/// Improvement projects (PD5): effort, approaches, outcome, phases and targets.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectImprovement {
+    #[serde(rename = "stufen")]
+    pub stages: u8,
+    #[serde(rename = "restanteil")]
+    pub rest_share: f64,
+    #[serde(rename = "aufwand")]
+    pub effort: RawImprovementEffort,
+    #[serde(rename = "umruestung_tage")]
+    pub retrofit_days: u32,
+    #[serde(rename = "sofort_kosten_anteil")]
+    pub immediate_cost_share: f64,
+    #[serde(rename = "frist_tage")]
+    pub deadline_days: u32,
+    #[serde(rename = "ansaetze")]
+    pub approaches: RawImprovementApproaches,
+    #[serde(rename = "ergebnis")]
+    pub outcome: RawImprovementOutcome,
+    #[serde(rename = "phasen")]
+    pub phases: Vec<RawProjectPhase>,
+    #[serde(rename = "ziele")]
+    pub targets: Vec<RawImprovementTarget>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawImprovementEffort {
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "wachstum")]
+    pub growth: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawImprovementApproaches {
+    pub min: u8,
+    pub max: u8,
+    #[serde(rename = "streuung")]
+    pub spread: f64,
+    #[serde(rename = "kosten_steigung")]
+    pub cost_slope: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawImprovementOutcome {
+    #[serde(rename = "streuung")]
+    pub spread: f64,
+    #[serde(rename = "erfahrung")]
+    pub experience: f64,
+    #[serde(rename = "unterbesetzung")]
+    pub shortfall: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawImprovementTarget {
+    pub id: String,
+    #[serde(rename = "je_stufe")]
+    pub per_stage: f64,
+    #[serde(rename = "obergrenze")]
+    pub cap: f64,
+    #[serde(rename = "wirkung")]
+    pub effect: RawImprovementEffect,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawImprovementEffect {
+    #[serde(rename = "arbeit", default)]
+    pub labor: f64,
+    #[serde(rename = "vorprodukte", default)]
+    pub inputs: f64,
+    #[serde(rename = "qualitaet", default)]
+    pub quality: f64,
+    #[serde(rename = "ausschuss", default)]
+    pub scrap: f64,
+    #[serde(rename = "menge", default)]
+    pub output: f64,
 }
 
 /// Event catalogue, hidden defects and recalls (PD4).

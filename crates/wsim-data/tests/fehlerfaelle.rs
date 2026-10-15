@@ -6170,3 +6170,73 @@ fn projektereignisse_werden_geprueft() {
     .laden();
     befund(&falsch, "braucht zwei oder drei Optionen");
 }
+
+#[test]
+fn projektweiterentwicklung_wird_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let rolle = |pm: f64, e: f64, fp: f64, lp: f64| {
+        format!(
+            "          rollen:\n            - {{id: produktmanager, bedarf: 1, wirkung: {pm}}}\n            \
+             - {{id: entwickler, bedarf: 2, wirkung: {e}}}\n            \
+             - {{id: fertigungsplaner, bedarf: 1, wirkung: {fp}}}\n            \
+             - {{id: laborpersonal, bedarf: 1, wirkung: {lp}}}\n"
+        )
+    };
+    let phase = |id: &str, k: f64, d: f64| {
+        format!(
+            "        - id: {id}\n          kosten: {k}\n          dauer: {d}\n{}",
+            rolle(0.25, 0.25, 0.25, 0.25)
+        )
+    };
+    let ziel = |id: &str| {
+        format!(
+            "        - id: {id}\n          je_stufe: 1\n          obergrenze: 0.5\n          \
+             wirkung: {{arbeit: 0.05, qualitaet: 2}}\n"
+        )
+    };
+    let wm = format!(
+        "    weiterentwicklung:\n      stufen: 3\n      restanteil: 0.2\n      aufwand: {{anteil: 0.15, wachstum: 1.5}}\n      \
+         umruestung_tage: 90\n      sofort_kosten_anteil: 0.2\n      frist_tage: 7\n      \
+         ansaetze: {{min: 2, max: 4, streuung: 0.3, kosten_steigung: 0.8}}\n      \
+         ergebnis: {{streuung: 0.3, erfahrung: 0.5, unterbesetzung: 1.5}}\n      phasen:\n{}{}{}      ziele:\n{}{}{}{}{}{}",
+        phase("wm0_wm1", 0.2, 0.25),
+        phase("wm1_wm2", 0.55, 0.5),
+        phase("wm2_wm3", 0.25, 0.25),
+        ziel("kosten"),
+        ziel("qualitaet"),
+        ziel("ausschuss"),
+        ziel("rate"),
+        ziel("vorprodukte"),
+        ziel("ausstattung"),
+    );
+    let block = format!("{}{wm}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let w = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap()
+        .improvement
+        .expect("improvement");
+    assert_eq!((w.phases.len(), w.targets.len(), w.stages), (3, 6, 3));
+
+    let falsch = mit(&block.replace("id: wm1_wm2", "id: wm9")).laden();
+    befund(&falsch, "wm9");
+    let falsch = mit(&block.replace("id: ausschuss", "id: schrott")).laden();
+    befund(&falsch, "schrott");
+    let falsch = mit(&block.replace("kosten: 0.55", "kosten: 0.5")).laden();
+    befund(&falsch, "ergeben");
+    let falsch = mit(&block.replace("min: 2, max: 4", "min: 5, max: 4")).laden();
+    befund(&falsch, "Zahl der Ansätze");
+}

@@ -104,6 +104,7 @@ fn model() -> ProjectModel {
         },
         reports: None,
         events: None,
+        improvement: None,
     }
 }
 

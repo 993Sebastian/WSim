@@ -213,6 +213,67 @@ forschungsmodell:
           optionen:
             - {id: schneller, kosten: 0.00, verzug: -0.30, qualitaet: 0.00, mangel: 0.00}
             - {id: besser, kosten: 0.00, verzug: 0.00, qualitaet: 0.04, mangel: 0.00}
+    # Weiterentwicklungsprojekte WM0–WM3 (PD5, docs/FORMELN.md): eine zweite Schicht über der
+    # Weiterentwicklung nach Punkten (M37). Alle Werte vorläufig.
+    weiterentwicklung:
+      stufen: 3                      # deutliche Stufen je Ziel
+      restanteil: 0.20               # Wirkung jeder weiteren Stufe, Anteil der dritten
+      aufwand: {anteil: 0.15, wachstum: 1.5}   # Punkte der Stufe n = Basis · anteil · wachstum^(n−1)
+      umruestung_tage: 90            # gestaffelte Freigabe: so lange steigt die Wirkung an
+      sofort_kosten_anteil: 0.20     # Freigabe „alle sofort“: Anteil der Projektkosten
+      frist_tage: 7
+      ansaetze: {min: 2, max: 4, streuung: 0.35, kosten_steigung: 0.8}
+      ergebnis: {streuung: 0.30, erfahrung: 0.50, unterbesetzung: 1.5}
+      phasen:
+        - id: wm0_wm1
+          kosten: 0.2
+          dauer: 0.25
+          rollen:
+            - {id: produktmanager, bedarf: 1, wirkung: 0.2}
+            - {id: entwickler, bedarf: 2, wirkung: 0.5}
+            - {id: fertigungsplaner, bedarf: 1, wirkung: 0.2}
+            - {id: laborpersonal, bedarf: 1, wirkung: 0.1}
+        - id: wm1_wm2
+          kosten: 0.55
+          dauer: 0.5
+          rollen:
+            - {id: produktmanager, bedarf: 0, wirkung: 0.05}
+            - {id: entwickler, bedarf: 3, wirkung: 0.55}
+            - {id: fertigungsplaner, bedarf: 2, wirkung: 0.25}
+            - {id: laborpersonal, bedarf: 2, wirkung: 0.15}
+        - id: wm2_wm3
+          kosten: 0.25
+          dauer: 0.25
+          rollen:
+            - {id: produktmanager, bedarf: 1, wirkung: 0.15}
+            - {id: entwickler, bedarf: 1, wirkung: 0.25}
+            - {id: fertigungsplaner, bedarf: 2, wirkung: 0.5}
+            - {id: laborpersonal, bedarf: 1, wirkung: 0.1}
+      ziele:
+        - id: kosten
+          je_stufe: 1.0
+          obergrenze: 0.45
+          wirkung: {arbeit: 0.06, vorprodukte: 0.03}
+        - id: qualitaet
+          je_stufe: 1.0
+          obergrenze: 0.8
+          wirkung: {qualitaet: 4.0}
+        - id: ausschuss
+          je_stufe: 1.0
+          obergrenze: 0.8
+          wirkung: {ausschuss: 0.15}
+        - id: rate
+          je_stufe: 1.0
+          obergrenze: 0.6
+          wirkung: {menge: 0.05}
+        - id: vorprodukte
+          je_stufe: 1.0
+          obergrenze: 0.6
+          wirkung: {vorprodukte: 0.06}
+        - id: ausstattung
+          je_stufe: 1.0
+          obergrenze: 0.6
+          wirkung: {qualitaet: 2.0, menge: 0.025}
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)
