@@ -39,7 +39,9 @@ pub fn scrap_rate_for(
     let b = &catalog.management.branch;
     let factors = scrap_factors(catalog, state, site, sl, recipe);
     // All factors together fall to a floor of the base value only (MG5).
-    (base * factors.max(b.floor_scrap)).clamp(m.scrap_min, m.scrap_max)
+    // The scrap target of the improvement projects (PD5) comes on top of the factors.
+    let improved = crate::development::effect(catalog, state, site.owner, recipe.product).scrap;
+    (base * factors.max(b.floor_scrap) * improved).clamp(m.scrap_min, m.scrap_max)
 }
 
 /// The product of all factors on the scrap rate against its base value (MG5).

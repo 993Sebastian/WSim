@@ -31,6 +31,7 @@ pub mod health;
 pub mod heirs;
 pub mod holdings;
 pub mod ids;
+pub mod improvements;
 pub mod lab_staff;
 pub mod labs;
 pub mod learning;

@@ -3453,6 +3453,12 @@ fn plan_research(
         };
         if crate::projects::enabled(catalog) {
             start_project(state, catalog, id, (c, p));
+            // The best seller gets an improvement project, one at a time (PD5).
+            if let Some(d) = development_target(state, catalog, id, Some(c))
+                && let Some(cmd) = crate::improvements::ai_start(state, catalog, id, (c, d))
+            {
+                run(state, catalog, id, &cmd);
+            }
         } else if state.sites[c.index()].research_product != Some(p) {
             run(
                 state,

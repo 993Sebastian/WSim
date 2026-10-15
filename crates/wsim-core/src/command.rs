@@ -296,6 +296,19 @@ pub enum Command {
         #[serde(default)]
         choice: Option<u8>,
     },
+    /// Starts an improvement project WM0–WM3 for a target of a product (PD5).
+    StartImprovement {
+        site: SiteId,
+        product: ProductId,
+        target: u8,
+        lead: u32,
+    },
+    /// The owner picks one of the approaches the analysis found (PD5, WM1).
+    ChooseApproach { project: u32, approach: u8 },
+    /// The owner releases the gain at once or step by step (PD5, WM3).
+    ReleaseImprovement { project: u32, immediate: bool },
+    /// Stops an improvement project (PD5).
+    AbortImprovement { project: u32 },
     /// The owner chooses an option of the event a project waits for (PD4).
     DecideEvent { project: u32, option: u8 },
     /// A project on hold goes on (PD3).
@@ -2742,6 +2755,23 @@ fn run(
             choice,
         } => {
             crate::project_reports::decide(state, catalog, actor, *project, (*decision, *choice))?;
+        }
+        Command::StartImprovement {
+            site,
+            product,
+            target,
+            lead,
+        } => {
+            crate::improvements::start(state, catalog, actor, (*site, *product, *target, *lead))?;
+        }
+        Command::ChooseApproach { project, approach } => {
+            crate::improvements::choose(state, actor, *project, *approach)?;
+        }
+        Command::ReleaseImprovement { project, immediate } => {
+            crate::improvements::release_command(state, catalog, actor, *project, *immediate)?;
+        }
+        Command::AbortImprovement { project } => {
+            crate::improvements::abort(state, actor, *project)?;
         }
         Command::DecideEvent { project, option } => {
             crate::project_events::decide(state, catalog, actor, *project, *option)?;

@@ -23,6 +23,8 @@ pub struct Effect {
     pub inputs: f64,
     /// Factor on the output of the main product per run (manufacturing research, Q6).
     pub output: f64,
+    /// Factor on the scrap rate (improvement projects, PD5).
+    pub scrap: f64,
 }
 
 impl Effect {
@@ -31,6 +33,7 @@ impl Effect {
         labor: 1.0,
         inputs: 1.0,
         output: 1.0,
+        scrap: 1.0,
     };
 
     /// The effect of a level (0–1 of the leader's points) at a maturity (0–1).
@@ -41,6 +44,7 @@ impl Effect {
             labor: 1.0 - m.labor_max * level * maturity,
             inputs: 1.0 - m.inputs_max * level * maturity,
             output: 1.0,
+            scrap: 1.0,
         }
     }
 
@@ -97,6 +101,18 @@ pub fn maturity(catalog: &Catalog, state: &GameState, product: ProductId) -> f64
 
 /// What the company's level of a product changes in its recipes for it.
 pub fn effect(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    product: ProductId,
+) -> Effect {
+    let mut e = base_effect(catalog, state, company, product);
+    crate::improvements::apply(catalog, state, company, product, &mut e);
+    e
+}
+
+/// `effect` without the improvement projects (PD5).
+fn base_effect(
     catalog: &Catalog,
     state: &GameState,
     company: CompanyId,

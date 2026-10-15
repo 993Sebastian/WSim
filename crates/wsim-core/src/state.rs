@@ -2178,6 +2178,12 @@ pub struct GameState {
     /// Who decides at the milestones of a company's projects (PD3); missing: standard.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub project_delegation: BTreeMap<CompanyId, crate::project_reports::DelegationMode>,
+    /// Improvement projects WM0–WM3 of all companies (PD5).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub improvement_projects: Vec<crate::improvements::ImprovementProject>,
+    /// Stages the companies released, sorted by company, product and target (PD5).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub improved: Vec<crate::improvements::Improved>,
     /// Recalls of released products with a hidden defect (PD4).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub recalls: Vec<crate::project_events::Recall>,
@@ -2739,6 +2745,7 @@ impl GameState {
         self.developments
             .resize_with(catalog.products.len(), Vec::new);
         crate::development::fit_loaded(self, catalog);
+        crate::improvements::fit_loaded(self);
         crate::contracts::fit_loaded(self);
         self.milestones
             .resize_with(catalog.milestones.len(), || None);

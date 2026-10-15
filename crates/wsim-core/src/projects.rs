@@ -184,7 +184,7 @@ pub fn enabled(catalog: &Catalog) -> bool {
     catalog.research_model.projects.is_some()
 }
 
-fn scale(m: &ProjectModel, effort: f64) -> f64 {
+pub(crate) fn scale(m: &ProjectModel, effort: f64) -> f64 {
     crate::math::pow(effort / m.reference_effort, m.need_exponent)
 }
 
@@ -198,7 +198,7 @@ pub fn need(m: &ProjectModel, phase: usize, role: LabRole, effort: f64) -> u32 {
 }
 
 /// Gain in speed of a role by its staffing q (assigned / need).
-fn gain(m: &ProjectModel, q: f64) -> f64 {
+pub(crate) fn gain(m: &ProjectModel, q: f64) -> f64 {
     if q >= 1.0 {
         1.0 + m.over_max * (1.0 - crate::math::exp(-(q - 1.0) / m.over_tau))
     } else {
@@ -512,7 +512,7 @@ pub(crate) fn dismiss_lead(
     actor: CompanyId,
     lead: u32,
 ) -> Result<(), CommandError> {
-    if lead_busy(state, lead) > 0 {
+    if lead_busy(state, lead) > 0 || crate::improvements::lead_busy(state, lead) {
         return Err(CommandError::LeadUnavailable);
     }
     let date = state.date;
@@ -608,6 +608,8 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         // The phase is done: the milestones it ends at.
         news.extend(on_phase_end(state, catalog, index, date));
     }
+    // Improvement projects take the people the development projects left free (PD5).
+    news.extend(crate::improvements::simulate_day(state, catalog, date));
     news
 }
 

@@ -237,6 +237,10 @@ pub mod keys {
     pub const PROJECT_DECISION_DUE: &str = "meldung.projekt_entscheidung_faellig";
     pub const PROJECT_DECIDED: &str = "meldung.projekt_entschieden";
     pub const PROJECT_AUTO_DECIDED: &str = "meldung.projekt_automatisch_entschieden";
+    pub const IMPROVEMENT_CHOOSE: &str = "meldung.weiterentwicklung_ansaetze";
+    pub const IMPROVEMENT_RESULT: &str = "meldung.weiterentwicklung_ergebnis";
+    pub const IMPROVEMENT_RELEASE: &str = "meldung.weiterentwicklung_freigabe";
+    pub const IMPROVEMENT_DONE: &str = "meldung.weiterentwicklung_fertig";
     pub const PROJECT_EVENT: &str = "meldung.projekt_ereignis";
     pub const PROJECT_EVENT_DECIDED: &str = "meldung.projekt_ereignis_entschieden";
     pub const PROJECT_EVENT_AUTO: &str = "meldung.projekt_ereignis_automatisch";
@@ -686,6 +690,10 @@ pub mod keys {
         PROJECT_DECISION_DUE,
         PROJECT_DECIDED,
         PROJECT_AUTO_DECIDED,
+        IMPROVEMENT_CHOOSE,
+        IMPROVEMENT_RESULT,
+        IMPROVEMENT_RELEASE,
+        IMPROVEMENT_DONE,
         PROJECT_EVENT,
         PROJECT_EVENT_DECIDED,
         PROJECT_EVENT_AUTO,

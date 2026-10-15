@@ -927,3 +927,295 @@ fn without_the_event_block_nothing_happens() {
     let p = &game.state().dev_projects[0];
     assert!(p.event.is_none() && p.event_phase.is_none() && game.state().recalls.is_empty());
 }
+
+use crate::catalog::{ImprovementEffect, ImprovementModel, ImprovementTarget};
+use crate::improvements::{self, ImpPendingKind, ImpStatus};
+
+fn improvement_model() -> ImprovementModel {
+    let r = [(1.0, 0.1), (2.0, 0.6), (1.0, 0.1), (1.0, 0.2)];
+    let target = |key: &str, effect: ImprovementEffect| ImprovementTarget {
+        key: key.into(),
+        per_stage: 0.1,
+        cap: 0.9,
+        effect,
+    };
+    let none = ImprovementEffect::default();
+    ImprovementModel {
+        stages: 3,
+        rest_share: 0.2,
+        effort_share: 0.15,
+        effort_growth: 1.5,
+        retrofit_days: 90,
+        immediate_cost_share: 0.2,
+        deadline_days: 5,
+        approaches: (2, 4),
+        approach_spread: 0.35,
+        approach_cost_slope: 0.8,
+        outcome_spread: 0.3,
+        outcome_experience: 0.5,
+        outcome_shortfall: 1.5,
+        phases: vec![
+            phase("wm0_wm1", (0.2, 0.25), r),
+            phase("wm1_wm2", (0.55, 0.5), r),
+            phase("wm2_wm3", (0.25, 0.25), r),
+        ],
+        targets: vec![
+            target(
+                "kosten",
+                ImprovementEffect {
+                    labor: 1.0,
+                    inputs: 0.5,
+                    ..none
+                },
+            ),
+            target(
+                "qualitaet",
+                ImprovementEffect {
+                    quality: 20.0,
+                    ..none
+                },
+            ),
+            target("ausschuss", ImprovementEffect { scrap: 1.0, ..none }),
+            target(
+                "rate",
+                ImprovementEffect {
+                    output: 1.0,
+                    ..none
+                },
+            ),
+            target(
+                "vorprodukte",
+                ImprovementEffect {
+                    inputs: 1.0,
+                    ..none
+                },
+            ),
+            target(
+                "ausstattung",
+                ImprovementEffect {
+                    quality: 10.0,
+                    output: 0.5,
+                    ..none
+                },
+            ),
+        ],
+    }
+}
+
+/// A lab with developers and an employed leader; iron is known from the start.
+fn improvement_game() -> (Game, SiteId, u32, ProductId) {
+    let mut c = catalog();
+    c.research_model.projects.as_mut().unwrap().improvement = Some(improvement_model());
+    let mut game = crate::product_research_tests::new_game(c);
+    let site = lab(&mut game);
+    days(&mut game, 15);
+    let posts = crate::lab_staff::capacity(
+        game.catalog(),
+        &game.state().sites[site.index()],
+        game.date(),
+    )
+    .floor() as u32;
+    game.apply(Command::HireLabStaff {
+        site,
+        role: LabRole::Developer,
+        count: posts,
+    })
+    .unwrap();
+    let lead = game
+        .state()
+        .project_leads
+        .iter()
+        .position(|l| l.employer.is_none())
+        .expect("the market has leaders") as u32;
+    game.apply(Command::HireProjectLead { lead }).unwrap();
+    let iron = game.catalog().products.id("eisen").unwrap();
+    (game, site, lead, iron)
+}
+
+fn start_improvement(game: &mut Game, site: SiteId, lead: u32, iron: ProductId, target: u8) {
+    game.apply(Command::StartImprovement {
+        site,
+        product: iron,
+        target,
+        lead,
+    })
+    .unwrap();
+}
+
+/// Runs the project to the end, choosing approach 0 and releasing as asked.
+fn run_improvement(game: &mut Game, index: usize, immediate: bool) {
+    for _ in 0..6000 {
+        match game.state().improvement_projects[index]
+            .pending
+            .map(|p| p.kind)
+        {
+            Some(ImpPendingKind::Choose) => game
+                .apply(Command::ChooseApproach {
+                    project: index as u32,
+                    approach: 0,
+                })
+                .unwrap(),
+            Some(ImpPendingKind::Release) => game
+                .apply(Command::ReleaseImprovement {
+                    project: index as u32,
+                    immediate,
+                })
+                .unwrap(),
+            None => {}
+        }
+        if game.state().improvement_projects[index].status != ImpStatus::Running {
+            return;
+        }
+        days(game, 1);
+    }
+    panic!("the improvement did not finish");
+}
+
+#[test]
+fn improvement_projects_follow_the_rules_of_leaders_and_targets() {
+    let (mut game, site, lead, iron) = improvement_game();
+    start_improvement(&mut game, site, lead, iron, 0);
+    // The same target twice is refused, another target works, the third exceeds the leader.
+    assert_eq!(
+        game.apply(Command::StartImprovement {
+            site,
+            product: iron,
+            target: 0,
+            lead
+        }),
+        Err(CommandError::ProjectExists)
+    );
+    start_improvement(&mut game, site, lead, iron, 1);
+    assert_eq!(
+        game.apply(Command::StartImprovement {
+            site,
+            product: iron,
+            target: 2,
+            lead
+        }),
+        Err(CommandError::LeadUnavailable)
+    );
+    assert_eq!(
+        game.apply(Command::StartImprovement {
+            site,
+            product: iron,
+            target: 9,
+            lead
+        }),
+        Err(CommandError::InvalidQuantity)
+    );
+    // A leader of improvement projects cannot be dismissed.
+    assert!(game.apply(Command::DismissProjectLead { lead }).is_err());
+}
+
+#[test]
+fn an_improvement_runs_through_the_milestones_and_takes_effect_step_by_step() {
+    let (mut game, site, lead, iron) = improvement_game();
+    let player = game.player();
+    start_improvement(&mut game, site, lead, iron, 0);
+    let c = game.catalog().clone();
+    let before = crate::development::effect(&c, game.state(), player, iron);
+    // The analysis waits for the player's choice.
+    let mut chosen = false;
+    for _ in 0..4000 {
+        if game.state().improvement_projects[0].pending.map(|p| p.kind)
+            == Some(ImpPendingKind::Choose)
+        {
+            chosen = true;
+            break;
+        }
+        days(&mut game, 1);
+    }
+    assert!(chosen, "the analysis finds approaches");
+    let p = &game.state().improvement_projects[0];
+    assert!((2..=4).contains(&p.approaches.len()));
+    assert_eq!(
+        game.apply(Command::ChooseApproach {
+            project: 0,
+            approach: 9
+        }),
+        Err(CommandError::InvalidQuantity)
+    );
+    run_improvement(&mut game, 0, false);
+    let p = &game.state().improvement_projects[0];
+    assert_eq!(p.status, ImpStatus::Released);
+    assert!(p.spent > crate::money::Money::ZERO);
+    assert_eq!(improvements::stages_done(game.state(), player, iron, 0), 1);
+    // Step by step: no effect on the release day, the full effect after the ramp.
+    let day0 = crate::development::effect(&c, game.state(), player, iron);
+    assert!((day0.labor - before.labor).abs() < 1e-9);
+    days(&mut game, 90);
+    let full = crate::development::effect(&c, game.state(), player, iron);
+    let gain = game.state().improved[0].stages[0].gain;
+    assert!((full.labor - before.labor * (1.0 - 0.1 * gain)).abs() < 1e-9);
+    assert!(full.inputs < before.inputs);
+    assert!((full.output - before.output).abs() < 1e-12);
+    assert!(game.state().companies[player.index()].ledger.is_balanced());
+}
+
+#[test]
+fn an_immediate_release_costs_money_and_works_at_once() {
+    let (mut game, site, lead, iron) = improvement_game();
+    let player = game.player();
+    start_improvement(&mut game, site, lead, iron, 3);
+    let c = game.catalog().clone();
+    let before = crate::development::effect(&c, game.state(), player, iron);
+    run_improvement(&mut game, 0, true);
+    let now = crate::development::effect(&c, game.state(), player, iron);
+    assert!(now.output > before.output);
+    let p = &game.state().improvement_projects[0];
+    assert!(p.spent.to_usd() > 0.0);
+}
+
+#[test]
+fn the_leader_decides_alone_when_the_owner_leaves_everything_to_him() {
+    let (mut game, site, lead, iron) = improvement_game();
+    let player = game.player();
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: crate::project_reports::DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    start_improvement(&mut game, site, lead, iron, 2);
+    for _ in 0..6000 {
+        assert!(game.state().improvement_projects[0].pending.is_none());
+        if game.state().improvement_projects[0].status != ImpStatus::Running {
+            break;
+        }
+        days(&mut game, 1);
+    }
+    assert_eq!(
+        game.state().improvement_projects[0].status,
+        ImpStatus::Released
+    );
+    let c = game.catalog().clone();
+    days(&mut game, 100);
+    let e = crate::development::effect(&c, game.state(), player, iron);
+    assert!(e.scrap < 1.0);
+}
+
+#[test]
+fn further_stages_bring_a_fifth_and_the_cap_limits_the_sum() {
+    let (mut game, _, _, iron) = improvement_game();
+    let player = game.player();
+    let c = game.catalog().clone();
+    let date = game.date();
+    let stage = |gain| improvements::ReleasedStage {
+        gain,
+        released: date.add_days(-1000),
+        ramp_days: 0,
+    };
+    // Four stages of gain 1: 3 · 1 + 0.2 = 3.2 units, 0.1 each.
+    game.state_mut().improved.push(improvements::Improved {
+        company: player,
+        product: iron,
+        target: 1,
+        stages: vec![stage(1.0); 4],
+    });
+    let e = crate::development::effect(&c, game.state(), player, iron);
+    assert!((e.quality - 20.0 * 0.32).abs() < 1e-9);
+    // Twenty units run into the cap of 0.9.
+    game.state_mut().improved[0].stages = vec![stage(5.0); 4];
+    let e = crate::development::effect(&c, game.state(), player, iron);
+    assert!((e.quality - 20.0 * 0.9).abs() < 1e-9);
+}

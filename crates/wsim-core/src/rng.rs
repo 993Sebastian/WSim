@@ -120,6 +120,14 @@ pub enum Stream {
         project: u32,
         milestone: u8,
     },
+    /// The approaches the analysis of an improvement project finds (PD5).
+    ProjectApproach {
+        project: u32,
+    },
+    /// The result of an improvement project (PD5).
+    ProjectOutcome {
+        project: u32,
+    },
     /// An event in a phase of a project on a day (PD4).
     ProjectEvent {
         project: u32,
@@ -256,6 +264,8 @@ impl Stream {
                 (39 << 56) | (u64::from(project) << 24) | u64::from(day)
             }
             Stream::ProjectDefect { project } => (40 << 56) | u64::from(project),
+            Stream::ProjectApproach { project } => (41 << 56) | u64::from(project),
+            Stream::ProjectOutcome { project } => (42 << 56) | u64::from(project),
             Stream::ProjectLeads { continent, month } => {
                 (37 << 56) | (u64::from(continent) << 32) | u64::from(month)
             }

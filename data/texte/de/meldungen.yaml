@@ -287,6 +287,10 @@ meldung.projekt_ereignis: "Entwicklung {produkt}: {ereignis} – das Projekt war
 meldung.projekt_ereignis_entschieden: "Entwicklung {produkt}: {ereignis} – gewählt: {option}."
 meldung.projekt_ereignis_automatisch: "Entwicklung {produkt}: {ereignis} – der Projektleiter hat entschieden: {option}."
 meldung.projekt_rueckruf: "Rückruf bei {produkt}: Ein verborgener Mangel kostet {kosten} und schadet dem Ruf der Marke."
+meldung.weiterentwicklung_ansaetze: "Weiterentwicklung {produkt} ({ziel}): Die Analyse hat Ansatzpunkte gefunden – bitte wählen."
+meldung.weiterentwicklung_ergebnis: "Weiterentwicklung {produkt} ({ziel}): Ergebnis {erreicht} bei erwarteten {erwartet}."
+meldung.weiterentwicklung_freigabe: "Weiterentwicklung {produkt} ({ziel}) ist bereit zur Freigabe – bitte wählen."
+meldung.weiterentwicklung_fertig: "Weiterentwicklung {produkt} ({ziel}) ist freigegeben."
 fehler.befehl.keine_entscheidung: Bei diesem Projekt wartet keine Entscheidung.
 fehler.befehl.vorschlag_aufschub: Nur ein Strategievorschlag lässt sich zurückstellen, und nur einmal.
 fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.

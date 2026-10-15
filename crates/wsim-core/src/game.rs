@@ -220,6 +220,8 @@ impl Game {
             project_delegation: BTreeMap::new(),
             project_news: Vec::new(),
             recalls: Vec::new(),
+            improvement_projects: Vec::new(),
+            improved: Vec::new(),
             concerns: Vec::new(),
             next_concern: 0,
             followups: Vec::new(),
