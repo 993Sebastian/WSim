@@ -2181,6 +2181,12 @@ pub struct GameState {
     /// Product suggestions of the strategy (PD6); the index is their number.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub product_suggestions: Vec<crate::project_suggestions::Suggestion>,
+    /// What companies keep of aborted projects, sorted by company and product (PD8).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub project_knowledge: Vec<crate::project_deals::Knowledge>,
+    /// Licence fees between companies (PD8).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub project_royalties: Vec<crate::project_deals::Royalty>,
     /// Improvement projects WM0–WM3 of all companies (PD5).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub improvement_projects: Vec<crate::improvements::ImprovementProject>,

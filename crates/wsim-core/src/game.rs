@@ -221,6 +221,8 @@ impl Game {
             project_news: Vec::new(),
             recalls: Vec::new(),
             product_suggestions: Vec::new(),
+            project_knowledge: Vec::new(),
+            project_royalties: Vec::new(),
             improvement_projects: Vec::new(),
             improved: Vec::new(),
             concerns: Vec::new(),

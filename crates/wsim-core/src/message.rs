@@ -232,6 +232,9 @@ pub mod keys {
     pub const COMMAND_USE_PROJECTS: &str = "fehler.befehl.nur_ueber_projekte";
     pub const COMMAND_UNKNOWN_PROJECT: &str = "fehler.befehl.projekt_unbekannt";
     pub const COMMAND_UNKNOWN_SUGGESTION: &str = "fehler.befehl.vorschlag_unbekannt";
+    pub const COMMAND_LICENSE_UNAVAILABLE: &str = "fehler.befehl.lizenz_nicht_moeglich";
+    pub const COMMAND_PARTNER_UNAVAILABLE: &str = "fehler.befehl.partner_nicht_moeglich";
+    pub const COMMAND_PARTNERSHIP_DECLINED: &str = "fehler.befehl.partnerschaft_abgelehnt";
     pub const COMMAND_LEAD_UNAVAILABLE: &str = "fehler.befehl.projektleiter_nicht_verfuegbar";
     pub const COMMAND_PROJECT_EXISTS: &str = "fehler.befehl.projekt_laeuft_schon";
     pub const PROJECT_MILESTONE: &str = "meldung.projekt_meilenstein";
@@ -690,6 +693,9 @@ pub mod keys {
         COMMAND_USE_PROJECTS,
         COMMAND_UNKNOWN_PROJECT,
         COMMAND_UNKNOWN_SUGGESTION,
+        COMMAND_LICENSE_UNAVAILABLE,
+        COMMAND_PARTNER_UNAVAILABLE,
+        COMMAND_PARTNERSHIP_DECLINED,
         COMMAND_LEAD_UNAVAILABLE,
         COMMAND_PROJECT_EXISTS,
         PROJECT_MILESTONE,

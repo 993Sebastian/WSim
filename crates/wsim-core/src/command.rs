@@ -305,6 +305,17 @@ pub enum Command {
     },
     /// Declines a product suggestion (PD6).
     DeclineSuggestion { suggestion: u32 },
+    /// Buys the know-how of a released project of another company and starts the own
+    /// project in a later phase (PD8).
+    BuyProjectLicense {
+        seller_project: u32,
+        site: SiteId,
+        lead: u32,
+        tempo: u8,
+        trim: u8,
+    },
+    /// Proposes an AI company to share the costs of a project and get the product too (PD8).
+    ProposePartnership { project: u32, partner: CompanyId },
     /// Starts an improvement project WM0–WM3 for a target of a product (PD5).
     StartImprovement {
         site: SiteId,
@@ -876,6 +887,12 @@ pub enum CommandError {
     UnknownProject,
     /// No such open suggestion (PD6).
     UnknownSuggestion,
+    /// The project cannot be licensed to this company (PD8).
+    LicenseUnavailable,
+    /// The company cannot be a partner of this project (PD8).
+    PartnerUnavailable,
+    /// The company declined the partnership (PD8).
+    PartnershipDeclined,
     /// The project leader is not the company's or is busy (PD2).
     LeadUnavailable,
     /// The company develops this product already (PD2).
@@ -1226,6 +1243,9 @@ impl CommandError {
             CommandError::UseProjects => e(keys::COMMAND_USE_PROJECTS),
             CommandError::UnknownProject => e(keys::COMMAND_UNKNOWN_PROJECT),
             CommandError::UnknownSuggestion => e(keys::COMMAND_UNKNOWN_SUGGESTION),
+            CommandError::LicenseUnavailable => e(keys::COMMAND_LICENSE_UNAVAILABLE),
+            CommandError::PartnerUnavailable => e(keys::COMMAND_PARTNER_UNAVAILABLE),
+            CommandError::PartnershipDeclined => e(keys::COMMAND_PARTNERSHIP_DECLINED),
             CommandError::LeadUnavailable => e(keys::COMMAND_LEAD_UNAVAILABLE),
             CommandError::ProjectExists => e(keys::COMMAND_PROJECT_EXISTS),
             CommandError::NothingToDecide => e(keys::COMMAND_NOTHING_TO_DECIDE),
@@ -2759,7 +2779,7 @@ fn run(
             crate::projects::auto_assign(state, actor, *project)?;
         }
         Command::AbortProject { project } => {
-            crate::projects::abort(state, actor, *project)?;
+            crate::projects::abort(state, catalog, actor, *project)?;
         }
         Command::DecideMilestone {
             project,
@@ -2784,6 +2804,25 @@ fn run(
         }
         Command::DeclineSuggestion { suggestion } => {
             crate::project_suggestions::decline(state, actor, *suggestion)?;
+        }
+        Command::BuyProjectLicense {
+            seller_project,
+            site,
+            lead,
+            tempo,
+            trim,
+        } => {
+            crate::project_deals::buy_license(
+                state,
+                catalog,
+                actor,
+                *seller_project,
+                (*site, *lead),
+                (*tempo, *trim),
+            )?;
+        }
+        Command::ProposePartnership { project, partner } => {
+            crate::project_deals::propose(state, catalog, actor, *project, *partner)?;
         }
         Command::StartImprovement {
             site,

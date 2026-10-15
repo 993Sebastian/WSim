@@ -113,6 +113,11 @@ fn hypothetical(
         event_phase: None,
         defect: 0.0,
         bonus_quality: 0.0,
+        head_start: 0.0,
+        platform: 0.0,
+        license: None,
+        partner: None,
+        origin: None,
         fast_track: false,
         pilot: 0,
         shortfall_sum: 0.0,
@@ -442,6 +447,10 @@ pub(crate) fn ai_accept(
                 .iter()
                 .any(|p| p.running() && p.lead as usize == l)
     })?;
+    if let Some(buy) = crate::project_deals::ai_license(state, catalog, company, index, id32(lead))
+    {
+        return Some(buy);
+    }
     let _ = s;
     Some(crate::command::Command::StartSuggestedProject {
         suggestion: id32(index),

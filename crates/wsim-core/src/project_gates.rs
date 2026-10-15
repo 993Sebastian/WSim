@@ -55,6 +55,10 @@ pub fn phase_adjust(m: &ProjectModel, p: &DevProject, phase: usize) -> (f64, f64
         time *= 1.0 + x.duration_share;
         cost *= 1.0 + x.cost_share;
     }
+    if matches!(phase, 3 | 4) && p.platform > 0.0 {
+        time *= 1.0 - p.platform;
+        cost *= 1.0 - p.platform;
+    }
     (time, cost)
 }
 

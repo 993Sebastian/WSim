@@ -636,6 +636,7 @@ fn apply(
             if let Some(l) = state.project_leads.get_mut(lead) {
                 l.aborted += 1;
             }
+            crate::project_deals::keep_knowledge(state, catalog, index);
         }
     }
     if milestone == 7 && matches!(decision, Decision::Continue | Decision::Conditions) {

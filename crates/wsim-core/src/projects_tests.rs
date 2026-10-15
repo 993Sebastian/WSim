@@ -287,6 +287,11 @@ fn staffing_changes_the_duration_but_not_the_cost() {
             event_phase: None,
             defect: 0.0,
             bonus_quality: 0.0,
+            head_start: 0.0,
+            platform: 0.0,
+            license: None,
+            partner: None,
+            origin: None,
             fast_track: false,
             pilot: 0,
             shortfall_sum: 0.0,
@@ -1708,4 +1713,226 @@ fn the_player_takes_or_declines_the_pilot_at_pm6() {
     })
     .unwrap();
     assert_eq!(game.state().dev_projects[0].pilot, 0);
+}
+
+// --- PD8: partial knowledge, platform, licence, partnership ---
+
+use crate::catalog::{DevPartnershipModel, KnowledgeModel, PlatformModel, ProjectLicenseModel};
+
+fn deals_game(partner_accepts: f64) -> Game {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.risk.base = 0.0;
+    m.reports = Some(report_model());
+    m.knowledge = Some(KnowledgeModel {
+        share: 0.6,
+        effect: 0.5,
+    });
+    m.platform = Some(PlatformModel { effect: 0.4 });
+    m.license = Some(ProjectLicenseModel {
+        price_share: 0.5,
+        from_phase: 4,
+        fee_share: 0.1,
+        fee_years: 5,
+    });
+    m.partnership = Some(DevPartnershipModel {
+        cost_share: 0.5,
+        ai_accept: partner_accepts,
+    });
+    let mut game = crate::product_research_tests::new_game(c);
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    game
+}
+
+/// An AI company that does nothing by itself (its decisions are far in the future).
+fn ai_company(game: &mut Game) -> crate::state::CompanyId {
+    use crate::state::AiState;
+    let state = game.state_mut();
+    let mut rival = state.companies[0].clone();
+    "Rivale AG".clone_into(&mut rival.name);
+    rival.ledger = crate::ledger::Ledger::new(
+        state.date,
+        crate::money::Money::from_usd(50_000_000.0).unwrap(),
+    );
+    rival.positions.clear();
+    rival.ai = Some(AiState {
+        competence: 0.5,
+        aggressiveness: 0.5,
+        real: None,
+        next_operations: crate::calendar::Date::new(2100, 1, 1).unwrap(),
+        staff: 0.0,
+    });
+    state.companies.push(rival);
+    crate::state::CompanyId(u32::try_from(state.companies.len() - 1).unwrap())
+}
+
+#[test]
+fn an_aborted_project_leaves_knowledge_that_shortens_the_next_one() {
+    let mut game = deals_game(1.0);
+    let (_, lead) = running(&mut game);
+    // Work until the project is well on its way, then abort it.
+    for _ in 0..3000 {
+        if game.state().dev_projects[0].phase >= 3 {
+            break;
+        }
+        days(&mut game, 1);
+    }
+    let product = game.state().dev_projects[0].product;
+    let company = game.state().dev_projects[0].company;
+    game.apply(Command::AbortProject { project: 0 }).unwrap();
+    let k = crate::project_deals::knowledge_of(game.state(), company, product);
+    assert!(k > 0.0 && k <= 0.6, "{k}");
+    // The next project of the product starts with a head start.
+    let site = game.state().dev_projects[0].site;
+    game.apply(Command::StartProject {
+        site,
+        product,
+        lead,
+        tempo: 1,
+        trim: 1,
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[1];
+    assert!((p.head_start - 0.5 * k).abs() < 1e-9);
+    let m = game.catalog().research_model.projects.clone().unwrap();
+    let f = projects::factors(&m, p);
+    assert!((f.time - (1.0 - p.head_start)).abs() < 1e-9 || f.time < 1.0);
+    // Release removes the partial knowledge.
+    run_out_all(&mut game);
+    assert_eq!(game.state().dev_projects[1].status, ProjectStatus::Released);
+    assert_eq!(
+        crate::project_deals::knowledge_of(game.state(), company, product),
+        0.0
+    );
+}
+
+fn run_out_all(game: &mut Game) {
+    for _ in 0..3000 {
+        if game.state().dev_projects.iter().all(|p| !p.running()) {
+            break;
+        }
+        days(game, 1);
+    }
+}
+
+#[test]
+fn known_components_shorten_the_middle_phases() {
+    let mut game = deals_game(1.0);
+    running(&mut game);
+    let mut p = game.state().dev_projects[0].clone();
+    let m = game.catalog().research_model.projects.clone().unwrap();
+    p.platform = 0.0;
+    assert!((project_gates::phase_adjust(&m, &p, 3).0 - 1.0).abs() < 1e-9);
+    p.platform = 0.4;
+    let (time, cost) = project_gates::phase_adjust(&m, &p, 3);
+    assert!((time - 0.6).abs() < 1e-9 && (cost - 0.6).abs() < 1e-9);
+    assert!((project_gates::phase_adjust(&m, &p, 1).0 - 1.0).abs() < 1e-9);
+}
+
+#[test]
+fn a_licence_buys_the_know_how_and_the_fees_run_after_the_release() {
+    let mut game = deals_game(1.0);
+    let techs = game.state().companies[0].technologies.clone();
+    let (site, lead) = running(&mut game);
+    run_out_all(&mut game);
+    let original = game.state().dev_projects[0].clone();
+    assert_eq!(original.status, ProjectStatus::Released);
+    // Another company owns the released project; the player does not know the product.
+    let seller = ai_company(&mut game);
+    let buyer = original.company;
+    game.state_mut().dev_projects[0].company = seller;
+    game.state_mut().companies[buyer.index()]
+        .known_products
+        .remove(&original.product);
+    game.state_mut().companies[buyer.index()].technologies = techs;
+    let cash = |g: &Game, c: crate::state::CompanyId| g.state().companies[c.index()].ledger.cash();
+    let (buyer_before, seller_before) = (cash(&game, buyer), cash(&game, seller));
+    game.apply(Command::BuyProjectLicense {
+        seller_project: 0,
+        site,
+        lead,
+        tempo: 1,
+        trim: 1,
+    })
+    .unwrap();
+    let p = &game.state().dev_projects[1];
+    assert_eq!(p.phase, 4);
+    assert_eq!(p.license.map(|l| l.seller), Some(seller));
+    assert!(cash(&game, buyer) < buyer_before);
+    assert!(cash(&game, seller) > seller_before);
+    // The licensed project is cheaper than the original and runs fees after the release.
+    run_out_all(&mut game);
+    let p = &game.state().dev_projects[1];
+    assert_eq!(p.status, ProjectStatus::Released);
+    assert!(p.spent < original.spent);
+    assert_eq!(game.state().project_royalties.len(), 1);
+    let before = cash(&game, buyer);
+    days(&mut game, 35);
+    assert!(cash(&game, buyer) < before);
+    // Buying again, or buying what one knows, is refused.
+    assert_eq!(
+        game.apply(Command::BuyProjectLicense {
+            seller_project: 0,
+            site,
+            lead,
+            tempo: 1,
+            trim: 1,
+        }),
+        Err(CommandError::LicenseUnavailable)
+    );
+}
+
+#[test]
+fn a_partner_carries_its_share_and_gets_the_product() {
+    let mut game = deals_game(1.0);
+    running(&mut game);
+    let partner = ai_company(&mut game);
+    let product = game.state().dev_projects[0].product;
+    game.state_mut().companies[partner.index()]
+        .known_products
+        .remove(&product);
+    let before = game.state().companies[partner.index()].ledger.cash();
+    game.apply(Command::ProposePartnership {
+        project: 0,
+        partner,
+    })
+    .unwrap();
+    assert_eq!(game.state().dev_projects[0].partner, Some((partner, 0.5)));
+    // A second partner is refused.
+    assert_eq!(
+        game.apply(Command::ProposePartnership {
+            project: 0,
+            partner,
+        }),
+        Err(CommandError::UnknownProject)
+    );
+    run_out_all(&mut game);
+    let p = &game.state().dev_projects[0];
+    assert_eq!(p.status, ProjectStatus::Released);
+    let c = &game.state().companies[partner.index()];
+    assert!(c.known_products.contains(&product));
+    assert!(c.ledger.cash() < before);
+}
+
+#[test]
+fn a_company_can_decline_the_partnership() {
+    let mut game = deals_game(0.0);
+    running(&mut game);
+    let partner = ai_company(&mut game);
+    let product = game.state().dev_projects[0].product;
+    game.state_mut().companies[partner.index()]
+        .known_products
+        .remove(&product);
+    assert_eq!(
+        game.apply(Command::ProposePartnership {
+            project: 0,
+            partner,
+        }),
+        Err(CommandError::PartnershipDeclined)
+    );
+    assert!(game.state().dev_projects[0].partner.is_none());
 }

@@ -58,6 +58,7 @@ mod procurement_tests;
 pub mod product_names;
 pub mod product_research;
 pub mod production;
+pub mod project_deals;
 pub mod project_events;
 pub mod project_gates;
 pub mod project_reports;

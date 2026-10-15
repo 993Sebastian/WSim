@@ -291,6 +291,9 @@ meldung.projekt_ereignis_automatisch: "Entwicklung {produkt}: {ereignis} – der
 meldung.projekt_rueckruf: "Rückruf bei {produkt}: Ein verborgener Mangel kostet {kosten} und schadet dem Ruf der Marke."
 meldung.produktvorschlag: "Neuer Produktvorschlag der Strategie: {produkt}."
 meldung.nachkalkulation: "Nachkalkulation {produkt}: Wert {wert} gegenüber der Zusage."
+fehler.befehl.lizenz_nicht_moeglich: Für dieses Projekt gibt es keine Lizenz, oder du kennst das Produkt schon.
+fehler.befehl.partner_nicht_moeglich: Diese Firma kommt nicht als Entwicklungspartner in Frage.
+fehler.befehl.partnerschaft_abgelehnt: Die Firma hat die Entwicklungspartnerschaft abgelehnt.
 fehler.befehl.vorschlag_unbekannt: Diesen offenen Produktvorschlag gibt es nicht.
 meldung.weiterentwicklung_ansaetze: "Weiterentwicklung {produkt} ({ziel}): Die Analyse hat Ansatzpunkte gefunden – bitte wählen."
 meldung.weiterentwicklung_ergebnis: "Weiterentwicklung {produkt} ({ziel}): Ergebnis {erreicht} bei erwarteten {erwartet}."

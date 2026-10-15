@@ -128,6 +128,20 @@ pub struct DevProject {
     /// Target quality the event options changed.
     #[serde(default)]
     pub bonus_quality: f64,
+    /// Head start from partial knowledge and from known components (PD8).
+    #[serde(default)]
+    pub head_start: f64,
+    #[serde(default)]
+    pub platform: f64,
+    /// The licence the project was started with (PD8).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<crate::project_deals::ProjectLicense>,
+    /// A partner company and its share of the costs (PD8).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub partner: Option<(CompanyId, f64)>,
+    /// The start-up the project came from, none: the company's own (PD8, not used yet).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin: Option<u32>,
     /// Phases 3 and 4 run overlapped (PD7).
     #[serde(default)]
     pub fast_track: bool,
@@ -190,6 +204,8 @@ pub fn factors(m: &ProjectModel, p: &DevProject) -> Factors {
         f.risk *= 1.0 + r.conditions_risk * f64::from(p.conditions);
     }
     f.quality += p.bonus_quality;
+    f.time *= 1.0 - p.head_start;
+    f.cost *= 1.0 - p.head_start;
     f
 }
 
@@ -397,6 +413,7 @@ pub(crate) fn start(
             catalog.products.key(product).to_owned(),
         ));
     };
+    let (head_start, platform) = crate::project_deals::start_bonus(state, catalog, actor, product);
     state.dev_projects.push(DevProject {
         company: actor,
         site,
@@ -428,6 +445,11 @@ pub(crate) fn start(
         event_phase: None,
         defect: 0.0,
         bonus_quality: 0.0,
+        head_start,
+        platform,
+        license: None,
+        partner: None,
+        origin: None,
         fast_track: false,
         pilot: 0,
         shortfall_sum: 0.0,
@@ -483,6 +505,7 @@ pub(crate) fn auto_assign(
 /// `AbortProject`: the project stops; the leader is free and counts it as aborted.
 pub(crate) fn abort(
     state: &mut GameState,
+    catalog: &Catalog,
     actor: CompanyId,
     project: u32,
 ) -> Result<(), CommandError> {
@@ -498,6 +521,7 @@ pub(crate) fn abort(
     if let Some(l) = state.project_leads.get_mut(lead) {
         l.aborted += 1;
     }
+    crate::project_deals::keep_knowledge(state, catalog, project as usize);
     Ok(())
 }
 
@@ -722,9 +746,24 @@ fn on_phase_end(
 }
 
 pub(crate) fn book(state: &mut GameState, index: usize, amount: Money) {
-    let (company, site) = {
+    let (company, site, partner) = {
         let p = &state.dev_projects[index];
-        (p.company, p.site)
+        (p.company, p.site, p.partner)
+    };
+    // A partner carries its share of the costs (PD8).
+    let total = amount;
+    let amount = match partner {
+        Some((partner, share)) => {
+            let part = amount.scale(share);
+            state.companies[partner.index()].ledger.expense(
+                CostType::Research,
+                CostCenter::default(),
+                Account::Cash,
+                part,
+            );
+            amount - part
+        }
+        None => amount,
     };
     state.companies[company.index()].ledger.expense(
         CostType::Research,
@@ -732,7 +771,8 @@ pub(crate) fn book(state: &mut GameState, index: usize, amount: Money) {
         Account::Cash,
         amount,
     );
-    state.dev_projects[index].spent += amount;
+    // The project's cost counts in full, whoever pays.
+    state.dev_projects[index].spent += total;
 }
 
 pub(crate) fn milestone_message(
@@ -785,6 +825,17 @@ pub(crate) fn release(
     let p = &mut state.dev_projects[index];
     p.status = ProjectStatus::Released;
     p.finished = Some(date);
+    crate::project_deals::drop_knowledge(state, company, product);
+    crate::project_deals::start_royalty(state, catalog, index, date);
+    // The partner of a development partnership gets the product too (PD8).
+    if let Some((partner, _)) = state.dev_projects[index].partner {
+        for t in crate::product_research::missing(catalog, state, partner, product) {
+            crate::research::acquire(state, catalog, partner.index(), t, date, &mut news);
+        }
+        let c = &mut state.companies[partner.index()];
+        c.known_products.insert(product);
+        c.product_points.remove(&product);
+    }
     crate::project_events::on_release(state, catalog, index, date);
     if state.is_main(company) {
         news.push(
@@ -799,6 +850,7 @@ pub(crate) fn release(
 
 /// Month start: leaders are paid, the market is topped up, old projects leave the list.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
+    crate::project_deals::pay_royalties(state, date);
     let Some(m) = catalog.research_model.projects.as_ref() else {
         return;
     };

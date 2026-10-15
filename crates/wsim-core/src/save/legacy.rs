@@ -182,6 +182,8 @@ pub(super) fn decode_v2(
         project_leads: Vec::new(),
         recalls: Vec::new(),
         product_suggestions: Vec::new(),
+        project_knowledge: Vec::new(),
+        project_royalties: Vec::new(),
         improvement_projects: Vec::new(),
         improved: Vec::new(),
         project_delegation: BTreeMap::new(),

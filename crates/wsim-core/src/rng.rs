@@ -138,6 +138,10 @@ pub enum Stream {
         project: u32,
         milestone: u8,
     },
+    /// An AI company's answer to a partnership proposal (PD8).
+    ProjectPartner {
+        project: u32,
+    },
     /// The result of a pilot series (PD7).
     ProjectPilot {
         project: u32,
@@ -295,6 +299,7 @@ impl Stream {
                 (45 << 56) | (u64::from(project) << 8) | u64::from(milestone)
             }
             Stream::ProjectPilot { project } => (46 << 56) | u64::from(project),
+            Stream::ProjectPartner { project } => (47 << 56) | u64::from(project),
             Stream::ProjectLeads { continent, month } => {
                 (37 << 56) | (u64::from(continent) << 32) | u64::from(month)
             }
