@@ -1313,6 +1313,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
                 .unwrap_or_default()
         );
     }
+    print_projects(game);
     println!("Produkte (Welt, letzter Monat):");
     for (product, _) in catalog.products.iter() {
         let mut sold = 0.0;
@@ -2018,4 +2019,54 @@ fn print_manager_market(catalog: &wsim_core::catalog::Catalog, game: &Game) {
             c.year, name, c.target, c.free, c.appeared, c.ai_hired, c.player_hired, c.poached
         );
     }
+}
+
+/// Development projects of the world: how many, how they ended, what the programs paid.
+fn print_projects(game: &Game) {
+    use wsim_core::projects::ProjectStatus;
+    let state = game.state();
+    if state.dev_projects.is_empty() && state.improvement_projects.is_empty() {
+        return;
+    }
+    let count = |own: bool, status: ProjectStatus| {
+        state
+            .dev_projects
+            .iter()
+            .filter(|p| {
+                p.status == status && (state.companies[p.company.index()].ai.is_none() == own)
+            })
+            .count()
+    };
+    let (mut subsidy, mut first, mut licensed, mut partners, mut fast, mut pilot) =
+        (Money::ZERO, 0, 0, 0, 0, 0);
+    for p in &state.dev_projects {
+        subsidy += p.subsidy.map_or(Money::ZERO, |s| s.received);
+        first += usize::from(p.first_mover);
+        licensed += usize::from(p.license.is_some());
+        partners += usize::from(p.partner.is_some());
+        fast += usize::from(p.fast_track);
+        pilot += usize::from(p.pilot > 0);
+    }
+    println!(
+        "Entwicklungsprojekte: Spieler laufend {} / frei {} / abgebrochen {}; KI laufend {} / frei {} / abgebrochen {}; Weiterentwicklungen {}",
+        count(true, ProjectStatus::Running),
+        count(true, ProjectStatus::Released),
+        count(true, ProjectStatus::Aborted),
+        count(false, ProjectStatus::Running),
+        count(false, ProjectStatus::Released),
+        count(false, ProjectStatus::Aborted),
+        state.improvement_projects.len()
+    );
+    println!(
+        "  Vorschläge {}, Zuschüsse {}, Erste am Markt {}, Lizenzen {} (laufende Gebühren {}), Partnerschaften {}, Fast-Track {}, Pilotserien {}, Teilwissen {}",
+        state.product_suggestions.len(),
+        format_money(subsidy),
+        first,
+        licensed,
+        state.project_royalties.len(),
+        partners,
+        fast,
+        pilot,
+        state.project_knowledge.len()
+    );
 }

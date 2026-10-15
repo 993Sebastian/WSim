@@ -2043,3 +2043,121 @@ fn the_first_company_to_release_a_product_gets_awareness_and_reputation() {
     run_out_all(&mut game);
     assert!(!game.state().dev_projects[0].first_mover);
 }
+
+// --- PD10: replay, equal treatment of AI and player, what others cannot see ---
+
+/// A catalog with everything of PD3–PD9 switched on (no random events, so runs compare).
+fn full_catalog() -> Catalog {
+    let mut c = catalog();
+    let m = c.research_model.projects.as_mut().unwrap();
+    m.risk.base = 0.0;
+    let mut rm = report_model();
+    for t in &mut rm.traits {
+        t.fast_track = 1.0;
+        t.pilot = 1.0;
+    }
+    m.reports = Some(rm);
+    m.council = Some(council_model());
+    m.fast_track = Some(fast_track_model());
+    m.pilot = Some(pilot_model());
+    m.knowledge = Some(KnowledgeModel {
+        share: 0.6,
+        effect: 0.5,
+    });
+    m.platform = Some(PlatformModel { effect: 0.4 });
+    m.first_mover = Some(FirstMoverModel {
+        awareness: 0.25,
+        reputation: 0.05,
+    });
+    m.subsidies = vec![SubsidyProgram {
+        key: "a".into(),
+        from_year: 1900,
+        to_year: 2100,
+        share: 0.2,
+        cap_usd: 1.0e9,
+    }];
+    c
+}
+
+fn full_game() -> Game {
+    let mut game = crate::product_research_tests::new_game(full_catalog());
+    game.apply(Command::SetProjectDelegation {
+        project: None,
+        mode: DelegationMode::LeadDecides,
+    })
+    .unwrap();
+    game
+}
+
+#[test]
+fn a_whole_development_replays_to_the_same_state() {
+    let mut game = full_game();
+    running(&mut game);
+    run_out_all(&mut game);
+    assert_eq!(game.state().dev_projects[0].status, ProjectStatus::Released);
+    let replayed = Game::replay(
+        game.catalog().clone(),
+        game.state().settings.clone(),
+        game.journal(),
+    )
+    .unwrap();
+    assert_eq!(replayed.state_hash(), game.state_hash());
+    assert_eq!(replayed.state().dev_projects, game.state().dev_projects);
+}
+
+#[test]
+fn the_same_seed_gives_the_same_development() {
+    let mut a = full_game();
+    let mut b = full_game();
+    running(&mut a);
+    running(&mut b);
+    run_out_all(&mut a);
+    run_out_all(&mut b);
+    assert_eq!(a.state_hash(), b.state_hash());
+}
+
+#[test]
+fn a_company_runs_its_projects_by_the_same_rules_whether_player_or_ai() {
+    use crate::state::AiState;
+    let mut player = full_game();
+    running(&mut player);
+    run_out_all(&mut player);
+    // The same company, marked as an AI company before the start: the rules do not care.
+    let mut ai = full_game();
+    ai.state_mut().companies[0].ai = Some(AiState {
+        competence: 0.5,
+        aggressiveness: 0.5,
+        real: None,
+        next_operations: crate::calendar::Date::new(2100, 1, 1).unwrap(),
+        staff: 0.0,
+    });
+    running(&mut ai);
+    run_out_all(&mut ai);
+    let (a, b) = (&player.state().dev_projects[0], &ai.state().dev_projects[0]);
+    assert_eq!(a.status, b.status);
+    assert_eq!(a.spent, b.spent);
+    assert_eq!(a.finished, b.finished);
+    assert_eq!(a.fast_track, b.fast_track);
+    assert_eq!(a.pilot, b.pilot);
+    let voices = |p: &projects::DevProject| {
+        p.reports
+            .iter()
+            .map(|r| r.council.clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(voices(a), voices(b));
+    assert_eq!(a.subsidy, b.subsidy);
+}
+
+#[test]
+fn the_view_shows_nothing_of_the_projects_of_others() {
+    let mut game = full_game();
+    running(&mut game);
+    let rival = ai_company(&mut game);
+    // The project belongs to the rival now: its leader, reports and forecasts stay hidden.
+    game.state_mut().dev_projects[0].company = rival;
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    assert!(v.projects.is_empty());
+    assert!(v.suggestions.is_empty());
+    assert!(v.license_offers.is_empty());
+}

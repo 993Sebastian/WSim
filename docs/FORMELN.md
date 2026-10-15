@@ -6441,3 +6441,15 @@ Vorgabe `docs/PRODUKTENTWICKLUNG.md` §9. Parameter in `forschungsmodell.yaml` (
 - **Förderprogramme.** Eine Liste staatlicher Programme `{id, von, bis, anteil, deckel_usd}`; beim Start eines Projekts (auch einer Lizenz, PD8) gilt das Programm mit dem größten `anteil`, dessen Jahre `von ≤ Jahr ≤ bis` das Startjahr enthalten. Programm, Anteil und Deckel (`deckel_usd · Preisniveau des Standorts`) werden am Projekt **festgehalten**. Bei jeder Buchung der Projektkosten `K` erhält die Firma den Zuschuss `Z = min(K · anteil, Deckel − bisher erhalten)` als Ertrag (Kostenart Forschung, mindert die Forschungskosten); `spent` zählt die Kosten brutto weiter. Programme gelten weltweit (keine Länderbindung, Annahme); die Verknüpfung mit den Ausschreibungen des Staates (MN2) entfällt vorerst.
 - **Portfolio-Ansicht.** Reine Sicht ohne neue Spielregel: alle laufenden Projekte der Firma (Neuentwicklungen und Weiterentwicklungen) mit Phase (erreichter und nächster Meilenstein), Ampel (die schlechteste Ampel des letzten Berichts), Budgetverbrauch (`spent` gegen Gesamtkosten), eingesetzten Personen, Zuschuss und First-Mover-Hinweis. Die Sicht rechnet nichts nach (Oberfläche, CLAUDE.md).
 - **Spielstände.** Neue Felder am Projekt (Zuschuss, Erstankunft) sind optional; ältere Spielstände laufen ohne sie.
+
+## PD10 – Gleichstellung und Wiederholbarkeit (15.10.2026)
+
+Keine neue Formel, nur Prüfungen über PD3–PD9 (alle Funktionen eingeschaltet, Zufallsereignisse aus):
+
+- **Wiederholbarkeit:** gleicher Seed + gleiche Befehle ergeben denselben Zustand; `Game::replay` des Journals
+  einer ganzen Entwicklung (Berichte, Gremium, Fast-Track, Pilotserie, Wissen, Zuschuss, Erster am Markt)
+  ergibt denselben Hash.
+- **Gleichbehandlung:** dieselbe Firma als Spielerfirma oder als KI-Firma durchläuft dasselbe Projekt mit
+  gleichen Kosten, Ende, Stimmen des Gremiums und Zuschuss; die Schwierigkeit ändert nur das Verhalten.
+- **Sichtbarkeit:** Projekte, Vorschläge und Lizenzangebote anderer Firmen erscheinen nicht in der eigenen Sicht.
+- **Weltlauf:** `wsim-cli run --ki N --welt` zeigt eine Zeile „Entwicklungsprojekte“ mit Zählern je Seite.
