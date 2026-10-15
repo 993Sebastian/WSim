@@ -146,7 +146,13 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | RB2 | Rundenbericht neu: Kopfzeile, Produkttabelle (Top 5, Summen), Auslastung mit Aufklappen | ⏳ |
 | RB3 | Rundenbericht neu: „Bitte ansehen“ (höchstens 5), Relevanzfilter Welt/Wettbewerb, Verweis aufs Meldungsfach | ⏳ |
 | RB4 | Rundenbericht neu: Enter/Esc, Klickziele, „Letzter Rundenbericht“, Einstellung „nur bei Hinweisen“; Lastenheft §13.2 und FORTSCHRITT anpassen | ⏳ |
-| ZP1 | Zukunftsprodukte ab 2026: 92 Produkte und Vorprodukte 2027–2085, Erfindungsjahr je Spiel verschoben, Technologiestopp 2026 und Start-up-Sperre fallen (`docs/ZUKUNFTSPRODUKTE.md`; Wunsch vom 14.10.2026; Annahmen OFFENE_PUNKTE ZP) | ⏳ Vorgabe aufgenommen 14.10.2026; Reihenfolge (Auftraggeber, 15.10.2026): nach PV1–PV8, der Gesamtprüfung E2E und RB1–RB4 (Daten, Rohschema nur falls nötig, Prüfregeln, Weltlauf bis 2100) |
+| DM1 | Produktdiversifikation: Profil Qualität/Leistung/Effizienz je Produktstand, Grundlinie, Kostenfaktor, Erwartung (`docs/PRODUKTDIVERSIFIKATION.md`; Wunsch vom 15.10.2026) | ⏳ Vorgabe aufgenommen 15.10.2026; Reihenfolge (Auftraggeber): nach RB4, vor ZP1 |
+| DM2 | Produktdiversifikation: Kundensegmente und Absatzverteilung (Nutzen, Schwellen, Logit) | ⏳ |
+| DM3 | Marktforschung extern: Angebote der Institute, Studien mit Genauigkeit und Alter | ⏳ |
+| DM4 | Marktforschung intern: Rolle Marktforscher, Quartalsdaten, Empfehlungen | ⏳ |
+| DM5 | Profile in der Produktentwicklung (M1–M6), Produktvorschläge mit Zielprofil, KI-Profilstrategien | ⏳ |
+| DM6 | Vorprodukt-Güte (Schalter aus), Oberfläche, Balancing-Prüfung nach §4.4 | ⏳ |
+| ZP1 | Zukunftsprodukte ab 2026: 92 Produkte und Vorprodukte 2027–2085, Erfindungsjahr je Spiel verschoben, Technologiestopp 2026 und Start-up-Sperre fallen (`docs/ZUKUNFTSPRODUKTE.md`; Wunsch vom 14.10.2026; Annahmen OFFENE_PUNKTE ZP) | ⏳ Vorgabe aufgenommen 14.10.2026; Reihenfolge (Auftraggeber, 15.10.2026): nach PV1–PV8, der Gesamtprüfung E2E RB1–RB4 und DM1–DM6 (Daten, Rohschema nur falls nötig, Prüfregeln, Weltlauf bis 2100) |
 | MG10 | Branchenfreigabe je Ebene mit Matrix, Vererbung, Freigabe-Vorschlägen (§10) | 🔄 13.10.2026: Kern (Stufen, Auflösung Land→Kontinent→Konzern, Wirkung in `banned`/Rückfrage) und Matrix im Strategieauftrag; offen: Land-Spalten in der Matrix, Kennzahlen je Zelle, „Aktiv in“ auf Managerkarten, Freigabe-Vorschläge §10.5, Beteiligungs-Schalter (OFFENE_PUNKTE MG10) |
 | LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ✅ 13.10.2026 (Commit 917ae41) |
 | AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ✅ 13.10.2026 |

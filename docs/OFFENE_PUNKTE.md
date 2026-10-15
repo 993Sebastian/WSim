@@ -2814,3 +2814,13 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - 🟡 Schwelle „Marktanteil stark gefallen“: Vorschlag 25 % relativ zur Vorrunde (Wert in `data/`).
 - Offener Punkt (nicht jetzt umsetzen): **Entgangener Absatz / nicht bediente Nachfrage** gehört nicht in den Rundenbericht, sondern an eine strategische Stelle (Strategieabteilung bzw. Produktmanagement, Produktdiversifikation); Anbindung bei MG9/Strategievorschlägen prüfen.
 - Alte Spielstände müssen für den neuen Bericht nicht kompatibel bleiben (Vorgabe); ich halte trotzdem die Formatversion/Beispielstände nach CLAUDE.md ein, soweit der Zustand betroffen ist.
+
+## DM1–DM6 – Produktdiversifikation und Marktforschung (`docs/PRODUKTDIVERSIFIKATION.md`, 15.10.2026)
+
+- Reihenfolge (Auftraggeber): … → PV1–PV8 → E2E → RB1–RB4 → DM1–DM6 → ZP1. WG1–WG5 bleiben zurückgestellt.
+- Die Vorgabe nennt keine Meilensteinnummern; ich habe DM1–DM6 vorgeschlagen (Tabelle am Ende des Dokuments).
+- **Zu prüfen vor DM1:** Es gibt bereits Qualität (M191: Qualität der Vorprodukte + Forschungsniveau = Produktwertung), Produktstufen (M37), Entwicklungsprojekte mit Qualität (PD) und das Nachfragemodell (`WELT_MARKT_BETRIEB.md`, MN). Vorschlag: Das Profil ersetzt die bisherige Produktwertung; Q/L/E werden aus den bestehenden Größen abgeleitet statt doppelt geführt. Die Vorgabe nennt Meilensteine „M0–M7“, im Code heißen sie PM0–PM7/WM0–WM3.
+- Alle Startwerte der Vorgabe (k_m, c_Preis, Gewichte, Segmentgrößen, Schwellen, Grundlinie 1–2 Punkte/Jahr, ±5/4–10 Punkte, Genauigkeiten ±25/10/3 %, 4 Kombinationen je Marktforscher, f_Güte 0,1) kommen als `annaeherung: true` in eine Balancing-Konfiguration unter `data/parameter/`.
+- Studien-Fehler wird einmal gewürfelt und gespeichert (eigener Zufallsstrom, Determinismus).
+- Die Segmentgrößen koppeln an Wohlstand der Region; die Kopplung an Inflation ist „sofern sinnvoll“: Vorschlag nein, solange die Preise in Kaufkraft 2026 geführt werden.
+- Ausdrücklich nicht im Umfang: Varianten je Anlage, Öko-Segment, Fertigungsqualität der Maschinen, Kano-Modell.
