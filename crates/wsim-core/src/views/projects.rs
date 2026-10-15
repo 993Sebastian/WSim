@@ -92,6 +92,24 @@ pub struct PendingView {
     pub choice_kind: String,
 }
 
+/// One option of an event (PD4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EventOptionView {
+    pub key: String,
+    pub cost: f64,
+    pub delay: f64,
+    pub quality: f64,
+}
+
+/// An event the project waits for (PD4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EventView {
+    pub key: String,
+    pub deadline: String,
+    pub recommended: usize,
+    pub options: Vec<EventOptionView>,
+}
+
 /// One project of the company.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ProjectRowView {
@@ -134,6 +152,7 @@ pub struct ProjectRowView {
     pub delegation: String,
     pub pending: Option<PendingView>,
     pub reports: Vec<MilestoneReportView>,
+    pub event: Option<EventView>,
 }
 
 /// A product a project can start for, with cost and duration at normal tempo and standard trim.
@@ -330,6 +349,7 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                 paused: p.paused,
                 delegation: delegation_key(p.delegation.unwrap_or(company_delegation)).to_owned(),
                 pending: pending_view(m, state, p, lead),
+                event: event_view(catalog, p),
                 reports: p
                     .reports
                     .iter()
@@ -431,5 +451,33 @@ fn pending_view(
                 .collect()
         },
         choice_kind: kind.to_owned(),
+    })
+}
+
+/// The event a project waits for.
+fn event_view(catalog: &crate::catalog::Catalog, p: &projects::DevProject) -> Option<EventView> {
+    let pending = p.event?;
+    let kind = catalog
+        .research_model
+        .projects
+        .as_ref()?
+        .events
+        .as_ref()?
+        .kinds
+        .get(usize::from(pending.kind))?;
+    Some(EventView {
+        key: kind.key.clone(),
+        deadline: iso(pending.deadline),
+        recommended: kind.recommended,
+        options: kind
+            .options
+            .iter()
+            .map(|o| EventOptionView {
+                key: o.key.clone(),
+                cost: o.cost,
+                delay: o.delay,
+                quality: o.quality,
+            })
+            .collect(),
     })
 }

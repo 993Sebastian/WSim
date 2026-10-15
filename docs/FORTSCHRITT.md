@@ -126,7 +126,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PD1 | Produktentwicklung: Labor-Rollen, Pools, PL als Person, Entfall der 20 Ingenieure (`docs/PRODUKTENTWICKLUNG.md` §1; Wunsch vom 13.10.2026; Annahmen OFFENE_PUNKTE PD) | 🔄 14.10.2026 (8e02538): Rollen (ohne Projektleiter), Einstellen/Entlassen, Arbeitsplätze, Lohn, KI, Oberfläche; Projektleiter als Personen folgen mit PD2 |
 | PD2 | Neuentwicklung PM0–PM7 ersetzt Forschung, Personalbedarf mit Szenarien | ⏳ |
 | PD3 | Meilensteinberichte, Kennzahlen, Review gegen PM2, Delegation | ✅ 14.10.2026 (Daten, Kern PD3a/b, Sicht und Oberfläche PD3c; vorläufige Werte siehe OFFENE_PUNKTE PD3) |
-| PD4 | Ereigniskatalog, Kennzahlenstreuung, versteckte Mängel, Rückrufe | ⏳ |
+| PD4 | Ereigniskatalog, Kennzahlenstreuung, versteckte Mängel, Rückrufe | ✅ 15.10.2026 (Daten PD4a, Kern PD4b, Sicht und Oberfläche PD4c; Annahmen OFFENE_PUNKTE PD4; Kennzahlenstreuung lief schon mit PD3) |
 | PD5 | Weiterentwicklung WM0–WM3 mit Stufen und Restertrag | ⏳ |
 | PD6 | Produktvorschläge im Strategiesystem (mit MG6/MG9), Nachkalkulation, Bilanz PL/Strategieabteilung | ⏳ |
 | PD7 | Gate-Gremium, Fast-Track, Pilotserie | ⏳ |

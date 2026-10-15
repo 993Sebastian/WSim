@@ -98,6 +98,16 @@ const projekte: Entwicklungsprojekte = {
           { key: "innovativ", cost: 1.2, time: 1.1, risk: 1.5, quality: 0.1, preferred: false },
         ],
       },
+      event: {
+        key: "technisches_problem",
+        deadline: "1914-06-05",
+        recommended: 0,
+        options: [
+          { key: "budget", cost: 0.2, delay: 0, quality: 0 },
+          { key: "abstriche", cost: 0, delay: 0, quality: -0.04 },
+          { key: "verzug", cost: 0, delay: 0.25, quality: 0 },
+        ],
+      },
       reports: [
         {
           milestone: 2,
@@ -252,5 +262,22 @@ describe("Entwicklungsprojekte", () => {
     expect(gesendet).toContainEqual({
       DecideMilestone: { project: 0, decision: "Continue", choice: 2 },
     });
+  });
+
+  it("zeigt das Ereignis und sendet die gewählte Option", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const gruppe = screen.getByRole("group", { name: "Ereignis im Projekt" });
+    expect(within(gruppe).getByText("Technisches Problem")).toBeTruthy();
+    fireEvent.click(within(gruppe).getByRole("button", { name: "Verzug in Kauf nehmen" }));
+    expect(gesendet).toContainEqual({ DecideEvent: { project: 0, option: 2 } });
   });
 });

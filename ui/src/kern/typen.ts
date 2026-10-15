@@ -3213,6 +3213,25 @@ export interface Projektentscheid {
   choice_kind: string;
 }
 
+/** One option of a project event (PD4). */
+export interface Ereignisoption {
+  key: string;
+  /** Extra cost as a share of the phase's cost. */
+  cost: number;
+  /** Share of the phase lost; negative: gained. */
+  delay: number;
+  quality: number;
+}
+
+/** An event a project waits for to be decided (PD4). */
+export interface Projektereignis {
+  key: string;
+  deadline: string;
+  /** Index of the option the leader recommends. */
+  recommended: number;
+  options: Ereignisoption[];
+}
+
 /** One development project of the company (PD2). */
 export interface Projekt {
   id: number;
@@ -3249,6 +3268,7 @@ export interface Projekt {
   delegation: string;
   pending: Projektentscheid | null;
   reports: Meilensteinbericht[];
+  event: Projektereignis | null;
 }
 
 /** A product a project can start for, at normal tempo and standard trim (PD2). */

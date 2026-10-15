@@ -2946,3 +2946,9 @@ projekte.berichte: "Frühere Berichte ({n})"
 projekte.bericht_zeile: "M{meilenstein}, {datum}: {entscheidung} ({von})"
 projekte.von_dir: von dir
 projekte.vom_leiter: vom Projektleiter
+projekte.ereignis: Ereignis im Projekt
+projekte.ereignis.empfohlen: Empfehlung des Projektleiters
+projekte.ereignis.kosten: "Kosten {vorzeichen}{anteil} der Phase"
+projekte.ereignis.verzug: "Verzug {anteil} der Phase"
+projekte.ereignis.gewinn: "Zeitgewinn {anteil} der Phase"
+projekte.ereignis.qualitaet: "Qualität {vorzeichen}{anteil}"

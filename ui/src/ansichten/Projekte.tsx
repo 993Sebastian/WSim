@@ -334,6 +334,7 @@ function ProjektKarte({ x }: { x: Projekt }) {
   return (
     <article className="karte projektkarte" aria-label={name}>
       <h4>{name}</h4>
+      {x.event && <Ereignis x={x} />}
       {x.pending && <Entscheidung x={x} />}
       <progress value={x.progress} max={1} aria-label={t("projekte.fortschritt")} />
       <dl className="werte">
@@ -678,5 +679,52 @@ function Berichte({ x }: { x: Projekt }) {
         </div>
       ))}
     </details>
+  );
+}
+
+/** The event the project waits for: story and two or three options. */
+function Ereignis({ x }: { x: Projekt }) {
+  const { los, antwort } = useAktion(`projekt/${x.id}/ereignis`);
+  const e = x.event;
+  if (!e) return null;
+  const folge = (v: number, was: string) =>
+    v === 0
+      ? null
+      : t(`projekte.ereignis.${was}`, {
+          anteil: formatProzent(Math.abs(v)),
+          vorzeichen: v > 0 ? "+" : "−",
+        });
+  return (
+    <section className="hinweis" role="group" aria-label={t("projekte.ereignis")}>
+      <h4>{t(`projektereignis.${e.key}.titel`)}</h4>
+      <p>{t(`projektereignis.${e.key}.text`)}</p>
+      <p className="feld-hilfe">
+        {t("projekte.entscheidung_frist", { datum: formatDatum(e.deadline) })}
+      </p>
+      <ul className="liste">
+        {e.options.map((o, i) => (
+          <li key={o.key}>
+            <button
+              type="button"
+              className={i === e.recommended ? "primaer" : undefined}
+              onClick={() => void los([{ DecideEvent: { project: x.id, option: i } }])}
+            >
+              {t(`projektereignis.${e.key}.${o.key}`)}
+            </button>{" "}
+            <small className="gedaempft">
+              {[
+                folge(o.cost, "kosten"),
+                folge(o.delay, o.delay > 0 ? "verzug" : "gewinn"),
+                folge(o.quality, "qualitaet"),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+              {i === e.recommended && ` · ${t("projekte.ereignis.empfohlen")}`}
+            </small>
+          </li>
+        ))}
+      </ul>
+      <Rueckmeldung meldung={antwort} />
+    </section>
   );
 }

@@ -814,6 +814,14 @@ fn an_event_stops_the_project_until_an_option_is_chosen() {
     days(&mut game, 2);
     let p = &game.state().dev_projects[0];
     assert_eq!((p.phase, p.progress, p.spent), (phase, progress, spent));
+    // The view shows the event with its options and the leader's recommendation.
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    let e = v.projects[0].event.as_ref().expect("event in the view");
+    assert_eq!(
+        (e.key.as_str(), e.options.len(), e.recommended),
+        ("problem", 2, 0)
+    );
+    assert!(e.options[0].cost > 0.0 && e.options[1].delay > 0.0);
     // A wrong option is refused; the right one costs money and adds the hidden defect.
     assert_eq!(
         game.apply(Command::DecideEvent {

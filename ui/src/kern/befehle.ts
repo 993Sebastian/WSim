@@ -185,6 +185,7 @@ export type Befehl =
         choice?: number | null;
       };
     }
+  | { DecideEvent: { project: number; option: number } }
   | { ResumeProject: { project: number } }
   | {
       SetProjectDelegation: {
