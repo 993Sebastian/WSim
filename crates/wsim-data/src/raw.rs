@@ -1572,7 +1572,9 @@ pub struct RawProjectLeadership {
     pub budget_share: f64,
     #[serde(rename = "grundausstattung")]
     pub base_share: f64,
+    /// Marks estimated values; not used by the build.
     #[serde(rename = "annaeherung", default)]
+    #[allow(dead_code)]
     pub approximation: bool,
 }
 

@@ -12,8 +12,8 @@ use wsim_core::catalog::{
     TransportModel, Vehicle, Way,
 };
 use wsim_core::catalog::{
-    CouncilModel, DevPartnershipModel, LeadershipModel, FastTrackModel, FirstMoverModel, KnowledgeModel, PilotModel,
-    PlatformModel, ProjectLicenseModel, SubsidyProgram,
+    CouncilModel, DevPartnershipModel, FastTrackModel, FirstMoverModel, KnowledgeModel,
+    LeadershipModel, PilotModel, PlatformModel, ProjectLicenseModel, SubsidyProgram,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -2139,7 +2139,13 @@ fn project_leadership(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Lea
         horizon_months: months(ctx, x.horizon_months, 12, "vorausschau_monate").max(1),
         patience_months: months(ctx, x.patience_months, 12, "geduld_monate"),
         reserve: in_range(ctx, x.reserve, 0.0, 1.0, &ll.field("reserve")),
-        reserve_thrifty: in_range(ctx, x.reserve_thrifty, 0.0, 5.0, &ll.field("reserve_sparsam")),
+        reserve_thrifty: in_range(
+            ctx,
+            x.reserve_thrifty,
+            0.0,
+            5.0,
+            &ll.field("reserve_sparsam"),
+        ),
         reserve_generous: in_range(
             ctx,
             x.reserve_generous,
