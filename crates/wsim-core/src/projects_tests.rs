@@ -1322,6 +1322,11 @@ fn the_strategy_suggests_a_product_and_the_player_can_decline_it() {
     let s = &game.state().product_suggestions[i as usize];
     assert!(s.forecast.project_cost > 0.0 && s.forecast.project_days > 0.0);
     assert!(s.expires > s.created);
+    let v = crate::views::research_overview(&game).projects.unwrap();
+    let row = v.suggestions.iter().find(|x| x.id == i).unwrap();
+    assert_eq!(row.status, "offen");
+    assert!(row.forecast.project_cost > 0.0);
+    assert!(v.suggestion_hit_rate.is_none());
     assert_eq!(
         game.apply(Command::DeclineSuggestion { suggestion: 99 }),
         Err(CommandError::UnknownSuggestion)

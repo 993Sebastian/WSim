@@ -8,6 +8,34 @@ const projekte: Entwicklungsprojekte = {
   tempos: ["gruendlich", "normal", "beschleunigt"],
   trims: ["basis", "standard", "premium"],
   salary_usd_year: 90_000,
+  suggestion_hit_rate: 0.5,
+  suggestions: [
+    {
+      id: 0,
+      product: "schrauben",
+      site: 99,
+      created: "1914-03-01",
+      expires: "1914-08-28",
+      status: "offen",
+      reason: "branche",
+      forecast: {
+        unit_cost: 10,
+        price: 14,
+        volume_year: 5000,
+        revenue_year: 70000,
+        lifecycle_revenue: 500000,
+        contribution_year: 20000,
+        plants: 1,
+        investment: 30000,
+        project_cost: 100000,
+        project_days: 300,
+        people: 6,
+        payback_years: 6.5,
+        quality: 1,
+      },
+      review: null,
+    },
+  ],
   improvement_stages: 3,
   improvement_targets: ["kosten", "qualitaet", "ausschuss", "rate", "vorprodukte", "ausstattung"],
   improvement_offers: [
@@ -79,6 +107,8 @@ const projekte: Entwicklungsprojekte = {
       aborted: 0,
       hired: true,
       busy: true,
+      balance: 0.7,
+      balance_count: 2,
     },
     {
       id: 1,
@@ -91,6 +121,8 @@ const projekte: Entwicklungsprojekte = {
       aborted: 0,
       hired: true,
       busy: false,
+      balance: null,
+      balance_count: 0,
     },
     {
       id: 2,
@@ -103,6 +135,8 @@ const projekte: Entwicklungsprojekte = {
       aborted: 1,
       hired: false,
       busy: false,
+      balance: null,
+      balance_count: 0,
     },
   ],
   projects: [
@@ -113,6 +147,7 @@ const projekte: Entwicklungsprojekte = {
       site_name: null,
       lead: "Anna Weber",
       lead_id: 0,
+      promise: null,
       tempo: "normal",
       trim: "standard",
       status: "laufend",
@@ -360,5 +395,26 @@ describe("Entwicklungsprojekte", () => {
     const frei = screen.getByRole("article", { name: /Schrauben · Ausschuss/ });
     fireEvent.click(within(frei).getByRole("button", { name: "Alle Werke sofort umrüsten" }));
     expect(gesendet).toContainEqual({ ReleaseImprovement: { project: 1, immediate: true } });
+  });
+
+  it("startet einen Produktvorschlag oder lehnt ihn ab", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitProjekten();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Entwicklungsprojekte/ }));
+    const karte = screen.getByRole("article", { name: "Schrauben" });
+    expect(within(karte).getByText(/nah an dem, was du schon herstellst/)).toBeTruthy();
+    fireEvent.click(within(karte).getByRole("button", { name: "Als Projekt starten" }));
+    expect(gesendet).toContainEqual({
+      StartSuggestedProject: { suggestion: 0, lead: 1, tempo: 1, trim: 1 },
+    });
+    fireEvent.click(within(karte).getByRole("button", { name: "Ablehnen" }));
+    expect(gesendet).toContainEqual({ DeclineSuggestion: { suggestion: 0 } });
   });
 });

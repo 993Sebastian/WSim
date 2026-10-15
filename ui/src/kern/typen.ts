@@ -3138,6 +3138,9 @@ export interface Projektleiter {
   hired: boolean;
   /** Leads a running project. */
   busy: boolean;
+  /** Mean value of the after-calculations of the projects; none before the first (PD6). */
+  balance: number | null;
+  balance_count: number;
 }
 
 /** Staffing of a role in the current phase of a project (PD2). */
@@ -3240,6 +3243,8 @@ export interface Projekt {
   site_name: string | null;
   lead: string;
   lead_id: number;
+  /** What the suggestion promised, frozen at the start (PD6). */
+  promise: Projektkennzahlen | null;
   tempo: string;
   trim: string;
   /** `laufend`, `freigegeben` or `abgebrochen`. */
@@ -3277,6 +3282,21 @@ export interface Projektangebot {
   effort: number;
   cost_usd: number;
   days: number;
+}
+
+/** A product suggestion of the strategy (PD6). */
+export interface Produktvorschlag {
+  id: number;
+  product: string;
+  site: number;
+  created: string;
+  expires: string;
+  status: "offen" | "gestartet" | "abgelehnt" | "verfallen";
+  /** `branche` or `luecke`. */
+  reason: string;
+  forecast: Projektkennzahlen;
+  /** Value of the after-calculation (0–1) and whether it was a hit. */
+  review: [number, boolean] | null;
 }
 
 /** An approach the analysis of an improvement project found (PD5). */
@@ -3333,4 +3353,6 @@ export interface Entwicklungsprojekte {
   improvement_offers: Verbesserungsangebot[];
   improvement_stages: number;
   improvement_targets: string[];
+  suggestions: Produktvorschlag[];
+  suggestion_hit_rate: number | null;
 }

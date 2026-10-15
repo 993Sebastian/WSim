@@ -62,6 +62,7 @@ export function Projekte({
       <p className="erklaerung">{t("projekte.erklaerung")}</p>
       <NeuesProjekt daten={daten} vorwahl={vorwahl} onZentren={onZentren} />
       <Leiter leiter={p.leads} gehalt={p.salary_usd_year} />
+      {p.suggestions.length > 0 && <Vorschlaege daten={daten} />}
       {p.improvement_targets.length > 0 && <Weiterentwicklungen daten={daten} />}
       <section aria-label={t("projekte.laufend")}>
         <h3>{t("projekte.laufend")}</h3>
@@ -251,7 +252,15 @@ function Leiter({ leiter, gehalt }: { leiter: Projektleiter[]; gehalt: number })
       <td>{formatZahl(l.age, 0)}</td>
       <td>{t(`projekte.charakter.${l.character}`)}</td>
       <td>{formatProzent(l.experience)}</td>
-      <td>{t("projekte.bilanz", { fertig: l.finished, abgebrochen: l.aborted })}</td>
+      <td>
+        {t("projekte.bilanz", { fertig: l.finished, abgebrochen: l.aborted })}
+        {l.balance !== null && (
+          <small className="gedaempft">
+            {" "}
+            {t("vorschlag.bilanz", { wert: formatProzent(l.balance), n: l.balance_count })}
+          </small>
+        )}
+      </td>
       <td>
         {l.hired ? (
           l.busy ? (
@@ -350,6 +359,18 @@ function ProjektKarte({ x }: { x: Projekt }) {
         </dd>
         <dt>{t("projekte.leiter")}</dt>
         <dd>{x.lead}</dd>
+        {x.promise && (
+          <>
+            <dt>{t("vorschlag.zusage")}</dt>
+            <dd>
+              {t("vorschlag.zusage_werte", {
+                kosten: formatGeld(x.promise.project_cost),
+                tage: formatZahl(Math.ceil(x.promise.project_days)),
+                beitrag: formatGeld(x.promise.contribution_year),
+              })}
+            </dd>
+          </>
+        )}
         <dt>{t("projekte.tempo")}</dt>
         <dd>
           {t(`projekte.tempo.${x.tempo}`)} · {t(`projekte.ausstattung.${x.trim}`)}
@@ -954,5 +975,122 @@ function WeiterentwicklungKarte({ x }: { x: Verbesserung }) {
       </div>
       <Rueckmeldung meldung={antwort} />
     </article>
+  );
+}
+
+/** Product suggestions of the strategy: start as a project or decline (PD6). */
+function Vorschlaege({ daten }: { daten: Forschung }) {
+  const p = daten.projects;
+  const { los, antwort } = useAktion("projekt/vorschlag");
+  const leiter = (p?.leads ?? []).filter((l) => l.hired && !l.busy);
+  const [leiterId, setLeiterId] = useState(leiter[0]?.id ?? -1);
+  const id = useId();
+  if (!p) return null;
+  const offen = p.suggestions.filter((x) => x.status === "offen");
+  const alt = p.suggestions.filter((x) => x.status !== "offen");
+  const bereit = leiter.some((l) => l.id === leiterId);
+  return (
+    <section aria-label={t("vorschlag.titel")}>
+      <h3>{t("vorschlag.titel")}</h3>
+      <p className="erklaerung">{t("vorschlag.erklaerung")}</p>
+      {p.suggestion_hit_rate !== null && (
+        <p className="feld-hilfe">
+          {t("vorschlag.trefferquote", { anteil: formatProzent(p.suggestion_hit_rate) })}
+        </p>
+      )}
+      {offen.length === 0 ? (
+        <p className="gedaempft">{t("vorschlag.keine")}</p>
+      ) : (
+        <>
+          <div className="feld">
+            <label htmlFor={`${id}-leiter`}>{t("projekte.leiter")}</label>
+            <select
+              id={`${id}-leiter`}
+              value={leiterId}
+              onChange={(e) => setLeiterId(Number(e.target.value))}
+            >
+              {leiter.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {offen.map((v) => (
+            <article key={v.id} className="karte" aria-label={produktName(v.product)}>
+              <h4>{produktName(v.product)}</h4>
+              <p>{t(`vorschlag.begruendung.${v.reason}`)}</p>
+              <dl className="werte">
+                <dt>{t("projekte.kosten")}</dt>
+                <dd>{formatGeld(v.forecast.project_cost)}</dd>
+                <dt>{t("projekte.restdauer")}</dt>
+                <dd>
+                  {t("projekte.tage", { tage: formatZahl(Math.ceil(v.forecast.project_days)) })}
+                </dd>
+                <dt>{t("projekte.kz.contribution_year")}</dt>
+                <dd>{formatGeld(v.forecast.contribution_year)}</dd>
+                <dt>{t("projekte.kz.payback_years")}</dt>
+                <dd>
+                  {t("projekte.jahre", {
+                    n: formatZahl(Math.round(v.forecast.payback_years * 10) / 10),
+                  })}
+                </dd>
+                <dt>{t("vorschlag.gueltig_bis")}</dt>
+                <dd>{formatDatum(v.expires)}</dd>
+              </dl>
+              <div className="knopfreihe links">
+                <button
+                  type="button"
+                  className="haupt"
+                  disabled={!bereit}
+                  onClick={() =>
+                    void los(
+                      [
+                        {
+                          StartSuggestedProject: {
+                            suggestion: v.id,
+                            lead: leiterId,
+                            tempo: 1,
+                            trim: 1,
+                          },
+                        },
+                      ],
+                      t("projekte.gestartet", { produkt: produktName(v.product) }),
+                    )
+                  }
+                >
+                  {t("vorschlag.starten")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void los([{ DeclineSuggestion: { suggestion: v.id } }])}
+                >
+                  {t("vorschlag.ablehnen")}
+                </button>
+              </div>
+            </article>
+          ))}
+        </>
+      )}
+      {alt.length > 0 && (
+        <ul className="liste">
+          {alt.map((v) => (
+            <li key={v.id}>
+              {t("vorschlag.zeile", {
+                produkt: produktName(v.product),
+                status: t(`vorschlag.status.${v.status}`),
+                datum: formatDatum(v.created),
+              })}
+              {v.review &&
+                ` · ${t("vorschlag.nachkalkulation", {
+                  wert: formatProzent(v.review[0]),
+                  urteil: t(v.review[1] ? "vorschlag.treffer" : "vorschlag.fehlschlag"),
+                })}`}
+            </li>
+          ))}
+        </ul>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
   );
 }

@@ -2972,3 +2972,22 @@ verbesserung.waehlen: Ansatz wählen
 verbesserung.freigabe: Freigabe
 verbesserung.gestaffelt: Gestaffelt umrüsten
 verbesserung.sofort: Alle Werke sofort umrüsten
+vorschlag.titel: Produktvorschläge der Strategie
+vorschlag.erklaerung: "Die Strategie schlägt Produkte vor, die zu deiner Firma passen. Nimmst du einen Vorschlag an, werden seine Werte als Zusage am Projekt festgehalten. Zwei Jahre nach der Freigabe vergleichen wir sie mit der Wirklichkeit."
+vorschlag.keine: Zurzeit liegt kein offener Vorschlag vor.
+vorschlag.trefferquote: "Trefferquote der Vorschläge: {anteil}"
+vorschlag.begruendung.branche: Das Produkt liegt nah an dem, was du schon herstellst, und der Markt hat noch Bedarf.
+vorschlag.begruendung.luecke: Der Markt hat offenen Bedarf, den noch niemand deckt.
+vorschlag.gueltig_bis: Gültig bis
+vorschlag.starten: Als Projekt starten
+vorschlag.ablehnen: Ablehnen
+vorschlag.zeile: "{produkt}: {status} ({datum})"
+vorschlag.status.gestartet: gestartet
+vorschlag.status.abgelehnt: abgelehnt
+vorschlag.status.verfallen: verfallen
+vorschlag.nachkalkulation: "Nachkalkulation {wert} – {urteil}"
+vorschlag.treffer: Treffer
+vorschlag.fehlschlag: daneben
+vorschlag.zusage: Zusage des Vorschlags
+vorschlag.zusage_werte: "Kosten {kosten}, {tage} Tage, Deckungsbeitrag {beitrag} je Jahr"
+vorschlag.bilanz: "Nachkalkulation {wert} ({n}×)"

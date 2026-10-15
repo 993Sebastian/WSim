@@ -10,6 +10,7 @@ use crate::game::Game;
 use crate::ids::{Id, ProductId};
 use crate::improvements::{self, ImpPendingKind, ImpStatus};
 use crate::project_reports::{self, DelegationMode, Kpis, LightColor};
+use crate::project_suggestions::{self, SuggestionStatus};
 use crate::projects::{self, ProjectStatus};
 
 /// A project leader.
@@ -28,6 +29,9 @@ pub struct ProjectLeadView {
     pub hired: bool,
     /// Leads a running project.
     pub busy: bool,
+    /// Mean value of the after-calculations of his projects (PD6); none before the first.
+    pub balance: Option<f64>,
+    pub balance_count: u32,
 }
 
 /// Staffing of one role in the current phase of a project.
@@ -111,6 +115,23 @@ pub struct EventView {
     pub options: Vec<EventOptionView>,
 }
 
+/// A product suggestion of the strategy (PD6).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SuggestionView {
+    pub id: u32,
+    pub product: String,
+    pub site: u32,
+    pub created: String,
+    pub expires: String,
+    /// `offen`, `gestartet`, `abgelehnt` or `verfallen`.
+    pub status: String,
+    /// `branche` or `luecke`.
+    pub reason: String,
+    pub forecast: Kpis,
+    /// Value of the after-calculation and whether it was a hit; none before.
+    pub review: Option<(f64, bool)>,
+}
+
 /// One project of the company.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ProjectRowView {
@@ -120,6 +141,8 @@ pub struct ProjectRowView {
     pub site_name: Option<String>,
     pub lead: String,
     pub lead_id: u32,
+    /// What the suggestion promised, frozen at the start (PD6).
+    pub promise: Option<Kpis>,
     pub tempo: String,
     pub trim: String,
     /// `laufend`, `freigegeben` or `abgebrochen`.
@@ -231,6 +254,10 @@ pub struct ProjectsView {
     pub improvement_stages: u8,
     /// The targets in the order the commands count them.
     pub improvement_targets: Vec<String>,
+    /// Product suggestions of the strategy, newest last (PD6).
+    pub suggestions: Vec<SuggestionView>,
+    /// Share of the after-calculated suggestions that were hits.
+    pub suggestion_hit_rate: Option<f64>,
 }
 
 fn delegation_key(d: DelegationMode) -> &'static str {
@@ -302,6 +329,8 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
             aborted: l.aborted,
             hired: l.employer == Some(player),
             busy: busy(i),
+            balance: (l.balance_count > 0).then(|| l.balance_sum / f64::from(l.balance_count)),
+            balance_count: l.balance_count,
         })
         .collect();
     let company_delegation = state
@@ -357,6 +386,7 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
                 site_name: site.name.clone(),
                 lead: lead.map(|l| l.name.clone()).unwrap_or_default(),
                 lead_id: p.lead,
+                promise: p.promise.map(|x| x.forecast),
                 tempo: m.tempos[usize::from(p.tempo)].key.clone(),
                 trim: m.trims[usize::from(p.trim)].key.clone(),
                 status: match p.status {
@@ -465,6 +495,30 @@ pub fn projects_view(game: &Game) -> Option<ProjectsView> {
         improvements: improvement_rows(game),
         improvement_offers: improvement_offers(game),
         improvement_stages: m.improvement.as_ref().map_or(0, |w| w.stages),
+        suggestions: state
+            .product_suggestions
+            .iter()
+            .enumerate()
+            .filter(|(_, s)| s.company == player)
+            .map(|(i, s)| SuggestionView {
+                id: u32::try_from(i).unwrap_or(u32::MAX),
+                product: catalog.products.key(s.product).to_owned(),
+                site: u32::try_from(s.site.index()).unwrap_or(u32::MAX),
+                created: iso(s.created),
+                expires: iso(s.expires),
+                status: match s.status {
+                    SuggestionStatus::Open => "offen",
+                    SuggestionStatus::Started(_) => "gestartet",
+                    SuggestionStatus::Declined => "abgelehnt",
+                    SuggestionStatus::Expired => "verfallen",
+                }
+                .to_owned(),
+                reason: s.reason.clone(),
+                forecast: s.forecast,
+                review: s.review.map(|r| (r.value, r.hit)),
+            })
+            .collect(),
+        suggestion_hit_rate: project_suggestions::hit_rate(state, player),
         improvement_targets: m
             .improvement
             .as_ref()
