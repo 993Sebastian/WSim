@@ -125,9 +125,11 @@ forschungsmodell:
       unschaerfe: 0.30               # größte Streuung der Prognose (ohne Produktmanager)
       genauigkeit_je_pm: 0.60        # so viel der Unschärfe nimmt volle Besetzung der Produktmanager
       charaktere:                    # Optimismus der Prognose und bevorzugter Lösungsweg des PL
-        optimistisch: {optimismus: 0.20, weg: innovativ}
-        vorsichtig: {optimismus: -0.10, weg: bewaehrt}
-        sachlich: {optimismus: 0.0, weg: standard}
+        # gegenmeinung: Chance, dass eine Stimme des Gate-Gremiums gegen die anderen steht (PD7);
+        # fast_track / pilot: Chance, beides ohne Anlass vorzuschlagen (PD7).
+        optimistisch: {optimismus: 0.20, weg: innovativ, gegenmeinung: 0.25, fast_track: 0.20, pilot: 0.05}
+        vorsichtig: {optimismus: -0.10, weg: bewaehrt, gegenmeinung: 0.15, fast_track: 0.0, pilot: 0.25}
+        sachlich: {optimismus: 0.0, weg: standard, gegenmeinung: 0.10, fast_track: 0.05, pilot: 0.10}
       ampel:
         termin: {gelb: 0.10, rot: 0.25}
         budget: {gelb: 0.10, rot: 0.25}
@@ -154,6 +156,8 @@ forschungsmodell:
       branche: 0.3
       puffer: 0.5
       fast_track: 1.0
+      branche_anlagen_ref: 4        # Anlagen der Firma in der Branche für volle Branchenstärke (PD7)
+      puffer_ref: 1.0               # Kasse über offenen Projektkosten für vollen Puffer (PD7)
     # Ereignisse in den Phasen, versteckte Mängel und Rückrufe (PD4, docs/FORMELN.md).
     # Kosten: Anteil der Phasenkosten; Verzug: Anteil der Phase (negativ: Gewinn);
     # Qualität: Änderung der Zielqualität; Mangel: Zuschlag auf das versteckte Mängelrisiko.
@@ -285,6 +289,28 @@ forschungsmodell:
       toleranz: 0.5                  # relative Abweichung, bei der der Wert 0 ist
       treffer_ab: 0.6
       gewichte: {termin: 0.25, budget: 0.25, kennzahlen: 0.5}
+    # Gate-Gremium bei PM3, PM4, PM7 (PD7, docs/FORMELN.md). Vorläufig.
+    gremium:
+      unschaerfe: 0.5                # Streuung der Wahrnehmung ohne Strategieabteilung
+      genauigkeit: 0.6               # Anteil, den eine voll besetzte Abteilung abbaut
+      schwelle: 0.25                 # ab hier dafür bzw. dagegen
+      pause_mehrheit: 3              # bei PM7 pausiert das Projekt, wenn so viele dagegen sind
+    # Fast-Track auf Vorschlag des Projektleiters (PD7): Phasen 3 und 4 überlappen.
+    fast_track:
+      erfahrung_min: 0.3
+      ueberlappung: 0.25             # Anteil der Dauer von Phase 3 und 4, der entfällt
+      kosten_faktor: 1.10
+      mangel: 0.12                   # Zuschlag auf das versteckte Mängelrisiko
+    # Pilotserie zwischen PM6 und PM7 auf Vorschlag des Projektleiters (PD7).
+    pilot:
+      risiko_ab: 0.15                # Mängelrisiko, ab dem der Projektleiter sie vorschlägt
+      dauer_anteil: 0.30             # Anteil der Dauer von PM6→PM7
+      kosten_anteil: 0.25            # Anteil der Kosten von PM6→PM7
+      aufdeckung_faktor: 2.5         # Chance, einen Mangel zu finden = Mängelrisiko · Faktor
+      behebung: 0.70                 # Anteil des Mängelrisikos, den ein gefundener Mangel nimmt
+      nacharbeit: 0.15               # Verzug als Anteil der Dauer von PM6→PM7
+      qualitaet_bonus: 0.03          # Zielqualität bei Pilot ohne Befund
+      beruhigung: 0.40               # Anteil des Mängelrisikos, den ein Pilot ohne Befund nimmt
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)

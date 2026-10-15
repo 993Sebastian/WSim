@@ -1482,6 +1482,56 @@ pub struct ProjectModel {
     pub improvement: Option<ImprovementModel>,
     /// Product suggestions and their after-calculation (PD6).
     pub suggestions: Option<SuggestionModel>,
+    /// Gate council at PM3, PM4 and PM7 (PD7).
+    pub council: Option<CouncilModel>,
+    /// Overlapping phases on the leader's proposal (PD7).
+    pub fast_track: Option<FastTrackModel>,
+    /// Pilot series between PM6 and PM7 on the leader's proposal (PD7).
+    pub pilot: Option<PilotModel>,
+}
+
+/// The gate council (PD7, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct CouncilModel {
+    /// Spread of the voices' view without a strategy department.
+    pub uncertainty: f64,
+    /// Share of the spread a fully staffed department removes.
+    pub accuracy: f64,
+    /// A voice is for or against from this (perceived) value.
+    pub threshold: f64,
+    /// At PM7 a majority this far against pauses the project.
+    pub pause_majority: u32,
+}
+
+/// Fast-track: phases 3 and 4 overlap (PD7).
+#[derive(Clone, Debug, PartialEq)]
+pub struct FastTrackModel {
+    /// Leader experience needed to propose it.
+    pub experience_min: f64,
+    /// Share of the duration of phases 3 and 4 saved.
+    pub overlap: f64,
+    pub cost_factor: f64,
+    /// Hidden defect risk added.
+    pub defect: f64,
+}
+
+/// Pilot series (PD7).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PilotModel {
+    /// Hidden defect risk from which the leader proposes a pilot.
+    pub risk_from: f64,
+    pub duration_share: f64,
+    pub cost_share: f64,
+    /// Factor from the defect risk to the chance of finding it.
+    pub detection: f64,
+    /// Share of the defect risk a found defect leaves after the repair.
+    pub repair: f64,
+    /// Delay of the rework as a share of the phase PM6→PM7.
+    pub rework: f64,
+    /// Added to the target quality when the pilot finds nothing.
+    pub quality_bonus: f64,
+    /// Share of the defect risk a pilot without findings takes away.
+    pub calm: f64,
 }
 
 /// Product suggestions and the after-calculation (PD6, docs/FORMELN.md).
@@ -1620,6 +1670,11 @@ pub struct LeadTrait {
     pub optimism: f64,
     /// Index into the paths.
     pub path: usize,
+    /// Chance of a voice of the gate council turning against the others (PD7).
+    pub dissent: f64,
+    /// Chance of proposing fast-track or a pilot without a reason (PD7).
+    pub fast_track: f64,
+    pub pilot: f64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -1692,6 +1747,10 @@ pub struct ProjectRiskModel {
     pub branch: f64,
     pub buffer: f64,
     pub fast_track: f64,
+    /// Plants in the product's branch for full branch strength (0: no effect).
+    pub branch_ref: f64,
+    /// Cash over the open project cost for a full buffer (0: no effect).
+    pub buffer_ref: f64,
 }
 
 /// The roles of laboratory staff (PD1, docs/FORMELN.md).

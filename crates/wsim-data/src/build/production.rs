@@ -11,6 +11,7 @@ use wsim_core::catalog::{
     SizeModel, StartSetup, StorageClass, StorageModel, SuggestionModel, TrainingModel,
     TransportModel, Vehicle, Way,
 };
+use wsim_core::catalog::{CouncilModel, FastTrackModel, PilotModel};
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
 
@@ -1856,11 +1857,24 @@ fn project_model(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> ProjectModel {
                 p.risk.fast_track,
                 &l.field("risiko").field("fast_track"),
             ),
+            branch_ref: non_negative(
+                ctx,
+                p.risk.branch_ref,
+                &l.field("risiko").field("branche_anlagen_ref"),
+            ),
+            buffer_ref: non_negative(
+                ctx,
+                p.risk.buffer_ref,
+                &l.field("risiko").field("puffer_ref"),
+            ),
         },
         reports: project_reports(ctx, p, l),
         events: project_events(ctx, p, l),
         improvement: project_improvement(ctx, p, l),
         suggestions: project_suggestions(ctx, p, l),
+        council: project_council(ctx, p, l),
+        fast_track: project_fast_track(ctx, p, l),
+        pilot: project_pilot(ctx, p, l),
     }
 }
 
@@ -1917,6 +1931,9 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         traits.push(LeadTrait {
             optimism: in_range(ctx, t.optimism, -0.9, 0.9, &tl.field("optimismus")),
             path: path.unwrap_or(1),
+            dissent: in_range(ctx, t.dissent, 0.0, 1.0, &tl.field("gegenmeinung")),
+            fast_track: in_range(ctx, t.fast_track, 0.0, 1.0, &tl.field("fast_track")),
+            pilot: in_range(ctx, t.pilot, 0.0, 1.0, &tl.field("pilot")),
         });
     }
     for key in r.characters.keys() {
@@ -1980,6 +1997,46 @@ fn project_reports(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<Projec
         deadline_days: d.deadline_days,
         profiles,
         paths,
+    })
+}
+
+/// The gate council (PD7).
+fn project_council(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<CouncilModel> {
+    let c = p.council.as_ref()?;
+    let cl = l.field("gremium");
+    Some(CouncilModel {
+        uncertainty: in_range(ctx, c.uncertainty, 0.0, 1.5, &cl.field("unschaerfe")),
+        accuracy: in_range(ctx, c.accuracy, 0.0, 1.0, &cl.field("genauigkeit")),
+        threshold: in_range(ctx, c.threshold, 0.0, 1.0, &cl.field("schwelle")),
+        pause_majority: c.pause_majority.clamp(1, 3),
+    })
+}
+
+/// Fast-track on the leader's proposal (PD7).
+fn project_fast_track(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<FastTrackModel> {
+    let f = p.fast_track.as_ref()?;
+    let fl = l.field("fast_track");
+    Some(FastTrackModel {
+        experience_min: in_range(ctx, f.experience_min, 0.0, 1.0, &fl.field("erfahrung_min")),
+        overlap: in_range(ctx, f.overlap, 0.0, 0.9, &fl.field("ueberlappung")),
+        cost_factor: in_range(ctx, f.cost_factor, 1.0, 3.0, &fl.field("kosten_faktor")),
+        defect: in_range(ctx, f.defect, 0.0, 1.0, &fl.field("mangel")),
+    })
+}
+
+/// Pilot series on the leader's proposal (PD7).
+fn project_pilot(ctx: &mut Ctx, p: &RawProjectModel, l: &Loc) -> Option<PilotModel> {
+    let x = p.pilot.as_ref()?;
+    let pl = l.field("pilot");
+    Some(PilotModel {
+        risk_from: in_range(ctx, x.risk_from, 0.0, 1.0, &pl.field("risiko_ab")),
+        duration_share: positive(ctx, x.duration_share, &pl.field("dauer_anteil")),
+        cost_share: non_negative(ctx, x.cost_share, &pl.field("kosten_anteil")),
+        detection: non_negative(ctx, x.detection, &pl.field("aufdeckung_faktor")),
+        repair: in_range(ctx, x.repair, 0.0, 1.0, &pl.field("behebung")),
+        rework: non_negative(ctx, x.rework, &pl.field("nacharbeit")),
+        quality_bonus: in_range(ctx, x.quality_bonus, 0.0, 0.3, &pl.field("qualitaet_bonus")),
+        calm: in_range(ctx, x.calm, 0.0, 1.0, &pl.field("beruhigung")),
     })
 }
 

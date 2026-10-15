@@ -101,11 +101,16 @@ fn model() -> ProjectModel {
             branch: 0.3,
             buffer: 0.5,
             fast_track: 1.0,
+            branch_ref: 0.0,
+            buffer_ref: 0.0,
         },
         reports: None,
         events: None,
         improvement: None,
         suggestions: None,
+        council: None,
+        fast_track: None,
+        pilot: None,
     }
 }
 
@@ -446,10 +451,16 @@ fn report_model() -> ProjectReportModel {
             LeadTrait {
                 optimism: 0.2,
                 path: 2,
+                dissent: 0.0,
+                fast_track: 0.0,
+                pilot: 0.0,
             },
             LeadTrait {
                 optimism: -0.1,
                 path: 0,
+                dissent: 0.0,
+                fast_track: 0.0,
+                pilot: 0.0,
             },
         ],
         lights: [

@@ -6276,3 +6276,42 @@ fn projektvorschlaege_werden_geprueft() {
     let falsch = mit(&block.replace("toleranz: 0.5", "toleranz: 0")).laden();
     assert!(!falsch.report.findings().is_empty());
 }
+
+#[test]
+fn projektgremium_fast_track_und_pilot_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let zusatz = "    gremium:\n      unschaerfe: 0.5\n      genauigkeit: 0.6\n      schwelle: 0.25\n      pause_mehrheit: 3\n    \
+         fast_track:\n      erfahrung_min: 0.3\n      ueberlappung: 0.25\n      kosten_faktor: 1.1\n      mangel: 0.12\n    \
+         pilot:\n      risiko_ab: 0.15\n      dauer_anteil: 0.3\n      kosten_anteil: 0.25\n      aufdeckung_faktor: 2.5\n      \
+         behebung: 0.7\n      nacharbeit: 0.15\n      qualitaet_bonus: 0.03\n      beruhigung: 0.4\n";
+    let block = format!("{}{zusatz}", projekt_block());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let gut = mit(&block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .projects
+        .clone()
+        .unwrap();
+    assert_eq!(m.council.expect("council").pause_majority, 3);
+    assert!((m.fast_track.expect("fast_track").overlap - 0.25).abs() < 1e-9);
+    assert!((m.pilot.expect("pilot").detection - 2.5).abs() < 1e-9);
+
+    let falsch = mit(&block.replace("schwelle: 0.25", "schwelle: 1.5")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("kosten_faktor: 1.1", "kosten_faktor: 0.5")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+    let falsch = mit(&block.replace("dauer_anteil: 0.3", "dauer_anteil: 0")).laden();
+    assert!(!falsch.report.findings().is_empty());
+    let falsch = mit(&block.replace("behebung: 0.7", "behebung: 2")).laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+}

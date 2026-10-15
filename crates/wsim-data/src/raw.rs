@@ -1424,6 +1424,65 @@ pub struct RawProjectModel {
     /// Product suggestions and the after-calculation (PD6).
     #[serde(rename = "vorschlaege", default)]
     pub suggestions: Option<RawProjectSuggestions>,
+    /// Gate council (PD7).
+    #[serde(rename = "gremium", default)]
+    pub council: Option<RawProjectCouncil>,
+    /// Fast-track (PD7).
+    #[serde(rename = "fast_track", default)]
+    pub fast_track: Option<RawProjectFastTrack>,
+    /// Pilot series (PD7).
+    #[serde(rename = "pilot", default)]
+    pub pilot: Option<RawProjectPilot>,
+}
+
+/// The gate council at PM3, PM4 and PM7 (PD7).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectCouncil {
+    #[serde(rename = "unschaerfe")]
+    pub uncertainty: f64,
+    #[serde(rename = "genauigkeit")]
+    pub accuracy: f64,
+    #[serde(rename = "schwelle")]
+    pub threshold: f64,
+    #[serde(rename = "pause_mehrheit")]
+    pub pause_majority: u32,
+}
+
+/// Fast-track: overlapping phases on the leader's proposal (PD7).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectFastTrack {
+    #[serde(rename = "erfahrung_min")]
+    pub experience_min: f64,
+    #[serde(rename = "ueberlappung")]
+    pub overlap: f64,
+    #[serde(rename = "kosten_faktor")]
+    pub cost_factor: f64,
+    #[serde(rename = "mangel")]
+    pub defect: f64,
+}
+
+/// Pilot series between PM6 and PM7 (PD7).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProjectPilot {
+    #[serde(rename = "risiko_ab")]
+    pub risk_from: f64,
+    #[serde(rename = "dauer_anteil")]
+    pub duration_share: f64,
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "aufdeckung_faktor")]
+    pub detection: f64,
+    #[serde(rename = "behebung")]
+    pub repair: f64,
+    #[serde(rename = "nacharbeit")]
+    pub rework: f64,
+    #[serde(rename = "qualitaet_bonus")]
+    pub quality_bonus: f64,
+    #[serde(rename = "beruhigung")]
+    pub calm: f64,
 }
 
 /// Product suggestions of the strategy and their after-calculation (PD6).
@@ -1644,6 +1703,12 @@ pub struct RawLeadTrait {
     pub optimism: f64,
     #[serde(rename = "weg")]
     pub path: String,
+    #[serde(rename = "gegenmeinung", default)]
+    pub dissent: f64,
+    #[serde(rename = "fast_track", default)]
+    pub fast_track: f64,
+    #[serde(rename = "pilot", default)]
+    pub pilot: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1793,6 +1858,10 @@ pub struct RawProjectRisk {
     pub buffer: f64,
     #[serde(rename = "fast_track")]
     pub fast_track: f64,
+    #[serde(rename = "branche_anlagen_ref", default)]
+    pub branch_ref: f64,
+    #[serde(rename = "puffer_ref", default)]
+    pub buffer_ref: f64,
 }
 
 /// Staff roles of a laboratory (PD1).
