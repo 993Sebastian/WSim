@@ -1110,3 +1110,29 @@ fn a_ceo_with_the_switch_sets_the_staff_within_the_limit_and_the_file_is_reviewe
     );
     assert!(game.state().companies[0].ledger.is_balanced());
 }
+
+#[test]
+fn the_strategy_department_reports_what_the_competition_built() {
+    let mut game = new_game(test_support::management());
+    mine_and_works(&mut game);
+    let rival = ai_company(&mut game, (1_000_000.0, 100_000.0), &[]);
+    staff(&mut game, DepartmentKind::Strategy, 1);
+    hire_sharp(&mut game, member("strategie"));
+    let catalog = game.catalog().clone();
+    let observed = central::observed_countries(&catalog, game.state(), game.player());
+    assert!(!observed.is_empty());
+    let country = catalog.countries.key(observed[0]).to_owned();
+    // The rival builds in an observed country; the report comes with the next month start.
+    let mut seen = Vec::new();
+    for _ in 0..40 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        seen.extend(report.messages.into_iter().map(|m| m.key));
+        if game.state().date.day() == 5 && game.state().sites.iter().all(|s| s.owner != rival) {
+            office_for(&mut game, rival, &country);
+        }
+    }
+    assert!(
+        seen.iter().any(|k| k == keys::COMPETITION_BUILT),
+        "{seen:?}"
+    );
+}

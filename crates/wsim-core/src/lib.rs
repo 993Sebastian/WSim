@@ -16,6 +16,7 @@ pub mod channels;
 pub mod closing;
 pub mod command;
 pub mod competition;
+pub mod competition_watch;
 pub mod contracts;
 pub mod country_model;
 pub mod currency;

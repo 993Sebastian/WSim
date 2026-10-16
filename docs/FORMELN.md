@@ -6555,3 +6555,22 @@ Anliegen „Personalbedarf“ mit „auf n setzen“ und „so lassen“.
 **Akte.** Beide Wege legen eine `StaffFile` an. Nach `abteilung_wirkzeit_monate` gilt sie als Treffer, wenn die
 Abteilung ihre Last deckt (`Abdeckung ≥ unterdeckt_ab`) und ausgelastet ist (`Last ≥ ueberbesetzt_ab · Kapazität`).
 Der Ausgang zählt in der Trefferquote der Leitung.
+
+## MG9b – Stellungnahme der Strategieabteilung und Konkurrenzbeobachtung (16.10.2026)
+
+Vorgabe: `docs/MANAGER_2.md` §9.1 (Stellungnahme) und §9.5 (Konkurrenzbeobachtung).
+
+**Nachrechnen.** Arbeitet die Strategieabteilung (Genauigkeit `A = genauigkeit · Abdeckung > 0`, ZA2), rechnet sie jeden
+Strategievorschlag (MG6) nach: Der Schätzfehler der Prognosen ist `schaetzfehler · (1 − Fachkompetenz/100) · (1 − A)`,
+die Spanne also enger als die des Vorschlagenden allein. Ohne Abteilung gilt die Genauigkeit des Vorschlagenden.
+
+**Stellungnahme.** Die Leitung Strategie *unterstützt* die empfohlene Option, wenn die Mitte ihrer Prognose über null liegt
+und keine andere Option eine bessere Mitte hat; sonst *rät sie ab*. Sie steht als `Statement` am Anliegen und in
+der Ansicht (Vorschlagender bleibt der Vertreter).
+
+**Konkurrenzbeobachtung.** Zu jedem Monatsbeginn meldet die Abteilung des Hauptunternehmens jeden Standort einer fremden Firma,
+der im Vormonat gegründet wurde, in einem beobachteten Land (⌊K⌋ größte Volkswirtschaften ohne eigenen Standort) oder in einem
+Land mit eigenem Standort: Firma, Land, Art.
+
+**Offen (MG9c ff.):** weitere Fallarten (Branche, Land, Start-up-Ausstieg, Abwehr), Analysten je Branche, Klausur als Ansicht,
+zwei Trefferquoten (Spürsinn), Abwehrvorschlag aus der Konkurrenzmeldung, Gebote auf Ziele der Abteilung.

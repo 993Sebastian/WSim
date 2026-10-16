@@ -351,6 +351,7 @@ meldung.startup.anteil_bestes_gebot: "Für deinen Anteil an {name} bot keine Fir
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
 meldung.manager.einstellung_treffer: "Einstellung nach einem Jahr: {name} ({stelle}, {ort}) ist zufrieden im Amt – die Wahl der Leitung ({leitung}) war ein Treffer."
 meldung.manager.einstellung_fehlgriff: "Einstellung nach einem Jahr: {name} ({stelle}, {ort}) ist gegangen oder unzufrieden – die Wahl der Leitung ({leitung}) war kein Treffer."
+meldung.strategie.konkurrenz_baut: "Strategieabteilung: {firma} hat in {land} einen neuen Standort gebaut ({art})."
 meldung.abteilung.personal_gesetzt: "Die Leitung der Abteilung {abteilung} hat die Mitarbeiterzahl von {von} auf {auf} gesetzt (Mehrkosten {kosten} im Jahr)."
 meldung.abteilung.personal_treffer: "Personalbedarf der Abteilung {abteilung} nach einem Jahr: Sie deckt ihre Arbeit und ist ausgelastet – die Entscheidung war ein Treffer."
 meldung.abteilung.personal_fehlgriff: "Personalbedarf der Abteilung {abteilung} nach einem Jahr: Sie deckt ihre Arbeit nicht oder ist nicht ausgelastet – kein Treffer."

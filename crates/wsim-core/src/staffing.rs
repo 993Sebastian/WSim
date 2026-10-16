@@ -103,6 +103,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     resignations(state, catalog, date, &mut streams, &mut news);
     review_hires(state, catalog, date, &mut news);
     crate::dept_staff::month_start(state, catalog, date, &mut news);
+    news.extend(crate::competition_watch::month_start(state, catalog, date));
     heads_hire(state, catalog, &mut streams, &mut news);
     ai_staffing(state, catalog, date, &mut news);
     ai_competence(state, catalog);
@@ -656,6 +657,7 @@ fn ask_hiring(
         closed: None,
         memory: None,
         dissent: None,
+        statement: None,
     });
     true
 }
@@ -1323,6 +1325,7 @@ fn ask(state: &mut GameState, catalog: &Catalog, offer: &PoachOffer, date: Date)
         closed: None,
         memory: None,
         dissent: None,
+        statement: None,
     });
     vec![message]
 }

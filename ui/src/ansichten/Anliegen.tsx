@@ -95,6 +95,18 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
         ) : null}
         <strong>{t("anliegen.frist", { datum: formatDatum(a.deadline) })}</strong>
       </p>
+      {a.statement && (
+        <p className="feld-hilfe">
+          {t(
+            a.statement.supports
+              ? "anliegen.stellungnahme_dafuer"
+              : "anliegen.stellungnahme_dagegen",
+            {
+              name: a.statement.manager,
+            },
+          )}
+        </p>
+      )}
       {a.memory && (
         <p className="erinnerung">
           {t("anliegen.erinnerung", {

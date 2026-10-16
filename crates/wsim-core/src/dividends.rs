@@ -377,6 +377,7 @@ pub(crate) fn year_start(state: &mut GameState, catalog: &Catalog, next: Date) -
             closed: None,
             memory: None,
             dissent: None,
+            statement: None,
         };
         state.next_concern += 1;
         state.concerns.push(concern);

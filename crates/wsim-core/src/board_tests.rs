@@ -1115,6 +1115,7 @@ fn a_new_site_answered_later_gets_its_steps() {
         closed: None,
         memory: None,
         dissent: None,
+        statement: None,
     };
     let id = concern.id;
     let state = game.state_mut();
@@ -1266,4 +1267,70 @@ fn a_held_branch_keeps_the_expansion_back_and_one_with_a_query_asks() {
     let (verdict, concerns, _) = with(&mut game, ReleaseStage::Ask);
     assert_eq!(verdict, Verdict::Hold);
     assert_eq!(concerns.len(), 1, "asked although the budget would do");
+}
+
+#[test]
+fn a_working_strategy_department_adds_a_statement_to_a_proposal() {
+    // Without the department no statement.
+    let (mut game, _, _) = buyer_game(0.0001);
+    hire_sharp(&mut game, ceo());
+    let next = game.state().next_concern;
+    through_quarter_end(&mut game);
+    let plain = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.id >= next && c.reason == ConcernReason::Proposal)
+        .expect("a proposal")
+        .clone();
+    assert!(plain.statement.is_none());
+
+    // With head and staff: a statement, and a narrower range than without.
+    let (mut game, _, _) = buyer_game(0.0001);
+    game.apply(Command::StaffDepartment {
+        department: crate::catalog::DepartmentKind::Strategy,
+        staff: 2,
+    })
+    .unwrap();
+    let head = crate::central::head(
+        game.catalog(),
+        game.state(),
+        game.player(),
+        crate::catalog::DepartmentKind::Strategy,
+    )
+    .unwrap_or_else(|| hire_sharp(&mut game, member("strategie")));
+    hire_sharp(&mut game, ceo());
+    let next = game.state().next_concern;
+    through_quarter_end(&mut game);
+    let with = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.id >= next && c.reason == ConcernReason::Proposal)
+        .expect("a proposal")
+        .clone();
+    let statement = with.statement.clone().expect("the head states his view");
+    assert_eq!(statement.manager, head);
+    let width = |c: &crate::state::Concern| {
+        c.options[c.recommended]
+            .forecast
+            .map_or(0, |(low, high)| high.units() - low.units())
+    };
+    assert!(
+        width(&with) <= width(&plain),
+        "{} {}",
+        width(&with),
+        width(&plain)
+    );
+    let view = crate::views::concerns(&game);
+    let shown = view
+        .open
+        .iter()
+        .flat_map(|g| &g.concerns)
+        .find(|c| c.id == with.id)
+        .unwrap();
+    assert_eq!(
+        shown.statement.as_ref().map(|s| s.supports),
+        Some(statement.supports)
+    );
 }

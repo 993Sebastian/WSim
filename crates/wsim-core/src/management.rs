@@ -2045,6 +2045,7 @@ impl Decider for Staff<'_> {
             closed: None,
             memory: memory_of(state, d.company, (top.manager, d.topic)),
             dissent: None,
+            statement: None,
         });
         Verdict::Hold
     }
@@ -2222,6 +2223,7 @@ pub(crate) fn bundle(concerns: Vec<Concern>, from: u32) -> Vec<Concern> {
             closed: None,
             memory: None,
             dissent: None,
+            statement: None,
         });
     }
     out
@@ -2320,6 +2322,7 @@ fn merge_dissent(a: Concern, b: Concern) -> Concern {
         dissent: Some(Dissent {
             advocates: [adv_a, adv_b],
         }),
+        statement: None,
     }
 }
 

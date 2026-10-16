@@ -540,6 +540,13 @@ pub struct PositionLog {
     pub effect: Option<Money>,
 }
 
+/// The head of the strategy department backs a proposal or advises against it (MG9).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Statement {
+    pub manager: ManagerId,
+    pub supports: bool,
+}
+
 /// An option of a concern as the position assessed it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ConcernOption {
@@ -640,6 +647,9 @@ pub struct Concern {
     /// (MG4).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dissent: Option<Dissent>,
+    /// The statement of the strategy department's head on a proposal (MG9).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub statement: Option<Statement>,
 }
 
 /// The advocates of a concern in which two positions contradict each other (MG4).

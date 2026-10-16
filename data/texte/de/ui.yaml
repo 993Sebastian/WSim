@@ -1851,6 +1851,8 @@ anliegen.grund.freigabe: "Kostet mehr als die Freigabegrenze der Abteilung ({gre
 anliegen.grund.beteiligung: "Das Budget für Beteiligungen reicht in diesem Jahr nicht mehr (übrig: {rest})."
 anliegen.grund.ruhestand: Ein Manager geht bald in den Ruhestand – wer ihm folgt, entscheidest du.
 anliegen.grund.unbesetzt: Die Stelle ist durch einen Todesfall frei geworden.
+anliegen.stellungnahme_dafuer: "Stellungnahme der Strategieabteilung ({name}): unterstützt den Vorschlag."
+anliegen.stellungnahme_dagegen: "Stellungnahme der Strategieabteilung ({name}): rät ab."
 anliegen.grund.einstellung: Eine Leitung sucht Verstärkung. Das Gehalt des besten Bewerbers liegt über der Freigabegrenze Personal; sie legt dir die besten Bewerber vor.
 thema.einstellung: Einstellung
 thema.personalbedarf: Personalbedarf einer Abteilung

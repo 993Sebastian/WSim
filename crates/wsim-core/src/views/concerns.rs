@@ -24,6 +24,14 @@ use crate::state::{
 };
 use crate::strategy;
 
+/// The statement of the strategy department's head on a proposal (MG9).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct StatementView {
+    pub manager: String,
+    /// Backs the recommendation; else advises against.
+    pub supports: bool,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ConcernOptionView {
     /// Kind of the option (text `option.<kind>`).
@@ -135,6 +143,9 @@ pub struct ConcernView {
     pub manager_judged: u32,
     #[serde(default)]
     pub manager_hit_rate: Option<f64>,
+    /// The statement of the head of the strategy department on a proposal (MG9).
+    #[serde(default)]
+    pub statement: Option<StatementView>,
     /// An earlier decision on the topic in which the manager was right (MG3).
     #[serde(default)]
     pub memory: Option<MemoryView>,
@@ -927,6 +938,10 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         path,
         parts,
         manager: name(c.manager),
+        statement: c.statement.as_ref().map(|s| StatementView {
+            manager: name(s.manager),
+            supports: s.supports,
+        }),
         memory: c.memory.as_ref().map(|m| MemoryView {
             decided: iso(m.decided),
             reviewed: iso(m.reviewed),

@@ -1956,6 +1956,8 @@ export interface Anliegen {
   manager: string;
   /** Recommendations of the manager who asks, judged so far and the hit rate (MG2). */
   manager_judged?: number;
+  /** The strategy head's statement on a proposal (MG9). */
+  statement?: { manager: string; supports: boolean } | null;
   manager_hit_rate?: number | null;
   /** An earlier decision on the topic in which the manager was right (MG3). */
   memory?: Erinnerung | null;

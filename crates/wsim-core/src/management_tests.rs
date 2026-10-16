@@ -1350,6 +1350,7 @@ fn alike_concerns_of_several_sites_become_one_strategic_concern() {
             closed: None,
             memory: None,
             dissent: None,
+            statement: None,
         }
     };
     let two = management::bundle(vec![concern(sites[0]), concern(sites[1])], 3);
@@ -1719,6 +1720,7 @@ fn contradicting_recommendations_become_one_concern() {
             closed: None,
             memory: None,
             dissent: None,
+            statement: None,
         }
     };
     let sale = concern(Topic::Sale, ChoiceKind::Adjust, "vertrieb_marketing", 100.0);

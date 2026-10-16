@@ -423,6 +423,7 @@ pub mod keys {
     pub const VENTURE_STAKE_BEST_BID: &str = "meldung.startup.anteil_bestes_gebot";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
+    pub const COMPETITION_BUILT: &str = "meldung.strategie.konkurrenz_baut";
     pub const STAFF_NEED_SET: &str = "meldung.abteilung.personal_gesetzt";
     pub const STAFF_NEED_HIT: &str = "meldung.abteilung.personal_treffer";
     pub const STAFF_NEED_MISS: &str = "meldung.abteilung.personal_fehlgriff";
@@ -889,6 +890,7 @@ pub mod keys {
         VENTURE_STAKE_BEST_BID,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
+        COMPETITION_BUILT,
         STAFF_NEED_SET,
         STAFF_NEED_HIT,
         STAFF_NEED_MISS,

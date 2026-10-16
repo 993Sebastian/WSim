@@ -762,6 +762,7 @@ fn ask(
         closed: None,
         memory: None,
         dissent: None,
+        statement: None,
     });
     news.extend(message);
 }

@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use crate::calendar::Date;
-use crate::catalog::Catalog;
+use crate::catalog::{Catalog, DepartmentKind};
 use crate::command::Command;
 use crate::decision::{self, Choice, ChoiceKind, Decision, Topic};
 use crate::ids::{ContinentId, GoodsGroupId, ProductId};
@@ -20,7 +20,7 @@ use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
     CompanyId, Concern, ConcernOption, ConcernReason, ConcernStatus, GameState, ManagerId,
-    Position, Role, SiteId, Unit,
+    Position, Role, SiteId, Statement, Unit,
 };
 use crate::strategy;
 
@@ -433,8 +433,13 @@ fn proposals(
             (skill, f64::from(x.judgment)),
             style,
         );
-        let error = m.concerns.estimate_error * (1.0 - skill / 100.0);
-        let options = assessments
+        // A working strategy department recalculates the proposal: a narrower range.
+        let accuracy = crate::central::head_position(catalog, DepartmentKind::Strategy)
+            .map_or(0.0, |p| {
+                crate::central::accuracy(catalog, state, company, &p)
+            });
+        let error = m.concerns.estimate_error * (1.0 - skill / 100.0) * (1.0 - accuracy);
+        let options: Vec<ConcernOption> = assessments
             .iter()
             .map(|a| ConcernOption {
                 amount: a.amount,
@@ -444,6 +449,13 @@ fn proposals(
                 once: a.once,
             })
             .collect();
+        let statement = (accuracy > 0.0)
+            .then(|| crate::central::head(catalog, state, company, DepartmentKind::Strategy))
+            .flatten()
+            .map(|manager| Statement {
+                manager,
+                supports: backs(&options, recommended),
+            });
         out.push(Concern {
             id: 0,
             company,
@@ -461,9 +473,28 @@ fn proposals(
             closed: None,
             memory: None,
             dissent: None,
+            statement,
         });
     }
     out
+}
+
+/// Whether the head of the strategy department backs the recommended option: its range
+/// has a middle above nothing and none of the other options is better (docs/FORMELN.md,
+/// MG9).
+fn backs(options: &[ConcernOption], recommended: usize) -> bool {
+    let mid = |o: &ConcernOption| {
+        o.forecast
+            .map_or(0, |(low, high)| (low.units() + high.units()) / 2)
+    };
+    let Some(best) = options.get(recommended).map(mid) else {
+        return false;
+    };
+    best > 0
+        && options
+            .iter()
+            .enumerate()
+            .all(|(i, o)| i == recommended || mid(o) <= best)
 }
 
 /// Proposals out of turn (MG6): in the months that close a quarter without a review, up to
