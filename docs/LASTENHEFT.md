@@ -365,6 +365,8 @@ Der Spieler plant, wählt die Länge der nächsten Runde und lässt die Welt lau
 
 ### 13.2 Rundenbericht
 
+> **Stand 16.10.2026 (RB1–RB4):** Kopfzeile mit Ergebnis, Produkttabelle (Deckungsbeitrag, Marktanteile Land/Kontinent/Welt, Trendpfeile), Auslastung je Werk mit Engpassgrund, „Bitte ansehen“ (höchstens 5 Hinweise, Relevanzfilter für Welt und Wettbewerb); Enter/Esc schließen, Menüpunkt „Letzter Rundenbericht“, Einstellung „nur bei Hinweisen zeigen“. Die Liste unten bleibt als Anforderung an den Inhalt des Meldungsfachs.
+
 > **Ersetzt (15.10.2026):** Der Rundenbericht wird nach `docs/RUNDENBERICHT_2.md` (RB1–RB4) überarbeitet; bei Widerspruch gilt dieses Dokument.
 
 - Finanzergebnis der Runde und Veränderung zum Vorzeitraum.

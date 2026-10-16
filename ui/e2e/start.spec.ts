@@ -72,6 +72,13 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
     .click();
   await expect(kopf.getByText("01.08.1914")).toBeVisible();
 
+  // The last report can be opened again from the menu and closes with Esc.
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.getByRole("menuitem", { name: "Letzter Rundenbericht" }).click();
+  await expect(page.getByRole("dialog", { name: "Rundenbericht" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Rundenbericht" })).toBeHidden();
+
   // Saving, loading and the main menu sit in the menu of the header.
   await page.getByRole("button", { name: "Menü" }).click();
   await page.getByRole("menuitem", { name: /Speichern/ }).click();

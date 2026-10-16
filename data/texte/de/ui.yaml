@@ -3324,6 +3324,8 @@ bericht.steigt: gestiegen gegenüber der Vorrunde
 bericht.faellt: gefallen gegenüber der Vorrunde
 bericht.auslastung: Auslastung
 bericht.weitere_meldungen: "{anzahl} weitere Meldungen in den Auswertungen →"
+bericht.letzter: Letzter Rundenbericht
+bericht.nur_hinweise: Rundenbericht nur bei Hinweisen zeigen
 bericht.weitere_auswertungen: Weitere Auswertungen (Finanzergebnis, Mengen, Meldungen)
 bericht.anlage_status.im_bau: "im Bau (noch {tage} Tage)"
 bericht.anlage_status.stillgelegt: stillgelegt

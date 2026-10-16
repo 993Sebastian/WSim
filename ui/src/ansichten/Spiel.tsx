@@ -122,6 +122,25 @@ function etappenLesen(): boolean {
   }
 }
 
+/** Whether the round report only opens when there is something to look at (RB4). */
+export const BERICHT_HINWEISE_SPEICHER = "wsim-bericht-nur-hinweise";
+
+function berichtNurHinweiseLesen(): boolean {
+  try {
+    return localStorage.getItem(BERICHT_HINWEISE_SPEICHER) === "an";
+  } catch {
+    return false;
+  }
+}
+
+function berichtNurHinweiseMerken(an: boolean) {
+  try {
+    localStorage.setItem(BERICHT_HINWEISE_SPEICHER, an ? "an" : "aus");
+  } catch {
+    // Without storage the choice holds for this session only.
+  }
+}
+
 function etappenMerken(zeigen: boolean) {
   try {
     localStorage.setItem(ETAPPEN_SPEICHER, zeigen ? "an" : "aus");
@@ -232,6 +251,11 @@ export function Spiel({
   const [geldWahl, setGeldWahl] = useState(geldWahlLesen);
   const [etappenZeigen, setEtappenZeigen] = useState(etappenLesen);
   const [anhalten, setAnhalten] = useState(anhaltenLesen);
+  const [nurHinweise, setNurHinweise] = useState(berichtNurHinweiseLesen);
+  const waehleNurHinweise = (an: boolean) => {
+    setNurHinweise(an);
+    berichtNurHinweiseMerken(an);
+  };
   const waehleAnhalten = (wahl: Anhalten) => {
     setAnhalten(wahl);
     anhaltenMerken(wahl);
@@ -288,10 +312,14 @@ export function Spiel({
       setRunden((n) => n + 1);
       // World news first, each in a window of its own (then the report).
       const welt = bericht.messages.filter((m) => m.kind === "world_event");
+      // With the setting on, a report without hints and world news stays closed (RB4).
+      const still = nurHinweise && welt.length === 0 && bericht.hints.length === 0;
       setFenster(
         welt.length > 0
           ? { art: "ereignis", bericht, liste: welt, index: 0 }
-          : { art: "bericht", bericht },
+          : still
+            ? { art: "keins" }
+            : { art: "bericht", bericht },
       );
     } catch (err) {
       setFehler(fehlerText(err));
@@ -539,6 +567,26 @@ export function Spiel({
                   onClick={menuePunkt(() => onMenue(uebersicht))}
                 >
                   {t("menue.hauptmenue")}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={berichte.length === 0}
+                  onClick={menuePunkt(() => {
+                    const letzter = berichte[0];
+                    if (letzter) setFenster({ art: "bericht", bericht: letzter });
+                  })}
+                >
+                  {t("bericht.letzter")}
+                </button>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={nurHinweise}
+                  className="menue-wahl"
+                  onClick={menuePunkt(() => waehleNurHinweise(!nurHinweise))}
+                >
+                  {t("bericht.nur_hinweise")}
                 </button>
                 <button
                   type="button"
