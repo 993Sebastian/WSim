@@ -207,7 +207,7 @@ pub fn satisfaction_target(
         0.0
     };
     let loss = unit_result(catalog, state, job.company, job.position.unit) < Money::ZERO;
-    s.base + s.salary_weight * pay
+    s.base + s.salary_weight * pay + crate::wellbeing::loyalty_points(catalog, state, job.company)
         - if loss { s.loss_penalty } else { 0.0 }
         - s.overruled_penalty * f64::from(overruled)
 }

@@ -670,6 +670,11 @@ impl Game {
                 &self.catalog,
                 next,
             ));
+            report.messages.extend(crate::wellbeing::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             crate::private::month_start(&mut self.state, &self.catalog, next);
             report.messages.extend(crate::regulation::month_start(
                 &mut self.state,

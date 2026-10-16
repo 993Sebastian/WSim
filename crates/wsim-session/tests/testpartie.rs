@@ -100,6 +100,7 @@ fn test_game_1900_to_1930() {
             birth_year: None,
             married: true,
             children: 0,
+            background: None,
         })
         .unwrap();
     let built = play_nails(&mut session, "1930-01-01");
@@ -146,6 +147,7 @@ fn a_founder_lives_from_the_workshop_1900_to_1915() {
             birth_year: None,
             married: true,
             children: 0,
+            background: None,
         })
         .unwrap();
     let founding = session.person().unwrap().founding.unwrap();

@@ -818,6 +818,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         birth_year: None,
         married: true,
         children: 0,
+        background: None,
     };
     let message = |m: wsim_core::views::MessageView| m.key;
     let start = session.new_game(&request).map_err(message)?;
@@ -1169,6 +1170,7 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         birth_year: None,
         married: true,
         children: 0,
+        background: None,
     };
     session.new_game(&request).map_err(message)?;
     for role in ["leitung", "finanzen"] {

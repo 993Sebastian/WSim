@@ -28,6 +28,7 @@ fn request() -> NewGameRequest {
         birth_year: None,
         married: true,
         children: 0,
+        background: None,
     }
 }
 

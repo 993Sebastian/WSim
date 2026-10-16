@@ -187,4 +187,59 @@ describe("Person (PE2)", () => {
     expect(await within(nachfolge).findByText(/^Übergeben/)).toBeTruthy();
     expect(gesendet).toEqual([{ HandOver: {} }]);
   });
+
+  it("zeigt Zeit und Gesundheit und sendet die Zeitverteilung (PV1b)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.wellbeing = {
+          background: "tueftler",
+          research: 0.03,
+          loyalty: 0,
+          loan_rate: 0,
+          experience: 0.2,
+          time: [60, 15, 10, 15],
+          min_firm: 30,
+          delay_days: 0,
+          health: 72,
+          mortality_factor: 1,
+          ill_until: null,
+        };
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const zeit = await screen.findByRole("region", { name: "Zeit und Gesundheit" });
+    expect(within(zeit).getByText("Tüftler")).toBeTruthy();
+    expect(within(zeit).getByText(/72 \/ 100/)).toBeTruthy();
+    fireEvent.change(within(zeit).getByLabelText(/^Erholung/), { target: { value: "20" } });
+    expect(within(zeit).getByText(/Summe 105/)).toBeTruthy();
+    expect(within(zeit).getByRole("button", { name: "Zeit verteilen" })).toHaveProperty(
+      "disabled",
+      true,
+    );
+    fireEvent.change(within(zeit).getByLabelText(/^Firma/), { target: { value: "55" } });
+    fireEvent.click(within(zeit).getByRole("button", { name: "Zeit verteilen" }));
+    await within(zeit).findByRole("status");
+    expect(gesendet).toEqual([{ SetTimeBudget: { firm: 55, family: 15, network: 10, rest: 20 } }]);
+  });
 });

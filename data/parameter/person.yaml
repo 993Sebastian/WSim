@@ -73,6 +73,36 @@ person:
   # Guthabenzins des Privatkontos je Land und Jahr (real, Kaufkraft 2026).
   sparzins:
     standard: {1900: 0.02}
+  # Hintergrund, Zeit und Gesundheit (PV1b). Hintergründe: Startwerte der Wirkung; Anteile
+  # (forschung, loyalitaet) werden mit Erfahrung skaliert und bei `deckel` gekappt.
+  wohlbefinden:
+    hintergruende:
+      tueftler: {forschung: 0.05}
+      kaufmann: {kreditzins: -0.005, ordergebuehr: -0.2}
+      charismatiker: {loyalitaet: 0.1}
+      erbe: {ansehen: 20, netzwerk: 10}
+    deckel: 0.1
+    erfahrung_je_jahr: 0.1
+    zeit:
+      standard: {firma: 60, familie: 15, netzwerk: 10, erholung: 15}
+      # Mindestanteil Firma: basis + je_firma * geleitete Firmen, höchstens.
+      mindest_firma: {basis: 20, je_firma: 10, hoechstens: 80}
+      # Tage, um die Anliegen früher verfallen, je 100 % fehlender Anteil.
+      verzoegerung_tage: 30
+    gesundheit:
+      start: 85
+      altern_ab: 40
+      altern_je_jahr: 0.01
+      ueberlastung_ab: 70
+      ueberlastung_verlust: 2
+      erholung_gewinn: 2
+      lebensstil_gewinn: [-0.2, 0, 0.2, 0.3]
+      vorsorge_gewinn: 0.2
+      gesund_ab: 80
+      sterblichkeit_null: 3
+      krank_unter: 35
+      krank_chance: 0.3
+      krank_monate: 3
   # Erbe (PE6): Ohne Kind erbt ein Neffe oder eine Nichte im Alter von–bis Jahren; ab
   # hinweis_ab Jahren jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe
   # bestimmt ist.

@@ -625,6 +625,13 @@ pub enum Command {
     SetPrivateSchool { child: u32, active: bool },
     /// The person pays for health care: a lower chance to die.
     SetHealthCare { active: bool },
+    /// The shares of the person's time in percent, adding up to 100 (PV1b).
+    SetTimeBudget {
+        firm: u32,
+        family: u32,
+        network: u32,
+        rest: u32,
+    },
     /// The person pays capital into a company (PE3).
     ContributeCapital { company: CompanyId, amount: Money },
     /// The person lends a company money (PE3).
@@ -676,6 +683,7 @@ impl Command {
                 | Command::SeekPartner { .. }
                 | Command::SetPrivateSchool { .. }
                 | Command::SetHealthCare { .. }
+                | Command::SetTimeBudget { .. }
                 | Command::ContributeCapital { .. }
                 | Command::LendToCompany { .. }
                 | Command::WithdrawCapital { .. }
@@ -864,6 +872,10 @@ pub enum CommandError {
     /// The person cannot do that now (married already, a child too old, …).
     NotPossible,
     UnknownChild,
+    /// The person is absent through illness (PV1b).
+    PersonIll,
+    /// The shares of the time do not add up to 100 (PV1b).
+    TimeBudgetSum,
     OfferExists,
     OfferBlocked {
         until: Date,
@@ -1232,6 +1244,8 @@ impl CommandError {
             CommandError::LicenseNotPossible => e(keys::COMMAND_LICENSE_NOT_POSSIBLE),
             CommandError::NotPossible => e(keys::COMMAND_NOT_POSSIBLE),
             CommandError::UnknownChild => e(keys::COMMAND_UNKNOWN_CHILD),
+            CommandError::PersonIll => e(keys::COMMAND_ILL),
+            CommandError::TimeBudgetSum => e(keys::COMMAND_TIME_BUDGET),
             CommandError::OfferExists => e(keys::COMMAND_OFFER_EXISTS),
             CommandError::OfferBlocked { until } => {
                 e(keys::COMMAND_OFFER_BLOCKED).with("datum", Param::Date(*until))
@@ -2004,6 +2018,7 @@ fn run(
         | Command::SeekPartner { .. }
         | Command::SetPrivateSchool { .. }
         | Command::SetHealthCare { .. }
+        | Command::SetTimeBudget { .. }
         | Command::ContributeCapital { .. }
         | Command::LendToCompany { .. }
         | Command::WithdrawCapital { .. }

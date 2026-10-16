@@ -72,6 +72,84 @@ function Familie({ p }: { p: Person }) {
 }
 
 /** Partner search, private schools and health care: buttons, costs a month. */
+/** Background, time budget and health (PV1b). */
+function Wohlbefinden({ w }: { w: NonNullable<Person["wellbeing"]> }) {
+  const { los, antwort } = useAktion("zeit");
+  const [zeit, setZeit] = useState<[string, string, string, string]>(
+    () => w.time.map(String) as [string, string, string, string],
+  );
+  const werte: number[] = zeit.map((z) => Number(z));
+  const summe = werte.reduce((a, b) => a + b, 0);
+  const namen = ["firma", "familie", "netzwerk", "erholung"] as const;
+  return (
+    <section className="karte" aria-label={t("person.zeit_gesundheit")}>
+      <h2>{t("person.zeit_gesundheit")}</h2>
+      {w.background && (
+        <p>
+          <strong>{t(`person.hintergrund_${w.background}`)}</strong>
+          {" – "}
+          {t(`person.hintergrund_hilfe_${w.background}`)}
+        </p>
+      )}
+      <dl className="werte">
+        <dt>{t("person.gesundheit")}</dt>
+        <dd>
+          {formatZahl(w.health)} / 100
+          {w.ill_until ? ` – ${t("person.krank_bis", { datum: formatDatum(w.ill_until) })}` : ""}
+        </dd>
+        <dt>{t("person.sterblichkeit_gesundheit")}</dt>
+        <dd>{formatProzent(w.mortality_factor)}</dd>
+        <dt>{t("person.mindest_firma")}</dt>
+        <dd>{formatZahl(w.min_firm)} %</dd>
+      </dl>
+      <p className="feld-hilfe">{t("person.zeit_hilfe")}</p>
+      <div className="feldreihe">
+        {namen.map((n, i) => (
+          <label key={n}>
+            {t(`person.zeit_${n}`)} (%)
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={zeit[i]}
+              onChange={(e) => {
+                const neu = [...zeit] as [string, string, string, string];
+                neu[i] = e.target.value;
+                setZeit(neu);
+              }}
+            />
+          </label>
+        ))}
+      </div>
+      {w.delay_days > 0 && (
+        <p className="fehlertext">{t("person.zeit_knapp", { tage: formatZahl(w.delay_days) })}</p>
+      )}
+      <button
+        type="button"
+        disabled={summe !== 100 || werte.some((x) => !Number.isInteger(x) || x < 0)}
+        onClick={() =>
+          void los([
+            {
+              SetTimeBudget: {
+                firm: werte[0] ?? 0,
+                family: werte[1] ?? 0,
+                network: werte[2] ?? 0,
+                rest: werte[3] ?? 0,
+              },
+            },
+          ])
+        }
+      >
+        {t("person.zeit_speichern")}
+      </button>
+      {summe !== 100 && (
+        <span className="fehlertext"> {t("person.zeit_summe", { summe: formatZahl(summe) })}</span>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 function Privatleben({ p, pl }: { p: Person; pl: NonNullable<Person["private_life"]> }) {
   const { los, antwort } = useAktion("privatleben");
   const schulfaehig = p.children
@@ -761,6 +839,7 @@ export function PersonAnsicht({
       )}
       {g && <Vermoegen g={g} />}
       {g && <Lebensstil g={g} />}
+      {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
       <Rollen p={daten} g={g} />
       {g &&
         daten.holdings

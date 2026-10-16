@@ -385,6 +385,20 @@ pub fn rows_not_ascending() -> String {
     "Die Zeilen müssen nach „bip_je_kopf_usd“ aufsteigend sortiert sein.".into()
 }
 
+pub fn background_unknown(key: &str) -> String {
+    format!(
+        "Hintergrund „{key}“ ist nicht bekannt (erlaubt: tueftler, kaufmann, charismatiker, erbe)."
+    )
+}
+
+pub fn background_missing(key: &str) -> String {
+    format!("Der Hintergrund „{key}“ fehlt.")
+}
+
+pub fn time_not_hundred() -> String {
+    "Die Anteile der Zeit (firma, familie, netzwerk, erholung) müssen zusammen 100 ergeben.".into()
+}
+
 pub fn brackets_not_ascending() -> String {
     "Die Stufen müssen nach „ab“ aufsteigend sortiert sein.".into()
 }

@@ -94,6 +94,7 @@ pub mod transport;
 pub mod trims;
 pub mod ventures;
 pub mod views;
+pub mod wellbeing;
 
 #[cfg(test)]
 mod aging_tests;

@@ -1,11 +1,11 @@
 //! Age, retirement and death of the managers of `lebenslauf` (docs/FORMELN.md, PE1).
 
 use wsim_core::catalog::{
-    AgeSpan, Catalog, CountrySeries, FoundingModel, LifeModel, LifestyleLevel, PersonModel,
-    PrivateLifeModel,
+    AgeSpan, BackgroundEffect, Catalog, CountrySeries, FoundingModel, LifeModel, LifestyleLevel,
+    PersonModel, PrivateLifeModel, WellbeingModel,
 };
 use wsim_core::ids::Id;
-use wsim_core::state::Lifestyle;
+use wsim_core::state::{Background, Lifestyle};
 
 use super::{in_range, non_negative, positive, provenance, time_series};
 use crate::messages;
@@ -396,6 +396,10 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .map_or_else(PrivateLifeModel::default, |p| {
                 private_life(ctx, p, &l.field("privatleben"))
             }),
+        wellbeing: v
+            .wellbeing
+            .as_ref()
+            .map(|w| wellbeing(ctx, w, &l.field("wohlbefinden"))),
         provenance: provenance(v.approximation, v.source.as_ref()),
         ..PersonModel::default()
     }
@@ -461,4 +465,122 @@ fn tax_brackets(ctx: &mut Ctx, raw: &[crate::raw::RawTaxBracket], l: &Loc) -> Ve
         out.push((from, factor));
     }
     out
+}
+
+/// Background, time budget and health (PV1b): every background present, shares and
+/// factors within sensible bounds, the default time adding up to 100.
+fn wellbeing(ctx: &mut Ctx, w: &crate::raw::RawWellbeing, l: &Loc) -> WellbeingModel {
+    let bl = l.field("hintergruende");
+    let mut backgrounds = [BackgroundEffect::default(); 4];
+    for key in w.backgrounds.keys() {
+        if Background::from_key(key).is_none() {
+            ctx.error(&bl.field(key), messages::background_unknown(key));
+        }
+    }
+    for b in Background::ALL {
+        let at = bl.field(b.key());
+        let Some(r) = w.backgrounds.get(b.key()) else {
+            ctx.error(&bl, messages::background_missing(b.key()));
+            continue;
+        };
+        backgrounds[b as usize] = BackgroundEffect {
+            research: in_range(ctx, r.research, 0.0, 1.0, &at.field("forschung")),
+            loan_rate: in_range(ctx, r.loan_rate, -0.05, 0.05, &at.field("kreditzins")),
+            order_fee: in_range(ctx, r.order_fee, -1.0, 1.0, &at.field("ordergebuehr")),
+            loyalty: in_range(ctx, r.loyalty, 0.0, 1.0, &at.field("loyalitaet")),
+            standing: in_range(ctx, r.standing, 0.0, 100.0, &at.field("ansehen")),
+            network: in_range(ctx, r.network, 0.0, 100.0, &at.field("netzwerk")),
+        };
+    }
+    let tl = l.field("zeit");
+    let d = &w.time.default;
+    if d.firm + d.family + d.network + d.rest != 100 {
+        ctx.error(&tl.field("standard"), messages::time_not_hundred());
+    }
+    let mf = tl.field("mindest_firma");
+    let min_firm = [
+        in_range(ctx, w.time.min_firm.base, 0.0, 100.0, &mf.field("basis")),
+        in_range(
+            ctx,
+            w.time.min_firm.per_company,
+            0.0,
+            100.0,
+            &mf.field("je_firma"),
+        ),
+        in_range(
+            ctx,
+            w.time.min_firm.most,
+            0.0,
+            100.0,
+            &mf.field("hoechstens"),
+        ),
+    ];
+    let hl = l.field("gesundheit");
+    let h = &w.health;
+    let lifestyle_gain = std::array::from_fn(|i| {
+        in_range(
+            ctx,
+            h.lifestyle_gain[i],
+            -10.0,
+            10.0,
+            &hl.field("lebensstil_gewinn").index(i),
+        )
+    });
+    WellbeingModel {
+        backgrounds,
+        cap: in_range(ctx, w.cap, 0.0, 1.0, &l.field("deckel")),
+        experience_per_year: in_range(
+            ctx,
+            w.experience_per_year,
+            0.0,
+            1.0,
+            &l.field("erfahrung_je_jahr"),
+        ),
+        time_default: [d.firm, d.family, d.network, d.rest],
+        min_firm,
+        delay_days: in_range(
+            ctx,
+            w.time.delay_days,
+            0.0,
+            365.0,
+            &tl.field("verzoegerung_tage"),
+        ),
+        health_start: in_range(ctx, h.start, 1.0, 100.0, &hl.field("start")),
+        aging_from: h.aging_from,
+        aging_per_year: in_range(
+            ctx,
+            h.aging_per_year,
+            0.0,
+            10.0,
+            &hl.field("altern_je_jahr"),
+        ),
+        overload_from: in_range(
+            ctx,
+            h.overload_from,
+            0.0,
+            99.0,
+            &hl.field("ueberlastung_ab"),
+        ),
+        overload_loss: in_range(
+            ctx,
+            h.overload_loss,
+            0.0,
+            50.0,
+            &hl.field("ueberlastung_verlust"),
+        ),
+        rest_gain: in_range(ctx, h.rest_gain, 0.0, 50.0, &hl.field("erholung_gewinn")),
+        lifestyle_gain,
+        care_gain: in_range(ctx, h.care_gain, 0.0, 10.0, &hl.field("vorsorge_gewinn")),
+        healthy_from: in_range(ctx, h.healthy_from, 1.0, 100.0, &hl.field("gesund_ab")),
+        mortality_at_zero: in_range(
+            ctx,
+            h.mortality_at_zero,
+            1.0,
+            20.0,
+            &hl.field("sterblichkeit_null"),
+        ),
+        ill_below: in_range(ctx, h.ill_below, 0.0, 100.0, &hl.field("krank_unter")),
+        ill_chance: in_range(ctx, h.ill_chance, 0.0, 1.0, &hl.field("krank_chance")),
+        ill_months: h.ill_months,
+    }
 }

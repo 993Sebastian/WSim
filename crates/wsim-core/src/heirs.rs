@@ -24,6 +24,7 @@ pub fn death_chance(catalog: &Catalog, state: &GameState, today: Date) -> f64 {
     };
     (aging::death_chance_at(catalog, age, p.home, today)
         * catalog.person.lifestyle(level).mortality
+        * crate::wellbeing::mortality_factor(catalog, state)
         * care)
         .clamp(0.0, 1.0)
 }

@@ -4720,6 +4720,32 @@ person:
     standard: {1900: 0, 2026: 0.25}
   sparzins:
     standard: {1900: 0.02}
+  wohlbefinden:
+    hintergruende:
+      tueftler: {forschung: 0.05}
+      kaufmann: {kreditzins: -0.005, ordergebuehr: -0.2}
+      charismatiker: {loyalitaet: 0.1}
+      erbe: {ansehen: 20, netzwerk: 10}
+    deckel: 0.1
+    erfahrung_je_jahr: 0.1
+    zeit:
+      standard: {firma: 60, familie: 15, netzwerk: 10, erholung: 15}
+      mindest_firma: {basis: 20, je_firma: 10, hoechstens: 80}
+      verzoegerung_tage: 30
+    gesundheit:
+      start: 85
+      altern_ab: 40
+      altern_je_jahr: 0.01
+      ueberlastung_ab: 70
+      ueberlastung_verlust: 2
+      erholung_gewinn: 2
+      lebensstil_gewinn: [-0.2, 0, 0.2, 0.3]
+      vorsorge_gewinn: 0.2
+      gesund_ab: 80
+      sterblichkeit_null: 3
+      krank_unter: 35
+      krank_chance: 0.3
+      krank_monate: 3
   erbe: {neffe_alter: {von: 25, bis: 40}, hinweis_ab: 70}
   erbschaftsteuer:
     standard: {1900: 0.03, 2026: 0.15}
@@ -4903,6 +4929,30 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
             "standard: {1900: 0, 2026: 2.5}",
             "Wert 2.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
             "person.kapitalertragsteuer.standard.2026",
+        ),
+        (
+            "standard: {firma: 60, familie: 15, netzwerk: 10, erholung: 15}",
+            "standard: {firma: 60, familie: 15, netzwerk: 10, erholung: 20}",
+            "Die Anteile der Zeit (firma, familie, netzwerk, erholung) müssen zusammen 100 ergeben.",
+            "person.wohlbefinden.zeit.standard",
+        ),
+        (
+            "      erbe: {ansehen: 20, netzwerk: 10}",
+            "      erbe: {ansehen: 20, netzwerk: 10}\n      zauberer: {}",
+            "Hintergrund „zauberer“ ist nicht bekannt (erlaubt: tueftler, kaufmann, charismatiker, erbe).",
+            "person.wohlbefinden.hintergruende.zauberer",
+        ),
+        (
+            "      kaufmann: {kreditzins: -0.005, ordergebuehr: -0.2}\n",
+            "",
+            "Der Hintergrund „kaufmann“ fehlt.",
+            "person.wohlbefinden.hintergruende",
+        ),
+        (
+            "krank_chance: 0.3",
+            "krank_chance: 3",
+            "Wert 3 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.wohlbefinden.gesundheit.krank_chance",
         ),
         (
             "kosten_anteil: 0.005",

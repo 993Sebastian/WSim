@@ -2891,7 +2891,62 @@ pub struct PersonModel {
     pub inheritance_tax: CountrySeries,
     /// Partner search, private schools and health care.
     pub private_life: PrivateLifeModel,
+    /// Background, time budget and health (PV1b); `None` without the section.
+    pub wellbeing: Option<WellbeingModel>,
     pub provenance: Provenance,
+}
+
+/// Effects of a background at the start (PV1b); proportional ones are shares.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct BackgroundEffect {
+    /// Faster research and projects.
+    pub research: f64,
+    /// Added to the rate of new bank loans (points as a fraction).
+    pub loan_rate: f64,
+    /// Share of the order fee (from PV2).
+    pub order_fee: f64,
+    /// Better satisfaction of the managers.
+    pub loyalty: f64,
+    /// Standing and contacts at the start (from PV6).
+    pub standing: f64,
+    pub network: f64,
+}
+
+/// Time budget, health and illness of the person (PV1b, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct WellbeingModel {
+    /// Effects by background, indexed by `Background`.
+    pub backgrounds: [BackgroundEffect; 4],
+    /// Cap of the proportional effects.
+    pub cap: f64,
+    /// Experience gained per year while leading a company (0–1 scale).
+    pub experience_per_year: f64,
+    /// Default shares of the time: firm, family, network, rest (percent).
+    pub time_default: [u32; 4],
+    /// Least share for the firm: base, per company led, most.
+    pub min_firm: [f64; 3],
+    /// Days a concern waits less per missing share of the minimum.
+    pub delay_days: f64,
+    pub health_start: f64,
+    /// Health loss per month: from this age, per year of age.
+    pub aging_from: u32,
+    pub aging_per_year: f64,
+    /// Loss per month at full overload: firm share above `overload_from`.
+    pub overload_from: f64,
+    pub overload_loss: f64,
+    /// Gain per month at the whole time spent resting.
+    pub rest_gain: f64,
+    /// Gain per month by lifestyle level.
+    pub lifestyle_gain: [f64; 4],
+    /// Gain per month with health care.
+    pub care_gain: f64,
+    /// Below this health the mortality rises; factor at health 0.
+    pub healthy_from: f64,
+    pub mortality_at_zero: f64,
+    /// Illness below `ill_below`: chance per month at health 0, months of absence.
+    pub ill_below: f64,
+    pub ill_chance: f64,
+    pub ill_months: u32,
 }
 
 /// What the person can do privately; costs in academic monthly wages of the home country.
@@ -2941,6 +2996,7 @@ impl Default for PersonModel {
             succession_hint_from: 70,
             inheritance_tax: CountrySeries::default(),
             private_life: PrivateLifeModel::default(),
+            wellbeing: None,
             provenance: Provenance::default(),
         }
     }

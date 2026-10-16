@@ -642,6 +642,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         let (adjust_time, adjust_cost) =
             crate::project_gates::phase_adjust(m, &state.dev_projects[index], phase);
         let days = (phase_days(m, tempo, phase, effort) * f.time * adjust_time).max(1e-9);
+        let speed = speed * crate::wellbeing::research_factor(catalog, state, company);
         let step = (speed / days).min(1.0 - progress);
         let cost = Money::from_usd(
             phase_cost_usd(m, (tempo, trim), phase, effort)

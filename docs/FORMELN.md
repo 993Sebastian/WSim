@@ -4848,7 +4848,7 @@ Startwerte `w` (Anteile; Obergrenze `deckel` = 0,1 für die Eigenschaftsboni):
   Prozentpunkten (Kaufmann −0,005); wirkt wie der Lebensstil in `loan_rate_offset`.
 - *Ordergebühr* `g`: Anteil der Gebühr (Kaufmann −0,2); wirkt ab PV2, bis dahin nur Anzeige.
 - *Loyalität* `l`: Zuschlag auf die Zufriedenheit der Manager in Firmen unter Führung der Person
-  (Charismatiker 0,1 · Zufriedenheitsschritt je Monat).
+  (Charismatiker 0,1 → +10 Punkte auf die Zielzufriedenheit der Manager).
 - *Ansehen/Netzwerk* zum Start (Erbe): als Zahlen gespeichert, wirken ab PV6.
 
 `e` ist die Erfahrung der Person (0…1, wächst um `erfahrung_je_jahr` je Jahr bei aktiver
@@ -4858,7 +4858,7 @@ Führung einer Firma). Wirkung = Startwert · (0,5 + 0,5·e) gedeckelt auf `deck
 dauerhaft; Voreinstellung aus den Daten. Mindestanteil Firma
 `m = min(m_max, m_0 + m_rolle · Rollen)` mit `Rollen` = Zahl der Firmen, die die Person als
 CEO leitet. Liegt der Firmenanteil unter `m`, entscheiden die Manager häufiger nach Standard:
-Anliegen an die Person laufen nach `(m − Firma)/m` · `verzoegerung` Tagen länger (Frist).
+Anliegen an die Person verfallen (ohne Änderung) `(m − Firma)/m · verzoegerung_tage` Tage früher.
 
 **Gesundheit.** Wert `G` in 0…100. Monatliche Änderung:
 
@@ -4866,12 +4866,13 @@ Anliegen an die Person laufen nach `(m − Firma)/m` · `verzoegerung` Tagen lä
 
 mit `altern(a) = a_0 · max(0, a − a_ab)` je Monat (a = Alter), `lebensstil` aus den Stufen
 (`gesundheit`). Die Sterbechance des Lebenslaufs wird mit
-`s(G) = 1 + (s_0 − 1) · (1 − G/100)` multipliziert (`s_0` = Faktor bei G = 0).
+`s(G) = 1 + (s_0 − 1) · (g_0 − G)/g_0` für `G < g_0` (`gesund_ab`), sonst 1, multipliziert
+(`s_0` = Faktor bei G = 0). Die vorhandene Vorsorge (`SetHealthCare`) ersetzt die Kur: sie gibt
+`vorsorge_gewinn` Gesundheit je Monat zusätzlich zu ihrer Sterblichkeitswirkung.
 Fällt `G` unter die Schwelle `krank_unter`, tritt je Monat mit Chance
 `krank_chance · (schwelle − G)/schwelle` ein Ausfall von `ausfall_monate` Monaten ein (eigener
-Zufallsstrom `Person`). Während des Ausfalls zählt der Firmenanteil als 0 (Standard-
-entscheidungen der Manager), und Anliegen laufen über die Hierarchie zum CEO. Eine Kur
-(Befehl) kostet `kur_kosten` Monatslöhne und bringt `kur_gewinn` Gesundheit.
+Zufallsstrom `Person`). Während des Ausfalls zählt der Firmenanteil als 0, `AnswerConcern` wird abgelehnt, und offene
+Anliegen verfallen (die Manager entscheiden nach ihren Standardregeln).
 
 ## PE4 – Dividenden
 

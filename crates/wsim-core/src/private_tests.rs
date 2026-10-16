@@ -531,3 +531,180 @@ fn the_wealth_classes_add_up_to_the_net_worth() {
     assert!((shown - view.wealth_usd).abs() < 0.01);
     assert_eq!(view.classes.len(), 4);
 }
+
+fn wellbeing_model() -> crate::catalog::WellbeingModel {
+    use crate::catalog::{BackgroundEffect, WellbeingModel};
+    let none = BackgroundEffect::default();
+    WellbeingModel {
+        backgrounds: [
+            BackgroundEffect {
+                research: 0.05,
+                ..none
+            },
+            BackgroundEffect {
+                loan_rate: -0.005,
+                ..none
+            },
+            BackgroundEffect {
+                loyalty: 0.1,
+                ..none
+            },
+            none,
+        ],
+        cap: 0.1,
+        experience_per_year: 0.1,
+        time_default: [60, 15, 10, 15],
+        min_firm: [20.0, 10.0, 80.0],
+        delay_days: 30.0,
+        health_start: 85.0,
+        aging_from: 40,
+        aging_per_year: 0.01,
+        overload_from: 70.0,
+        overload_loss: 2.0,
+        rest_gain: 2.0,
+        lifestyle_gain: [-0.2, 0.0, 0.2, 0.3],
+        care_gain: 0.2,
+        healthy_from: 80.0,
+        mortality_at_zero: 3.0,
+        ill_below: 35.0,
+        ill_chance: 1.0,
+        ill_months: 3,
+    }
+}
+
+fn wellbeing_game(background: Option<crate::state::Background>) -> Game {
+    let mut c = catalog();
+    c.person.wellbeing = Some(wellbeing_model());
+    let catalog = Arc::new(c);
+    let mut s = settings(&catalog, true, 1_000_000.0);
+    s.person.background = background;
+    Game::new(catalog, s).unwrap()
+}
+
+fn months(game: &mut Game, n: u32) {
+    for _ in 0..n {
+        to_next_month(game);
+    }
+}
+
+#[test]
+fn the_time_budget_must_add_up_and_a_short_firm_share_shortens_concerns() {
+    let mut game = wellbeing_game(None);
+    let bad = Command::SetTimeBudget {
+        firm: 50,
+        family: 10,
+        network: 10,
+        rest: 10,
+    };
+    assert_eq!(game.apply(bad), Err(CommandError::TimeBudgetSum));
+    assert_eq!(
+        crate::wellbeing::delay_days(game.catalog(), game.state()),
+        0
+    );
+    game.apply(Command::SetTimeBudget {
+        firm: 10,
+        family: 30,
+        network: 30,
+        rest: 30,
+    })
+    .unwrap();
+    let least = crate::wellbeing::min_firm(game.catalog(), game.state());
+    assert_eq!(least, 30.0);
+    // (30 − 10) / 30 of 30 days.
+    assert_eq!(
+        crate::wellbeing::delay_days(game.catalog(), game.state()),
+        20
+    );
+    let view = views::person(&game).wellbeing.unwrap();
+    assert_eq!(view.time, [10, 30, 30, 30]);
+}
+
+#[test]
+fn overload_wears_the_health_down_and_rest_builds_it_up() {
+    let mut busy = wellbeing_game(None);
+    busy.apply(Command::SetTimeBudget {
+        firm: 95,
+        family: 5,
+        network: 0,
+        rest: 0,
+    })
+    .unwrap();
+    let mut calm = wellbeing_game(None);
+    calm.apply(Command::SetTimeBudget {
+        firm: 30,
+        family: 20,
+        network: 0,
+        rest: 50,
+    })
+    .unwrap();
+    months(&mut busy, 6);
+    months(&mut calm, 6);
+    let hb = busy.state().person.health.unwrap();
+    let hc = calm.state().person.health.unwrap();
+    assert!(hb < 85.0 && hc > 85.0, "{hb} {hc}");
+    assert!(hc <= 100.0);
+}
+
+#[test]
+fn poor_health_raises_the_mortality_and_brings_an_illness_that_blocks_answers() {
+    let mut game = wellbeing_game(None);
+    let healthy = crate::wellbeing::mortality_factor(game.catalog(), game.state());
+    assert_eq!(healthy, 1.0);
+    game.state_mut().person.health = Some(10.0);
+    let weak = crate::wellbeing::mortality_factor(game.catalog(), game.state());
+    assert!(weak > 2.0, "{weak}");
+    game.state_mut().person.health = Some(0.0);
+    game.apply(Command::SetTimeBudget {
+        firm: 90,
+        family: 10,
+        network: 0,
+        rest: 0,
+    })
+    .unwrap();
+    let keys = to_next_month(&mut game);
+    assert!(keys.iter().any(|k| k == keys::PERSON_ILL), "{keys:?}");
+    let today = game.state().date;
+    assert!(crate::wellbeing::is_ill(game.state(), today));
+    let view = views::person(&game).wellbeing.unwrap();
+    assert!(view.ill_until.is_some());
+    // Recovered and rested, the person is back.
+    game.state_mut().person.health = Some(90.0);
+    months(&mut game, 4);
+    assert!(!crate::wellbeing::is_ill(game.state(), game.state().date));
+}
+
+#[test]
+fn backgrounds_give_capped_effects_that_grow_with_experience() {
+    use crate::state::Background;
+    let mut tinkerer = wellbeing_game(Some(Background::Tinkerer));
+    let start = crate::wellbeing::effect(tinkerer.catalog(), tinkerer.state()).research;
+    assert!((start - 0.025).abs() < 1e-12);
+    months(&mut tinkerer, 24);
+    let later = crate::wellbeing::effect(tinkerer.catalog(), tinkerer.state()).research;
+    assert!(later > start && later <= 0.05 + 1e-12, "{later}");
+    let company = tinkerer.player();
+    assert!(crate::wellbeing::research_factor(tinkerer.catalog(), tinkerer.state(), company) > 1.0);
+    let merchant = wellbeing_game(Some(Background::Merchant));
+    let plain = wellbeing_game(None);
+    let c = merchant.player();
+    assert!(
+        private::loan_rate_offset(merchant.catalog(), merchant.state(), c)
+            < private::loan_rate_offset(plain.catalog(), plain.state(), c)
+    );
+}
+
+#[test]
+fn the_wellbeing_replays_from_the_journal() {
+    let mut game = wellbeing_game(Some(crate::state::Background::Heir));
+    game.apply(Command::SetTimeBudget {
+        firm: 80,
+        family: 10,
+        network: 5,
+        rest: 5,
+    })
+    .unwrap();
+    months(&mut game, 8);
+    let settings = game.state().settings.clone();
+    let again = Game::replay(game.catalog().clone(), settings, game.journal()).unwrap();
+    assert_eq!(again.state_hash(), game.state_hash());
+}

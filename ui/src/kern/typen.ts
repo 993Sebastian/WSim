@@ -60,6 +60,8 @@ export interface NeuesSpiel {
   birth_year?: number | null;
   married?: boolean;
   children?: number;
+  /** The background of the figure (PV1b): tueftler, kaufmann, charismatiker, erbe. */
+  background?: string | null;
 }
 
 export interface Anlage {
@@ -3039,6 +3041,22 @@ export interface Gruendung {
 }
 
 /** The player as a person (PE2). */
+/** Background, time and health of the person (PV1b). */
+export interface PersonWohlbefinden {
+  background: string | null;
+  research: number;
+  loyalty: number;
+  loan_rate: number;
+  experience: number;
+  /** Percent: firm, family, network, rest. */
+  time: [number, number, number, number];
+  min_firm: number;
+  delay_days: number;
+  health: number;
+  mortality_factor: number;
+  ill_until: string | null;
+}
+
 export interface Person {
   name: string;
   born: string;
@@ -3063,6 +3081,8 @@ export interface Person {
   /** The chronicle, the latest first. */
   history: { date: string; text: Meldung }[];
   money?: PersonGeld | null;
+  /** Background, time budget and health (PV1b). */
+  wellbeing?: PersonWohlbefinden | null;
   /** While the person has no company yet: the founding. */
   founding?: Gruendung | null;
   /** Heir, estate and tax (PE6). */

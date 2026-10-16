@@ -77,6 +77,9 @@ pub struct NewGameRequest {
     pub married: bool,
     #[serde(default)]
     pub children: u8,
+    /// The background of the figure (PV1b): `tueftler`, `kaufmann`, `charismatiker`, `erbe`.
+    #[serde(default)]
+    pub background: Option<String>,
 }
 
 fn yes() -> bool {
@@ -304,6 +307,10 @@ impl<S: SaveStore> Session<S> {
                 birth_year: request.birth_year,
                 married: request.married,
                 children: request.children,
+                background: request
+                    .background
+                    .as_deref()
+                    .and_then(wsim_core::state::Background::from_key),
             },
         };
         let game = Game::new(c.clone(), settings).map_err(|e| views::message_view(&e.message()))?;

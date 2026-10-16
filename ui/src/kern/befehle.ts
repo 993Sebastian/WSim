@@ -115,6 +115,7 @@ export type Befehl =
   | { SeekPartner: { active: boolean } }
   | { SetPrivateSchool: { child: number; active: boolean } }
   | { SetHealthCare: { active: boolean } }
+  | { SetTimeBudget: { firm: number; family: number; network: number; rest: number } }
   | { SetLifestyle: { level: Stufe } }
   | { ContributeCapital: { company: number; amount: number } }
   | { LendToCompany: { company: number; amount: number; rate: number; years: number } }

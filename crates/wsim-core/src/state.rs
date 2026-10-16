@@ -2380,6 +2380,71 @@ pub struct Person {
     /// Pays for health care.
     #[serde(default, skip_serializing_if = "is_false")]
     pub health_care: bool,
+    /// The background chosen at the start (PV1b).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub background: Option<Background>,
+    /// Shares of the time in percent; `None`: the default of the data (PV1b).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub time: Option<TimeBudget>,
+    /// Health 0–100; `None` until the first month of the model (PV1b).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub health: Option<f64>,
+    /// Experience of leading, 0–1 (PV1b).
+    #[serde(default, skip_serializing_if = "is_zero_f64")]
+    pub experience: f64,
+    /// Absent through illness until this day (PV1b).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ill_until: Option<Date>,
+}
+
+fn is_zero_f64(x: &f64) -> bool {
+    *x == 0.0
+}
+
+/// The background of the player figure (PV1b).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Background {
+    Tinkerer,
+    Merchant,
+    Charismatic,
+    Heir,
+}
+
+impl Background {
+    pub const ALL: [Background; 4] = [
+        Background::Tinkerer,
+        Background::Merchant,
+        Background::Charismatic,
+        Background::Heir,
+    ];
+
+    pub fn key(self) -> &'static str {
+        match self {
+            Background::Tinkerer => "tueftler",
+            Background::Merchant => "kaufmann",
+            Background::Charismatic => "charismatiker",
+            Background::Heir => "erbe",
+        }
+    }
+
+    pub fn from_key(key: &str) -> Option<Background> {
+        Background::ALL.into_iter().find(|b| b.key() == key)
+    }
+}
+
+/// Shares of the time in percent; they add up to 100 (PV1b).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TimeBudget {
+    pub firm: u32,
+    pub family: u32,
+    pub network: u32,
+    pub rest: u32,
+}
+
+impl TimeBudget {
+    pub fn total(&self) -> u32 {
+        self.firm + self.family + self.network + self.rest
+    }
 }
 
 fn is_zero_steps(n: &u32) -> bool {
@@ -2425,6 +2490,11 @@ impl Default for Person {
             ancestors: Vec::new(),
             seeking_partner: false,
             health_care: false,
+            background: None,
+            time: None,
+            health: None,
+            experience: 0.0,
+            ill_until: None,
         }
     }
 }
@@ -2661,6 +2731,9 @@ pub struct PersonSettings {
     pub married: bool,
     #[serde(default)]
     pub children: u8,
+    /// The background chosen at the start (PV1b).
+    #[serde(default)]
+    pub background: Option<Background>,
 }
 
 impl Default for PersonSettings {
@@ -2670,6 +2743,7 @@ impl Default for PersonSettings {
             birth_year: None,
             married: true,
             children: 0,
+            background: None,
         }
     }
 }

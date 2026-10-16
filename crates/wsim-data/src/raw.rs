@@ -3200,10 +3200,112 @@ pub struct RawPerson {
     pub inheritance_tax: RawCountrySeries,
     #[serde(default, rename = "privatleben")]
     pub private_life: Option<RawPrivateLife>,
+    #[serde(default, rename = "wohlbefinden")]
+    pub wellbeing: Option<RawWellbeing>,
     #[serde(default, rename = "annaeherung")]
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// Background, time budget and health of the person (PV1b).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawWellbeing {
+    #[serde(rename = "hintergruende")]
+    pub backgrounds: std::collections::BTreeMap<String, RawBackground>,
+    #[serde(rename = "deckel")]
+    pub cap: f64,
+    #[serde(rename = "erfahrung_je_jahr")]
+    pub experience_per_year: f64,
+    #[serde(rename = "zeit")]
+    pub time: RawTimeModel,
+    #[serde(rename = "gesundheit")]
+    pub health: RawHealthModel,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBackground {
+    #[serde(default, rename = "forschung")]
+    pub research: f64,
+    #[serde(default, rename = "kreditzins")]
+    pub loan_rate: f64,
+    #[serde(default, rename = "ordergebuehr")]
+    pub order_fee: f64,
+    #[serde(default, rename = "loyalitaet")]
+    pub loyalty: f64,
+    #[serde(default, rename = "ansehen")]
+    pub standing: f64,
+    #[serde(default, rename = "netzwerk")]
+    pub network: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTimeModel {
+    #[serde(rename = "standard")]
+    pub default: RawTimeBudget,
+    #[serde(rename = "mindest_firma")]
+    pub min_firm: RawMinFirm,
+    #[serde(rename = "verzoegerung_tage")]
+    pub delay_days: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTimeBudget {
+    #[serde(rename = "firma")]
+    pub firm: u32,
+    #[serde(rename = "familie")]
+    pub family: u32,
+    #[serde(rename = "netzwerk")]
+    pub network: u32,
+    #[serde(rename = "erholung")]
+    pub rest: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMinFirm {
+    #[serde(rename = "basis")]
+    pub base: f64,
+    #[serde(rename = "je_firma")]
+    pub per_company: f64,
+    #[serde(rename = "hoechstens")]
+    pub most: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHealthModel {
+    #[serde(rename = "start")]
+    pub start: f64,
+    #[serde(rename = "altern_ab")]
+    pub aging_from: u32,
+    #[serde(rename = "altern_je_jahr")]
+    pub aging_per_year: f64,
+    #[serde(rename = "ueberlastung_ab")]
+    pub overload_from: f64,
+    #[serde(rename = "ueberlastung_verlust")]
+    pub overload_loss: f64,
+    #[serde(rename = "erholung_gewinn")]
+    pub rest_gain: f64,
+    /// Gain per month by lifestyle, from modest to luxurious.
+    #[serde(rename = "lebensstil_gewinn")]
+    pub lifestyle_gain: [f64; 4],
+    #[serde(rename = "vorsorge_gewinn")]
+    pub care_gain: f64,
+    #[serde(rename = "gesund_ab")]
+    pub healthy_from: f64,
+    #[serde(rename = "sterblichkeit_null")]
+    pub mortality_at_zero: f64,
+    #[serde(rename = "krank_unter")]
+    pub ill_below: f64,
+    #[serde(rename = "krank_chance")]
+    pub ill_chance: f64,
+    #[serde(rename = "krank_monate")]
+    pub ill_months: u32,
 }
 
 /// A bracket of the income tax (PV1).

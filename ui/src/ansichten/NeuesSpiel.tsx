@@ -53,6 +53,7 @@ export function NeuesSpielAnsicht({
           person_name: "",
           married: true,
           children: 0,
+          background: null,
         });
         // Year and seed name something: no thousands separators.
         setZahlen({
@@ -179,6 +180,8 @@ export function NeuesSpielAnsicht({
           onVerheiratet={(v) => setze("married", v)}
           kinder={werte.children ?? 0}
           onKinder={(k) => setze("children", k)}
+          hintergrund={werte.background ?? ""}
+          onHintergrund={(h) => setze("background", h === "" ? null : h)}
         />
         <label>
           {t("neu.schwierigkeit")}
@@ -312,6 +315,8 @@ function Personfelder(p: {
   onVerheiratet: (v: boolean) => void;
   kinder: number;
   onKinder: (k: number) => void;
+  hintergrund: string;
+  onHintergrund: (h: string) => void;
 }) {
   const alter = p.optionen.person_age ?? { min: 18, max: 60, default: 30 };
   const start = p.startjahr ?? p.optionen.start_year.default;
@@ -371,6 +376,26 @@ function Personfelder(p: {
           </select>
         </label>
       </div>
+      <label>
+        {t("neu.hintergrund")}
+        <select
+          id="hintergrund"
+          value={p.hintergrund}
+          onChange={(e) => p.onHintergrund(e.target.value)}
+        >
+          <option value="">{t("person.hintergrund_keiner")}</option>
+          {["tueftler", "kaufmann", "charismatiker", "erbe"].map((k) => (
+            <option key={k} value={k}>
+              {t(`person.hintergrund_${k}`)}
+            </option>
+          ))}
+        </select>
+        <small className="feld-hilfe">
+          {p.hintergrund === ""
+            ? t("neu.hintergrund_hilfe")
+            : t(`person.hintergrund_hilfe_${p.hintergrund}`)}
+        </small>
+      </label>
     </fieldset>
   );
 }

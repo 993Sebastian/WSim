@@ -170,6 +170,7 @@ pub(crate) fn start(state: &mut GameState, catalog: &Catalog, today: Date) {
         married: settings.married,
         children: Vec::new(),
         ceo: player,
+        background: settings.background,
         history: player
             .map(|company| LifeEvent {
                 date: today,

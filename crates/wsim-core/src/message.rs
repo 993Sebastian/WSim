@@ -213,6 +213,10 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_CHILD: &str = "fehler.befehl.unbekanntes_kind";
     pub const PERSON_MARRIED: &str = "meldung.person.heirat";
     pub const PERSON_FAMILY_SHORT: &str = "meldung.person.familie_unbezahlt";
+    pub const PERSON_ILL: &str = "meldung.person.krank";
+    pub const PERSON_WELL_AGAIN: &str = "meldung.person.gesund";
+    pub const COMMAND_ILL: &str = "fehler.befehl.krank";
+    pub const COMMAND_TIME_BUDGET: &str = "fehler.befehl.zeit_summe";
     pub const COMMAND_OFFER_EXISTS: &str = "fehler.befehl.angebot_offen";
     pub const COMMAND_OFFER_BLOCKED: &str = "fehler.befehl.angebot_gesperrt";
     pub const COMMAND_UNKNOWN_OFFER: &str = "fehler.befehl.angebot_unbekannt";
@@ -686,6 +690,10 @@ pub mod keys {
         COMMAND_UNKNOWN_CHILD,
         PERSON_MARRIED,
         PERSON_FAMILY_SHORT,
+        PERSON_ILL,
+        PERSON_WELL_AGAIN,
+        COMMAND_ILL,
+        COMMAND_TIME_BUDGET,
         COMMAND_OFFER_EXISTS,
         COMMAND_OFFER_BLOCKED,
         COMMAND_UNKNOWN_OFFER,

@@ -2898,11 +2898,19 @@ const EXPIRED_KEYS: (&str, &str, &str, &str) = (
 /// Open concerns whose deadline passed expire: nothing changes.
 fn expire_concerns(state: &mut GameState, catalog: &Catalog, today: Date, news: &mut Vec<Message>) {
     let player = state.main_company;
+    // The player's concerns wait less when the firm gets too little of the time, and
+    // not at all while the person is ill (PV1b).
+    let ill = crate::wellbeing::is_ill(state, today);
+    let delay = crate::wellbeing::delay_days(catalog, state);
     let expired: Vec<usize> = state
         .concerns
         .iter()
         .enumerate()
-        .filter(|(_, c)| c.status == ConcernStatus::Open && c.deadline < today)
+        .filter(|(_, c)| {
+            c.status == ConcernStatus::Open
+                && (c.deadline < today
+                    || (Some(c.company) == player && (ill || c.deadline.add_days(-delay) < today)))
+        })
         .map(|(i, _)| i)
         .collect();
     for i in expired {
@@ -3382,6 +3390,9 @@ pub(crate) fn answer(
         .iter()
         .position(|c| c.id == concern && c.company == actor)
         .ok_or(CommandError::UnknownConcern)?;
+    if state.main_company == Some(actor) && crate::wellbeing::is_ill(state, state.date) {
+        return Err(CommandError::PersonIll);
+    }
     let c = state.concerns[index].clone();
     if c.status != ConcernStatus::Open {
         return Err(CommandError::ConcernClosed);

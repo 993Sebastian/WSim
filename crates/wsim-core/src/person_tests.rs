@@ -70,6 +70,7 @@ fn a_new_game_starts_with_the_person_as_set() {
             birth_year: Some(1860),
             married: true,
             children: 2,
+            background: None,
         },
     );
     let p = &game.state().person;

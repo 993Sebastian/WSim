@@ -3067,3 +3067,29 @@ projekte.foerderung: Förderung
 projekte.foerderung_werte: "{programm}: {anteil} der Kosten, bisher {erhalten}"
 projekte.erster: Erster am Markt
 projekte.erster_text: "Ihr habt das Produkt als Erste freigegeben: mehr Bekanntheit und Ruf im Land des Labors."
+
+# Hintergrund, Zeit und Gesundheit (PV1b)
+neu.hintergrund: Hintergrund
+neu.hintergrund_hilfe: Ein Hintergrund gibt einen kleinen Bonus – ohne Hintergrund bleibt alles neutral.
+person.hintergrund_keiner: Keiner
+person.hintergrund_tueftler: Tüftler
+person.hintergrund_kaufmann: Kaufmann
+person.hintergrund_charismatiker: Charismatiker
+person.hintergrund_erbe: Erbe aus gutem Haus
+person.hintergrund_hilfe_tueftler: Schnellere Forschung und Produktentwicklung in deinen Firmen (bis +10 %, wächst mit der Erfahrung).
+person.hintergrund_hilfe_kaufmann: Bessere Kreditkonditionen (−0,5 Prozentpunkte) und niedrigere Ordergebühren (ab der Börse).
+person.hintergrund_hilfe_charismatiker: Zufriedenere Manager in deinen Firmen (bis +10 Punkte), bessere Abwerbechancen.
+person.hintergrund_hilfe_erbe: Höheres Startansehen und Kontakte (wirken ab dem Netzwerk), kein Bonus in der Sache.
+person.zeit_gesundheit: Zeit und Gesundheit
+person.gesundheit: Gesundheit
+person.krank_bis: krank bis {datum}
+person.sterblichkeit_gesundheit: Sterblichkeit durch Gesundheit
+person.mindest_firma: Mindestanteil Firma
+person.zeit_hilfe: "Verteile 100 % deiner Zeit. Bleibt der Anteil Firma unter dem Mindestanteil, verfallen Anliegen früher; über 70 % Firma wird dauerhaft überlastend, Erholung baut Gesundheit auf."
+person.zeit_firma: Firma
+person.zeit_familie: Familie
+person.zeit_netzwerk: Netzwerk
+person.zeit_erholung: Erholung
+person.zeit_knapp: Zu wenig Zeit für die Firma – Anliegen verfallen {tage} Tage früher.
+person.zeit_speichern: Zeit verteilen
+person.zeit_summe: "Summe {summe} % – es müssen 100 sein."

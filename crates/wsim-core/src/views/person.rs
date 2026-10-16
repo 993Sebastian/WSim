@@ -184,12 +184,38 @@ pub struct PersonView {
     pub history: Vec<LifeEventView>,
     #[serde(default)]
     pub money: Option<PersonMoneyView>,
+    /// Background, time budget and health (PV1b).
+    #[serde(default)]
+    pub wellbeing: Option<WellbeingView>,
     /// While the person has no company yet: the founding.
     #[serde(default)]
     pub founding: Option<FoundingView>,
     /// Heir, estate and tax (PE6).
     #[serde(default)]
     pub succession: Option<SuccessionView>,
+}
+
+/// Background, time and health of the person (PV1b).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WellbeingView {
+    /// The background (text `person.hintergrund_<key>`), if one was chosen.
+    pub background: Option<String>,
+    /// Effects now: research and loyalty as shares, loan rate in points.
+    pub research: f64,
+    pub loyalty: f64,
+    pub loan_rate: f64,
+    pub experience: f64,
+    /// Shares of the time in percent: firm, family, network, rest.
+    pub time: [u32; 4],
+    /// The least share for the firm.
+    pub min_firm: f64,
+    /// Days the concerns wait less for lack of time.
+    pub delay_days: i32,
+    pub health: f64,
+    /// Factor on the chance to die by health.
+    pub mortality_factor: f64,
+    /// The day the absence ends, while the person is ill.
+    pub ill_until: Option<String>,
 }
 
 /// Who inherits and what it costs (PE6).
@@ -402,7 +428,26 @@ pub fn person(game: &Game) -> PersonView {
     // Founding is open at any time (PE5).
     let founding = Some(founding(game));
     let succession = Some(succession(game));
+    let wellbeing = crate::wellbeing::time(catalog, state).map(|t| {
+        let e = crate::wellbeing::effect(catalog, state);
+        WellbeingView {
+            background: p.background.map(|b| b.key().to_owned()),
+            research: e.research,
+            loyalty: e.loyalty,
+            loan_rate: e.loan_rate,
+            experience: p.experience,
+            time: [t.firm, t.family, t.network, t.rest],
+            min_firm: crate::wellbeing::min_firm(catalog, state),
+            delay_days: crate::wellbeing::delay_days(catalog, state),
+            health: crate::wellbeing::health(catalog, state).unwrap_or(0.0),
+            mortality_factor: crate::wellbeing::mortality_factor(catalog, state),
+            ill_until: crate::wellbeing::is_ill(state, today)
+                .then(|| p.ill_until.map(iso))
+                .flatten(),
+        }
+    });
     PersonView {
+        wellbeing,
         money: Some(money),
         founding,
         succession,
