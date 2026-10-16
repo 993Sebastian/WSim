@@ -28,6 +28,60 @@ import { FehlerText } from "./Dialog";
 import { Befehle, Rueckmeldung, useAktion, useBefehl, useSicht, ZahlFeld } from "./gemeinsam";
 import { Verlauf } from "./Grafik";
 
+/** The relationship, waiting events and the family tree (PV6b). */
+function Leben({ l }: { l: NonNullable<Person["life"]> }) {
+  const { los, antwort } = useAktion("ereignis");
+  const senden = (event: number, option: number) => void los([{ AnswerEvent: { event, option } }]);
+  return (
+    <section className="karte" aria-label={t("person.leben")}>
+      <h2>{t("person.leben")}</h2>
+      {l.bond !== null && (
+        <p>
+          {t("person.beziehung", { wert: formatZahl(l.bond) })}
+          {l.contract ? ` – ${t("person.ehevertrag_da")}` : ""}
+        </p>
+      )}
+      {l.events.length === 0 ? (
+        <p className="gedaempft">{t("person.ereignisse_keine")}</p>
+      ) : (
+        <ul className="liste">
+          {l.events.map((e) => (
+            <li key={e.id}>
+              <strong>{t(`lebensereignis.${e.key}`)}</strong>{" "}
+              <span className="gedaempft">
+                {t("person.ereignis_frist", { bis: formatDatum(e.until) })}
+              </span>
+              <div className="knopfreihe links">
+                {e.options.map((o, i) => (
+                  <button key={o.key} type="button" onClick={() => senden(e.id, i)}>
+                    {t(`lebensereignis.${e.key}.${o.key}`)}
+                    {o.cost_usd > 0 ? ` (${formatGeld(o.cost_usd)})` : ""}
+                  </button>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>{t("person.stammbaum")}</h3>
+      <ul className="liste" aria-label={t("person.stammbaum")}>
+        {l.tree.map((n, i) => (
+          <li key={`${n.name}-${i}`} style={{ marginLeft: `${(n.generation + 3) * 1.2}rem` }}>
+            {t("person.stammbaum_zeile", {
+              name: n.name,
+              rolle: t(`person.rolle_${n.role}`),
+              geboren: formatDatum(n.born),
+            })}
+            {n.died ? ` – ${t("person.gestorben_am", { datum: formatDatum(n.died) })}` : ""}
+            {n.position ? ` – ${meldungText(n.position)}` : ""}
+          </li>
+        ))}
+      </ul>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Standing, clubs, contacts and possessions (PV6a). */
 function Ansehen({ k }: { k: NonNullable<Person["circle"]> }) {
   const { los, antwort } = useAktion("ansehen");
@@ -1126,6 +1180,14 @@ function NachfolgeAbschnitt({ n }: { n: Nachfolge }) {
                   geboren: formatDatum(a.born),
                   bis: formatDatum(a.until),
                 })}
+                {(a.wealth_usd ?? 0) > 0 &&
+                  ` ${t("person.nachruf", {
+                    vermoegen: formatGeld(a.wealth_usd ?? 0),
+                    firmen: String(a.firms ?? 0),
+                    mitarbeiter: formatZahl(a.workers ?? 0),
+                    ansehen: formatZahl(a.standing ?? 0),
+                    kinder: String(a.children ?? 0),
+                  })}`}
               </li>
             ))}
           </ul>
@@ -1401,6 +1463,7 @@ export function PersonAnsicht({
       {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
       {daten.assets && <Anlagen a={daten.assets} />}
       {daten.circle && <Ansehen k={daten.circle} />}
+      {daten.life && <Leben l={daten.life} />}
       {daten.assets?.property && <Immobilien p={daten.assets.property} />}
       <Rollen p={daten} g={g} />
       {g &&

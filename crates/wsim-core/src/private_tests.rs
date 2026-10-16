@@ -1654,3 +1654,147 @@ fn possessions_cost_upkeep_add_to_the_target_and_sell_with_a_loss() {
         Err(CommandError::NotPossible)
     );
 }
+
+// --- PV6b: relationship, personal events, nepotism ---
+
+pub(crate) fn personal_model() -> crate::catalog::PersonalModel {
+    use crate::catalog::{EventCondition, EventOption, EventTerms, PersonalModel};
+    PersonalModel {
+        chance_factor: 1.0,
+        wait_days: 45,
+        bond_start: 70.0,
+        bond_holds_at: 15.0,
+        bond_rate: 1.5,
+        bond_warn: 35.0,
+        bond_separate: 12.0,
+        share_without: 0.5,
+        share_with: 0.15,
+        contract_cost: 3.0,
+        nepotism_malus: 15,
+        low_health: 40.0,
+        pending_max: 2,
+        events: vec![EventTerms {
+            key: "partner_zeit".into(),
+            condition: EventCondition::Married,
+            chance_year: 1.0,
+            options: vec![
+                EventOption {
+                    key: "urlaub".into(),
+                    cost: 8.0,
+                    bond: 12.0,
+                    ..EventOption::default()
+                },
+                EventOption {
+                    key: "spaeter".into(),
+                    bond: -8.0,
+                    ..EventOption::default()
+                },
+            ],
+        }],
+    }
+}
+
+fn personal_game(family_time: u32) -> Game {
+    let mut c = catalog();
+    c.person.assets = Some(asset_model());
+    let mut w = wellbeing_model();
+    w.time_default = [100 - family_time - 10 - 15, family_time, 10, 15];
+    c.person.wellbeing = Some(w);
+    c.person.personal = Some(personal_model());
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 2_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    game.state_mut().person.married = false;
+    game.advance(RoundLength::Month, |_| {});
+    game
+}
+
+#[test]
+fn a_wedding_asks_for_a_contract_and_an_unanswered_question_means_none() {
+    let mut game = personal_game(15);
+    let catalog = game.catalog().clone();
+    let date = game.state().date;
+    game.state_mut().person.married = true;
+    crate::personal::married(game.state_mut(), &catalog, date);
+    let event = game.state().person.life.pending[0];
+    assert_eq!(event.kind, crate::personal::CONTRACT);
+    let cash = balance(&game);
+    game.apply(Command::AnswerEvent {
+        event: event.id,
+        option: 0,
+    })
+    .unwrap();
+    assert!(game.state().person.life.contract);
+    assert!(balance(&game) < cash);
+    assert!(game.state().person.life.pending.is_empty());
+    // Answering twice, or with an unknown option, is refused.
+    assert_eq!(
+        game.apply(Command::AnswerEvent {
+            event: event.id,
+            option: 0
+        }),
+        Err(CommandError::NotPossible)
+    );
+    // A new wedding, left unanswered: the contract lapses.
+    game.state_mut().person.life.contract = false;
+    let date = game.state().date;
+    crate::personal::married(game.state_mut(), &catalog, date);
+    months(&mut game, 3);
+    assert!(!game.state().person.life.contract);
+    assert!(
+        game.state()
+            .person
+            .life
+            .pending
+            .iter()
+            .all(|e| e.kind != crate::personal::CONTRACT)
+    );
+}
+
+#[test]
+fn an_answered_event_changes_the_relationship_and_costs_money() {
+    let mut game = personal_game(15);
+    game.state_mut().person.married = true;
+    game.state_mut().person.life.bond = Some(50.0);
+    months(&mut game, 1);
+    let event = game
+        .state()
+        .person
+        .life
+        .pending
+        .iter()
+        .find(|e| e.kind != crate::personal::CONTRACT)
+        .copied()
+        .expect("an event (chance 1)");
+    let cash = balance(&game);
+    game.apply(Command::AnswerEvent {
+        event: event.id,
+        option: 0,
+    })
+    .unwrap();
+    assert!(balance(&game) < cash);
+    let bond = crate::personal::bond(game.catalog(), game.state()).unwrap();
+    assert!(bond > 50.0, "{bond}");
+}
+
+#[test]
+fn too_little_time_for_the_family_ends_in_a_separation_that_shares_the_wealth() {
+    let mut game = personal_game(0);
+    game.state_mut().person.married = true;
+    let catalog = game.catalog().clone();
+    let before = private::wealth(&catalog, game.state()).total();
+    let mut keys = Vec::new();
+    for _ in 0..40 {
+        keys.extend(to_next_month(&mut game));
+        if !game.state().person.married {
+            break;
+        }
+    }
+    assert!(!game.state().person.married, "the couple separated");
+    assert!(keys.iter().any(|k| k == keys::SEPARATED));
+    assert!(keys.iter().any(|k| k == keys::BOND_WARNING));
+    let after = private::wealth(&catalog, game.state()).total();
+    // Without a contract about half of the free wealth is gone.
+    assert!(after < before.scale(0.7), "{before:?} → {after:?}");
+    assert!(game.state().person.life.bond.is_none());
+}

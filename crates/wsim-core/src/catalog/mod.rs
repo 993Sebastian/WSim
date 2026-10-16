@@ -2906,6 +2906,8 @@ pub struct PersonModel {
     pub wellbeing: Option<WellbeingModel>,
     /// Standing, network, clubs and possessions (PV6a).
     pub standing: Option<StandingModel>,
+    /// Relationship, personal events, nepotism (PV6b).
+    pub personal: Option<PersonalModel>,
     /// Safe investments, gold and funds (PV2); `None` without the section.
     pub assets: Option<AssetModel>,
     /// Children, education and succession (PV4); `None` without the section.
@@ -3061,6 +3063,69 @@ pub struct BackgroundEffect {
     /// Standing and contacts at the start (from PV6).
     pub standing: f64,
     pub network: f64,
+}
+
+/// Relationship, personal events and nepotism (PV6b, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PersonalModel {
+    /// Factor on the chances of the events.
+    pub chance_factor: f64,
+    /// Days an event waits for an answer before its last option counts.
+    pub wait_days: u32,
+    /// Relationship at the wedding, the share of the time for the family at which it
+    /// holds, its change per month and 10 percentage points of time away from that, the
+    /// level below which it warns and the one below which the couple separates.
+    pub bond_start: f64,
+    pub bond_holds_at: f64,
+    pub bond_rate: f64,
+    pub bond_warn: f64,
+    pub bond_separate: f64,
+    /// Share of the free wealth the partner gets in a separation, without and with a
+    /// marriage contract.
+    pub share_without: f64,
+    pub share_with: f64,
+    /// Cost of the marriage contract in academic monthly wages.
+    pub contract_cost: f64,
+    /// Satisfaction points the other managers lose when a relative is favoured.
+    pub nepotism_malus: u32,
+    /// Health below which the doctor's event can happen, and events waiting at most.
+    pub low_health: f64,
+    pub pending_max: u32,
+    pub events: Vec<EventTerms>,
+}
+
+/// When an event may happen (PV6b).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EventCondition {
+    Always,
+    Married,
+    Children,
+    LowHealth,
+    Leader,
+    Tenants,
+}
+
+/// A personal event with its options (PV6b).
+#[derive(Clone, Debug, PartialEq)]
+pub struct EventTerms {
+    pub key: String,
+    pub condition: EventCondition,
+    pub chance_year: f64,
+    pub options: Vec<EventOption>,
+}
+
+/// What an option of an event does: cost in academic monthly wages and changes of the
+/// relationship, standing, health, the children's interest in the firm and the satisfaction
+/// of the managers (PV6b).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct EventOption {
+    pub key: String,
+    pub cost: f64,
+    pub bond: f64,
+    pub standing: f64,
+    pub health: f64,
+    pub interest: f64,
+    pub loyalty: f64,
 }
 
 /// Private standing, network, clubs and possessions (PV6a, docs/FORMELN.md).
@@ -3240,6 +3305,7 @@ impl Default for PersonModel {
             private_life: PrivateLifeModel::default(),
             wellbeing: None,
             standing: None,
+            personal: None,
             assets: None,
             legacy: None,
             provenance: Provenance::default(),

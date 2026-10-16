@@ -524,6 +524,9 @@ pub(crate) fn execute(
         Command::SetEducation { child, education } => {
             crate::person::set_education(state, catalog, *child, *education)
         }
+        Command::AnswerEvent { event, option } => {
+            crate::personal::answer(state, catalog, *event, *option)
+        }
         Command::HandOver {} => crate::heirs::hand_over(state, catalog).map(|_| ()),
         _ => Err(CommandError::PersonOnly),
     }
@@ -1012,6 +1015,7 @@ fn family_month(state: &mut GameState, catalog: &Catalog, last: Date, news: &mut
             p.married = true;
             p.seeking_partner = false;
             news.push(Message::new(MessageKind::Success, keys::PERSON_MARRIED));
+            crate::personal::married(state, catalog, last);
         }
     }
 }

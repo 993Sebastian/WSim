@@ -572,6 +572,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     news.extend(crate::property::month_start(state, catalog, date));
     news.extend(crate::services::month_start(state, catalog, date));
     news.extend(crate::standing::month_start(state, catalog, date));
+    news.extend(crate::personal::month_start(state, catalog, date));
     // The plan.
     if let Some(plan) = state.person.portfolio.plan
         && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()

@@ -5055,6 +5055,32 @@ Chance `hinweis_chance · s/100` im Monat einen Hinweis (unzufriedener Manager e
 im Jahr; Verkauf zu 80 % des heutigen Preises. Sie zählen nicht zum Nettovermögen (Verbrauchsgüter), erhöhen aber das Ziel des
 Ansehens um `repraesentation`. Sammlerobjekte mit eigenem Markt: PV7.
 
+## PV6b – Beziehung, persönliche Ereignisse, Vetternwirtschaft, Nachruf
+
+Daten: `person.persoenliches`. Kern: Modul `personal`, `Person.life`, Befehl `AnswerEvent {event, option}`.
+
+**Beziehung** `b` (0–100) gibt es, solange die Person verheiratet ist; Start `start`. Jeden Monat
+`b ← b + aenderung · (Familienanteil − haelt_bei) / 10` (Familienanteil in % aus dem Zeitbudget, ohne PV1b gleich `haelt_bei`).
+Fällt `b` unter `warnung_unter`, kommt einmal eine Warnung; unter `trennung.unter` trennt sich das Paar: der Partner erhält
+`anteil_ohne_vertrag` (mit Ehevertrag `anteil_mit_vertrag`) des freien Vermögens (Konto, sichere Anlagen, Gold, Fonds; nötigenfalls
+verkauft über `savings::liquidate`), die Ehe endet, die Chronik hält es fest.
+
+**Ehevertrag.** Jede Heirat (Partnersuche) legt die Entscheidung „Ehevertrag“ vor: mit (Kosten `ehevertrag_kosten` akademische Monatslöhne)
+oder ohne. Unbeantwortet gilt nach `frist_tage` „ohne“.
+
+**Persönliche Ereignisse.** Je Eintrag der Liste: Bedingung (`immer`, `verheiratet`, `kinder`, `gesundheit_niedrig` = Gesundheit
+unter `gesundheit_unter`, `firma`, `mieter`) und Chance je Jahr `p`; monatlich `1 − (1 − p · chance_faktor)^(1/12)`, höchstens
+`gleichzeitig` offene Ereignisse, keines doppelt. Jede Option hat Wirkungen: `kosten` (akademische Monatslöhne, muss bezahlbar sein),
+`beziehung`, `ansehen`, `gesundheit`, `interesse` (der lebenden Kinder an der Firma), `loyalitaet` (Zufriedenheit aller Manager der
+geführten Firmen). Nach `frist_tage` gilt die letzte Option (die ruhigste), soweit bezahlbar.
+
+**Vetternwirtschaft.** Übernimmt ein Familienmitglied (Kind mit Managerkarte) eine Leitung (`HireManager`/`MoveManager` auf Head) und ist
+seine Stärke geringer als der Durchschnitt der übrigen Manager der Firma, sinkt die Zufriedenheit aller übrigen Manager der Firma um
+`vetternwirtschaft_malus` Punkte.
+
+**Nachruf.** Beim Tod oder bei der Übergabe hält die Lebensbilanz der Vorfahren fest: Nettovermögen, geführte Firmen, Beschäftigte der
+Standorte, Ansehen, lebende Kinder. Der Stammbaum zeigt Vorfahren, die Person und die Kinder mit ihrer Stelle.
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;

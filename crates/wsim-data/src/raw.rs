@@ -3236,6 +3236,8 @@ pub struct RawPerson {
     pub wellbeing: Option<RawWellbeing>,
     #[serde(default, rename = "ansehen")]
     pub standing: Option<RawStanding>,
+    #[serde(default, rename = "persoenliches")]
+    pub personal: Option<RawPersonal>,
     #[serde(default, rename = "anlagen")]
     pub assets: Option<RawAssets>,
     #[serde(default, rename = "nachwuchs")]
@@ -3617,6 +3619,84 @@ pub struct RawFundTerms {
 }
 
 /// Background, time budget and health of the person (PV1b).
+/// Relationship, personal events and nepotism (PV6b).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPersonal {
+    #[serde(rename = "chance_faktor")]
+    pub chance_factor: f64,
+    #[serde(rename = "frist_tage")]
+    pub wait_days: u32,
+    #[serde(rename = "beziehung")]
+    pub bond: RawBond,
+    #[serde(rename = "trennung")]
+    pub separation: RawSeparation,
+    #[serde(rename = "ehevertrag_kosten")]
+    pub contract_cost: f64,
+    #[serde(rename = "vetternwirtschaft_malus")]
+    pub nepotism_malus: u32,
+    #[serde(rename = "gesundheit_unter")]
+    pub low_health: f64,
+    #[serde(rename = "gleichzeitig")]
+    pub pending_max: u32,
+    #[serde(rename = "liste")]
+    pub events: Vec<RawPersonalEvent>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBond {
+    #[serde(rename = "start")]
+    pub start: f64,
+    #[serde(rename = "haelt_bei")]
+    pub holds_at: f64,
+    #[serde(rename = "aenderung")]
+    pub rate: f64,
+    #[serde(rename = "warnung_unter")]
+    pub warn: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSeparation {
+    #[serde(rename = "unter")]
+    pub below: f64,
+    #[serde(rename = "anteil_ohne_vertrag")]
+    pub without: f64,
+    #[serde(rename = "anteil_mit_vertrag")]
+    pub with: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPersonalEvent {
+    pub id: String,
+    #[serde(rename = "bedingung")]
+    pub condition: String,
+    #[serde(rename = "chance_jahr")]
+    pub chance_year: f64,
+    #[serde(rename = "optionen")]
+    pub options: Vec<RawPersonalEventOption>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPersonalEventOption {
+    pub id: String,
+    #[serde(default, rename = "kosten")]
+    pub cost: f64,
+    #[serde(default, rename = "beziehung")]
+    pub bond: f64,
+    #[serde(default, rename = "ansehen")]
+    pub standing: f64,
+    #[serde(default, rename = "gesundheit")]
+    pub health: f64,
+    #[serde(default, rename = "interesse")]
+    pub interest: f64,
+    #[serde(default, rename = "loyalitaet")]
+    pub loyalty: f64,
+}
+
 /// Standing, network, clubs and possessions (PV6a).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -531,4 +531,63 @@ describe("Person (PE2)", () => {
     fireEvent.click(within(karte).getByRole("button", { name: "Kaufen" }));
     expect(gesendet[1]).toEqual({ Invest: { action: { BuyGood: { good: 0 } } } });
   });
+
+  it("zeigt Beziehung, Ereignis und Stammbaum und beantwortet das Ereignis (PV6b)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.life = {
+          bond: 62,
+          contract: false,
+          events: [
+            {
+              id: 4,
+              key: "partner_zeit",
+              options: [
+                { key: "urlaub", cost_usd: 800 },
+                { key: "spaeter", cost_usd: 0 },
+              ],
+              until: "1914-03-01",
+            },
+          ],
+          tree: [
+            {
+              generation: 0,
+              name: "Hans Albrecht",
+              born: "1880-01-01",
+              died: null,
+              role: "person",
+              position: null,
+            },
+          ],
+        };
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const karte = await screen.findByRole("region", { name: "Beziehung und Ereignisse" });
+    expect(within(karte).getByText(/Beziehung zum Partner: 62/)).toBeTruthy();
+    expect(within(karte).getByText(/Hans Albrecht \(Du\)/)).toBeTruthy();
+    fireEvent.click(within(karte).getByRole("button", { name: /Gemeinsamen Urlaub nehmen/ }));
+    expect(gesendet[0]).toEqual({ AnswerEvent: { event: 4, option: 0 } });
+  });
 });

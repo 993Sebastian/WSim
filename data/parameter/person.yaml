@@ -100,6 +100,65 @@ person:
       - {id: wagen, ab: 1905, preis: 1.5, unterhalt: 0.08, repraesentation: 3}
       - {id: gemaelde, ab: 1900, preis: 3, unterhalt: 0.01, repraesentation: 4}
       - {id: yacht, ab: 1910, preis: 20, unterhalt: 0.06, repraesentation: 12}
+  # Beziehung, persönliche Ereignisse und Vetternwirtschaft (PV6b, FORMELN PV6b). Annäherungen.
+  persoenliches:
+    chance_faktor: 1.0
+    frist_tage: 60
+    beziehung: {start: 70, haelt_bei: 15, aenderung: 1.5, warnung_unter: 35}
+    trennung: {unter: 12, anteil_ohne_vertrag: 0.5, anteil_mit_vertrag: 0.15}
+    ehevertrag_kosten: 3
+    vetternwirtschaft_malus: 15
+    gesundheit_unter: 40
+    gleichzeitig: 2
+    liste:
+      - id: bruder_kapital
+        bedingung: immer
+        chance_jahr: 0.12
+        optionen:
+          - {id: darlehen, kosten: 18, beziehung: 8, ansehen: 2}
+          - {id: absage, beziehung: -8}
+      - id: kind_kuenstler
+        bedingung: kinder
+        chance_jahr: 0.12
+        optionen:
+          - {id: erlauben, kosten: 6, beziehung: 6, interesse: -20}
+          - {id: ueberzeugen, beziehung: -6, interesse: 10}
+      - id: hochzeit_manager
+        bedingung: firma
+        chance_jahr: 0.25
+        optionen:
+          - {id: teilnehmen, kosten: 1, beziehung: -2, loyalitaet: 8}
+          - {id: absagen, loyalitaet: -3}
+      - id: zeitung_mieten
+        bedingung: mieter
+        chance_jahr: 0.08
+        optionen:
+          - {id: stellung, kosten: 2, ansehen: 3}
+          - {id: schweigen, ansehen: -6}
+      - id: partner_zeit
+        bedingung: verheiratet
+        chance_jahr: 0.3
+        optionen:
+          - {id: urlaub, kosten: 8, beziehung: 12, gesundheit: 4}
+          - {id: spaeter, beziehung: -8}
+      - id: nachlass_kunst
+        bedingung: immer
+        chance_jahr: 0.1
+        optionen:
+          - {id: kaufen, kosten: 12, ansehen: 6}
+          - {id: ablehnen}
+      - id: firmenjubilaeum
+        bedingung: firma
+        chance_jahr: 0.2
+        optionen:
+          - {id: fest, kosten: 10, ansehen: 4, loyalitaet: 10}
+          - {id: schlicht, kosten: 1, loyalitaet: 2}
+      - id: arzt_pause
+        bedingung: gesundheit_niedrig
+        chance_jahr: 0.6
+        optionen:
+          - {id: pause, kosten: 5, gesundheit: 15}
+          - {id: weitermachen, gesundheit: -5}
   wohlbefinden:
     hintergruende:
       tueftler: {forschung: 0.05}

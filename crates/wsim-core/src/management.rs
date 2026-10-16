@@ -548,6 +548,9 @@ pub(crate) fn hire(
     } else {
         note_market(state, continent, |c| c.player_hired += 1);
     }
+    if position.role == Role::Head {
+        crate::personal::nepotism(state, catalog, actor, manager);
+    }
     Ok(())
 }
 
@@ -576,6 +579,9 @@ pub(crate) fn move_to(
     job.since = today;
     let pay = salary_for(&old, old.since.max(today.first_of_month()), today);
     book_personnel(state, actor, old.position.unit, pay);
+    if position.role == Role::Head {
+        crate::personal::nepotism(state, catalog, actor, manager);
+    }
     Ok(())
 }
 

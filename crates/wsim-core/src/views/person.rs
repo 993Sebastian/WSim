@@ -206,12 +206,54 @@ pub struct PersonView {
     /// Standing, clubs, contacts and possessions (PV6a).
     #[serde(default)]
     pub circle: Option<CircleView>,
+    /// The relationship, waiting events and the family tree (PV6b).
+    #[serde(default)]
+    pub life: Option<LifeView>,
     /// While the person has no company yet: the founding.
     #[serde(default)]
     pub founding: Option<FoundingView>,
     /// Heir, estate and tax (PE6).
     #[serde(default)]
     pub succession: Option<SuccessionView>,
+}
+
+/// The relationship, waiting events and the family tree (PV6b).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LifeView {
+    /// The relationship 0–100; none without a partner.
+    pub bond: Option<f64>,
+    pub contract: bool,
+    pub events: Vec<PersonalEventView>,
+    /// The persons of the family, the oldest generation first.
+    pub tree: Vec<TreeNodeView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PersonalEventView {
+    pub id: u32,
+    /// Text `ereignis.<key>` and, per option, `ereignis.<key>.<option>`.
+    pub key: String,
+    pub options: Vec<PersonalEventOptionView>,
+    pub until: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PersonalEventOptionView {
+    pub key: String,
+    pub cost_usd: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TreeNodeView {
+    /// −n for the n-th predecessor, 0 for the person, 1 for the children.
+    pub generation: i32,
+    pub name: String,
+    pub born: String,
+    pub died: Option<String>,
+    /// `person`, `vorgaenger`, `kind`, or `partner`.
+    pub role: String,
+    /// What the person does in the company, if anything.
+    pub position: Option<MessageView>,
 }
 
 /// Standing, clubs, contacts and possessions (PV6a).
@@ -448,6 +490,17 @@ pub struct AncestorView {
     pub born: String,
     pub until: String,
     pub died: bool,
+    /// The obituary (PV6b).
+    #[serde(default)]
+    pub wealth_usd: f64,
+    #[serde(default)]
+    pub firms: u32,
+    #[serde(default)]
+    pub workers: u32,
+    #[serde(default)]
+    pub standing: f64,
+    #[serde(default)]
+    pub children: u32,
 }
 
 pub fn person(game: &Game) -> PersonView {
@@ -612,6 +665,16 @@ pub fn person(game: &Game) -> PersonView {
                     .with("firma", company(*c))
                     .with("anteil", Param::Number((share * 1000.0).round() / 10.0))
                     .with("betrag", Param::Money(*proceeds)),
+                LifeEventKind::Married => m("person.ereignis.heirat"),
+                LifeEventKind::Separated { paid } => {
+                    m("person.ereignis.trennung").with("betrag", Param::Money(*paid))
+                }
+                LifeEventKind::Personal { key, option } => m("person.ereignis.persoenlich")
+                    .with("ereignis", Param::TextKey(format!("lebensereignis.{key}")))
+                    .with(
+                        "antwort",
+                        Param::TextKey(format!("lebensereignis.{key}.{option}")),
+                    ),
                 LifeEventKind::Succession {
                     from,
                     to,
@@ -774,6 +837,7 @@ pub fn person(game: &Game) -> PersonView {
         assets,
         wellbeing,
         circle: circle_view(game),
+        life: life_view(game),
         money: Some(money),
         founding,
         succession,
@@ -868,6 +932,11 @@ fn succession(game: &Game) -> SuccessionView {
                 born: iso(a.born),
                 until: iso(a.until),
                 died: a.died,
+                wealth_usd: usd(a.wealth),
+                firms: a.firms,
+                workers: a.workers,
+                standing: a.standing,
+                children: a.children,
             })
             .collect(),
     }
@@ -909,6 +978,7 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::GoodBought => "privat.besitzkauf",
         PrivateFlow::GoodSold => "privat.besitzverkauf",
         PrivateFlow::CircleCost => "privat.kreiskosten",
+        PrivateFlow::Personal => "privat.ereignisse",
     }
 }
 
@@ -1077,5 +1147,98 @@ fn circle_view(game: &Game) -> Option<CircleView> {
                 })
             })
             .collect(),
+    })
+}
+
+fn life_view(game: &Game) -> Option<LifeView> {
+    let catalog = game.catalog();
+    let state = game.state();
+    let m = crate::personal::model(catalog)?;
+    let wage = private::academic_monthly_wage(catalog, state, state.person.home);
+    let p = &state.person;
+    let events = p
+        .life
+        .pending
+        .iter()
+        .filter_map(|e| {
+            if e.kind == crate::personal::CONTRACT {
+                return Some(PersonalEventView {
+                    id: e.id,
+                    key: "ehevertrag".to_owned(),
+                    options: vec![
+                        PersonalEventOptionView {
+                            key: "mit".to_owned(),
+                            cost_usd: usd(wage.scale(m.contract_cost)),
+                        },
+                        PersonalEventOptionView {
+                            key: "ohne".to_owned(),
+                            cost_usd: 0.0,
+                        },
+                    ],
+                    until: iso(e.until),
+                });
+            }
+            let t = m.events.get(e.kind as usize)?;
+            Some(PersonalEventView {
+                id: e.id,
+                key: t.key.clone(),
+                options: t
+                    .options
+                    .iter()
+                    .map(|o| PersonalEventOptionView {
+                        key: o.key.clone(),
+                        cost_usd: usd(wage.scale(o.cost)),
+                    })
+                    .collect(),
+                until: iso(e.until),
+            })
+        })
+        .collect();
+    let mut tree: Vec<TreeNodeView> = Vec::new();
+    let count = i32::try_from(p.ancestors.len()).unwrap_or(0);
+    for (i, a) in p.ancestors.iter().enumerate() {
+        tree.push(TreeNodeView {
+            generation: i32::try_from(i).unwrap_or(0) - count,
+            name: a.name.clone(),
+            born: iso(a.born),
+            died: a.died.then(|| iso(a.until)),
+            role: "vorgaenger".to_owned(),
+            position: None,
+        });
+    }
+    tree.push(TreeNodeView {
+        generation: 0,
+        name: p.name.clone(),
+        born: iso(p.born),
+        died: None,
+        role: "person".to_owned(),
+        position: None,
+    });
+    for c in &p.children {
+        tree.push(TreeNodeView {
+            generation: 1,
+            name: c.name.clone(),
+            born: iso(c.born),
+            died: c.died.map(iso),
+            role: "kind".to_owned(),
+            position: c
+                .manager
+                .and_then(|id| state.managers.get(&id))
+                .and_then(|x| x.job.as_ref())
+                .map(|j| {
+                    message_view(
+                        &Message::new(MessageKind::Info, "person.kind_position").with(
+                            "stelle",
+                            crate::management::position_param(state, &j.position),
+                        ),
+                    )
+                }),
+        });
+    }
+    Some(LifeView {
+        bond: crate::personal::bond(catalog, state),
+        contract: p.life.contract,
+        events,
+        tree,
     })
 }

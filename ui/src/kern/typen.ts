@@ -3167,10 +3167,32 @@ export interface Person {
   assets?: PersonAnlagen | null;
   /** Standing, clubs, contacts and possessions (PV6a). */
   circle?: PersonKreis | null;
+  /** The relationship, waiting events and the family tree (PV6b). */
+  life?: PersonLeben | null;
   /** While the person has no company yet: the founding. */
   founding?: Gruendung | null;
   /** Heir, estate and tax (PE6). */
   succession?: Nachfolge | null;
+}
+
+/** The relationship, waiting events and the family tree (PV6b). */
+export interface PersonLeben {
+  bond: number | null;
+  contract: boolean;
+  events: {
+    id: number;
+    key: string;
+    options: { key: string; cost_usd: number }[];
+    until: string;
+  }[];
+  tree: {
+    generation: number;
+    name: string;
+    born: string;
+    died: string | null;
+    role: string;
+    position: Meldung | null;
+  }[];
 }
 
 /** Standing, clubs, contacts and possessions of the person (PV6a). */
@@ -3210,7 +3232,18 @@ export interface Nachfolge {
   tax_usd: number;
   death_chance_year: number;
   generation: number;
-  ancestors: { name: string; born: string; until: string; died: boolean }[];
+  ancestors: {
+    name: string;
+    born: string;
+    until: string;
+    died: boolean;
+    /** The obituary (PV6b). */
+    wealth_usd?: number;
+    firms?: number;
+    workers?: number;
+    standing?: number;
+    children?: number;
+  }[];
   /** The shares of the will or of the statutory succession (PV4). */
   shares?: { partner: boolean; child: number | null; name: string; percent: number }[];
   will_set?: boolean;

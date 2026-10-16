@@ -673,6 +673,8 @@ pub enum Command {
         shares: Vec<crate::state::WillShare>,
     },
     /// What a child studies (PV4).
+    /// Chooses an option of a waiting personal event (PV6b).
+    AnswerEvent { event: u32, option: u32 },
     SetEducation {
         child: u32,
         education: crate::state::Education,
@@ -707,6 +709,7 @@ impl Command {
                 | Command::SetHeir { .. }
                 | Command::SetWill { .. }
                 | Command::SetEducation { .. }
+                | Command::AnswerEvent { .. }
                 | Command::HandOver {}
                 | Command::PayBonus { .. }
         )
@@ -2050,6 +2053,7 @@ fn run(
         | Command::SetHeir { .. }
         | Command::SetWill { .. }
         | Command::SetEducation { .. }
+        | Command::AnswerEvent { .. }
         | Command::HandOver {}
         | Command::PayBonus { .. } => return Err(CommandError::PersonOnly),
         Command::BidForStake {

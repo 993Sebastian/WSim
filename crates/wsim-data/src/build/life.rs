@@ -413,6 +413,10 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .standing
             .as_ref()
             .map(|s| standing(ctx, s, &l.field("ansehen"))),
+        personal: v
+            .personal
+            .as_ref()
+            .map(|p| personal(ctx, p, &l.field("persoenliches"))),
         provenance: provenance(v.approximation, v.source.as_ref()),
         ..PersonModel::default()
     }
@@ -482,6 +486,99 @@ fn tax_brackets(ctx: &mut Ctx, raw: &[crate::raw::RawTaxBracket], l: &Loc) -> Ve
 
 /// Background, time budget and health (PV1b): every background present, shares and
 /// factors within sensible bounds, the default time adding up to 100.
+fn personal(
+    ctx: &mut Ctx,
+    p: &crate::raw::RawPersonal,
+    l: &Loc,
+) -> wsim_core::catalog::PersonalModel {
+    use wsim_core::catalog::{EventCondition, EventOption, EventTerms};
+    let el = l.field("liste");
+    if p.events.is_empty() {
+        ctx.error(&el, messages::standing_list_empty("liste"));
+    }
+    let mut events: Vec<EventTerms> = Vec::new();
+    for (i, e) in p.events.iter().enumerate() {
+        let at = el.index(i);
+        if events.iter().any(|x| x.key == e.id) {
+            ctx.error(&at.field("id"), messages::standing_id_duplicate(&e.id));
+        }
+        let condition = match e.condition.as_str() {
+            "immer" => EventCondition::Always,
+            "verheiratet" => EventCondition::Married,
+            "kinder" => EventCondition::Children,
+            "gesundheit_niedrig" => EventCondition::LowHealth,
+            "firma" => EventCondition::Leader,
+            "mieter" => EventCondition::Tenants,
+            other => {
+                ctx.error(
+                    &at.field("bedingung"),
+                    messages::event_condition_unknown(other),
+                );
+                EventCondition::Always
+            }
+        };
+        if e.options.len() < 2 {
+            ctx.error(
+                &at.field("optionen"),
+                messages::standing_list_empty("optionen (mindestens zwei)"),
+            );
+        }
+        let options = e
+            .options
+            .iter()
+            .enumerate()
+            .map(|(j, o)| {
+                let ol = at.field("optionen").index(j);
+                EventOption {
+                    key: o.id.clone(),
+                    cost: non_negative(ctx, o.cost, &ol.field("kosten")),
+                    bond: in_range(ctx, o.bond, -100.0, 100.0, &ol.field("beziehung")),
+                    standing: in_range(ctx, o.standing, -100.0, 100.0, &ol.field("ansehen")),
+                    health: in_range(ctx, o.health, -100.0, 100.0, &ol.field("gesundheit")),
+                    interest: in_range(ctx, o.interest, -100.0, 100.0, &ol.field("interesse")),
+                    loyalty: in_range(ctx, o.loyalty, -100.0, 100.0, &ol.field("loyalitaet")),
+                }
+            })
+            .collect();
+        events.push(EventTerms {
+            key: e.id.clone(),
+            condition,
+            chance_year: in_range(ctx, e.chance_year, 0.0, 1.0, &at.field("chance_jahr")),
+            options,
+        });
+    }
+    let bl = l.field("beziehung");
+    let sl = l.field("trennung");
+    wsim_core::catalog::PersonalModel {
+        chance_factor: non_negative(ctx, p.chance_factor, &l.field("chance_faktor")),
+        wait_days: p.wait_days.clamp(1, 365),
+        bond_start: in_range(ctx, p.bond.start, 0.0, 100.0, &bl.field("start")),
+        bond_holds_at: in_range(ctx, p.bond.holds_at, 0.0, 100.0, &bl.field("haelt_bei")),
+        bond_rate: non_negative(ctx, p.bond.rate, &bl.field("aenderung")),
+        bond_warn: in_range(ctx, p.bond.warn, 0.0, 100.0, &bl.field("warnung_unter")),
+        bond_separate: in_range(ctx, p.separation.below, 0.0, 100.0, &sl.field("unter")),
+        share_without: in_range(
+            ctx,
+            p.separation.without,
+            0.0,
+            1.0,
+            &sl.field("anteil_ohne_vertrag"),
+        ),
+        share_with: in_range(
+            ctx,
+            p.separation.with,
+            0.0,
+            1.0,
+            &sl.field("anteil_mit_vertrag"),
+        ),
+        contract_cost: non_negative(ctx, p.contract_cost, &l.field("ehevertrag_kosten")),
+        nepotism_malus: p.nepotism_malus.min(100),
+        low_health: in_range(ctx, p.low_health, 0.0, 100.0, &l.field("gesundheit_unter")),
+        pending_max: p.pending_max.clamp(1, 10),
+        events,
+    }
+}
+
 fn standing(
     ctx: &mut Ctx,
     s: &crate::raw::RawStanding,

@@ -143,6 +143,7 @@ export type Befehl =
   | { Invest: { action: Geldanlage } }
   | { SetWill: { shares: { heir: "Partner" | { Child: number }; percent: number }[] } }
   | { SetEducation: { child: number; education: Ausbildung } }
+  | { AnswerEvent: { event: number; option: number } }
   | { SetTimeBudget: { firm: number; family: number; network: number; rest: number } }
   | { SetLifestyle: { level: Stufe } }
   | { ContributeCapital: { company: number; amount: number } }

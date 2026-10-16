@@ -6726,3 +6726,79 @@ fn ansehen_clubs_und_besitz_werden_geprueft() {
         assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
     }
 }
+
+const PERSOENLICHES: &str = "  persoenliches:
+    chance_faktor: 1.0
+    frist_tage: 60
+    beziehung: {start: 70, haelt_bei: 15, aenderung: 1.5, warnung_unter: 35}
+    trennung: {unter: 12, anteil_ohne_vertrag: 0.5, anteil_mit_vertrag: 0.15}
+    ehevertrag_kosten: 3
+    vetternwirtschaft_malus: 15
+    gesundheit_unter: 40
+    gleichzeitig: 2
+    liste:
+      - id: partner_zeit
+        bedingung: verheiratet
+        chance_jahr: 0.3
+        optionen:
+          - {id: urlaub, kosten: 8, beziehung: 12}
+          - {id: spaeter, beziehung: -8}
+";
+
+#[test]
+fn persoenliche_ereignisse_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        let mit = PERSON.replacen(
+            "  wohlbefinden:",
+            &format!("{PERSOENLICHES}  wohlbefinden:"),
+            1,
+        );
+        Daten::neu()
+            .datei(datei, &mit.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .as_ref()
+        .unwrap()
+        .catalog
+        .person
+        .personal
+        .clone()
+        .expect("die Ereignisse sind da");
+    assert_eq!(m.events.len(), 1);
+    assert_eq!(m.events[0].options.len(), 2);
+    for (alt, neu, pfad) in [
+        (
+            "bedingung: verheiratet",
+            "bedingung: nie",
+            "person.persoenliches.liste[0].bedingung",
+        ),
+        (
+            "- {id: spaeter, beziehung: -8}",
+            "",
+            "person.persoenliches.liste[0].optionen",
+        ),
+        (
+            "chance_jahr: 0.3\n        optionen",
+            "chance_jahr: 3\n        optionen",
+            "person.persoenliches.liste[0].chance_jahr",
+        ),
+        (
+            "anteil_ohne_vertrag: 0.5",
+            "anteil_ohne_vertrag: 1.5",
+            "person.persoenliches.trennung.anteil_ohne_vertrag",
+        ),
+    ] {
+        let r = lauf(alt, neu);
+        let f = r
+            .report
+            .findings()
+            .first()
+            .unwrap_or_else(|| panic!("{alt} → {neu}: kein Befund"));
+        assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
+    }
+}

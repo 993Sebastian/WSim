@@ -297,6 +297,33 @@ pub(crate) fn set_heir(state: &mut GameState, child: Option<u32>) -> Result<(), 
     Ok(())
 }
 
+/// The life's balance for the obituary: net worth, companies led, workers of their sites
+/// and the standing (PV6b).
+fn obituary(state: &GameState, catalog: &Catalog) -> (Money, u32, u32, f64) {
+    let wealth = crate::private::wealth(catalog, state).total();
+    let led: Vec<CompanyId> = (0..state.companies.len())
+        .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+        .filter(|&c| {
+            !state.companies[c.index()].bankrupt && crate::private::is_controlled(state, c)
+        })
+        .collect();
+    let workers: f64 = state
+        .sites
+        .iter()
+        .filter(|s| led.contains(&s.owner))
+        .map(|s| s.workforce.values().sum::<f64>())
+        .sum();
+    // Within u32; the cast is exact.
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let workers = workers.round().max(0.0) as u32;
+    (
+        wealth,
+        u32::try_from(led.len()).unwrap_or(0),
+        workers,
+        crate::standing::standing(catalog, state),
+    )
+}
+
 /// `HandOver`: everything goes to the heir now, with the gift tax.
 pub(crate) fn hand_over(state: &mut GameState, catalog: &Catalog) -> Result<Message, CommandError> {
     if state.person.name.is_empty() {
@@ -334,13 +361,21 @@ fn succeed(
     sold += pay_co_heirs(state, catalog, keep);
     revalue(catalog, state);
     let (heir, nephew) = take_heir(state, catalog, rng, date);
+    let obituary = obituary(state, catalog);
     let p = &mut state.person;
     p.ancestors.push(Ancestor {
         name: old.clone(),
         born: p.born,
         until: date,
         died,
+        wealth: obituary.0,
+        firms: obituary.1,
+        workers: obituary.2,
+        standing: obituary.3,
+        children: u32::try_from(p.children.iter().filter(|c| c.died.is_none()).count())
+            .unwrap_or(0),
     });
+    p.life = crate::personal::Life::default();
     p.name = heir.name.clone();
     p.born = heir.born;
     p.married = true;

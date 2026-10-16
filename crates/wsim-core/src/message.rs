@@ -391,6 +391,9 @@ pub mod keys {
     pub const TIP_MANAGER: &str = "meldung.person.hinweis_manager";
     pub const TIP_VENTURE: &str = "meldung.person.hinweis_startup";
     pub const TIP_TAX: &str = "meldung.person.hinweis_steuer";
+    pub const BOND_WARNING: &str = "meldung.person.beziehung_warnung";
+    pub const SEPARATED: &str = "meldung.person.trennung";
+    pub const PERSONAL_EVENT: &str = "meldung.person.ereignis";
     pub const STEP_POACH: &str = "schritt.abwerben";
     pub const STEP_DISMISS: &str = "schritt.entlassen";
     pub const BECAUSE_POACH: &str = "anliegen.begruendung.abwerben";
@@ -879,6 +882,9 @@ pub mod keys {
         STEP_EXTEND,
         STEP_VACANT,
         STEP_POACH,
+        BOND_WARNING,
+        SEPARATED,
+        PERSONAL_EVENT,
         CLUB_DROPPED,
         CONTACT_MET,
         CONTACT_DIED,

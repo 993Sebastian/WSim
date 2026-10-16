@@ -143,6 +143,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PV4 | Kinder mit Eigenschaften und Ausbildung, Trainee-Pfad, Testament, gesetzliche Erbfolge, Erbschaftsteuer | ⏳ |
 | PV5 | Anteilsschwellen und Pflichtangebot, Vermögensverwalter, Hausverwaltung, Steuerberater, Werkswohnungen, Vermietung an die eigene Firma | 🔧 16.10.2026 Kern (PV5a/b/c) umgesetzt, Prüfungen laufen |
 | PV6a | Ansehen, Netzwerk und Clubs, Besitzobjekte | ✅ 16.10.2026 |
+| PV6b | Beziehung, Ehevertrag, persönliche Ereignisse, Vetternwirtschaft, Chronik, Stammbaum, Nachruf | ✅ 16.10.2026 |
 | PV6 | Familienholding, Stiftung, Ansehen, Netzwerk, persönliche Ereignisse, Vetternwirtschaft, Ehevertrag, Besitzobjekte, Chronik, Nachruf | ⏳ |
 | PV7 | Wertpapierkredit, Insider-Ereignis, Sammlermarkt, Projektentwicklung, Werk in gemieteter Halle | ⏳ |
 | PV8 | KI-Unternehmer als Personen mit Privatvermögen; Balanceprüfung nach §15 und Gleichstellungstest | ⏳ |

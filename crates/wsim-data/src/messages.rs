@@ -385,6 +385,12 @@ pub fn rows_not_ascending() -> String {
     "Die Zeilen müssen nach „bip_je_kopf_usd“ aufsteigend sortiert sein.".into()
 }
 
+pub fn event_condition_unknown(key: &str) -> String {
+    format!(
+        "Bedingung „{key}“ ist nicht bekannt (erlaubt: immer, verheiratet, kinder, gesundheit_niedrig, firma, mieter)."
+    )
+}
+
 pub fn contact_role_unknown(key: &str) -> String {
     format!(
         "Rolle „{key}“ ist nicht bekannt (erlaubt: bankier, unternehmer, politiker, wissenschaftler, makler)."

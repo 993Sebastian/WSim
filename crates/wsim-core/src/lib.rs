@@ -51,6 +51,7 @@ pub mod money;
 pub mod operations;
 pub mod patents;
 pub mod person;
+pub mod personal;
 pub mod plots;
 pub mod policy;
 pub mod population;

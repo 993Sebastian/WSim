@@ -2446,6 +2446,9 @@ pub struct Person {
     /// Standing, clubs, contacts and possessions (PV6a).
     #[serde(default, skip_serializing_if = "crate::standing::Circle::is_empty")]
     pub circle: crate::standing::Circle,
+    /// The relationship and the personal events (PV6b).
+    #[serde(default, skip_serializing_if = "crate::personal::Life::is_empty")]
+    pub life: crate::personal::Life,
 }
 
 fn is_zero_f64(x: &f64) -> bool {
@@ -2518,6 +2521,18 @@ pub struct Ancestor {
     /// The day the person died or handed over.
     pub until: Date,
     pub died: bool,
+    /// The obituary (PV6b): net worth, companies led, workers, standing and living
+    /// children at the end.
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub wealth: Money,
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub firms: u32,
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub workers: u32,
+    #[serde(default, skip_serializing_if = "is_zero_f64")]
+    pub standing: f64,
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub children: u32,
 }
 
 impl Default for Person {
@@ -2551,6 +2566,7 @@ impl Default for Person {
             heir_stakes: BTreeMap::new(),
             disclosed: BTreeMap::new(),
             circle: crate::standing::Circle::default(),
+            life: crate::personal::Life::default(),
             services: Default::default(),
         }
     }
@@ -2626,6 +2642,8 @@ pub enum PrivateFlow {
     GoodSold,
     /// Club fees and upkeep of possessions.
     CircleCost,
+    /// Personal events and separations (PV6b).
+    Personal,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by
@@ -2907,6 +2925,17 @@ pub enum LifeEventKind {
         company: CompanyId,
         share: f64,
         proceeds: Money,
+    },
+    /// The person married (PV6b).
+    Married,
+    /// The couple separated; the partner got this (PV6b).
+    Separated {
+        paid: Money,
+    },
+    /// A personal event was answered (PV6b).
+    Personal {
+        key: String,
+        option: String,
     },
 }
 

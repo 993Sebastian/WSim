@@ -3143,6 +3143,49 @@ person.sparplan_keiner: Kein Sparplan eingerichtet.
 # Privatimmobilien (PV3)
 privat.miete: Mieteinnahmen
 privat.spende: Spenden
+person.leben: Beziehung und Ereignisse
+person.beziehung: "Beziehung zum Partner: {wert} / 100"
+person.ehevertrag_da: mit Ehevertrag
+person.ereignisse_keine: Zur Zeit steht keine persönliche Entscheidung an.
+person.ereignis_frist: "bis {bis}, sonst gilt die ruhigste Antwort"
+person.stammbaum: Stammbaum
+person.stammbaum_zeile: "{name} ({rolle}), geboren {geboren}"
+person.gestorben_am: "gestorben {datum}"
+person.rolle_person: Du
+person.rolle_vorgaenger: Vorgänger
+person.rolle_kind: Kind
+person.nachruf: "Lebensbilanz: Vermögen {vermoegen}, {firmen} Firmen, {mitarbeiter} Beschäftigte, Ansehen {ansehen}, {kinder} Kinder."
+privat.ereignisse: Persönliche Ereignisse und Trennung
+person.ereignis.heirat: "Du hast geheiratet."
+person.ereignis.trennung: "Die Ehe wurde getrennt; der Partner erhielt {betrag}."
+person.ereignis.persoenlich: "{ereignis}: {antwort}"
+lebensereignis.ehevertrag: Ehevertrag
+lebensereignis.ehevertrag.mit: Mit Ehevertrag
+lebensereignis.ehevertrag.ohne: Ohne Ehevertrag
+lebensereignis.bruder_kapital: Dein Bruder bittet um Kapital für seine Firma
+lebensereignis.bruder_kapital.darlehen: Privates Darlehen geben
+lebensereignis.bruder_kapital.absage: Absagen
+lebensereignis.kind_kuenstler: Ein Kind will Künstler werden statt in die Firma einzusteigen
+lebensereignis.kind_kuenstler.erlauben: Erlauben und fördern
+lebensereignis.kind_kuenstler.ueberzeugen: Zureden
+lebensereignis.hochzeit_manager: Ein Manager lädt dich zu seiner Hochzeit ein
+lebensereignis.hochzeit_manager.teilnehmen: Teilnehmen
+lebensereignis.hochzeit_manager.absagen: Absagen
+lebensereignis.zeitung_mieten: Eine Zeitung recherchiert über die Mieten deiner Wohnungen
+lebensereignis.zeitung_mieten.stellung: Stellung nehmen
+lebensereignis.zeitung_mieten.schweigen: Schweigen
+lebensereignis.partner_zeit: Der Partner wünscht sich mehr gemeinsame Zeit
+lebensereignis.partner_zeit.urlaub: Gemeinsamen Urlaub nehmen
+lebensereignis.partner_zeit.spaeter: Später
+lebensereignis.nachlass_kunst: Ein Kunstwerk aus dem Nachlass eines Bekannten wird angeboten
+lebensereignis.nachlass_kunst.kaufen: Kaufen
+lebensereignis.nachlass_kunst.ablehnen: Ablehnen
+lebensereignis.firmenjubilaeum: Firmenjubiläum
+lebensereignis.firmenjubilaeum.fest: Großes Fest für die Belegschaft
+lebensereignis.firmenjubilaeum.schlicht: Schlichte Feier
+lebensereignis.arzt_pause: Der Arzt rät dir zu einer Pause
+lebensereignis.arzt_pause.pause: Pause machen
+lebensereignis.arzt_pause.weitermachen: Weitermachen
 person.ansehen: Ansehen und Netzwerk
 person.ansehen_hilfe: "Dein privates Ansehen (0–100) folgt langsam deinem Lebensstil, deinen Firmen und deinem Besitz; Spenden heben es kurz an. Es macht Kredite etwas günstiger und öffnet Clubs, in denen du Kontakte triffst. Kontakte brauchen Zeit für das Netzwerk (Reiter Zeit)."
 person.ansehen_jetzt: Ansehen

@@ -1171,3 +1171,39 @@ fn a_working_personnel_department_proposes_targets_among_unhappy_managers() {
         "the unhappy manager of the rival is an option"
     );
 }
+
+// --- PV6b: nepotism ---
+
+#[test]
+fn favouring_a_weaker_relative_costs_the_other_managers_satisfaction() {
+    let mut c = test_support::management();
+    c.person.personal = Some(crate::private_tests::personal_model());
+    let mut game = new_game(c);
+    let (_, works) = mine_and_works(&mut game);
+    let boss = hire_sharp(&mut game, head(works));
+    let ceo_id = hire_sharp(&mut game, ceo());
+    let relative = free(&game)[0];
+    game.state_mut().managers.get_mut(&relative).unwrap().family = true;
+    let catalog = game.catalog().clone();
+    let player = game.player();
+    let strength = |g: &Game, id: ManagerId| management::strength(&g.state().managers[&id]);
+    assert!(
+        strength(&game, relative) < strength(&game, boss),
+        "a weaker relative"
+    );
+    let sat = |g: &Game, id: ManagerId| g.state().managers[&id].job.as_ref().unwrap().satisfaction;
+    let before = (sat(&game, boss), sat(&game, ceo_id));
+    crate::personal::nepotism(game.state_mut(), &catalog, player, relative);
+    let after = (sat(&game, boss), sat(&game, ceo_id));
+    let malus = u8::try_from(
+        catalog
+            .person
+            .personal
+            .as_ref()
+            .map_or(0, |p| p.nepotism_malus),
+    )
+    .unwrap_or(0);
+    assert!(malus > 0);
+    assert_eq!(after.0, before.0.map(|s| s.saturating_sub(malus)));
+    assert_eq!(after.1, before.1.map(|s| s.saturating_sub(malus)));
+}
