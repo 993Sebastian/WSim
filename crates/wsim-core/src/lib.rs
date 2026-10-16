@@ -84,6 +84,7 @@ pub mod rng;
 pub mod save;
 pub mod savings;
 pub mod services;
+pub mod speculation;
 pub mod staffing;
 pub mod stakes;
 pub mod standing;

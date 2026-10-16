@@ -3284,3 +3284,23 @@ person.stiftung_ertrag: "Ertrag {ertrag} im Jahr, Ausschüttung {ausschuettung},
 person.stiftung_einlage: Einlage in die Stiftung
 person.stiftung_einzahlen: "Einzahlen (mindestens {mindest}, Steuer {steuer})"
 person.holding_anspruch: "{firma}: {anteil} der Dividenden gehen an die Miterben"
+privat.wertpapierkredit: Wertpapierkredit
+privat.wertpapierzins: Zinsen des Wertpapierkredits
+person.wertpapierkredit: Wertpapierkredit und Sammlermarkt
+person.wertpapierkredit_hilfe: "Fonds, Gold und Sammlerobjekte sind beleihbar (Fonds {fonds}, Gold {gold}, Sammler {sammler} des Werts). Fällt die Deckung unter die Schuld, kommt ein Nachschuss: tilgen oder verkaufen, sonst verkauft die Bank zwangsweise."
+person.wertpapier_schuld: Schuld (Zins im Jahr)
+person.wertpapier_deckung: Beleihungswert
+person.wertpapier_frei: "frei {frei}"
+person.sammlermarkt: Preisniveau der Sammlerobjekte gegen den Normalpreis
+person.nachschuss: "Nachschuss gefordert seit {seit}: Nach {monate} Monat(en) verkauft die Bank Wertpapiere zwangsweise."
+person.wertpapier_betrag: Betrag
+person.wertpapier_aufnehmen: Aufnehmen
+person.wertpapier_tilgen: Tilgen
+besitz.oldtimer: Oldtimer
+lebensereignis.insider: Du erfährst vorab die Zahlen deiner Firma und könntest mit Aktien handeln
+lebensereignis.insider.handeln: Handeln
+lebensereignis.insider.verzichten: Verzichten
+lebensereignis.insider.entdeckt: "Der Insiderhandel wurde entdeckt: Strafe, Gewinn eingezogen und Ansehensverlust"
+person.entwicklung_laeuft: "wird gebaut: {art}, fertig am {datum}"
+person.entwickeln: "Bauen: {art} ({kosten} des Werts, ca. {monate} Monate)"
+produktion.gruenden_halle: "In gemieteter Halle gründen ({kosten} Ausbau, {miete} Miete im Jahr)"

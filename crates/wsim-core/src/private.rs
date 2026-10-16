@@ -199,8 +199,10 @@ pub fn wealth(catalog: &Catalog, state: &GameState) -> WealthPoint {
         ventures,
         safe: crate::savings::safe_value(catalog, state),
         gold: crate::savings::gold_value(state),
-        funds: crate::savings::funds_value(state),
-        property: crate::property::equity(catalog, state),
+        // The securities loan is set against the funds (PV7a).
+        funds: crate::savings::funds_value(state) - state.person.portfolio.lombard,
+        property: crate::property::equity(catalog, state)
+            + crate::speculation::collectibles_value(catalog, state),
     }
 }
 

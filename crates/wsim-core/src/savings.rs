@@ -84,6 +84,11 @@ pub struct Portfolio {
     /// Real estate (PV3).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub properties: Vec<crate::property::Property>,
+    /// The securities loan (PV7a) and the day a margin call began.
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub lombard: Money,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub call_since: Option<Date>,
 }
 
 impl Portfolio {
@@ -103,6 +108,9 @@ pub struct AssetMarket {
     pub nav: [f64; 2],
     /// The stock index the funds last followed.
     pub last_index: f64,
+    /// The noise of the collectors' market (ln, PV7a).
+    #[serde(default)]
+    pub collect_noise: f64,
     /// Properties for sale (PV3).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub offers: Vec<crate::property::PropertyOffer>,
@@ -168,6 +176,11 @@ pub enum Investment {
     Renovate {
         index: u32,
     },
+    /// Builds on a plot of land: the kind of building (PV7c).
+    Develop {
+        index: u32,
+        kind: crate::property::PropertyKind,
+    },
     /// A donation: standing in return (PV6a).
     Donate {
         amount: Money,
@@ -212,6 +225,13 @@ pub enum Investment {
         budget: f64,
     },
     DismissAssetManager,
+    /// Draws a securities loan against funds, gold and collectibles (PV7a).
+    BorrowSecurities {
+        amount: Money,
+    },
+    RepaySecurities {
+        amount: Money,
+    },
 }
 
 fn model(catalog: &Catalog) -> Option<&AssetModel> {
@@ -425,6 +445,9 @@ pub(crate) fn apply(
         | Investment::SetTaxAdvisor { .. }
         | Investment::HireAssetManager { .. }
         | Investment::DismissAssetManager => crate::services::apply(state, catalog, action)?,
+        Investment::BorrowSecurities { .. } | Investment::RepaySecurities { .. } => {
+            crate::speculation::apply(state, catalog, action)?
+        }
         Investment::FoundHolding | Investment::EndowFoundation { .. } => {
             crate::trust::apply(state, catalog, action)?
         }
@@ -437,6 +460,7 @@ pub(crate) fn apply(
         | Investment::SellProperty { .. }
         | Investment::SetRent { .. }
         | Investment::Renovate { .. }
+        | Investment::Develop { .. }
         | Investment::AssignProperty { .. } => crate::property::apply(state, catalog, action)?,
         Investment::SetPlan { fund, amount } => {
             state.person.portfolio.plan =
@@ -583,6 +607,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     news.extend(crate::standing::month_start(state, catalog, date));
     news.extend(crate::personal::month_start(state, catalog, date));
     news.extend(crate::trust::month_start(state, catalog, date));
+    news.extend(crate::speculation::month_start(state, catalog, date));
     // The plan.
     if let Some(plan) = state.person.portfolio.plan
         && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()

@@ -782,6 +782,8 @@ export interface Produktion {
   cash_usd: number;
   sites: StandortDetail[];
   site_types: { kind: string; kind_text: string; cost_usd: number }[];
+  /** Works in a rented hall: share of the cost paid, yearly rent share (PV7c). */
+  hall?: [number, number] | null;
   facilities: {
     key: string;
     site_type: string;
@@ -3103,6 +3105,7 @@ export interface PersonImmobilien {
     debt_usd: number;
     renovating_until: string | null;
     tenant: number | null;
+    developing?: { kind: string; until: string; invested_usd: number } | null;
   }[];
   offers: {
     id: number;
@@ -3118,6 +3121,8 @@ export interface PersonImmobilien {
   mortgage_rate: number;
   sale_discount: number;
   renovation_cost: number;
+  /** Building cost share of the finished value and usual months (PV7c). */
+  develop?: [number, number] | null;
   sites: { index: number; name: string | null; country: string }[];
 }
 
@@ -3169,6 +3174,8 @@ export interface Person {
   circle?: PersonKreis | null;
   /** Family holding and foundation (PV6c). */
   trust?: PersonBindung | null;
+  /** Securities loan and collectors' market (PV7a). */
+  speculation?: PersonSpekulation | null;
   /** The relationship, waiting events and the family tree (PV6b). */
   life?: PersonLeben | null;
   /** While the person has no company yet: the founding. */
@@ -3195,6 +3202,18 @@ export interface PersonLeben {
     role: string;
     position: Meldung | null;
   }[];
+}
+
+/** Securities loan and collectors' market (PV7a). */
+export interface PersonSpekulation {
+  debt_usd: number;
+  capacity_usd: number;
+  room_usd: number;
+  rate: number;
+  lending: [number, number, number];
+  call_since: string | null;
+  call_months: number;
+  collector_level: number;
 }
 
 /** Family holding and foundation (PV6c). */
@@ -3232,7 +3251,7 @@ export interface PersonKreis {
     representation: number;
     available: boolean;
   }[];
-  owned: { key: string; value_usd: number }[];
+  owned: { key: string; value_usd: number; collectible?: boolean }[];
 }
 
 /** Who inherits and what it costs (PE6). */

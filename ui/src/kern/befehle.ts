@@ -28,6 +28,9 @@ export type Geldanlage =
   | { JoinClub: { club: number } }
   | { LeaveClub: { club: number } }
   | { BuyGood: { good: number } }
+  | { Develop: { index: number; kind: string } }
+  | { BorrowSecurities: { amount: number } }
+  | { RepaySecurities: { amount: number } }
   | "FoundHolding"
   | { EndowFoundation: { amount: number } }
   | { SellGood: { index: number } };
@@ -62,6 +65,7 @@ export const STUFEN: Record<string, Stufe> = {
 export type Befehl =
   | { RenameCompany: { name: string } }
   | { FoundSite: { country: string; kind: string } }
+  | { FoundSiteInHall: { country: string; kind: string } }
   | { FoundSiteOnPlot: { plot: number; kind: string; lease: boolean } }
   | { BuyPlot: { site: number } }
   | { BuildFacility: { site: number; facility: string; count: number; size?: string } }

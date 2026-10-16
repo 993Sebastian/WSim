@@ -75,7 +75,12 @@ pub fn good_price(catalog: &Catalog, state: &GameState, kind: usize) -> Option<M
     let m = model(catalog)?;
     let g = m.goods.get(kind)?;
     let wage = crate::private::academic_monthly_wage(catalog, state, state.person.home);
-    Some(wage.scale(12.0 * g.price))
+    let level = if g.collectible {
+        crate::speculation::collector_factor(state)
+    } else {
+        1.0
+    };
+    Some(wage.scale(12.0 * g.price * level))
 }
 
 /// The standing the person drifts to.
@@ -207,7 +212,14 @@ pub(crate) fn apply(
             state.person.circle.goods.remove(i);
             // The sale brings the price of today less a resale loss.
             let price = good_price(catalog, state, g.kind as usize).unwrap_or(g.paid);
-            crate::private::book_flow(state, PrivateFlow::GoodSold, price.scale(0.8));
+            let keep = match (
+                crate::speculation::model(catalog),
+                m.goods.get(g.kind as usize),
+            ) {
+                (Some(s), Some(t)) if t.collectible => 1.0 - s.collectors.spread,
+                _ => 0.8,
+            };
+            crate::private::book_flow(state, PrivateFlow::GoodSold, price.scale(keep));
         }
         _ => return Err(CommandError::NotPossible),
     }

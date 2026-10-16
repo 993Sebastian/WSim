@@ -451,3 +451,57 @@ fn a_sold_site_takes_its_bought_plot_along() {
         assert!(c.ledger.is_balanced(), "{}", c.name);
     }
 }
+
+#[test]
+fn a_works_in_a_rented_hall_costs_little_to_build_and_pays_rent_without_a_plot() {
+    let mut c = catalog();
+    c.plot_model.hall = Some(crate::catalog::HallTerms {
+        build_share: 0.25,
+        rent_rate: 0.12,
+    });
+    let catalog = Arc::new(c);
+    let settings = GameSettings {
+        seed: 3,
+        start_year: 1900,
+        start_country: catalog.countries.id("AAA").unwrap(),
+        start_capital: usd(20_000_000.0),
+        start_form: StartForm::Workshop,
+        company_name: "Hütte AG".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
+        ventures: 1.0,
+        tariff_dynamics: 1.0,
+        event_effects: true,
+        research_mandatory: false,
+        found_at_start: true,
+        person: Default::default(),
+    };
+    let mut game = Game::new(catalog.clone(), settings).unwrap();
+    let country = aaa(&game);
+    let full = catalog.production_model.site_cost(SiteType::Factory);
+    let before = game.state().sites.len();
+    let cash = game.state().companies[0].ledger.cash();
+    game.apply(Command::FoundSiteInHall {
+        country,
+        kind: SiteType::Factory,
+    })
+    .unwrap();
+    let site = &game.state().sites[before];
+    assert_eq!(site.plot, None);
+    assert_eq!(site.building_cost, full.scale(0.25));
+    assert_eq!(site.hall_rent, full.scale(0.12));
+    assert_eq!(
+        cash - game.state().companies[0].ledger.cash(),
+        full.scale(0.25)
+    );
+    // Without the terms the hall is not offered.
+    let mut plain = new_game(3);
+    assert_eq!(
+        plain.apply(Command::FoundSiteInHall {
+            country,
+            kind: SiteType::Factory,
+        }),
+        Err(CommandError::NotPossible)
+    );
+}

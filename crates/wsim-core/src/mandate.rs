@@ -361,7 +361,9 @@ pub fn banned(catalog: &Catalog, state: &GameState, d: &Decision, choice: &Choic
         return false;
     }
     choice.steps.iter().any(|s| match s.command {
-        Command::FoundSite { country, .. } => mandate.blocked_countries.contains(&country),
+        Command::FoundSite { country, .. } | Command::FoundSiteInHall { country, .. } => {
+            mandate.blocked_countries.contains(&country)
+        }
         Command::FoundSiteOnPlot { plot, .. } => state
             .plots
             .get(plot.index())

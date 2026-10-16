@@ -6657,6 +6657,38 @@ fn werkswohnungen_der_privatimmobilien_werden_geprueft() {
     );
 }
 
+#[test]
+fn entwicklungsprojekte_und_gemietete_hallen_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let mit = |entwicklung: &str| {
+        let alt = "      zustandsgewicht: 0.3\n";
+        let neu = format!("{alt}      entwicklung: {entwicklung}\n");
+        Daten::neu()
+            .datei(datei, &PERSON.replacen(alt, &neu, 1))
+            .laden()
+    };
+    let gut = mit("{kosten: 0.65, kosten_streuung: 0.25, monate: 12, monate_streuung: 0.5}");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut.data.as_ref().unwrap().catalog.person.assets.clone();
+    let d = m.unwrap().property.unwrap().develop.expect("Entwicklung");
+    assert_eq!(d.months, 12);
+    let schlecht = mit("{kosten: 0.65, kosten_streuung: 2, monate: 12, monate_streuung: 0.5}");
+    let f = schlecht.report.findings().first().expect("Streuung > 0,9");
+    assert_eq!(
+        f.path.to_string(),
+        "person.anlagen.immobilien.entwicklung.kosten_streuung"
+    );
+    let halle = Daten::neu()
+        .ersetze(
+            "parameter/grundstuecksmodell.yaml",
+            "bauanteil: 0.3",
+            "bauanteil: 1.5",
+        )
+        .laden();
+    let f = halle.report.findings().first().expect("Bauanteil > 1");
+    assert_eq!(f.path.to_string(), "grundstuecksmodell.halle.bauanteil");
+}
+
 const ANSEHEN: &str = "  ansehen:
     ziel_basis: 8
     ziel_lebensstil: [0, 6, 16, 30]
@@ -6771,6 +6803,62 @@ fn bindung_wird_geprueft() {
     }
 }
 
+const SPEKULATION: &str = "  spekulation:
+    wertpapierkredit: {beleihung: {fonds: 0.5, gold: 0.4, sammler: 0.3}, zins_aufschlag: 0.02, frist_monate: 1}
+    sammler: {schwankung: 0.06, rueckkehr: 0.03, spanne: 0.12}
+";
+
+#[test]
+fn spekulation_wird_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        let mit = PERSON.replacen(
+            "  wohlbefinden:",
+            &format!("{SPEKULATION}  wohlbefinden:"),
+            1,
+        );
+        Daten::neu()
+            .datei(datei, &mit.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    assert!(
+        gut.data
+            .as_ref()
+            .unwrap()
+            .catalog
+            .person
+            .speculation
+            .is_some()
+    );
+    for (alt, neu, pfad) in [
+        (
+            "fonds: 0.5",
+            "fonds: 1.5",
+            "person.spekulation.wertpapierkredit.beleihung.fonds",
+        ),
+        (
+            "zins_aufschlag: 0.02",
+            "zins_aufschlag: -1",
+            "person.spekulation.wertpapierkredit.zins_aufschlag",
+        ),
+        (
+            "spanne: 0.12",
+            "spanne: 0.9",
+            "person.spekulation.sammler.spanne",
+        ),
+    ] {
+        let r = lauf(alt, neu);
+        let f = r
+            .report
+            .findings()
+            .first()
+            .unwrap_or_else(|| panic!("{alt} → {neu}: kein Befund"));
+        assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
+    }
+}
+
 const PERSOENLICHES: &str = "  persoenliches:
     chance_faktor: 1.0
     frist_tage: 60
@@ -6825,6 +6913,11 @@ fn persoenliche_ereignisse_werden_geprueft() {
             "- {id: spaeter, beziehung: -8}",
             "",
             "person.persoenliches.liste[0].optionen",
+        ),
+        (
+            "{id: urlaub, kosten: 8, beziehung: 12}",
+            "{id: urlaub, kosten: 8, gewinn: 5, entdeckung: 2}",
+            "person.persoenliches.liste[0].optionen[0].entdeckung",
         ),
         (
             "chance_jahr: 0.3\n        optionen",

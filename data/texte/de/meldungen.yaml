@@ -669,3 +669,6 @@ lieblingsgrund.technologie.zahlengetrieben.3: "Nach Kostenvergleich liegt die ne
 lieblingsgrund.technologie.querdenker.1: "Die Technologie aus der Nachbarbranche löst unser Problem – das sieht kaum jemand."
 lieblingsgrund.technologie.querdenker.2: "Ich würde eine Technik nehmen, die hier noch keiner nutzt."
 lieblingsgrund.technologie.querdenker.3: "Ein ungewöhnlicher Technologiepfad kann uns einen Sprung nach vorn bringen."
+meldung.person.nachschuss: "Nachschuss: Der Wertpapierkredit ({schuld}) übersteigt den Beleihungswert ({deckung}). Tilge oder verkaufe rechtzeitig, sonst verkauft die Bank zwangsweise."
+meldung.person.zwangsverkauf: "Die Bank hat Wertpapiere zwangsweise verkauft; der Wertpapierkredit beträgt noch {schuld}."
+meldung.person.projekt_fertig: "Das Bauprojekt ist fertig: {art}. Die Vermietung beginnt im nächsten Monat."

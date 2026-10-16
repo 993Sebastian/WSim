@@ -168,6 +168,35 @@ fn resolve(
     if o.loyalty != 0.0 {
         shift_satisfaction(state, o.loyalty);
     }
+    if o.gain > 0.0 {
+        // An insider trade: a gain, or a fine and a loss of standing if it is found out.
+        let mut rng = SimRng::for_stream(
+            state.settings.seed,
+            Stream::Person {
+                month: EVENT_STREAM
+                    + (1 << 22)
+                    + (pending.id % 512) * 8192
+                    + crate::management::month_number(state.date) % 8192,
+            },
+        );
+        if rng.chance(o.detect) {
+            let fine = wage.scale(o.gain * o.fine);
+            crate::private::book_flow_floor(state, PrivateFlow::Personal, -fine);
+            if crate::standing::model(catalog).is_some() {
+                let now = crate::standing::standing(catalog, state);
+                state.person.circle.standing = Some((now - o.shame).clamp(0.0, 100.0));
+            }
+            state.person.history.push(LifeEvent {
+                date: state.date,
+                kind: LifeEventKind::Personal {
+                    key: terms.key.clone(),
+                    option: "entdeckt".into(),
+                },
+            });
+        } else {
+            crate::private::book_flow(state, PrivateFlow::Personal, wage.scale(o.gain));
+        }
+    }
     state.person.history.push(LifeEvent {
         date: state.date,
         kind: LifeEventKind::Personal {

@@ -73,6 +73,17 @@ pub struct Property {
     /// The site of the person's firm it is let to (PV5c).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tenant: Option<u32>,
+    /// A building is built on this land (PV7c).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub development: Option<Development>,
+}
+
+/// A development project: what is built, when it is ready and what it cost so far.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Development {
+    pub kind: PropertyKind,
+    pub until: Date,
+    pub invested: Money,
 }
 
 /// A property for sale.
@@ -130,7 +141,7 @@ pub fn value(catalog: &Catalog, state: &GameState, m: &PropertyModel, p: &Proper
         state,
         m,
         (p.kind, p.country, p.quality, p.condition),
-    )
+    ) + p.development.map_or(Money::ZERO, |d| d.invested)
 }
 
 /// The market rent per year.
@@ -210,6 +221,7 @@ pub(crate) fn apply(
                 rent_factor: 1.0,
                 renovating_until: None,
                 tenant: None,
+                development: None,
                 mortgage: (loan > Money::ZERO).then(|| Mortgage {
                     balance: loan,
                     rate,
@@ -259,6 +271,50 @@ pub(crate) fn apply(
             let p = &mut state.person.portfolio.properties[i];
             p.condition = (p.condition + m.reno_points).min(100.0);
             p.renovating_until = Some(state.date.add_months(m.reno_months));
+        }
+        I::Develop { index, kind } => {
+            let terms = m.develop.ok_or(CommandError::NotPossible)?;
+            let i = index as usize;
+            let p = state
+                .person
+                .portfolio
+                .properties
+                .get(i)
+                .ok_or(CommandError::NotPossible)?
+                .clone();
+            if p.kind != PropertyKind::Land || p.development.is_some() || kind == PropertyKind::Land
+            {
+                return Err(CommandError::NotPossible);
+            }
+            let mut rng = SimRng::for_stream(
+                state.settings.seed,
+                Stream::Person {
+                    month: PROPERTY_STREAM
+                        + (1 << 22)
+                        + (index % 64) * 65536
+                        + crate::management::month_number(state.date),
+                },
+            );
+            let finished = value_of(catalog, state, &m, (kind, p.country, p.quality, 100.0));
+            let cost = finished
+                .scale(terms.cost * (1.0 + terms.cost_spread * (2.0 * rng.next_f64() - 1.0)));
+            let months = (f64::from(terms.months)
+                * (1.0 + terms.months_spread * (2.0 * rng.next_f64() - 1.0)))
+                .round()
+                .max(1.0) as u32;
+            if state.person.account.balance < cost {
+                return Err(CommandError::NotEnoughPrivateMoney {
+                    needed: cost - state.person.account.balance,
+                });
+            }
+            crate::private::book_flow(state, PrivateFlow::PropertyCost, -cost);
+            let q = &mut state.person.portfolio.properties[i];
+            q.paid += cost;
+            q.development = Some(Development {
+                kind,
+                until: state.date.add_months(months),
+                invested: cost,
+            });
         }
         I::AssignProperty { index, site } => {
             let kind = state
@@ -349,7 +405,23 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         let p = state.person.portfolio.properties[i].clone();
         let terms = m.kinds[p.kind as usize];
         let v = value(catalog, state, &m, &p);
-        let empty = p.renovating_until.is_some_and(|d| date < d);
+        if let Some(d) = p.development.filter(|d| date >= d.until) {
+            let q = &mut state.person.portfolio.properties[i];
+            q.kind = d.kind;
+            q.condition = 100.0;
+            q.development = None;
+            news.push(
+                Message::new(MessageKind::Info, keys::PROPERTY_DEVELOPED).with(
+                    "art",
+                    Param::TextKey(format!("person.immobilie_{}", d.kind.key())),
+                ),
+            );
+            // The finished building is let from the next month.
+            i += 1;
+            continue;
+        }
+        let p = state.person.portfolio.properties[i].clone();
+        let empty = p.renovating_until.is_some_and(|d| date < d) || p.development.is_some();
         if p.renovating_until.is_some() && !empty {
             state.person.portfolio.properties[i].renovating_until = None;
         }

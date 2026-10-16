@@ -154,6 +154,13 @@ pub(super) fn plot_model(ctx: &mut Ctx, raw: &RawData) -> PlotModel {
             &area.field("mindestflaeche_ha"),
         ),
         ai_reserve: in_range(ctx, m.ai_reserve, 0.0, 5.0, &l.field("ki_reserve")),
+        hall: m.hall.as_ref().map(|h| {
+            let hl = l.field("halle");
+            wsim_core::catalog::HallTerms {
+                build_share: in_range(ctx, h.build_share, 0.0, 1.0, &hl.field("bauanteil")),
+                rent_rate: in_range(ctx, h.rent_rate, 0.0, 1.0, &hl.field("miete_anteil")),
+            }
+        }),
     }
 }
 

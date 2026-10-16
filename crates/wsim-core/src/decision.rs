@@ -523,6 +523,11 @@ pub fn amount(
                 .scale(state.settings.market_scale * share)
         }
         Command::FoundSite { kind, .. } => model.site_cost(*kind),
+        Command::FoundSiteInHall { kind, .. } => {
+            catalog.plot_model.hall.map_or(model.site_cost(*kind), |h| {
+                model.site_cost(*kind).scale(h.build_share)
+            })
+        }
         Command::FoundSiteOnPlot { plot, kind, lease } => {
             let land = crate::plots::value(catalog, state, *plot);
             let land = if *lease {
@@ -981,7 +986,9 @@ fn new_capacity(
     let mut usd = 0.0;
     for step in &choice.steps {
         match &step.command {
-            Command::FoundSite { country, .. } => founded.push(*country),
+            Command::FoundSite { country, .. } | Command::FoundSiteInHall { country, .. } => {
+                founded.push(*country)
+            }
             Command::FoundSiteOnPlot { plot, .. } => {
                 founded.push(state.plots[plot.index()].country);
             }

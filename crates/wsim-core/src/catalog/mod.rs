@@ -2304,6 +2304,17 @@ pub struct PlotModel {
     pub min_site_area_ha: f64,
     /// Room the AI keeps for growth when it chooses a plot.
     pub ai_reserve: f64,
+    /// Works in a rented hall (PV7c); none: not offered.
+    pub hall: Option<HallTerms>,
+}
+
+/// A works in a rented hall instead of an own building (PV7c, docs/FORMELN.md).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct HallTerms {
+    /// Share of the site cost that is paid (fit-out) instead of building.
+    pub build_share: f64,
+    /// Yearly rent as a share of the site cost.
+    pub rent_rate: f64,
 }
 
 impl PlotModel {
@@ -2334,6 +2345,7 @@ impl Default for PlotModel {
             overhead: 0.2,
             min_site_area_ha: 0.2,
             ai_reserve: 0.5,
+            hall: None,
         }
     }
 }
@@ -2910,6 +2922,8 @@ pub struct PersonModel {
     pub personal: Option<PersonalModel>,
     /// Family holding and foundation (PV6c).
     pub trust: Option<TrustModel>,
+    /// Securities loan, collectors' market, development, rented halls (PV7).
+    pub speculation: Option<SpeculationModel>,
     /// Safe investments, gold and funds (PV2); `None` without the section.
     pub assets: Option<AssetModel>,
     /// Children, education and succession (PV4); `None` without the section.
@@ -3049,6 +3063,18 @@ pub struct PropertyModel {
     /// Relief of the wage pressure of a site per company flat, and its cap (PV5c).
     pub company_relief: f64,
     pub company_relief_max: f64,
+    /// Developing land into a building (PV7c); none: not offered.
+    pub develop: Option<DevelopTerms>,
+}
+
+/// Cost and time of a development project, with their spread (PV7c, docs/FORMELN.md).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DevelopTerms {
+    /// Building cost as a share of the finished value, and its spread (± share).
+    pub cost: f64,
+    pub cost_spread: f64,
+    pub months: u32,
+    pub months_spread: f64,
 }
 
 /// Effects of a background at the start (PV1b); proportional ones are shares.
@@ -3065,6 +3091,32 @@ pub struct BackgroundEffect {
     /// Standing and contacts at the start (from PV6).
     pub standing: f64,
     pub network: f64,
+}
+
+/// Securities loan and collectors' market (PV7, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct SpeculationModel {
+    pub lombard: LombardTerms,
+    pub collectors: CollectorTerms,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct LombardTerms {
+    /// Share of the value that can be borrowed against funds, gold and collectibles.
+    pub lending: [f64; 3],
+    /// Added to the savings rate for the yearly interest.
+    pub rate_premium: f64,
+    /// Months between a margin call and the forced sale.
+    pub call_months: u32,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CollectorTerms {
+    /// Monthly noise of the price (ln) and the share of it that comes back each month.
+    pub volatility: f64,
+    pub reversion: f64,
+    /// Spread on a sale.
+    pub spread: f64,
 }
 
 /// Family holding and foundation (PV6c, docs/FORMELN.md).
@@ -3144,6 +3196,12 @@ pub struct EventOption {
     pub health: f64,
     pub interest: f64,
     pub loyalty: f64,
+    /// Insider trade (PV7b): gain in academic monthly wages, the chance of being found out,
+    /// the fine as a multiple of the gain and the standing lost.
+    pub gain: f64,
+    pub detect: f64,
+    pub fine: f64,
+    pub shame: f64,
 }
 
 /// Private standing, network, clubs and possessions (PV6a, docs/FORMELN.md).
@@ -3235,6 +3293,8 @@ pub struct GoodTerms {
     pub upkeep: f64,
     /// Points it adds to the standing the person drifts to.
     pub representation: f64,
+    /// Art and classic cars: the price follows the collectors' market (PV7a).
+    pub collectible: bool,
 }
 
 /// Time budget, health and illness of the person (PV1b, docs/FORMELN.md).
@@ -3325,6 +3385,7 @@ impl Default for PersonModel {
             standing: None,
             personal: None,
             trust: None,
+            speculation: None,
             assets: None,
             legacy: None,
             provenance: Provenance::default(),

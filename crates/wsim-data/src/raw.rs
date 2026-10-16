@@ -2176,6 +2176,17 @@ pub struct RawPlotModel {
     pub facility_area: RawFacilityArea,
     #[serde(rename = "ki_reserve")]
     pub ai_reserve: f64,
+    #[serde(default, rename = "halle")]
+    pub hall: Option<RawHall>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHall {
+    #[serde(rename = "bauanteil")]
+    pub build_share: f64,
+    #[serde(rename = "miete_anteil")]
+    pub rent_rate: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -3240,6 +3251,8 @@ pub struct RawPerson {
     pub personal: Option<RawPersonal>,
     #[serde(default, rename = "bindung")]
     pub trust: Option<RawTrust>,
+    #[serde(default, rename = "spekulation")]
+    pub speculation: Option<RawSpeculation>,
     #[serde(default, rename = "anlagen")]
     pub assets: Option<RawAssets>,
     #[serde(default, rename = "nachwuchs")]
@@ -3452,6 +3465,8 @@ pub struct RawProperty {
     pub offers: RawPropertyOffers,
     #[serde(rename = "firma", default)]
     pub company: Option<RawPropertyCompany>,
+    #[serde(rename = "entwicklung", default)]
+    pub develop: Option<RawDevelop>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -3513,6 +3528,19 @@ pub struct RawRenovation {
     pub points: f64,
     #[serde(rename = "monate")]
     pub months: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDevelop {
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "kosten_streuung")]
+    pub cost_spread: f64,
+    #[serde(rename = "monate")]
+    pub months: u32,
+    #[serde(rename = "monate_streuung")]
+    pub months_spread: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -3621,6 +3649,48 @@ pub struct RawFundTerms {
 }
 
 /// Background, time budget and health of the person (PV1b).
+/// Securities loan and collectors' market (PV7).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSpeculation {
+    #[serde(rename = "wertpapierkredit")]
+    pub lombard: RawLombard,
+    #[serde(rename = "sammler")]
+    pub collectors: RawCollectors,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLombard {
+    #[serde(rename = "beleihung")]
+    pub lending: RawLending,
+    #[serde(rename = "zins_aufschlag")]
+    pub rate_premium: f64,
+    #[serde(rename = "frist_monate")]
+    pub call_months: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLending {
+    #[serde(rename = "fonds")]
+    pub funds: f64,
+    pub gold: f64,
+    #[serde(rename = "sammler")]
+    pub collectibles: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCollectors {
+    #[serde(rename = "schwankung")]
+    pub volatility: f64,
+    #[serde(rename = "rueckkehr")]
+    pub reversion: f64,
+    #[serde(rename = "spanne")]
+    pub spread: f64,
+}
+
 /// Family holding and foundation (PV6c).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -3724,6 +3794,14 @@ pub struct RawPersonalEventOption {
     pub interest: f64,
     #[serde(default, rename = "loyalitaet")]
     pub loyalty: f64,
+    #[serde(default, rename = "gewinn")]
+    pub gain: f64,
+    #[serde(default, rename = "entdeckung")]
+    pub detect: f64,
+    #[serde(default, rename = "strafe")]
+    pub fine: f64,
+    #[serde(default, rename = "schande")]
+    pub shame: f64,
 }
 
 /// Standing, network, clubs and possessions (PV6a).
@@ -3790,6 +3868,8 @@ pub struct RawGood {
     pub upkeep: f64,
     #[serde(rename = "repraesentation")]
     pub representation: f64,
+    #[serde(default, rename = "sammler")]
+    pub collectible: bool,
 }
 
 #[derive(Debug, Deserialize)]

@@ -209,6 +209,9 @@ pub struct PersonView {
     /// Family holding and foundation (PV6c).
     #[serde(default)]
     pub trust: Option<TrustView>,
+    /// Securities loan and collectors' market (PV7a).
+    #[serde(default)]
+    pub speculation: Option<SpeculationView>,
     /// The relationship, waiting events and the family tree (PV6b).
     #[serde(default)]
     pub life: Option<LifeView>,
@@ -257,6 +260,22 @@ pub struct TreeNodeView {
     pub role: String,
     /// What the person does in the company, if anything.
     pub position: Option<MessageView>,
+}
+
+/// Securities loan and collectors' market (PV7a).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SpeculationView {
+    pub debt_usd: f64,
+    pub capacity_usd: f64,
+    pub room_usd: f64,
+    pub rate: f64,
+    /// Lending value shares of funds, gold and collectibles.
+    pub lending: [f64; 3],
+    /// The day a margin call began, if one is open.
+    pub call_since: Option<String>,
+    pub call_months: u32,
+    /// Price level of collectibles against the normal price.
+    pub collector_level: f64,
 }
 
 /// Family holding and foundation (PV6c).
@@ -321,6 +340,9 @@ pub struct GoodView {
 pub struct OwnedGoodView {
     pub key: String,
     pub value_usd: f64,
+    /// Follows the collectors' market (PV7a).
+    #[serde(default)]
+    pub collectible: bool,
 }
 
 /// What the person holds besides companies and the terms for more (PV2).
@@ -361,6 +383,10 @@ pub struct PropertyView {
     pub mortgage_rate: f64,
     pub sale_discount: f64,
     pub renovation_cost: f64,
+    /// Building cost as a share of the finished value and the usual months (PV7c); none:
+    /// no development projects.
+    #[serde(default)]
+    pub develop: Option<(f64, u32)>,
     /// Sites of the person's firms a property may be let to (PV5c).
     pub sites: Vec<TenantSiteView>,
 }
@@ -387,6 +413,17 @@ pub struct OwnedPropertyView {
     pub renovating_until: Option<String>,
     /// Index of the site it is let to.
     pub tenant: Option<u32>,
+    /// What is built here and when it is ready (PV7c).
+    #[serde(default)]
+    pub developing: Option<DevelopingView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DevelopingView {
+    /// Text `person.immobilie_<kind>`.
+    pub kind: String,
+    pub until: String,
+    pub invested_usd: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -810,6 +847,11 @@ pub fn person(game: &Game) -> PersonView {
                         debt_usd: usd(p.mortgage.map_or(Money::ZERO, |h| h.balance)),
                         renovating_until: p.renovating_until.map(iso),
                         tenant: p.tenant,
+                        developing: p.development.map(|d| DevelopingView {
+                            kind: d.kind.key().to_owned(),
+                            until: iso(d.until),
+                            invested_usd: usd(d.invested),
+                        }),
                     })
                     .collect(),
                 offers: state
@@ -837,6 +879,7 @@ pub fn person(game: &Game) -> PersonView {
                 mortgage_rate: crate::property::mortgage_rate(catalog, state, pm),
                 sale_discount: pm.sale_discount,
                 renovation_cost: pm.reno_cost,
+                develop: pm.develop.map(|d| (d.cost, d.months)),
                 sites: state
                     .sites
                     .iter()
@@ -856,6 +899,7 @@ pub fn person(game: &Game) -> PersonView {
         wellbeing,
         circle: circle_view(game),
         trust: trust_view(game),
+        speculation: speculation_view(game),
         life: life_view(game),
         money: Some(money),
         founding,
@@ -999,6 +1043,8 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::CircleCost => "privat.kreiskosten",
         PrivateFlow::Personal => "privat.ereignisse",
         PrivateFlow::Trust => "privat.bindung",
+        PrivateFlow::Lombard => "privat.wertpapierkredit",
+        PrivateFlow::LombardInterest => "privat.wertpapierzins",
         PrivateFlow::FoundationPayout => "privat.stiftungsertrag",
     }
 }
@@ -1100,6 +1146,24 @@ fn founding(game: &Game) -> FoundingView {
     }
 }
 
+fn speculation_view(game: &Game) -> Option<SpeculationView> {
+    let catalog = game.catalog();
+    let state = game.state();
+    let m = crate::speculation::model(catalog)?;
+    let cap = crate::speculation::capacity(catalog, state);
+    let debt = state.person.portfolio.lombard;
+    Some(SpeculationView {
+        debt_usd: usd(debt),
+        capacity_usd: usd(cap),
+        room_usd: usd((cap - debt).max(Money::ZERO)),
+        rate: crate::speculation::rate(catalog, state),
+        lending: m.lombard.lending,
+        call_since: state.person.portfolio.call_since.map(|d| d.to_string()),
+        call_months: m.lombard.call_months,
+        collector_level: crate::speculation::collector_factor(state),
+    })
+}
+
 fn trust_view(game: &Game) -> Option<TrustView> {
     let catalog = game.catalog();
     let state = game.state();
@@ -1190,9 +1254,13 @@ fn circle_view(game: &Game) -> Option<CircleView> {
                 let g = m.goods.get(o.kind as usize)?;
                 Some(OwnedGoodView {
                     key: g.key.clone(),
+                    collectible: g.collectible,
                     value_usd: usd(crate::standing::good_price(catalog, state, o.kind as usize)
                         .unwrap_or(o.paid)
-                        .scale(0.8)),
+                        .scale(match crate::speculation::model(catalog) {
+                            Some(s) if g.collectible => 1.0 - s.collectors.spread,
+                            _ => 0.8,
+                        })),
                 })
             })
             .collect(),

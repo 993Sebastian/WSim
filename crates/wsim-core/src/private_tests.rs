@@ -1021,6 +1021,12 @@ fn property_model() -> crate::catalog::PropertyModel {
         offer_countries: 5,
         company_relief: 0.15,
         company_relief_max: 0.5,
+        develop: Some(crate::catalog::DevelopTerms {
+            cost: 0.6,
+            cost_spread: 0.2,
+            months: 6,
+            months_spread: 0.5,
+        }),
     }
 }
 
@@ -1541,6 +1547,7 @@ fn standing_model() -> crate::catalog::StandingModel {
             price: 2.0,
             upkeep: 0.06,
             representation: 12.0,
+            collectible: false,
         }],
     }
 }
@@ -1862,4 +1869,266 @@ fn the_foundation_grows_pays_the_family_and_lifts_the_standing_target() {
     let capital = game.state().person.trust.capital;
     assert!(capital > estate, "{capital:?}");
     assert!(flow(&game, PrivateFlow::FoundationPayout) > Money::ZERO);
+}
+
+fn speculation_model() -> crate::catalog::SpeculationModel {
+    crate::catalog::SpeculationModel {
+        lombard: crate::catalog::LombardTerms {
+            lending: [0.5, 0.4, 0.3],
+            rate_premium: 0.02,
+            call_months: 1,
+        },
+        collectors: crate::catalog::CollectorTerms {
+            volatility: 0.05,
+            reversion: 0.03,
+            spread: 0.1,
+        },
+    }
+}
+
+fn speculation_game() -> Game {
+    let mut c = catalog();
+    c.person.assets = Some(asset_model());
+    let mut s = standing_model();
+    s.goods[0].collectible = true;
+    c.person.standing = Some(s);
+    c.person.speculation = Some(speculation_model());
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 2_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    game
+}
+
+#[test]
+fn a_securities_loan_is_limited_by_the_lending_value_and_costs_interest() {
+    use crate::savings::{FundKind, Investment};
+    let mut game = speculation_game();
+    let catalog = game.catalog().clone();
+    assert_eq!(
+        invest(&mut game, Investment::BorrowSecurities { amount: usd(1.0) }),
+        Err(CommandError::NotPossible)
+    );
+    invest(
+        &mut game,
+        Investment::BuyFund {
+            fund: FundKind::Managed,
+            amount: usd(400_000.0),
+        },
+    )
+    .unwrap();
+    let cap = crate::speculation::capacity(&catalog, game.state());
+    assert!(cap > usd(150_000.0) && cap < usd(200_000.0), "{cap:?}");
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::BorrowSecurities {
+                amount: cap + usd(1.0)
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    invest(
+        &mut game,
+        Investment::BorrowSecurities {
+            amount: usd(100_000.0),
+        },
+    )
+    .unwrap();
+    assert_eq!(game.state().person.portfolio.lombard, usd(100_000.0));
+    let wealth = crate::private::wealth(&catalog, game.state());
+    game.advance(RoundLength::Month, |_| {});
+    assert!(flow(&game, PrivateFlow::LombardInterest) < Money::ZERO);
+    let _ = wealth;
+    invest(
+        &mut game,
+        Investment::RepaySecurities {
+            amount: usd(100_000.0),
+        },
+    )
+    .unwrap();
+    assert_eq!(game.state().person.portfolio.lombard, Money::ZERO);
+}
+
+#[test]
+fn an_open_margin_call_ends_in_a_forced_sale_that_repays_the_loan() {
+    use crate::savings::{FundKind, Investment};
+    let mut game = speculation_game();
+    invest(
+        &mut game,
+        Investment::BuyFund {
+            fund: FundKind::Managed,
+            amount: usd(400_000.0),
+        },
+    )
+    .unwrap();
+    // The loan above the cover, as after a crash.
+    game.state_mut().person.portfolio.lombard = usd(300_000.0);
+    game.advance(RoundLength::Month, |_| {});
+    assert!(game.state().person.portfolio.call_since.is_some());
+    let fund_before = game.state().person.portfolio.funds[FundKind::Managed as usize].units;
+    game.advance(RoundLength::Month, |_| {});
+    let catalog = game.catalog().clone();
+    assert!(
+        game.state().person.portfolio.lombard
+            <= crate::speculation::capacity(&catalog, game.state()) + usd(1.0)
+    );
+    assert!(game.state().person.portfolio.funds[FundKind::Managed as usize].units < fund_before);
+    assert!(game.state().person.portfolio.lombard < usd(300_000.0));
+}
+
+#[test]
+fn collectibles_follow_their_own_market_and_count_as_wealth() {
+    use crate::savings::Investment;
+    let mut game = speculation_game();
+    let catalog = game.catalog().clone();
+    invest(&mut game, Investment::BuyGood { good: 0 }).unwrap();
+    let before = crate::speculation::collectibles_value(&catalog, game.state());
+    assert!(before > Money::ZERO);
+    game.state_mut().assets.collect_noise = 0.5;
+    let after = crate::speculation::collectibles_value(&catalog, game.state());
+    assert!(after > before.scale(1.5), "{before:?} {after:?}");
+    let w = crate::private::wealth(&catalog, game.state());
+    assert!(w.property >= after);
+    // The sale brings the market price less the spread.
+    let cash = balance(&game);
+    invest(&mut game, Investment::SellGood { index: 0 }).unwrap();
+    assert_eq!(balance(&game) - cash, after);
+}
+
+fn insider_game(detect: f64) -> Game {
+    use crate::catalog::{EventCondition, EventOption, EventTerms};
+    let mut c = catalog();
+    c.person.assets = Some(asset_model());
+    c.person.standing = Some(standing_model());
+    let mut w = wellbeing_model();
+    w.time_default = [75, 15, 10, 0];
+    c.person.wellbeing = Some(w);
+    let mut p = personal_model();
+    p.events = vec![EventTerms {
+        key: "insider".into(),
+        condition: EventCondition::Always,
+        chance_year: 0.0,
+        options: vec![
+            EventOption {
+                key: "handeln".into(),
+                gain: 10.0,
+                detect,
+                fine: 3.0,
+                shame: 20.0,
+                ..EventOption::default()
+            },
+            EventOption {
+                key: "verzichten".into(),
+                ..EventOption::default()
+            },
+        ],
+    }];
+    c.person.personal = Some(p);
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 2_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    let date = game.state().date;
+    game.state_mut()
+        .person
+        .life
+        .pending
+        .push(crate::personal::PendingEvent {
+            id: 1,
+            kind: 0,
+            since: date,
+            until: date.add_months(1),
+        });
+    game
+}
+
+#[test]
+fn an_insider_trade_brings_a_gain_or_a_fine_and_a_loss_of_standing() {
+    let mut safe = insider_game(0.0);
+    let cash = balance(&safe);
+    safe.apply(Command::AnswerEvent {
+        event: 1,
+        option: 0,
+    })
+    .unwrap();
+    assert!(balance(&safe) > cash);
+    let mut caught = insider_game(1.0);
+    let catalog = caught.catalog().clone();
+    let (cash, standing) = (
+        balance(&caught),
+        crate::standing::standing(&catalog, caught.state()),
+    );
+    caught
+        .apply(Command::AnswerEvent {
+            event: 1,
+            option: 0,
+        })
+        .unwrap();
+    assert!(balance(&caught) < cash);
+    assert!(crate::standing::standing(&catalog, caught.state()) < standing);
+}
+
+#[test]
+fn a_development_project_turns_land_into_a_building_after_its_time() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game_with(false);
+    let offer = game
+        .state()
+        .assets
+        .offers
+        .iter()
+        .find(|o| o.kind == PropertyKind::Land)
+        .map(|o| o.id)
+        .expect("a plot is offered");
+    invest(
+        &mut game,
+        Investment::BuyProperty {
+            offer,
+            mortgage: 0.0,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::Develop {
+                index: 0,
+                kind: PropertyKind::Land
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    let cash = balance(&game);
+    invest(
+        &mut game,
+        Investment::Develop {
+            index: 0,
+            kind: PropertyKind::Hall,
+        },
+    )
+    .unwrap();
+    assert!(balance(&game) < cash);
+    let p = game.state().person.portfolio.properties[0].clone();
+    assert_eq!(p.kind, PropertyKind::Land);
+    assert!(p.development.is_some());
+    // A second project on the same land is refused while one runs.
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::Develop {
+                index: 0,
+                kind: PropertyKind::Office
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    for _ in 0..20 {
+        game.advance(RoundLength::Month, |_| {});
+    }
+    let p = &game.state().person.portfolio.properties[0];
+    assert_eq!(p.kind, PropertyKind::Hall);
+    assert!(p.development.is_none());
+    assert!(p.condition > 80.0, "{}", p.condition);
 }

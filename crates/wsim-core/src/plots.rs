@@ -378,6 +378,17 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             rents.push((site, rent));
         }
     }
+    for (i, s) in state.sites.iter().enumerate() {
+        if s.hall_rent > Money::ZERO
+            && s.closed.is_none()
+            && !state.companies[s.owner.index()].bankrupt
+        {
+            rents.push((
+                SiteId(u32::try_from(i).expect("site count fits u32")),
+                s.hall_rent.scale(1.0 / 12.0),
+            ));
+        }
+    }
     for (site, rent) in rents {
         let owner = state.sites[site.index()].owner;
         state.companies[owner.index()].ledger.expense(
@@ -401,6 +412,7 @@ pub(crate) fn fit_loaded(state: &mut GameState, catalog: &Catalog) {
         .enumerate()
         .filter(|(_, s)| {
             s.plot.is_none()
+                && s.hall_rent.is_zero()
                 && needs_plot(catalog, s.kind)
                 && !state.companies[s.owner.index()].bankrupt
         })

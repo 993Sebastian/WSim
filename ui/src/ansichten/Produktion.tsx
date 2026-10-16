@@ -360,6 +360,22 @@ function StandortGruenden({
         <button type="submit" disabled={!bereit}>
           {t("produktion.gruenden_knopf")}
         </button>
+        {typ && produktion.hall && art !== "Extraction" && (
+          <button
+            type="button"
+            onClick={() =>
+              void los(
+                [{ FoundSiteInHall: { country: land, kind: art } }],
+                t("werk.gegruendet", { art: t(typ.kind_text), land: landName(land) }),
+              )
+            }
+          >
+            {t("produktion.gruenden_halle", {
+              kosten: formatGeld(typ.cost_usd * produktion.hall[0]),
+              miete: formatGeld(typ.cost_usd * produktion.hall[1]),
+            })}
+          </button>
+        )}
         {typ && (
           <span className="gedaempft">
             {t("grundstueck.kosten_jetzt", {

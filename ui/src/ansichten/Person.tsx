@@ -82,6 +82,78 @@ function Leben({ l }: { l: NonNullable<Person["life"]> }) {
   );
 }
 
+const ENTWICKLUNG = {
+  wohnung: "Apartment",
+  mehrfamilienhaus: "Multi",
+  buero: "Office",
+  halle: "Hall",
+} as const;
+
+/** Securities loan and collectors' market (PV7a). */
+function Wertpapierkredit({ s }: { s: NonNullable<Person["speculation"]> }) {
+  const { los, antwort } = useAktion("wertpapierkredit");
+  const [betragText, setBetrag] = useState("");
+  const senden = (action: Geldanlage) => void los([{ Invest: { action } }]);
+  const betrag = zahlLesen(betragText);
+  const wert = betrag === null ? null : geld(ausAnzeige(betrag));
+  return (
+    <section className="karte" aria-label={t("person.wertpapierkredit")}>
+      <h2>{t("person.wertpapierkredit")}</h2>
+      <p className="feld-hilfe">
+        {t("person.wertpapierkredit_hilfe", {
+          fonds: formatProzent(s.lending[0]),
+          gold: formatProzent(s.lending[1]),
+          sammler: formatProzent(s.lending[2]),
+        })}
+      </p>
+      <dl className="werte">
+        <dt>{t("person.wertpapier_schuld")}</dt>
+        <dd>
+          {formatGeld(s.debt_usd)} ({formatProzent(s.rate)})
+        </dd>
+        <dt>{t("person.wertpapier_deckung")}</dt>
+        <dd>
+          {formatGeld(s.capacity_usd)} –{" "}
+          {t("person.wertpapier_frei", { frei: formatGeld(s.room_usd) })}
+        </dd>
+        <dt>{t("person.sammlermarkt")}</dt>
+        <dd>{formatProzent(s.collector_level - 1)}</dd>
+      </dl>
+      {s.call_since && (
+        <p className="warnung" role="alert">
+          {t("person.nachschuss", {
+            seit: formatDatum(s.call_since),
+            monate: formatZahl(s.call_months),
+          })}
+        </p>
+      )}
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("person.wertpapier_betrag")}
+          einheit={geldEinheit()}
+          wert={betragText}
+          onWert={setBetrag}
+        />
+        <button
+          type="button"
+          disabled={wert === null || betrag === null || betrag <= 0}
+          onClick={() => wert !== null && senden({ BorrowSecurities: { amount: wert } })}
+        >
+          {t("person.wertpapier_aufnehmen")}
+        </button>
+        <button
+          type="button"
+          disabled={wert === null || betrag === null || betrag <= 0 || s.debt_usd <= 0}
+          onClick={() => wert !== null && senden({ RepaySecurities: { amount: wert } })}
+        >
+          {t("person.wertpapier_tilgen")}
+        </button>
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Family holding and foundation (PV6c). */
 function Bindung({ b }: { b: NonNullable<Person["trust"]> }) {
   const { los, antwort } = useAktion("bindung");
@@ -627,6 +699,31 @@ function Immobilien({ p }: { p: NonNullable<NonNullable<Person["assets"]>["prope
                   ))}
                 </select>
               )}{" "}
+              {o.developing && (
+                <span>
+                  {t("person.entwicklung_laeuft", {
+                    art: t(`person.immobilie_${o.developing.kind}`),
+                    datum: formatDatum(o.developing.until),
+                  })}{" "}
+                </span>
+              )}
+              {o.kind === "grundstueck" && !o.developing && p.develop && (
+                <span>
+                  {(["wohnung", "mehrfamilienhaus", "buero", "halle"] as const).map((art) => (
+                    <button
+                      key={art}
+                      type="button"
+                      onClick={() => senden({ Develop: { index: i, kind: ENTWICKLUNG[art] } })}
+                    >
+                      {t("person.entwickeln", {
+                        art: t(`person.immobilie_${art}`),
+                        kosten: formatProzent(p.develop?.[0] ?? 0),
+                        monate: formatZahl(p.develop?.[1] ?? 0),
+                      })}
+                    </button>
+                  ))}{" "}
+                </span>
+              )}
               {o.kind !== "grundstueck" && (
                 <button type="button" onClick={() => senden({ Renovate: { index: i } })}>
                   {t("person.sanieren", { kosten: formatProzent(p.renovation_cost) })}
@@ -1526,6 +1623,7 @@ export function PersonAnsicht({
       {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
       {daten.assets && <Anlagen a={daten.assets} />}
       {daten.circle && <Ansehen k={daten.circle} />}
+      {daten.speculation && <Wertpapierkredit s={daten.speculation} />}
       {daten.trust && <Bindung b={daten.trust} />}
       {daten.life && <Leben l={daten.life} />}
       {daten.assets?.property && <Immobilien p={daten.assets.property} />}

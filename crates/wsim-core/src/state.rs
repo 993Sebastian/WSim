@@ -1690,6 +1690,9 @@ pub struct Site {
     /// Share of the wage pressure taken off by company housing of the person (PV5c).
     #[serde(default, skip_serializing_if = "is_zero_f64")]
     pub housing_relief: f64,
+    /// Yearly rent of the rented hall the works stands in (PV7c); zero: an own building.
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub hall_rent: Money,
     /// Branch strength 0–1 of the manager responsible for production, as of the last month
     /// start (MG5); the effect in the works.
     #[serde(default, skip_serializing_if = "is_zero")]
@@ -2650,6 +2653,9 @@ pub enum PrivateFlow {
     Personal,
     /// Founding the holding, endowing the foundation (PV6c).
     Trust,
+    /// Drawing and repaying the securities loan, and its interest (PV7a).
+    Lombard,
+    LombardInterest,
     /// What the foundation pays to the family, taxed as income.
     FoundationPayout,
 }

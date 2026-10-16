@@ -576,6 +576,51 @@ describe("Person (PE2)", () => {
     expect(within(karte).getByText(/Test AG/)).toBeTruthy();
   });
 
+  it("nimmt einen Wertpapierkredit auf und zeigt den Nachschuss (PV7a)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.speculation = {
+          debt_usd: 5000,
+          capacity_usd: 4000,
+          room_usd: 0,
+          rate: 0.05,
+          lending: [0.5, 0.4, 0.3],
+          call_since: "1914-03-01",
+          call_months: 1,
+          collector_level: 1.2,
+        };
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const karte = await screen.findByRole("region", { name: "Wertpapierkredit und Sammlermarkt" });
+    expect(within(karte).getByRole("alert")).toBeTruthy();
+    const feld = within(karte).getByRole("textbox", { name: "Betrag" });
+    fireEvent.change(feld, { target: { value: "1000" } });
+    fireEvent.click(within(karte).getByRole("button", { name: "Tilgen" }));
+    expect(JSON.stringify(gesendet[0])).toContain("RepaySecurities");
+  });
+
   it("zeigt Beziehung, Ereignis und Stammbaum und beantwortet das Ereignis (PV6b)", async () => {
     const vorschau = vorschauKern(0);
     await vorschau.neuesSpiel({

@@ -1505,6 +1505,7 @@ fn investment(
                 Command::BuildFacility { .. }
                     | Command::DevelopDeposit { .. }
                     | Command::FoundSite { .. }
+                    | Command::FoundSiteInHall { .. }
                     | Command::FoundSiteOnPlot { .. }
                     | Command::BuyPlot { .. }
                     | Command::RestartFacility { .. }
@@ -1540,9 +1541,9 @@ pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
         | Command::RaiseSalary { .. }
         | Command::InvestInVenture { .. }
         | Command::SetDividendPolicy { .. } => Some(Unit::Board),
-        Command::FoundSite { country, .. } | Command::SetAdvertising { country, .. } => {
-            Some(Unit::Country(country))
-        }
+        Command::FoundSite { country, .. }
+        | Command::FoundSiteInHall { country, .. }
+        | Command::SetAdvertising { country, .. } => Some(Unit::Country(country)),
         Command::FoundSiteOnPlot { plot, .. } => state
             .plots
             .get(plot.index())
@@ -3368,7 +3369,9 @@ fn carry_out(
         skip = steps[i].required && ran.is_err();
         let founds = matches!(
             steps[i].command,
-            Command::FoundSite { .. } | Command::FoundSiteOnPlot { .. }
+            Command::FoundSite { .. }
+                | Command::FoundSiteInHall { .. }
+                | Command::FoundSiteOnPlot { .. }
         );
         if ran.is_ok() && founds {
             let actual = SiteId(u32::try_from(state.sites.len() - 1).unwrap_or(u32::MAX));

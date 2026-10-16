@@ -216,6 +216,7 @@ pub mod keys {
     pub const PERSON_ILL: &str = "meldung.person.krank";
     pub const SAVINGS_PLAN_ENDED: &str = "meldung.person.sparplan_beendet";
     pub const PROPERTY_DISTRESS: &str = "meldung.person.notverkauf";
+    pub const PROPERTY_DEVELOPED: &str = "meldung.person.projekt_fertig";
     pub const STAKE_THRESHOLD: &str = "meldung.beteiligung.schwelle";
     pub const MANAGER_EMBEZZLED: &str = "meldung.person.verwalter_veruntreut";
     pub const STAKE_BLOCKING: &str = "meldung.beteiligung.sperrminoritaet";
@@ -386,6 +387,8 @@ pub mod keys {
     pub const BECAUSE_DEFENCE: &str = "anliegen.begruendung.abwehr";
     pub const STEP_RELEASE: &str = "schritt.freigabe";
     pub const CLUB_DROPPED: &str = "meldung.person.club_verlassen";
+    pub const MARGIN_CALL: &str = "meldung.person.nachschuss";
+    pub const MARGIN_FORCED: &str = "meldung.person.zwangsverkauf";
     pub const CONTACT_MET: &str = "meldung.person.kontakt_neu";
     pub const CONTACT_DIED: &str = "meldung.person.kontakt_gestorben";
     pub const TIP_MANAGER: &str = "meldung.person.hinweis_manager";
@@ -715,6 +718,7 @@ pub mod keys {
         PERSON_ILL,
         SAVINGS_PLAN_ENDED,
         PROPERTY_DISTRESS,
+        PROPERTY_DEVELOPED,
         STAKE_THRESHOLD,
         MANAGER_EMBEZZLED,
         STAKE_BLOCKING,
@@ -886,6 +890,8 @@ pub mod keys {
         SEPARATED,
         PERSONAL_EVENT,
         CLUB_DROPPED,
+        MARGIN_CALL,
+        MARGIN_FORCED,
         CONTACT_MET,
         CONTACT_DIED,
         TIP_MANAGER,

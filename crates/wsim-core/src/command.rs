@@ -37,6 +37,8 @@ pub enum Command {
     /// Founds a site (land and buildings) in a country, on the largest free plot (M35),
     /// bought when the cash pays building and land, else leased.
     FoundSite { country: CountryId, kind: SiteType },
+    /// Founds a site in a rented hall: little building cost, a yearly rent, no plot (PV7c).
+    FoundSiteInHall { country: CountryId, kind: SiteType },
     /// Founds a site on a free plot, bought or leased (M35).
     FoundSiteOnPlot {
         plot: PlotId,
@@ -1562,11 +1564,13 @@ fn found_site(
     today: Date,
     (country, kind): (CountryId, SiteType),
     (plot, lease): (Option<PlotId>, bool),
+    hall: Option<crate::catalog::HallTerms>,
 ) -> Result<(), CommandError> {
     if crate::events::closed_to(state, actor, country) {
         return Err(CommandError::CountryClosed);
     }
-    let cost = catalog.production_model.site_cost(kind);
+    let full = catalog.production_model.site_cost(kind);
+    let cost = hall.map_or(full, |h| full.scale(h.build_share));
     let land = plot
         .filter(|_| !lease)
         .map_or(Money::ZERO, |p| plots::value(catalog, state, p));
@@ -1604,6 +1608,7 @@ fn found_site(
         lab_staff: crate::lab_staff::LabStaff::default(),
         wage_premium: 0.0,
         housing_relief: 0.0,
+        hall_rent: hall.map_or(Money::ZERO, |h| full.scale(h.rent_rate)),
         branch_strength: 0.0,
         training: 0.0,
         training_target: None,
@@ -2095,6 +2100,27 @@ fn run(
                 today,
                 (*country, *kind),
                 (plot, lease),
+                None,
+            )?;
+        }
+        Command::FoundSiteInHall { country, kind } => {
+            if country.index() >= catalog.countries.len() {
+                return Err(CommandError::DifferentCountries);
+            }
+            let hall = catalog.plot_model.hall.ok_or(CommandError::NotPossible)?;
+            if catalog.production_model.site_cost(*kind) <= Money::ZERO
+                || *kind == SiteType::Extraction
+            {
+                return Err(CommandError::NotPossible);
+            }
+            found_site(
+                state,
+                catalog,
+                actor,
+                today,
+                (*country, *kind),
+                (None, false),
+                Some(hall),
             )?;
         }
         Command::FoundSiteOnPlot { plot, kind, lease } => {
@@ -2116,6 +2142,7 @@ fn run(
                 today,
                 (country, *kind),
                 (Some(*plot), *lease),
+                None,
             )?;
         }
         Command::BuyPlot { site } => {

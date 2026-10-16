@@ -98,7 +98,8 @@ person:
     besitz:
       - {id: wohnsitz, ab: 1900, preis: 8, unterhalt: 0.02, repraesentation: 6}
       - {id: wagen, ab: 1905, preis: 1.5, unterhalt: 0.08, repraesentation: 3}
-      - {id: gemaelde, ab: 1900, preis: 3, unterhalt: 0.01, repraesentation: 4}
+      - {id: gemaelde, ab: 1900, preis: 3, unterhalt: 0.01, repraesentation: 4, sammler: true}
+      - {id: oldtimer, ab: 1930, preis: 4, unterhalt: 0.03, repraesentation: 5, sammler: true}
       - {id: yacht, ab: 1910, preis: 20, unterhalt: 0.06, repraesentation: 12}
   # Beziehung, persönliche Ereignisse und Vetternwirtschaft (PV6b, FORMELN PV6b). Annäherungen.
   persoenliches:
@@ -153,6 +154,12 @@ person:
         optionen:
           - {id: fest, kosten: 10, ansehen: 4, loyalitaet: 10}
           - {id: schlicht, kosten: 1, loyalitaet: 2}
+      - id: insider
+        bedingung: firma
+        chance_jahr: 0.12
+        optionen:
+          - {id: handeln, gewinn: 36, entdeckung: 0.3, strafe: 3, schande: 25}
+          - {id: verzichten, ansehen: 2}
       - id: arzt_pause
         bedingung: gesundheit_niedrig
         chance_jahr: 0.6
@@ -163,6 +170,10 @@ person:
   bindung:
     holding_kosten: 24
     stiftung: {mindest: 5, einlage_steuer: 0.02, rendite_jahr: 0.03, ausschuettung_jahr: 0.025, ansehen_je_jahreslohn: 2, ansehen_deckel: 20}
+  # Wertpapierkredit und Sammlermarkt (PV7a, FORMELN PV7a). Annäherungen.
+  spekulation:
+    wertpapierkredit: {beleihung: {fonds: 0.5, gold: 0.4, sammler: 0.3}, zins_aufschlag: 0.02, frist_monate: 1}
+    sammler: {schwankung: 0.06, rueckkehr: 0.03, spanne: 0.12}
   wohlbefinden:
     hintergruende:
       tueftler: {forschung: 0.05}
@@ -253,6 +264,7 @@ person:
       notverkauf_abschlag: 0.15
       zustandsgewicht: 0.3
       firma: {entlastung: 0.15, entlastung_max: 0.5}
+      entwicklung: {kosten: 0.65, kosten_streuung: 0.25, monate: 12, monate_streuung: 0.5}
       angebot:
         monate: 3
         spanne: {von: -0.1, bis: 0.15}

@@ -680,6 +680,9 @@ pub struct ProductionView {
     pub cash_usd: f64,
     pub sites: Vec<SiteDetail>,
     pub site_types: Vec<SiteTypeOption>,
+    /// Works in a rented hall: share of the cost paid and yearly rent share (PV7c).
+    #[serde(default)]
+    pub hall: Option<(f64, f64)>,
     pub facilities: Vec<FacilityOption>,
     pub recipes: Vec<RecipeOption>,
     /// All products (for new purchase orders and offers).
@@ -1421,6 +1424,10 @@ pub fn production(game: &Game) -> ProductionView {
         cash_usd: usd(state.companies[player.index()].ledger.cash()),
         sites,
         site_types,
+        hall: catalog
+            .plot_model
+            .hall
+            .map(|h| (h.build_share, h.rent_rate)),
         facilities,
         recipes,
         products: catalog

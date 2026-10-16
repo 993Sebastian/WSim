@@ -145,8 +145,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PV6a | Ansehen, Netzwerk und Clubs, Besitzobjekte | ✅ 16.10.2026 |
 | PV6b | Beziehung, Ehevertrag, persönliche Ereignisse, Vetternwirtschaft, Chronik, Stammbaum, Nachruf | ✅ 16.10.2026 |
 | PV6c | Familienholding (Ansprüche der Miterben) und Stiftung | ✅ 16.10.2026 |
-| PV6 | Familienholding, Stiftung, Ansehen, Netzwerk, persönliche Ereignisse, Vetternwirtschaft, Ehevertrag, Besitzobjekte, Chronik, Nachruf | ⏳ |
-| PV7 | Wertpapierkredit, Insider-Ereignis, Sammlermarkt, Projektentwicklung, Werk in gemieteter Halle | ⏳ |
+| PV6 | Familienholding, Stiftung, Ansehen, Netzwerk, persönliche Ereignisse, Vetternwirtschaft, Ehevertrag, Besitzobjekte, Chronik, Nachruf | ✅ 16.10.2026 (PV6a–c) |
+| PV7 | Wertpapierkredit, Insider-Ereignis, Sammlermarkt, Projektentwicklung, Werk in gemieteter Halle | ✅ 16.10.2026 |
 | PV8 | KI-Unternehmer als Personen mit Privatvermögen; Balanceprüfung nach §15 und Gleichstellungstest | ⏳ |
 | RB1 | Rundenbericht neu: Datengrundlage – Deckungsbeitrag je Produkt, Auslastung je Anlage/Werk mit Engpassgrund, Marktanteile Land/Kontinent/Welt, Vorrundenwerte (`docs/RUNDENBERICHT_2.md`; Wunsch vom 15.10.2026) | ⏳ Vorgabe aufgenommen 15.10.2026; Reihenfolge (Auftraggeber): direkt nach E2E, vor ZP1 |
 | RB2 | Rundenbericht neu: Kopfzeile, Produkttabelle (Top 5, Summen), Auslastung mit Aufklappen | ⏳ |

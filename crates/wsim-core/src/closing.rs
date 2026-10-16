@@ -163,6 +163,7 @@ pub(crate) fn close(
     s.development_shares.clear();
     s.staffing_due = false;
     s.building_cost = Money::ZERO;
+    s.hall_rent = Money::ZERO;
     s.goodwill = None;
     s.deposit = None;
     s.closed = Some(today);

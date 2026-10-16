@@ -417,6 +417,52 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .personal
             .as_ref()
             .map(|p| personal(ctx, p, &l.field("persoenliches"))),
+        speculation: v.speculation.as_ref().map(|s| {
+            let sl = l.field("spekulation");
+            let ll = sl.field("wertpapierkredit");
+            let cl = sl.field("sammler");
+            let bl = ll.field("beleihung");
+            wsim_core::catalog::SpeculationModel {
+                lombard: wsim_core::catalog::LombardTerms {
+                    lending: [
+                        in_range(ctx, s.lombard.lending.funds, 0.0, 0.95, &bl.field("fonds")),
+                        in_range(ctx, s.lombard.lending.gold, 0.0, 0.95, &bl.field("gold")),
+                        in_range(
+                            ctx,
+                            s.lombard.lending.collectibles,
+                            0.0,
+                            0.95,
+                            &bl.field("sammler"),
+                        ),
+                    ],
+                    rate_premium: in_range(
+                        ctx,
+                        s.lombard.rate_premium,
+                        0.0,
+                        1.0,
+                        &ll.field("zins_aufschlag"),
+                    ),
+                    call_months: s.lombard.call_months,
+                },
+                collectors: wsim_core::catalog::CollectorTerms {
+                    volatility: in_range(
+                        ctx,
+                        s.collectors.volatility,
+                        0.0,
+                        1.0,
+                        &cl.field("schwankung"),
+                    ),
+                    reversion: in_range(
+                        ctx,
+                        s.collectors.reversion,
+                        0.0,
+                        1.0,
+                        &cl.field("rueckkehr"),
+                    ),
+                    spread: in_range(ctx, s.collectors.spread, 0.0, 0.5, &cl.field("spanne")),
+                },
+            }
+        }),
         trust: v.trust.as_ref().map(|t| {
             let bl = l.field("bindung");
             let fl = bl.field("stiftung");
@@ -578,6 +624,10 @@ fn personal(
                     health: in_range(ctx, o.health, -100.0, 100.0, &ol.field("gesundheit")),
                     interest: in_range(ctx, o.interest, -100.0, 100.0, &ol.field("interesse")),
                     loyalty: in_range(ctx, o.loyalty, -100.0, 100.0, &ol.field("loyalitaet")),
+                    gain: non_negative(ctx, o.gain, &ol.field("gewinn")),
+                    detect: in_range(ctx, o.detect, 0.0, 1.0, &ol.field("entdeckung")),
+                    fine: non_negative(ctx, o.fine, &ol.field("strafe")),
+                    shame: in_range(ctx, o.shame, 0.0, 100.0, &ol.field("schande")),
                 }
             })
             .collect();
@@ -695,6 +745,7 @@ fn standing(
                 100.0,
                 &at.field("repraesentation"),
             ),
+            collectible: g.collectible,
         });
     }
     wsim_core::catalog::StandingModel {
@@ -1038,6 +1089,21 @@ fn property(ctx: &mut Ctx, p: &crate::raw::RawProperty, l: &Loc) -> PropertyMode
                 1.0,
                 &l.field("firma").field("entlastung"),
             )
+        }),
+        develop: p.develop.as_ref().map(|d| {
+            let dl = l.field("entwicklung");
+            wsim_core::catalog::DevelopTerms {
+                cost: positive(ctx, d.cost, &dl.field("kosten")),
+                cost_spread: in_range(ctx, d.cost_spread, 0.0, 0.9, &dl.field("kosten_streuung")),
+                months: d.months.max(1),
+                months_spread: in_range(
+                    ctx,
+                    d.months_spread,
+                    0.0,
+                    0.9,
+                    &dl.field("monate_streuung"),
+                ),
+            }
         }),
         company_relief_max: p.company.as_ref().map_or(0.0, |c| {
             in_range(

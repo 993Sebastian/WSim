@@ -6903,3 +6903,23 @@ zwei Trefferquoten (Spürsinn), Abwehrvorschlag aus der Konkurrenzmeldung, Gebot
   kommt nie zurück. Monatlich: `K += K·rendite_jahr/12`, Ausschüttung `A = K·ausschuettung_jahr/12`
   aufs Privatkonto (Fluss `FoundationPayout`, als Einkommen versteuert).
 - **Ansehen:** Zielwert `+ min(ansehen_je_jahreslohn · K/Jahreslohn, ansehen_deckel)`.
+
+## PV7 – Wertpapierkredit, Sammlermarkt, Insider, Projektentwicklung, gemietete Halle
+
+- **Wertpapierkredit (PV7a):** Beleihungswert `B = Σ Wert · Satz` über Fonds, Gold und Sammlerobjekte
+  (`beleihung`). Aufnehmen bis `B − Schuld`; Zins `Sparzins + zins_aufschlag`, monatlich vom Konto
+  (reicht es nicht, wächst die Schuld). Übersteigt die Schuld `B`, folgt ein Nachschuss (Meldung); nach
+  `frist_monate` verkauft die Bank zwangsweise nur so viel, wie nötig ist (`S = (Schuld − B)/(1 − Satz)`
+  je Klasse, mehrere Runden wegen der Verkaufsspannen) und tilgt mit dem Erlös. Die Schuld mindert die
+  Vermögensklasse Fonds.
+- **Sammlermarkt (PV7a):** `n' = n·(1 − rueckkehr) + schwankung·ε` (eigener Strom), Preisniveau `exp(n)`
+  für Besitzobjekte mit `sammler: true`; Verkauf mit `spanne` statt 20 % Verlust. Der Verkaufswert zählt
+  zur Klasse Immobilien (Sachwerte) und ist Teil des Erbes.
+- **Insider (PV7b):** Persönliches Ereignis `insider` (Bedingung `firma`). Option mit `gewinn`
+  (Monatslöhne): mit Wahrscheinlichkeit `entdeckung` Strafe `gewinn · strafe`, Ansehen −`schande`,
+  Chroniktext „entdeckt“; sonst Gewinn aufs Konto.
+- **Projektentwicklung (PV7c):** Auf einem Grundstück: Kosten `Endwert · kosten · (1 ± streuung)`, sofort
+  bezahlt, Dauer `monate · (1 ± streuung)`; bis dahin keine Miete, Wert = Grundstück + Investition; danach
+  Art des Gebäudes, Zustand 100.
+- **Werk in gemieteter Halle (PV7c):** Nur `bauanteil` der Standortkosten, jährliche Miete
+  `miete_anteil · Standortkosten` (monatlich als Mietaufwand des Standorts); kein Grundstück.

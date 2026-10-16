@@ -38,3 +38,6 @@ grundstuecksmodell:
   # mehrere Ausbauten (mit 0,5 war schon der erste Ausbau zu groß, und jede Erweiterung
   # wurde ein eigener Standort).
   ki_reserve: 2.0
+  # Werk in gemieteter Halle (PV7c): nur dieser Anteil der Standortkosten (Ausbau), dazu jährlich
+  # miete_anteil der Standortkosten als Miete; kein Grundstück, keine Fläche (Annäherung).
+  halle: {bauanteil: 0.3, miete_anteil: 0.12}
