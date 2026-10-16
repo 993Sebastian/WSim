@@ -286,6 +286,8 @@ export interface Rundenbericht {
   companies?: FirmaInRunde[];
   /** Products with shares, the split of the result and the use of the plants (RB1). */
   detail?: BerichtDetail | null;
+  /** Messages and hints left out of the attention list (RB3). */
+  more_messages?: number;
 }
 
 /** Shares of a product's market in the country, the continent and the world (RB1). */

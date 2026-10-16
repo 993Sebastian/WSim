@@ -3323,6 +3323,7 @@ bericht.vorrunde_wert: "Vorrunde: {wert}"
 bericht.steigt: gestiegen gegenüber der Vorrunde
 bericht.faellt: gefallen gegenüber der Vorrunde
 bericht.auslastung: Auslastung
+bericht.weitere_meldungen: "{anzahl} weitere Meldungen in den Auswertungen →"
 bericht.weitere_auswertungen: Weitere Auswertungen (Finanzergebnis, Mengen, Meldungen)
 bericht.anlage_status.im_bau: "im Bau (noch {tage} Tage)"
 bericht.anlage_status.stillgelegt: stillgelegt

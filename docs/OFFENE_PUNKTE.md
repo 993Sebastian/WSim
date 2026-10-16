@@ -2888,3 +2888,10 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
   Forschung, Werbung und Verwaltung unter den Fixkosten. (5) Die Gründe der Auslastung sind die, die die Simulation kennt; „kein Absatz“ gibt es als
   Grund nur als „Lager voll“. (6) Farben der Auslastung (85/60 %) und die Schwelle für einen Hinweis „Marktanteil stark gefallen“ legt RB2/RB3 fest.
   (7) Entgangener Absatz bleibt außerhalb des Berichts (offener Punkt der Vorgabe, an Strategie/Produktmanagement geknüpft).
+
+### RB3 – Hinweise (16.10.2026, Annahmen zur Abnahme)
+
+- Höchstzahl 5 und Schwelle 30 % für fallende Marktanteile sind Annäherungen (`rundenbericht.yaml`).
+- Ein eigenes „Meldungsfach“ gibt es noch nicht; „n weitere Meldungen“ öffnet die Auswertungen im Bericht. Vorschlag: Meldungsfach mit RB4 oder später als eigene Ansicht.
+- Wettbewerbs-/Weltmeldungen gelten als relevant, wenn ein Parameter auf ein eigenes Produkt der Runde zeigt; Branchenbezug ohne Produkt (z. B. „neuer Wettbewerber in der eigenen Branche“) fehlt noch.
+- Nicht aufgenommen: Liquidität, Lager voll/leer, Vertrag gefährdet, Managerkündigung – sie kommen weiter über `hints()` bzw. die Anliegen.

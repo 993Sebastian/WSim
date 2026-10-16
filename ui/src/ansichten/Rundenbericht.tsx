@@ -485,6 +485,7 @@ export function RundenberichtDialog({
   onWerk: (site: number) => void;
   onSchliessen: () => void;
 }) {
+  const [weiteresOffen, setWeiteresOffen] = useState(false);
   const kasseAenderung = bericht.cash_after_usd - bericht.cash_before_usd;
   const gruppen = GRUPPEN.map((g) => [g, bericht.messages.filter((m) => m.group === g)] as const);
   const detail = bericht.detail ?? null;
@@ -577,7 +578,19 @@ export function RundenberichtDialog({
         </section>
       )}
 
-      <details className="bericht-weiteres">
+      {(bericht.more_messages ?? 0) > 0 && (
+        <p className="bericht-mehr">
+          <button type="button" className="schlicht" onClick={() => setWeiteresOffen(true)}>
+            {t("bericht.weitere_meldungen", { anzahl: bericht.more_messages ?? 0 })}
+          </button>
+        </p>
+      )}
+
+      <details
+        className="bericht-weiteres"
+        open={weiteresOffen}
+        onToggle={(e) => setWeiteresOffen(e.currentTarget.open)}
+      >
         <summary>{t("bericht.weitere_auswertungen")}</summary>
         <div className="bericht-raster">
           <section>

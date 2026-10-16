@@ -691,6 +691,7 @@ impl<S: SaveStore> Session<S> {
             }
             self.last_detail = Some(d.clone());
         }
+        views::attention(&mut view);
         if let Err(e) = self.save(AUTOSAVE_NAME) {
             view.messages.push(e);
         }

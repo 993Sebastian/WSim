@@ -462,6 +462,123 @@ fn site_rows(game: &Game, before: &Snapshot) -> Vec<SiteRow> {
     out
 }
 
+/// Picks what the player should look at (RB3): the hints of the plant plus the findings of the
+/// round, the most urgent first and at most `attention_max`; the rest waits in the tray.
+/// Competitor and world messages only count when they concern an own product.
+pub fn attention(view: &mut super::RoundReportView) {
+    let Some(d) = view.detail.as_ref() else {
+        return;
+    };
+    let (hints, more) = pick_attention(d, std::mem::take(&mut view.hints), &view.messages);
+    view.hints = hints;
+    view.more_messages = more;
+}
+
+fn pick_attention(
+    d: &ReportDetail,
+    hints: Vec<super::HintView>,
+    messages: &[super::MessageView],
+) -> (Vec<super::HintView>, u32) {
+    use super::{HintView, ParamView, message_view};
+    use crate::message::{Message, MessageKind, Param, keys};
+    let limits = d.limits;
+    let mut found: Vec<HintView> = Vec::new();
+    let plain = |message: Message, site: Option<u32>, area: Option<&str>, target: &str| {
+        let mut m = message_view(&message);
+        m.target = Some(target.to_owned());
+        HintView {
+            message: m,
+            site,
+            area: area.map(str::to_owned),
+        }
+    };
+    for p in d.products.iter().filter(|p| p.contribution_usd < 0.0) {
+        found.push(plain(
+            Message::new(MessageKind::Warning, keys::HINT_NEGATIVE_MARGIN)
+                .with("produkt", Param::TextKey(format!("produkt.{}", p.product)))
+                .with(
+                    "betrag",
+                    Param::Money(Money::from_usd(p.contribution_usd.abs()).unwrap_or(Money::ZERO)),
+                ),
+            None,
+            None,
+            "markt",
+        ));
+    }
+    // A share that fell by a good part of its value since the round before.
+    for p in &d.products {
+        let Some(prev) = p.previous.as_ref() else {
+            continue;
+        };
+        let (Some(before), Some(now)) = (prev.shares.world, p.shares.world) else {
+            continue;
+        };
+        if before > 0.0 && now < before * (1.0 - limits.share_drop) {
+            found.push(plain(
+                Message::new(MessageKind::Warning, keys::HINT_SHARE_DROP)
+                    .with("produkt", Param::TextKey(format!("produkt.{}", p.product)))
+                    .with("vorher", Param::Number(before * 100.0))
+                    .with("jetzt", Param::Number(now * 100.0)),
+                None,
+                None,
+                "markt",
+            ));
+        }
+    }
+    for s in &d.sites {
+        if s.utilization.is_some_and(|u| u < limits.utilization_red) {
+            found.push(plain(
+                Message::new(MessageKind::Warning, keys::HINT_WEAK_SITE)
+                    .with("standort", Param::TextKey(s.kind_text.clone()))
+                    .with("land", Param::Country(s.country.clone()))
+                    .with(
+                        "prozent",
+                        Param::Number((s.utilization.unwrap_or(0.0) * 100.0).round()),
+                    ),
+                Some(s.site),
+                Some("anlagen"),
+                "produktion",
+            ));
+        }
+    }
+    // Competitor and world news about an own product.
+    let own: Vec<String> = d
+        .products
+        .iter()
+        .map(|p| format!("produkt.{}", p.product))
+        .collect();
+    for m in messages {
+        if !matches!(m.group.as_str(), "welt" | "wettbewerb") {
+            continue;
+        }
+        let touches = m.params.values().any(|v| match v {
+            ParamView::TextKey(k) => own.contains(k),
+            ParamView::TextKeys(ks) => ks.iter().any(|k| own.contains(k)),
+            _ => false,
+        });
+        if touches {
+            found.push(HintView {
+                message: m.clone(),
+                site: None,
+                area: None,
+            });
+        }
+    }
+    let rank = |h: &HintView| match h.message.kind.as_str() {
+        "crisis" => 0,
+        "warning" => 1,
+        "error" => 1,
+        _ => 2,
+    };
+    let mut all: Vec<HintView> = hints;
+    all.extend(found);
+    all.sort_by_key(rank);
+    let max = limits.attention_max as usize;
+    let cut = all.len().saturating_sub(max);
+    all.truncate(max);
+    (all, cut as u32 + messages.len() as u32)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -493,5 +610,80 @@ mod tests {
         };
         assert_eq!(full.utilization(), 1.0);
         assert_eq!(full.main_loss(), None);
+    }
+
+    fn row(
+        product: &str,
+        contribution: f64,
+        world: Option<f64>,
+        before: Option<f64>,
+    ) -> ProductRow {
+        ProductRow {
+            product: product.to_owned(),
+            unit: "t".to_owned(),
+            made: 1.0,
+            sold: 1.0,
+            revenue_usd: 100.0,
+            contribution_usd: contribution,
+            country: None,
+            shares: Shares {
+                country: None,
+                continent: None,
+                world,
+            },
+            countries: Vec::new(),
+            previous: before.map(|w| PreviousRow {
+                contribution_usd: 0.0,
+                shares: Shares {
+                    country: None,
+                    continent: None,
+                    world: Some(w),
+                },
+            }),
+        }
+    }
+
+    #[test]
+    fn attention_keeps_the_most_urgent_findings_and_counts_the_rest() {
+        let site = |n: u32, u: f64| SiteRow {
+            site: n,
+            name: None,
+            kind_text: "standort.werk".to_owned(),
+            country: "DEU".to_owned(),
+            utilization: Some(u),
+            loss: None,
+            slots: Vec::new(),
+        };
+        let detail = ReportDetail {
+            products: vec![
+                row("nagel", -5.0, Some(0.1), Some(0.5)),
+                row("schraube", 20.0, Some(0.5), Some(0.5)),
+            ],
+            result: ResultSplit {
+                contribution_usd: 0.0,
+                fixed_usd: 0.0,
+                other_usd: 0.0,
+                result_usd: 0.0,
+            },
+            sites: (1..=6)
+                .map(|n| site(n, 0.3))
+                .chain([site(9, 0.95)])
+                .collect(),
+            person_change_usd: 0.0,
+            limits: crate::catalog::ReportModel::default(),
+        };
+        let (hints, more) = pick_attention(&detail, Vec::new(), &[]);
+        // Five at most; a fine works (95 %) and a steady share never appear.
+        assert_eq!(hints.len(), 5);
+        assert_eq!(more, 3);
+        assert!(hints.iter().all(|h| h.message.kind == "warning"));
+        let weak = hints
+            .iter()
+            .filter(|h| h.message.key == "hinweis.werk_schwach");
+        assert!(weak.clone().all(|h| h.site.is_some() && h.site != Some(9)));
+        // The negative margin and the fallen share are among the findings.
+        let keys: Vec<&str> = hints.iter().map(|h| h.message.key.as_str()).collect();
+        assert!(keys.contains(&"hinweis.deckungsbeitrag_negativ"));
+        assert!(keys.contains(&"hinweis.anteil_gefallen"));
     }
 }

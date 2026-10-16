@@ -6959,3 +6959,17 @@ Sicht `views::rb` (`RoundReportView.detail`), rechnet nur aus Hauptbuch und Zäh
   gedrosselt (Plan unter Volllast), Material, Personal, Strom, Lagerstätte, Ereignis, Auflage, Patent, Lager voll,
   Störung, Wartung. Anlagen im Bau, im Anlauf oder stillgelegt zählen nicht.
 - **Vorrunde:** Die Sitzung hängt die Werte der Vorrunde an die Zeilen (Pfeile).
+
+## RB3 – Hinweise und Filter des Rundenberichts
+
+Nach der Runde (`views::attention`, aufgerufen von der Sitzung nach den Vorrundenwerten):
+
+1. Kandidaten: die Hinweise der Anlagen (`hints`) plus Befunde der Runde:
+   - **Deckungsbeitrag negativ** je Produkt (Warnung, Ziel Markt);
+   - **Marktanteil gefallen**: Weltanteil jetzt < Weltanteil der Vorrunde × (1 − `anteil_verlust`) (Warnung, Ziel Markt);
+   - **Werk schwach**: Auslastung unter `auslastung.rot_unter` (Warnung, Ziel Werk, Bereich Anlagen);
+   - **Wettbewerb/Welt** (Meldungsgruppen `wettbewerb`, `welt`) nur, wenn die Meldung ein eigenes Produkt nennt (Parameter mit Textschlüssel `produkt.<id>`).
+2. Sortierung nach Dringlichkeit (Krise vor Warnung vor Info), stabil; höchstens `hinweise_max` bleiben.
+3. `more_messages` = abgeschnittene Hinweise + alle Meldungen der Runde (stehen unter „Weitere Auswertungen“; ein eigenes Meldungsfach gibt es noch nicht).
+
+Grenzen stehen in `data/parameter/rundenbericht.yaml`.

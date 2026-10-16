@@ -150,7 +150,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PV8 | KI-Unternehmer als Personen mit Privatvermögen; Balanceprüfung nach §15 und Gleichstellungstest | ✅ 16.10.2026 (Kern und Gleichstellungstest; Balanceprüfung in E2E) |
 | RB1 | Rundenbericht neu: Datengrundlage – Deckungsbeitrag je Produkt, Auslastung je Anlage/Werk mit Engpassgrund, Marktanteile Land/Kontinent/Welt, Vorrundenwerte (`docs/RUNDENBERICHT_2.md`; Wunsch vom 15.10.2026) | ✅ 16.10.2026 (vor E2E, Wunsch 16.10.) |
 | RB2 | Rundenbericht neu: Kopfzeile, Produkttabelle (Top 5, Summen), Auslastung mit Aufklappen | ✅ 16.10.2026 (Grenzen aus `parameter/rundenbericht.yaml`) |
-| RB3 | Rundenbericht neu: „Bitte ansehen“ (höchstens 5), Relevanzfilter Welt/Wettbewerb, Verweis aufs Meldungsfach | ⏳ |
+| RB3 | Rundenbericht neu: „Bitte ansehen“ (höchstens 5), Relevanzfilter Welt/Wettbewerb, Verweis aufs Meldungsfach | ✅ 16.10.2026 |
 | RB4 | Rundenbericht neu: Enter/Esc, Klickziele, „Letzter Rundenbericht“, Einstellung „nur bei Hinweisen“; Lastenheft §13.2 und FORTSCHRITT anpassen | ⏳ |
 | DM1 | Produktdiversifikation: Profil Qualität/Leistung/Effizienz je Produktstand, Grundlinie, Kostenfaktor, Erwartung (`docs/PRODUKTDIVERSIFIKATION.md`; Wunsch vom 15.10.2026) | ⏳ Vorgabe aufgenommen 15.10.2026; Reihenfolge (Auftraggeber): nach RB4, vor ZP1 |
 | DM2 | Produktdiversifikation: Kundensegmente und Absatzverteilung (Nutzen, Schwellen, Logit) | ⏳ |

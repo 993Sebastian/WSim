@@ -588,6 +588,9 @@ pub mod keys {
     pub const HINT_CONCERNS: &str = "hinweis.anliegen";
     pub const HINT_OVERDRAWN: &str = "hinweis.konto_ueberzogen";
     pub const HINT_CASH: &str = "hinweis.kasse";
+    pub const HINT_NEGATIVE_MARGIN: &str = "hinweis.deckungsbeitrag_negativ";
+    pub const HINT_WEAK_SITE: &str = "hinweis.werk_schwach";
+    pub const HINT_SHARE_DROP: &str = "hinweis.anteil_gefallen";
     pub const HINT_OFFER_SITE: &str = "hinweis.angebot.standort";
     pub const HINT_OFFER_LICENSE: &str = "hinweis.angebot.lizenz";
     pub const HINT_COUNTER_SITE: &str = "hinweis.gegenangebot.standort";
@@ -858,6 +861,9 @@ pub mod keys {
         COMMAND_EXTENSION_TOO_LONG,
         HINT_FOUND_COMPANY,
         HINT_ACCOUNT_SHORT,
+        HINT_NEGATIVE_MARGIN,
+        HINT_WEAK_SITE,
+        HINT_SHARE_DROP,
         COMMAND_PERSON_ONLY,
         COMMAND_NO_COMPANY,
         COMMAND_ALREADY_FOUNDED,

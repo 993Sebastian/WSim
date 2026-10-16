@@ -1267,6 +1267,9 @@ pub struct RoundReportView {
     /// Products with shares, the split of the result and the utilization (RB1).
     #[serde(default)]
     pub detail: Option<rb::ReportDetail>,
+    /// Messages and hints left out of "Bitte ansehen" (RB3); they wait in the message tray.
+    #[serde(default)]
+    pub more_messages: u32,
 }
 
 fn one() -> u32 {
@@ -1330,6 +1333,7 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
         quantities: round_quantities(game, before),
         companies: round_companies(game, before),
         detail: Some(rb::detail(game, before)),
+        more_messages: 0,
     }
 }
 
