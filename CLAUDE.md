@@ -137,21 +137,26 @@ Produktdiversifikation und Marktforschung (Profil Q/L/E, Kundensegmente, Studien
 
 ## Statusboard für den Auftraggeber
 
-Der Auftraggeber verfolgt die Arbeit live im Artefakt
-https://claude.ai/artifact/7yghfe5P1HqnuW4XuXWFMN. Es wird mit dem Werkzeug `ArtifactData`
-aktuell gehalten (ggf. per ToolSearch laden; bestehende Dokumente erst mit `get` lesen und
-die `version` als `if_version` mitgeben; Zeiten ISO 8601 mit Zeitzone):
+Der Auftraggeber verfolgt die Arbeit live im Artefakt „WSim Baustelle“:
+https://claude.ai/artifact/7yghfe5P1HqnuW4XuXWFMN
 
-- `status/aktuell` (update) bei Sitzungsbeginn, jedem neuen Arbeitsschritt und am Ende:
-  `zustand` (arbeitet|wartet|pausiert|fertig), `meilenstein`, `taetigkeit` (ein Satz),
-  `schritt`, `schritte_fertig`, `schritte_gesamt`, `branch`, `frage` (nur bei wartet),
-  `aktualisiert`.
-- `aufgaben/<Nr>` je Meilenstein und je Einzelauftrag des Auftraggebers: `titel`, `gruppe`,
-  `reihenfolge` (Zahl), `status` (anstehend|in_arbeit|erledigt|blockiert), `notiz`. Kleine
-  Aufträge mit eigener Nummer in der Gruppe „Kleinigkeiten“.
-- `protokoll`: je abgeschlossenem Schritt ein Dokument, doc_id `JJJJMMTT-HHMMSS`, Felder
-  `zeit`, `meilenstein`, `text`; höchstens 150 Einträge behalten.
-- Fehler beim Schreiben ins Board halten die Arbeit nie auf.
+Wenn das Werkzeug `ArtifactData` verfügbar ist (sonst per ToolSearch laden), halte das
+Board mit `url` = obiger Link aktuell. Bestehende Dokumente erst mit `get` lesen und die
+`version` als `if_version` mitgeben. Zeiten als ISO 8601 mit Zeitzone (`date -Iseconds`).
+Kurze deutsche Sätze für den Auftraggeber, kein Fachjargon.
+
+- **`status/aktuell`** (`update`) bei Sitzungsbeginn, bei jedem neuen Arbeitsschritt und
+  am Ende: `zustand` (`arbeitet` | `wartet` | `pausiert` | `fertig`), `meilenstein` (z. B.
+  `BP1`), `taetigkeit` (ein Satz: woran du gerade arbeitest), `schritt` (Detail, optional),
+  `schritte_fertig` und `schritte_gesamt` (Zahlen, optional), `branch`, `frage` (nur
+  bei `wartet`: die Entscheidung, die du brauchst; sonst leerer Text), `aktualisiert`.
+- **`aufgaben/<Nr>`** je Meilenstein: `status` (`anstehend` | `in_arbeit` | `erledigt` |
+  `blockiert`), `notiz` (z. B. Commit oder Grund der Blockade). Neue Meilensteine aus
+  neuen Vorgaben mit `titel`, `gruppe` und `reihenfolge` (Zahl, Plan-Reihenfolge) anlegen.
+- **`protokoll`**: je abgeschlossenem Schritt ein neues Dokument, `doc_id`
+  `JJJJMMTT-HHMMSS`, Felder `zeit`, `meilenstein`, `text`. Höchstens 150 Einträge
+  behalten, ältere löschen.
+- Fehler beim Schreiben ins Board halten die eigentliche Arbeit nie auf.
 
 ## Sprache
 
