@@ -385,6 +385,12 @@ pub mod keys {
     pub const STEP_EXTEND: &str = "schritt.verlaengern";
     pub const BECAUSE_DEFENCE: &str = "anliegen.begruendung.abwehr";
     pub const STEP_RELEASE: &str = "schritt.freigabe";
+    pub const CLUB_DROPPED: &str = "meldung.person.club_verlassen";
+    pub const CONTACT_MET: &str = "meldung.person.kontakt_neu";
+    pub const CONTACT_DIED: &str = "meldung.person.kontakt_gestorben";
+    pub const TIP_MANAGER: &str = "meldung.person.hinweis_manager";
+    pub const TIP_VENTURE: &str = "meldung.person.hinweis_startup";
+    pub const TIP_TAX: &str = "meldung.person.hinweis_steuer";
     pub const STEP_POACH: &str = "schritt.abwerben";
     pub const STEP_DISMISS: &str = "schritt.entlassen";
     pub const BECAUSE_POACH: &str = "anliegen.begruendung.abwerben";
@@ -873,6 +879,12 @@ pub mod keys {
         STEP_EXTEND,
         STEP_VACANT,
         STEP_POACH,
+        CLUB_DROPPED,
+        CONTACT_MET,
+        CONTACT_DIED,
+        TIP_MANAGER,
+        TIP_VENTURE,
+        TIP_TAX,
         STEP_RELEASE,
         BECAUSE_DEFENCE,
         STEP_DISMISS,

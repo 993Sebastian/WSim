@@ -203,12 +203,64 @@ pub struct PersonView {
     /// Deposits, bonds, gold and funds (PV2).
     #[serde(default)]
     pub assets: Option<AssetsView>,
+    /// Standing, clubs, contacts and possessions (PV6a).
+    #[serde(default)]
+    pub circle: Option<CircleView>,
     /// While the person has no company yet: the founding.
     #[serde(default)]
     pub founding: Option<FoundingView>,
     /// Heir, estate and tax (PE6).
     #[serde(default)]
     pub succession: Option<SuccessionView>,
+}
+
+/// Standing, clubs, contacts and possessions (PV6a).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CircleView {
+    pub standing: f64,
+    pub target: f64,
+    /// Offset on the rate of a new loan in points (negative: cheaper) and the discount
+    /// the broker gets on properties.
+    pub loan_offset: f64,
+    pub broker_discount: f64,
+    pub clubs: Vec<ClubView>,
+    pub contacts: Vec<ContactView>,
+    pub goods: Vec<GoodView>,
+    pub owned: Vec<OwnedGoodView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ClubView {
+    pub key: String,
+    pub standing_min: f64,
+    pub lifestyle_min: u32,
+    pub fee_usd: f64,
+    pub member: bool,
+    /// Whether the person could join now.
+    pub open: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ContactView {
+    pub role: String,
+    pub name: String,
+    pub strength: f64,
+    pub until: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GoodView {
+    pub key: String,
+    pub price_usd: f64,
+    pub upkeep: f64,
+    pub representation: f64,
+    pub available: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct OwnedGoodView {
+    pub key: String,
+    pub value_usd: f64,
 }
 
 /// What the person holds besides companies and the terms for more (PV2).
@@ -721,6 +773,7 @@ pub fn person(game: &Game) -> PersonView {
     PersonView {
         assets,
         wellbeing,
+        circle: circle_view(game),
         money: Some(money),
         founding,
         succession,
@@ -852,6 +905,10 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::PropertyCost => "privat.immobilienkosten",
         PrivateFlow::MortgageInterest => "privat.hypothekzins",
         PrivateFlow::MortgageRepay => "privat.hypothektilgung",
+        PrivateFlow::Donation => "privat.spende",
+        PrivateFlow::GoodBought => "privat.besitzkauf",
+        PrivateFlow::GoodSold => "privat.besitzverkauf",
+        PrivateFlow::CircleCost => "privat.kreiskosten",
     }
 }
 
@@ -950,4 +1007,75 @@ fn founding(game: &Game) -> FoundingView {
             private::academic_monthly_wage(catalog, state, home).scale(f.cost_min_months)
         ),
     }
+}
+
+fn circle_view(game: &Game) -> Option<CircleView> {
+    let catalog = game.catalog();
+    let state = game.state();
+    let m = crate::standing::model(catalog)?;
+    let level = private::lifestyle_at(catalog, &state.person, state.date) as usize;
+    let have = crate::standing::standing(catalog, state);
+    let wage = private::academic_monthly_wage(catalog, state, state.person.home);
+    Some(CircleView {
+        standing: have,
+        target: crate::standing::target(catalog, state),
+        loan_offset: crate::standing::loan_rate_offset(catalog, state),
+        broker_discount: crate::standing::broker_discount(catalog, state),
+        clubs: m
+            .clubs
+            .iter()
+            .enumerate()
+            .map(|(i, c)| ClubView {
+                key: c.key.clone(),
+                standing_min: c.standing,
+                lifestyle_min: u32::from(c.lifestyle),
+                fee_usd: usd(wage.scale(c.fee)),
+                member: state
+                    .person
+                    .circle
+                    .clubs
+                    .contains(&u32::try_from(i).unwrap_or(u32::MAX)),
+                open: have >= c.standing && level >= usize::from(c.lifestyle),
+            })
+            .collect(),
+        contacts: state
+            .person
+            .circle
+            .contacts
+            .iter()
+            .map(|c| ContactView {
+                role: c.role.key().to_owned(),
+                name: c.name.clone(),
+                strength: c.strength,
+                until: iso(c.until),
+            })
+            .collect(),
+        goods: m
+            .goods
+            .iter()
+            .enumerate()
+            .map(|(i, g)| GoodView {
+                key: g.key.clone(),
+                price_usd: crate::standing::good_price(catalog, state, i).map_or(0.0, usd),
+                upkeep: g.upkeep,
+                representation: g.representation,
+                available: state.date.year() >= g.from,
+            })
+            .collect(),
+        owned: state
+            .person
+            .circle
+            .goods
+            .iter()
+            .filter_map(|o| {
+                let g = m.goods.get(o.kind as usize)?;
+                Some(OwnedGoodView {
+                    key: g.key.clone(),
+                    value_usd: usd(crate::standing::good_price(catalog, state, o.kind as usize)
+                        .unwrap_or(o.paid)
+                        .scale(0.8)),
+                })
+            })
+            .collect(),
+    })
 }

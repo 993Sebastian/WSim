@@ -409,6 +409,10 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .wellbeing
             .as_ref()
             .map(|w| wellbeing(ctx, w, &l.field("wohlbefinden"))),
+        standing: v
+            .standing
+            .as_ref()
+            .map(|s| standing(ctx, s, &l.field("ansehen"))),
         provenance: provenance(v.approximation, v.source.as_ref()),
         ..PersonModel::default()
     }
@@ -478,6 +482,124 @@ fn tax_brackets(ctx: &mut Ctx, raw: &[crate::raw::RawTaxBracket], l: &Loc) -> Ve
 
 /// Background, time budget and health (PV1b): every background present, shares and
 /// factors within sensible bounds, the default time adding up to 100.
+fn standing(
+    ctx: &mut Ctx,
+    s: &crate::raw::RawStanding,
+    l: &Loc,
+) -> wsim_core::catalog::StandingModel {
+    use wsim_core::catalog::{ClubTerms, ContactRole, GoodTerms};
+    let target_lifestyle = std::array::from_fn(|i| {
+        in_range(
+            ctx,
+            s.target_lifestyle[i],
+            0.0,
+            100.0,
+            &l.field("ziel_lebensstil").index(i),
+        )
+    });
+    let years = {
+        let at = l.field("kontakt_jahre");
+        let a = in_range(ctx, s.contact_years.min, 1.0, 80.0, &at.field("von"));
+        let b = in_range(ctx, s.contact_years.max, 1.0, 80.0, &at.field("bis"));
+        if a > b {
+            ctx.error(&at, messages::range_inverted("von", "bis"));
+        }
+        [a, b]
+    };
+    let cl = l.field("clubs");
+    if s.clubs.is_empty() {
+        ctx.error(&cl, messages::standing_list_empty("clubs"));
+    }
+    let mut clubs: Vec<ClubTerms> = Vec::new();
+    for (i, c) in s.clubs.iter().enumerate() {
+        let at = cl.index(i);
+        if clubs.iter().any(|x| x.key == c.id) {
+            ctx.error(&at.field("id"), messages::standing_id_duplicate(&c.id));
+        }
+        let mut roles = Vec::new();
+        for (j, r) in c.roles.iter().enumerate() {
+            match ContactRole::from_key(r) {
+                Some(role) => roles.push(role),
+                None => ctx.error(
+                    &at.field("rollen").index(j),
+                    messages::contact_role_unknown(r),
+                ),
+            }
+        }
+        if c.roles.is_empty() {
+            ctx.error(&at.field("rollen"), messages::standing_list_empty("rollen"));
+        }
+        clubs.push(ClubTerms {
+            key: c.id.clone(),
+            standing: in_range(ctx, c.standing, 0.0, 100.0, &at.field("ansehen")),
+            lifestyle: u8::try_from(c.lifestyle.min(3)).unwrap_or(3),
+            fee: non_negative(ctx, c.fee, &at.field("beitrag")),
+            contacts_year: non_negative(ctx, c.contacts_year, &at.field("kontakte_jahr")),
+            roles,
+        });
+    }
+    let gl = l.field("besitz");
+    let mut goods: Vec<GoodTerms> = Vec::new();
+    for (i, g) in s.goods.iter().enumerate() {
+        let at = gl.index(i);
+        if goods.iter().any(|x| x.key == g.id) {
+            ctx.error(&at.field("id"), messages::standing_id_duplicate(&g.id));
+        }
+        goods.push(GoodTerms {
+            key: g.id.clone(),
+            from: g.from,
+            price: positive(ctx, g.price, &at.field("preis")),
+            upkeep: in_range(ctx, g.upkeep, 0.0, 1.0, &at.field("unterhalt")),
+            representation: in_range(
+                ctx,
+                g.representation,
+                0.0,
+                100.0,
+                &at.field("repraesentation"),
+            ),
+        });
+    }
+    wsim_core::catalog::StandingModel {
+        target_base: in_range(ctx, s.target_base, 0.0, 100.0, &l.field("ziel_basis")),
+        target_lifestyle,
+        target_per_company: in_range(
+            ctx,
+            s.target_per_company,
+            0.0,
+            100.0,
+            &l.field("ziel_je_firma"),
+        ),
+        rate: in_range(ctx, s.rate, 0.0, 1.0, &l.field("annaeherung_monat")),
+        donation_points: non_negative(
+            ctx,
+            s.donation_points,
+            &l.field("spende_punkte_je_jahreslohn"),
+        ),
+        donation_cap: non_negative(ctx, s.donation_cap, &l.field("spende_deckel")),
+        interest_per_point: in_range(
+            ctx,
+            s.interest_per_point,
+            -0.001,
+            0.001,
+            &l.field("kreditzins_je_punkt"),
+        ),
+        contact_years: years,
+        care_gain: non_negative(ctx, s.care_gain, &l.field("pflege_gewinn")),
+        care_decay: non_negative(ctx, s.care_decay, &l.field("pflege_verfall")),
+        banker_interest: in_range(
+            ctx,
+            s.banker_interest,
+            -0.05,
+            0.05,
+            &l.field("bankier_zins"),
+        ),
+        broker_discount: in_range(ctx, s.broker_discount, 0.0, 0.5, &l.field("makler_rabatt")),
+        tip_chance: in_range(ctx, s.tip_chance, 0.0, 1.0, &l.field("hinweis_chance")),
+        clubs,
+        goods,
+    }
+}
+
 fn wellbeing(ctx: &mut Ctx, w: &crate::raw::RawWellbeing, l: &Loc) -> WellbeingModel {
     let bl = l.field("hintergruende");
     let mut backgrounds = [BackgroundEffect::default(); 4];

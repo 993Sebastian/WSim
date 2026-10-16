@@ -6656,3 +6656,73 @@ fn werkswohnungen_der_privatimmobilien_werden_geprueft() {
         "person.anlagen.immobilien.firma.entlastung"
     );
 }
+
+const ANSEHEN: &str = "  ansehen:
+    ziel_basis: 8
+    ziel_lebensstil: [0, 6, 16, 30]
+    ziel_je_firma: 5
+    annaeherung_monat: 0.04
+    spende_punkte_je_jahreslohn: 6
+    spende_deckel: 15
+    kreditzins_je_punkt: -0.00004
+    kontakt_jahre: {von: 15, bis: 40}
+    pflege_gewinn: 1.0
+    pflege_verfall: 1.0
+    bankier_zins: -0.006
+    makler_rabatt: 0.08
+    hinweis_chance: 0.08
+    clubs:
+      - {id: stammtisch, ansehen: 0, lebensstil: 0, beitrag: 0.3, kontakte_jahr: 0.8, rollen: [unternehmer]}
+    besitz:
+      - {id: wohnsitz, ab: 1900, preis: 8, unterhalt: 0.02, repraesentation: 6}
+";
+
+#[test]
+fn ansehen_clubs_und_besitz_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        let mit = PERSON.replacen("  wohlbefinden:", &format!("{ANSEHEN}  wohlbefinden:"), 1);
+        Daten::neu()
+            .datei(datei, &mit.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = gut
+        .data
+        .as_ref()
+        .unwrap()
+        .catalog
+        .person
+        .standing
+        .clone()
+        .expect("das Ansehen ist da");
+    assert_eq!(m.clubs.len(), 1);
+    assert_eq!(m.goods.len(), 1);
+    for (alt, neu, pfad) in [
+        (
+            "rollen: [unternehmer]",
+            "rollen: [hexer]",
+            "person.ansehen.clubs[0].rollen[0]",
+        ),
+        (
+            "rollen: [unternehmer]",
+            "rollen: []",
+            "person.ansehen.clubs[0].rollen",
+        ),
+        ("preis: 8", "preis: 0", "person.ansehen.besitz[0].preis"),
+        (
+            "annaeherung_monat: 0.04",
+            "annaeherung_monat: 1.5",
+            "person.ansehen.annaeherung_monat",
+        ),
+    ] {
+        let r = lauf(alt, neu);
+        let f = r
+            .report
+            .findings()
+            .first()
+            .unwrap_or_else(|| panic!("{alt} → {neu}: kein Befund"));
+        assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
+    }
+}

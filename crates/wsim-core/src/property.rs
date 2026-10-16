@@ -432,6 +432,7 @@ fn refresh_offers(state: &mut GameState, catalog: &Catalog, m: &PropertyModel, r
     countries.extend(own.into_iter().filter(|&c| c != state.person.home));
     countries.truncate(m.offer_countries as usize);
     state.assets.offers.clear();
+    let discount = crate::standing::broker_discount(catalog, state);
     for country in countries {
         for kind in PropertyKind::ALL {
             let lerp =
@@ -452,7 +453,7 @@ fn refresh_offers(state: &mut GameState, catalog: &Catalog, m: &PropertyModel, r
                 country,
                 quality,
                 condition,
-                price: v.scale(1.0 + spread),
+                price: v.scale((1.0 + spread) * (1.0 - discount)),
             });
         }
     }

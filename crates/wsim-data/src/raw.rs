@@ -3234,6 +3234,8 @@ pub struct RawPerson {
     pub private_life: Option<RawPrivateLife>,
     #[serde(default, rename = "wohlbefinden")]
     pub wellbeing: Option<RawWellbeing>,
+    #[serde(default, rename = "ansehen")]
+    pub standing: Option<RawStanding>,
     #[serde(default, rename = "anlagen")]
     pub assets: Option<RawAssets>,
     #[serde(default, rename = "nachwuchs")]
@@ -3615,6 +3617,72 @@ pub struct RawFundTerms {
 }
 
 /// Background, time budget and health of the person (PV1b).
+/// Standing, network, clubs and possessions (PV6a).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStanding {
+    #[serde(rename = "ziel_basis")]
+    pub target_base: f64,
+    #[serde(rename = "ziel_lebensstil")]
+    pub target_lifestyle: [f64; 4],
+    #[serde(rename = "ziel_je_firma")]
+    pub target_per_company: f64,
+    #[serde(rename = "annaeherung_monat")]
+    pub rate: f64,
+    #[serde(rename = "spende_punkte_je_jahreslohn")]
+    pub donation_points: f64,
+    #[serde(rename = "spende_deckel")]
+    pub donation_cap: f64,
+    #[serde(rename = "kreditzins_je_punkt")]
+    pub interest_per_point: f64,
+    #[serde(rename = "kontakt_jahre")]
+    pub contact_years: RawFloatSpan,
+    #[serde(rename = "pflege_gewinn")]
+    pub care_gain: f64,
+    #[serde(rename = "pflege_verfall")]
+    pub care_decay: f64,
+    #[serde(rename = "bankier_zins")]
+    pub banker_interest: f64,
+    #[serde(rename = "makler_rabatt")]
+    pub broker_discount: f64,
+    #[serde(rename = "hinweis_chance")]
+    pub tip_chance: f64,
+    #[serde(rename = "clubs")]
+    pub clubs: Vec<RawClub>,
+    #[serde(rename = "besitz")]
+    pub goods: Vec<RawGood>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawClub {
+    pub id: String,
+    #[serde(rename = "ansehen")]
+    pub standing: f64,
+    #[serde(rename = "lebensstil")]
+    pub lifestyle: u32,
+    #[serde(rename = "beitrag")]
+    pub fee: f64,
+    #[serde(rename = "kontakte_jahr")]
+    pub contacts_year: f64,
+    #[serde(rename = "rollen")]
+    pub roles: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawGood {
+    pub id: String,
+    #[serde(rename = "ab")]
+    pub from: i32,
+    #[serde(rename = "preis")]
+    pub price: f64,
+    #[serde(rename = "unterhalt")]
+    pub upkeep: f64,
+    #[serde(rename = "repraesentation")]
+    pub representation: f64,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RawWellbeing {

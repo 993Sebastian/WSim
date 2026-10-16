@@ -2904,6 +2904,8 @@ pub struct PersonModel {
     pub private_life: PrivateLifeModel,
     /// Background, time budget and health (PV1b); `None` without the section.
     pub wellbeing: Option<WellbeingModel>,
+    /// Standing, network, clubs and possessions (PV6a).
+    pub standing: Option<StandingModel>,
     /// Safe investments, gold and funds (PV2); `None` without the section.
     pub assets: Option<AssetModel>,
     /// Children, education and succession (PV4); `None` without the section.
@@ -3061,6 +3063,97 @@ pub struct BackgroundEffect {
     pub network: f64,
 }
 
+/// Private standing, network, clubs and possessions (PV6a, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct StandingModel {
+    /// The standing the person drifts to: base, by lifestyle level, per company led.
+    pub target_base: f64,
+    pub target_lifestyle: [f64; 4],
+    pub target_per_company: f64,
+    /// Share of the gap closed per month.
+    pub rate: f64,
+    /// Points for a donation of one academic yearly wage, and the most for one donation.
+    pub donation_points: f64,
+    pub donation_cap: f64,
+    /// Offset on loan rates per point of standing.
+    pub interest_per_point: f64,
+    /// Years a contact lasts, from … to.
+    pub contact_years: [f64; 2],
+    /// Strength points gained per month per 10 % of the time for the network, and lost.
+    pub care_gain: f64,
+    pub care_decay: f64,
+    /// Offset of loan rates and share off property prices at full strength.
+    pub banker_interest: f64,
+    pub broker_discount: f64,
+    /// Chance per month that a contact gives a hint.
+    pub tip_chance: f64,
+    pub clubs: Vec<ClubTerms>,
+    pub goods: Vec<GoodTerms>,
+}
+
+/// The roles of contacts (PV6a).
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
+pub enum ContactRole {
+    Banker,
+    Entrepreneur,
+    Politician,
+    Scientist,
+    Broker,
+}
+
+impl ContactRole {
+    pub const ALL: [ContactRole; 5] = [
+        ContactRole::Banker,
+        ContactRole::Entrepreneur,
+        ContactRole::Politician,
+        ContactRole::Scientist,
+        ContactRole::Broker,
+    ];
+
+    pub fn key(self) -> &'static str {
+        match self {
+            ContactRole::Banker => "bankier",
+            ContactRole::Entrepreneur => "unternehmer",
+            ContactRole::Politician => "politiker",
+            ContactRole::Scientist => "wissenschaftler",
+            ContactRole::Broker => "makler",
+        }
+    }
+
+    pub fn from_key(key: &str) -> Option<ContactRole> {
+        ContactRole::ALL.into_iter().find(|r| r.key() == key)
+    }
+}
+
+/// A club that admits by standing and lifestyle (PV6a).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ClubTerms {
+    pub key: String,
+    pub standing: f64,
+    pub lifestyle: u8,
+    /// Yearly fee in academic monthly wages.
+    pub fee: f64,
+    /// Contacts met per year.
+    pub contacts_year: f64,
+    pub roles: Vec<ContactRole>,
+}
+
+/// A possession that adds to standing and costs upkeep (PV6a).
+#[derive(Clone, Debug, PartialEq)]
+pub struct GoodTerms {
+    pub key: String,
+    /// First year it can be bought.
+    pub from: i32,
+    /// Price in academic yearly wages.
+    pub price: f64,
+    /// Yearly upkeep as a share of the price.
+    pub upkeep: f64,
+    /// Points it adds to the standing the person drifts to.
+    pub representation: f64,
+}
+
 /// Time budget, health and illness of the person (PV1b, docs/FORMELN.md).
 #[derive(Clone, Debug, PartialEq)]
 pub struct WellbeingModel {
@@ -3146,6 +3239,7 @@ impl Default for PersonModel {
             inheritance_tax: CountrySeries::default(),
             private_life: PrivateLifeModel::default(),
             wellbeing: None,
+            standing: None,
             assets: None,
             legacy: None,
             provenance: Provenance::default(),

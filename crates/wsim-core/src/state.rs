@@ -2443,6 +2443,9 @@ pub struct Person {
     /// The thresholds of the holding in a listed company already made public (PV5a).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub disclosed: BTreeMap<CompanyId, u32>,
+    /// Standing, clubs, contacts and possessions (PV6a).
+    #[serde(default, skip_serializing_if = "crate::standing::Circle::is_empty")]
+    pub circle: crate::standing::Circle,
 }
 
 fn is_zero_f64(x: &f64) -> bool {
@@ -2547,6 +2550,7 @@ impl Default for Person {
             will: Vec::new(),
             heir_stakes: BTreeMap::new(),
             disclosed: BTreeMap::new(),
+            circle: crate::standing::Circle::default(),
             services: Default::default(),
         }
     }
@@ -2615,6 +2619,13 @@ pub enum PrivateFlow {
     PropertyCost,
     MortgageInterest,
     MortgageRepay,
+    /// Donations (PV6a).
+    Donation,
+    /// Possessions bought and sold.
+    GoodBought,
+    GoodSold,
+    /// Club fees and upkeep of possessions.
+    CircleCost,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by

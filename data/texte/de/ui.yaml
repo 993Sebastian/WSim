@@ -3142,6 +3142,44 @@ person.sparplan_keiner: Kein Sparplan eingerichtet.
 
 # Privatimmobilien (PV3)
 privat.miete: Mieteinnahmen
+privat.spende: Spenden
+person.ansehen: Ansehen und Netzwerk
+person.ansehen_hilfe: "Dein privates Ansehen (0–100) folgt langsam deinem Lebensstil, deinen Firmen und deinem Besitz; Spenden heben es kurz an. Es macht Kredite etwas günstiger und öffnet Clubs, in denen du Kontakte triffst. Kontakte brauchen Zeit für das Netzwerk (Reiter Zeit)."
+person.ansehen_jetzt: Ansehen
+person.ansehen_ziel: Ziel {ziel}
+person.ansehen_kredit: Wirkung auf den Zins neuer Kredite
+person.ansehen_makler: Abschlag auf Immobilienangebote durch Makler
+person.spende_betrag: Spende
+person.spenden: Spenden
+person.clubs: Clubs
+person.club_bedingung: "ab Ansehen {ansehen}, Lebensstil {stufe}, Beitrag {beitrag} im Jahr"
+person.club_beitreten: Beitreten
+person.club_verlassen: Verlassen
+person.kontakte: Kontakte
+person.kontakte_keine: Noch keine Kontakte – in Clubs lernst du Leute kennen.
+person.kontakt_zeile: "{name}, {rolle}: Beziehung {staerke} / 100, bis {bis}"
+person.besitz: Besitzobjekte
+person.besitz_zeile: "Preis {preis}, Unterhalt {unterhalt} im Jahr, Ansehen +{punkte}"
+person.besitz_kaufen: Kaufen
+person.besitz_verkaufen: Verkaufen
+privat.besitzkauf: Kauf von Besitzobjekten
+privat.besitzverkauf: Verkauf von Besitzobjekten
+privat.kreiskosten: Clubbeiträge und Unterhalt der Besitzobjekte
+hinweis.steigt: steigen
+hinweis.sinkt: sinken
+rolle.bankier: Bankier
+rolle.unternehmer: Unternehmer
+rolle.politiker: Politiker
+rolle.wissenschaftler: Wissenschaftler
+rolle.makler: Makler
+club.stammtisch: Stammtisch
+club.handelsclub: Handelsclub
+club.akademie: Akademie
+club.herrenclub: Herrenclub
+besitz.wohnsitz: Repräsentativer Wohnsitz
+besitz.wagen: Wagen
+besitz.gemaelde: Gemälde
+besitz.yacht: Yacht
 privat.immobilienkosten: Unterhalt und Sanierung von Immobilien
 privat.hypothekzins: Hypothekenzinsen
 privat.hypothektilgung: Hypothekentilgung

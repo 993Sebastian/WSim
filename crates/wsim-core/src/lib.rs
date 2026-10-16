@@ -85,6 +85,7 @@ pub mod savings;
 pub mod services;
 pub mod staffing;
 pub mod stakes;
+pub mod standing;
 pub mod state;
 pub mod stock;
 pub mod storage;

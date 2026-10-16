@@ -23,7 +23,12 @@ export type Geldanlage =
   | { SellProperty: { index: number } }
   | { SetRent: { index: number; factor: number } }
   | { Renovate: { index: number } }
-  | { AssignProperty: { index: number; site: number | null } };
+  | { AssignProperty: { index: number; site: number | null } }
+  | { Donate: { amount: number } }
+  | { JoinClub: { club: number } }
+  | { LeaveClub: { club: number } }
+  | { BuyGood: { good: number } }
+  | { SellGood: { index: number } };
 
 export type Preisart =
   | { Market: { markup: number; floor: number } }

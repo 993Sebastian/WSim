@@ -282,7 +282,9 @@ fn income_tax(catalog: &Catalog, state: &GameState) -> f64 {
 /// Added to the rate of a new bank loan of a company the person controls.
 pub fn loan_rate_offset(catalog: &Catalog, state: &GameState, company: CompanyId) -> f64 {
     if is_controlled(state, company) {
-        level(catalog, state).interest + crate::wellbeing::effect(catalog, state).loan_rate
+        level(catalog, state).interest
+            + crate::wellbeing::effect(catalog, state).loan_rate
+            + crate::standing::loan_rate_offset(catalog, state)
     } else {
         0.0
     }

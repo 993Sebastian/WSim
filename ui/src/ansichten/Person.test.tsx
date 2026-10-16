@@ -465,4 +465,70 @@ describe("Person (PE2)", () => {
       },
     });
   });
+
+  it("zeigt Ansehen, Clubs und Besitz und sendet Spenden, Beitritt und Kauf (PV6a)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.circle = {
+          standing: 12,
+          target: 20,
+          loan_offset: -0.0005,
+          broker_discount: 0,
+          clubs: [
+            {
+              key: "stammtisch",
+              standing_min: 0,
+              lifestyle_min: 0,
+              fee_usd: 100,
+              member: false,
+              open: true,
+            },
+            {
+              key: "herrenclub",
+              standing_min: 45,
+              lifestyle_min: 2,
+              fee_usd: 900,
+              member: false,
+              open: false,
+            },
+          ],
+          contacts: [],
+          goods: [
+            { key: "yacht", price_usd: 5000, upkeep: 0.06, representation: 12, available: true },
+          ],
+          owned: [],
+        };
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const karte = await screen.findByRole("region", { name: "Ansehen und Netzwerk" });
+    const clubs = within(karte).getByRole("table", { name: "Clubs" });
+    const beitreten = within(clubs).getAllByRole("button", { name: "Beitreten" });
+    expect(beitreten[1]?.hasAttribute("disabled")).toBe(true);
+    fireEvent.click(beitreten[0] as HTMLElement);
+    expect(gesendet[0]).toEqual({ Invest: { action: { JoinClub: { club: 0 } } } });
+    fireEvent.click(within(karte).getByRole("button", { name: "Kaufen" }));
+    expect(gesendet[1]).toEqual({ Invest: { action: { BuyGood: { good: 0 } } } });
+  });
 });

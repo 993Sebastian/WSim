@@ -1497,3 +1497,160 @@ fn flats_let_to_a_site_relieve_its_wages_and_an_office_is_leased_to_the_firm() {
     months(&mut game, 1);
     assert_eq!(game.state().sites[0].housing_relief, 0.0);
 }
+
+// --- PV6a: standing, clubs, contacts, possessions ---
+
+fn standing_model() -> crate::catalog::StandingModel {
+    use crate::catalog::{ClubTerms, ContactRole, GoodTerms};
+    crate::catalog::StandingModel {
+        target_base: 10.0,
+        target_lifestyle: [0.0, 5.0, 15.0, 30.0],
+        target_per_company: 5.0,
+        rate: 0.5,
+        donation_points: 10.0,
+        donation_cap: 15.0,
+        interest_per_point: -0.0001,
+        contact_years: [20.0, 30.0],
+        care_gain: 1.0,
+        care_decay: 1.0,
+        banker_interest: -0.01,
+        broker_discount: 0.1,
+        tip_chance: 0.0,
+        clubs: vec![
+            ClubTerms {
+                key: "stammtisch".into(),
+                standing: 0.0,
+                lifestyle: 0,
+                fee: 0.5,
+                // More than one contact a month: one every month.
+                contacts_year: 1_200.0,
+                roles: vec![ContactRole::Banker, ContactRole::Broker],
+            },
+            ClubTerms {
+                key: "herrenclub".into(),
+                standing: 60.0,
+                lifestyle: 2,
+                fee: 3.0,
+                contacts_year: 1.0,
+                roles: vec![ContactRole::Politician],
+            },
+        ],
+        goods: vec![GoodTerms {
+            key: "yacht".into(),
+            from: 1900,
+            price: 2.0,
+            upkeep: 0.06,
+            representation: 12.0,
+        }],
+    }
+}
+
+fn standing_game() -> Game {
+    let mut c = catalog();
+    c.person.assets = Some(asset_model());
+    c.person.standing = Some(standing_model());
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 2_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    game
+}
+
+#[test]
+fn a_donation_buys_standing_up_to_a_cap_and_the_standing_drifts_to_its_target() {
+    use crate::savings::Investment;
+    let mut game = standing_game();
+    let catalog = game.catalog().clone();
+    let before = crate::standing::standing(&catalog, game.state());
+    let cash = balance(&game);
+    // A small donation gives points in proportion; a huge one stops at the cap.
+    invest(
+        &mut game,
+        Investment::Donate {
+            amount: usd(1_000_000.0),
+        },
+    )
+    .unwrap();
+    let after = crate::standing::standing(&catalog, game.state());
+    assert!((after - before - 15.0).abs() < 1e-9, "{before} {after}");
+    assert!(balance(&game) < cash);
+    assert_eq!(
+        invest(&mut game, Investment::Donate { amount: usd(1e12) }),
+        Err(CommandError::NotEnoughPrivateMoney {
+            needed: usd(1e12) - balance(&game)
+        })
+    );
+    // Months later it has fallen back towards the target of lifestyle and base.
+    months(&mut game, 6);
+    let goal = crate::standing::target(&catalog, game.state());
+    let now = crate::standing::standing(&catalog, game.state());
+    assert!((now - goal).abs() < 1.0, "{now} vs {goal}");
+}
+
+#[test]
+fn clubs_admit_by_standing_and_bring_contacts_with_their_use() {
+    use crate::savings::Investment;
+    let mut game = standing_game();
+    let catalog = game.catalog().clone();
+    // The herrenclub wants more standing and a better life.
+    assert_eq!(
+        invest(&mut game, Investment::JoinClub { club: 1 }),
+        Err(CommandError::NotPossible)
+    );
+    invest(&mut game, Investment::JoinClub { club: 0 }).unwrap();
+    assert_eq!(
+        invest(&mut game, Investment::JoinClub { club: 0 }),
+        Err(CommandError::NotPossible)
+    );
+    months(&mut game, 4);
+    let contacts = &game.state().person.circle.contacts;
+    assert!(contacts.len() >= 3, "a contact a month: {}", contacts.len());
+    assert!(
+        flow(&game, PrivateFlow::CircleCost) < Money::ZERO,
+        "the fee"
+    );
+    // A banker lowers the loan rate, a broker the prices of properties.
+    let offset = crate::standing::loan_rate_offset(&catalog, game.state());
+    assert!(offset < 0.0);
+    let bank_only = -0.0001 * crate::standing::standing(&catalog, game.state());
+    if game
+        .state()
+        .person
+        .circle
+        .contacts
+        .iter()
+        .any(|c| c.role == crate::catalog::ContactRole::Banker)
+    {
+        assert!(offset < bank_only, "{offset} {bank_only}");
+    }
+    // Leaving ends the fee.
+    invest(&mut game, Investment::LeaveClub { club: 0 }).unwrap();
+    assert!(game.state().person.circle.clubs.is_empty());
+}
+
+#[test]
+fn possessions_cost_upkeep_add_to_the_target_and_sell_with_a_loss() {
+    use crate::savings::Investment;
+    let mut game = standing_game();
+    let catalog = game.catalog().clone();
+    let target = crate::standing::target(&catalog, game.state());
+    let cash = balance(&game);
+    invest(&mut game, Investment::BuyGood { good: 0 }).unwrap();
+    let price = cash - balance(&game);
+    assert!(price > Money::ZERO);
+    let raised = crate::standing::target(&catalog, game.state());
+    assert!((raised - target - 12.0).abs() < 1e-9);
+    months(&mut game, 1);
+    assert!(
+        flow(&game, PrivateFlow::CircleCost) < Money::ZERO,
+        "the upkeep"
+    );
+    let before = balance(&game);
+    invest(&mut game, Investment::SellGood { index: 0 }).unwrap();
+    let back = balance(&game) - before;
+    assert!(back > Money::ZERO && back < price);
+    assert_eq!(
+        invest(&mut game, Investment::SellGood { index: 0 }),
+        Err(CommandError::NotPossible)
+    );
+}

@@ -5028,6 +5028,33 @@ Einheit Vorstand). Die Hausverwaltung nimmt auch hier ihre Gebühr.
 
 Vereinfachungen siehe OFFENE_PUNKTE (PV5).
 
+## PV6a – Ansehen, Netzwerk, Clubs, Besitzobjekte
+
+Daten: `person.ansehen`. Kern: Modul `standing`, `Person.circle`, Aktionen als `Invest` (`Donate`, `JoinClub`, `LeaveClub`,
+`BuyGood`, `SellGood`).
+
+**Ansehen** `a` (0–100). Start: Ansehen des Hintergrunds (PV1b). Jeden Monat nähert es sich dem Ziel
+`Z = Basis + Lebensstil[Stufe] + je_Firma · (geführte Firmen) + Σ Repräsentation(Besitz)` (höchstens 100):
+`a ← a + (Z − a) · annaeherung_monat`. Eine Spende `s` hebt es sofort um `min(spende_deckel, spende_punkte · s / Jahreslohn)`,
+mit dem akademischen Jahreslohn des Wohnsitzlandes; der Rest verfällt mit der Annäherung.
+Wirkung: Zins neuer Kredite `+ kreditzins_je_punkt · a` (negativ = günstiger), in `private::loan_rate_offset`.
+
+**Clubs.** Beitritt, wenn `a ≥ ansehen` und Lebensstil `≥ lebensstil` des Clubs. Beitrag `beitrag` akademische Monatslöhne im Jahr, monatlich
+gebucht (Fluss `CircleCost`). Fällt `a` mehr als 5 Punkte unter die Schwelle oder der Lebensstil darunter, tritt die Person aus
+(Meldung). Je Monat und Club trifft sie mit der Chance `kontakte_jahr/12` einen Kontakt einer Rolle des Clubs (Name aus der
+Namensgruppe des Wohnsitzes, Lebensdauer gleichverteilt in `kontakt_jahre`, Anfangsstärke 20).
+
+**Kontakte.** Stärke 0–100. Je Monat `s ← s + pflege_gewinn · Netzwerkanteil/10 · min(1, 5/n) − pflege_verfall` (n = Zahl der
+Kontakte; Netzwerkanteil in % aus dem Zeitbudget, ohne PV1b 10). Am Ende der Lebensdauer stirbt der Kontakt (Meldung).
+Nutzen, nie Garantie: Bankier senkt den Zins neuer Kredite um `bankier_zins · s/100` (stärkster Bankier); Makler
+nimmt `makler_rabatt · s/100` vom Preis der Immobilienangebote; Unternehmer, Wissenschaftler und Politiker geben mit der
+Chance `hinweis_chance · s/100` im Monat einen Hinweis (unzufriedener Manager einer fremden Firma; aussichtsreiches Start-up;
+Änderung der Einkommensteuer im Folgejahr um mindestens 1 Punkt).
+
+**Besitzobjekte.** Preis `preis` akademische Jahreslöhne (heutiger Lohn), ab dem Jahr `ab`; Unterhalt `unterhalt` des Kaufpreises
+im Jahr; Verkauf zu 80 % des heutigen Preises. Sie zählen nicht zum Nettovermögen (Verbrauchsgüter), erhöhen aber das Ziel des
+Ansehens um `repraesentation`. Sammlerobjekte mit eigenem Markt: PV7.
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;

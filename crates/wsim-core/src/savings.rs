@@ -168,6 +168,23 @@ pub enum Investment {
     Renovate {
         index: u32,
     },
+    /// A donation: standing in return (PV6a).
+    Donate {
+        amount: Money,
+    },
+    JoinClub {
+        club: u32,
+    },
+    LeaveClub {
+        club: u32,
+    },
+    /// Buys a possession of the data (PV6a).
+    BuyGood {
+        good: u32,
+    },
+    SellGood {
+        index: u32,
+    },
     /// Lets a property to a site of the person's firm (flats: company housing, office and
     /// hall: lease), or ends it with none (PV5c).
     AssignProperty {
@@ -402,6 +419,11 @@ pub(crate) fn apply(
         | Investment::SetTaxAdvisor { .. }
         | Investment::HireAssetManager { .. }
         | Investment::DismissAssetManager => crate::services::apply(state, catalog, action)?,
+        Investment::Donate { .. }
+        | Investment::JoinClub { .. }
+        | Investment::LeaveClub { .. }
+        | Investment::BuyGood { .. }
+        | Investment::SellGood { .. } => crate::standing::apply(state, catalog, action)?,
         Investment::BuyProperty { .. }
         | Investment::SellProperty { .. }
         | Investment::SetRent { .. }
@@ -549,6 +571,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     }
     news.extend(crate::property::month_start(state, catalog, date));
     news.extend(crate::services::month_start(state, catalog, date));
+    news.extend(crate::standing::month_start(state, catalog, date));
     // The plan.
     if let Some(plan) = state.person.portfolio.plan
         && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()

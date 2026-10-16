@@ -3165,10 +3165,37 @@ export interface Person {
   wellbeing?: PersonWohlbefinden | null;
   /** Deposits, bonds, gold and funds (PV2). */
   assets?: PersonAnlagen | null;
+  /** Standing, clubs, contacts and possessions (PV6a). */
+  circle?: PersonKreis | null;
   /** While the person has no company yet: the founding. */
   founding?: Gruendung | null;
   /** Heir, estate and tax (PE6). */
   succession?: Nachfolge | null;
+}
+
+/** Standing, clubs, contacts and possessions of the person (PV6a). */
+export interface PersonKreis {
+  standing: number;
+  target: number;
+  loan_offset: number;
+  broker_discount: number;
+  clubs: {
+    key: string;
+    standing_min: number;
+    lifestyle_min: number;
+    fee_usd: number;
+    member: boolean;
+    open: boolean;
+  }[];
+  contacts: { role: string; name: string; strength: number; until: string }[];
+  goods: {
+    key: string;
+    price_usd: number;
+    upkeep: number;
+    representation: number;
+    available: boolean;
+  }[];
+  owned: { key: string; value_usd: number }[];
 }
 
 /** Who inherits and what it costs (PE6). */

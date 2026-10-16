@@ -385,6 +385,20 @@ pub fn rows_not_ascending() -> String {
     "Die Zeilen müssen nach „bip_je_kopf_usd“ aufsteigend sortiert sein.".into()
 }
 
+pub fn contact_role_unknown(key: &str) -> String {
+    format!(
+        "Rolle „{key}“ ist nicht bekannt (erlaubt: bankier, unternehmer, politiker, wissenschaftler, makler)."
+    )
+}
+
+pub fn standing_list_empty(what: &str) -> String {
+    format!("Die Liste „{what}“ darf nicht leer sein.")
+}
+
+pub fn standing_id_duplicate(key: &str) -> String {
+    format!("Die Kennung „{key}“ kommt in der Liste mehrfach vor.")
+}
+
 pub fn background_unknown(key: &str) -> String {
     format!(
         "Hintergrund „{key}“ ist nicht bekannt (erlaubt: tueftler, kaufmann, charismatiker, erbe)."

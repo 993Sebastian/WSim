@@ -28,6 +28,138 @@ import { FehlerText } from "./Dialog";
 import { Befehle, Rueckmeldung, useAktion, useBefehl, useSicht, ZahlFeld } from "./gemeinsam";
 import { Verlauf } from "./Grafik";
 
+/** Standing, clubs, contacts and possessions (PV6a). */
+function Ansehen({ k }: { k: NonNullable<Person["circle"]> }) {
+  const { los, antwort } = useAktion("ansehen");
+  const [spende, setSpende] = useState("");
+  const senden = (action: Geldanlage) => void los([{ Invest: { action } }]);
+  const betrag = zahlLesen(spende);
+  return (
+    <section className="karte" aria-label={t("person.ansehen")}>
+      <h2>{t("person.ansehen")}</h2>
+      <p className="feld-hilfe">{t("person.ansehen_hilfe")}</p>
+      <dl className="werte">
+        <dt>{t("person.ansehen_jetzt")}</dt>
+        <dd>
+          {formatZahl(k.standing)} / 100 ({t("person.ansehen_ziel", { ziel: formatZahl(k.target) })}
+          )
+        </dd>
+        <dt>{t("person.ansehen_kredit")}</dt>
+        <dd>{formatProzent(k.loan_offset)}</dd>
+        <dt>{t("person.ansehen_makler")}</dt>
+        <dd>{formatProzent(k.broker_discount)}</dd>
+      </dl>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("person.spende_betrag")}
+          einheit={geldEinheit()}
+          wert={spende}
+          onWert={setSpende}
+        />
+        <button
+          type="button"
+          disabled={betrag === null || betrag <= 0}
+          onClick={() =>
+            betrag !== null && senden({ Donate: { amount: geld(ausAnzeige(betrag)) } })
+          }
+        >
+          {t("person.spenden")}
+        </button>
+      </div>
+      <h3>{t("person.clubs")}</h3>
+      <table className="tabelle" aria-label={t("person.clubs")}>
+        <tbody>
+          {k.clubs.map((c, i) => (
+            <tr key={c.key}>
+              <th scope="row">{t(`club.${c.key}`)}</th>
+              <td>
+                {t("person.club_bedingung", {
+                  ansehen: formatZahl(c.standing_min),
+                  stufe: t(
+                    `person.lebensstil_${["bescheiden", "buergerlich", "gehoben", "luxurioes"][c.lifestyle_min] ?? "bescheiden"}`,
+                  ),
+                  beitrag: formatGeld(c.fee_usd),
+                })}
+              </td>
+              <td>
+                {c.member ? (
+                  <button type="button" onClick={() => senden({ LeaveClub: { club: i } })}>
+                    {t("person.club_verlassen")}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!c.open}
+                    onClick={() => senden({ JoinClub: { club: i } })}
+                  >
+                    {t("person.club_beitreten")}
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h3>{t("person.kontakte")}</h3>
+      {k.contacts.length === 0 ? (
+        <p className="gedaempft">{t("person.kontakte_keine")}</p>
+      ) : (
+        <ul className="liste">
+          {k.contacts.map((c) => (
+            <li key={`${c.name}-${c.role}`}>
+              {t("person.kontakt_zeile", {
+                name: c.name,
+                rolle: t(`rolle.${c.role}`),
+                staerke: formatZahl(c.strength),
+                bis: formatDatum(c.until),
+              })}
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>{t("person.besitz")}</h3>
+      <table className="tabelle" aria-label={t("person.besitz")}>
+        <tbody>
+          {k.goods.map((g, i) => (
+            <tr key={g.key}>
+              <th scope="row">{t(`besitz.${g.key}`)}</th>
+              <td>
+                {t("person.besitz_zeile", {
+                  preis: formatGeld(g.price_usd),
+                  unterhalt: formatProzent(g.upkeep),
+                  punkte: formatZahl(g.representation),
+                })}
+              </td>
+              <td>
+                <button
+                  type="button"
+                  disabled={!g.available}
+                  onClick={() => senden({ BuyGood: { good: i } })}
+                >
+                  {t("person.besitz_kaufen")}
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {k.owned.length > 0 && (
+        <ul className="liste">
+          {k.owned.map((o, i) => (
+            <li key={`${o.key}-${i}`}>
+              {t(`besitz.${o.key}`)} – {formatGeld(o.value_usd)}{" "}
+              <button type="button" onClick={() => senden({ SellGood: { index: i } })}>
+                {t("person.besitz_verkaufen")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Where a child stands as a manager: not yet, free, employed, retired or dead. */
 function kindStatus(k: PersonKind): string {
   if (k.died) return t("person.kind_verstorben", { datum: formatDatum(k.died) });
@@ -1268,6 +1400,7 @@ export function PersonAnsicht({
       {g && <Lebensstil g={g} />}
       {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
       {daten.assets && <Anlagen a={daten.assets} />}
+      {daten.circle && <Ansehen k={daten.circle} />}
       {daten.assets?.property && <Immobilien p={daten.assets.property} />}
       <Rollen p={daten} g={g} />
       {g &&
