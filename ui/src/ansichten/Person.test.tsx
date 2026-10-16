@@ -317,6 +317,7 @@ describe("Person (PE2)", () => {
                 vacancy: 0.04,
                 debt_usd: 40_000,
                 renovating_until: null,
+                tenant: null,
               },
             ],
             offers: [
@@ -335,6 +336,7 @@ describe("Person (PE2)", () => {
             mortgage_rate: 0.035,
             sale_discount: 0.03,
             renovation_cost: 0.12,
+            sites: [{ index: 0, name: null, country: "DEU" }],
           },
         };
         return p;

@@ -3092,6 +3092,7 @@ export interface PersonImmobilien {
     vacancy: number;
     debt_usd: number;
     renovating_until: string | null;
+    tenant: number | null;
   }[];
   offers: {
     id: number;
@@ -3107,6 +3108,7 @@ export interface PersonImmobilien {
   mortgage_rate: number;
   sale_discount: number;
   renovation_cost: number;
+  sites: { index: number; name: string | null; country: string }[];
 }
 
 /** Background, time and health of the person (PV1b). */

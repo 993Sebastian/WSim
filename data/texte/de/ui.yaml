@@ -3145,6 +3145,9 @@ person.immobilien_bestand: Bestand
 person.immobilien_keine: Du besitzt keine Immobilien.
 person.immobilie_zeile: "{art} in {land}: Wert {wert}, Hypothek {schulden}, Miete {miete} im Jahr, Leerstand {leerstand}, Zustand {zustand} %"
 person.saniert_bis: wird saniert bis {datum}
+person.mieter: Vermietet an einen Standort der eigenen Firma
+person.mieter_keiner: Frei am Markt vermieten
+person.mieter_standort: Standort in
 person.miete_setzen: Miete setzen
 person.sanieren: "Sanieren ({kosten} des Werts)"
 person.immobilien_angebote: Angebote

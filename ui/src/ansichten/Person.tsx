@@ -357,6 +357,27 @@ function Immobilien({ p }: { p: NonNullable<NonNullable<Person["assets"]>["prope
               >
                 {t("person.miete_setzen")}
               </button>{" "}
+              {o.kind !== "grundstueck" && p.sites.length > 0 && (
+                <select
+                  aria-label={t("person.mieter")}
+                  value={o.tenant ?? ""}
+                  onChange={(e) =>
+                    senden({
+                      AssignProperty: {
+                        index: i,
+                        site: e.target.value === "" ? null : Number(e.target.value),
+                      },
+                    })
+                  }
+                >
+                  <option value="">{t("person.mieter_keiner")}</option>
+                  {p.sites.map((s) => (
+                    <option key={s.index} value={s.index}>
+                      {s.name ?? `${t("person.mieter_standort")} ${landName(s.country)}`}
+                    </option>
+                  ))}
+                </select>
+              )}{" "}
               {o.kind !== "grundstueck" && (
                 <button type="button" onClick={() => senden({ Renovate: { index: i } })}>
                   {t("person.sanieren", { kosten: formatProzent(p.renovation_cost) })}

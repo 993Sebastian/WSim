@@ -605,6 +605,9 @@ impl Game {
                 &self.catalog,
                 today,
             ));
+            report
+                .messages
+                .extend(crate::stakes::month_end(&mut self.state, &self.catalog));
             report.messages.extend(crate::holdings::month_end(
                 &mut self.state,
                 &self.catalog,
@@ -1025,6 +1028,7 @@ pub(crate) fn start_setup(
         development_shares: std::collections::BTreeMap::new(),
         lab_staff: crate::lab_staff::LabStaff::default(),
         wage_premium: 0.0,
+        housing_relief: 0.0,
         branch_strength: 0.0,
         training: 0.0,
         training_target: None,

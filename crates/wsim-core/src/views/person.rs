@@ -249,6 +249,15 @@ pub struct PropertyView {
     pub mortgage_rate: f64,
     pub sale_discount: f64,
     pub renovation_cost: f64,
+    /// Sites of the person's firms a property may be let to (PV5c).
+    pub sites: Vec<TenantSiteView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TenantSiteView {
+    pub index: u32,
+    pub name: Option<String>,
+    pub country: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -264,6 +273,8 @@ pub struct OwnedPropertyView {
     pub vacancy: f64,
     pub debt_usd: f64,
     pub renovating_until: Option<String>,
+    /// Index of the site it is let to.
+    pub tenant: Option<u32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -665,6 +676,7 @@ pub fn person(game: &Game) -> PersonView {
                         vacancy: crate::property::vacancy(pm, p),
                         debt_usd: usd(p.mortgage.map_or(Money::ZERO, |h| h.balance)),
                         renovating_until: p.renovating_until.map(iso),
+                        tenant: p.tenant,
                     })
                     .collect(),
                 offers: state
@@ -692,6 +704,17 @@ pub fn person(game: &Game) -> PersonView {
                 mortgage_rate: crate::property::mortgage_rate(catalog, state, pm),
                 sale_discount: pm.sale_discount,
                 renovation_cost: pm.reno_cost,
+                sites: state
+                    .sites
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, s)| crate::private::is_controlled(state, s.owner))
+                    .map(|(i, s)| TenantSiteView {
+                        index: u32::try_from(i).unwrap_or(u32::MAX),
+                        name: s.name.clone(),
+                        country: catalog.countries.key(s.country).to_owned(),
+                    })
+                    .collect(),
             }),
         }
     });
@@ -823,6 +846,7 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::AssetSold => "privat.anlageverkauf",
         PrivateFlow::InvestFee => "privat.anlagegebuehr",
         PrivateFlow::Rent => "privat.miete",
+        PrivateFlow::AdvisorFee => "privat.beratergebuehr",
         PrivateFlow::InheritancePayout => "privat.erbausgleich",
         PrivateFlow::Education => "privat.ausbildung",
         PrivateFlow::PropertyCost => "privat.immobilienkosten",

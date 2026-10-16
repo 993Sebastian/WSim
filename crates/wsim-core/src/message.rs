@@ -216,6 +216,9 @@ pub mod keys {
     pub const PERSON_ILL: &str = "meldung.person.krank";
     pub const SAVINGS_PLAN_ENDED: &str = "meldung.person.sparplan_beendet";
     pub const PROPERTY_DISTRESS: &str = "meldung.person.notverkauf";
+    pub const STAKE_THRESHOLD: &str = "meldung.beteiligung.schwelle";
+    pub const MANAGER_EMBEZZLED: &str = "meldung.person.verwalter_veruntreut";
+    pub const STAKE_BLOCKING: &str = "meldung.beteiligung.sperrminoritaet";
     pub const PERSON_WELL_AGAIN: &str = "meldung.person.gesund";
     pub const COMMAND_ILL: &str = "fehler.befehl.krank";
     pub const COMMAND_WILL_INVALID: &str = "fehler.befehl.testament";
@@ -697,6 +700,9 @@ pub mod keys {
         PERSON_ILL,
         SAVINGS_PLAN_ENDED,
         PROPERTY_DISTRESS,
+        STAKE_THRESHOLD,
+        MANAGER_EMBEZZLED,
+        STAKE_BLOCKING,
         PERSON_WELL_AGAIN,
         COMMAND_ILL,
         COMMAND_WILL_INVALID,

@@ -1666,6 +1666,9 @@ pub struct Site {
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
+    /// Share of the wage pressure taken off by company housing of the person (PV5c).
+    #[serde(default, skip_serializing_if = "is_zero_f64")]
+    pub housing_relief: f64,
     /// Branch strength 0–1 of the manager responsible for production, as of the last month
     /// start (MG5); the effect in the works.
     #[serde(default, skip_serializing_if = "is_zero")]
@@ -2407,6 +2410,12 @@ pub struct Person {
     /// Shares of companies the co-heirs hold from an inheritance (PV4).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub heir_stakes: BTreeMap<CompanyId, f64>,
+    /// Property management and tax advisor by level (0: none) and the asset manager (PV5b).
+    #[serde(default, skip_serializing_if = "crate::services::Services::is_empty")]
+    pub services: crate::services::Services,
+    /// The thresholds of the holding in a listed company already made public (PV5a).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub disclosed: BTreeMap<CompanyId, u32>,
 }
 
 fn is_zero_f64(x: &f64) -> bool {
@@ -2510,6 +2519,8 @@ impl Default for Person {
             portfolio: Default::default(),
             will: Vec::new(),
             heir_stakes: BTreeMap::new(),
+            disclosed: BTreeMap::new(),
+            services: Default::default(),
         }
     }
 }
@@ -2569,6 +2580,8 @@ pub enum PrivateFlow {
     InheritancePayout,
     /// Education of the children (PV4).
     Education,
+    /// Fees of the advisors and the asset manager (PV5b).
+    AdvisorFee,
     /// Rent of properties (PV3), taxed as income.
     Rent,
     /// Upkeep, damage and renovation of properties.

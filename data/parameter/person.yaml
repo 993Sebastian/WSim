@@ -122,6 +122,29 @@ person:
       rueckkehr: 0.05
       spanne: 0.01
       gebuehr: 0.005
+    beteiligung:
+      schwellen: [0.03, 0.05, 0.10, 0.25, 0.30, 0.50]
+      meldung_aufschlag: [0.01, 0.02, 0.03]
+      sperrminoritaet: 0.25
+      pflichtangebot: {ab: 0.30, aufschlag: 0.10, annahme: 0.4}
+    dienste:
+      hausverwaltung:
+        stufen:
+          - {gebuehr: 0.05, leerstand: 0.25, schaden: 0.4}
+          - {gebuehr: 0.09, leerstand: 0.5, schaden: 0.7}
+      steuerberater:
+        stufen:
+          - {kosten: 0.5, entlastung: 0.05}
+          - {kosten: 1.5, entlastung: 0.12}
+      verwalter:
+        gebuehr: 0.01
+        unehrlich_chance: 0.01
+        veruntreuung: 0.1
+        reserve_monate: 12
+        strategien:
+          vorsichtig: {festgeld: 0.5, anleihen: 0.2, fonds: 0.3, gold: 0.0}
+          ausgewogen: {festgeld: 0.2, anleihen: 0.2, fonds: 0.5, gold: 0.1}
+          riskant: {festgeld: 0.0, anleihen: 0.0, fonds: 0.9, gold: 0.1}
     immobilien:
       arten:
         wohnung: {preis_jahreslohn: 5, rendite: 0.045, leerstand: 0.04, instandhaltung: 0.012, verfall: 2}
@@ -141,6 +164,7 @@ person:
       verkauf_abschlag: 0.03
       notverkauf_abschlag: 0.15
       zustandsgewicht: 0.3
+      firma: {entlastung: 0.15, entlastung_max: 0.5}
       angebot:
         monate: 3
         spanne: {von: -0.1, bis: 0.15}

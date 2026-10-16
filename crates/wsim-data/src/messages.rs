@@ -407,6 +407,14 @@ pub fn function_unknown(key: &str) -> String {
     format!("Der Bereich „{key}“ gibt es in der Verwaltung (management.bereiche) nicht.")
 }
 
+pub fn too_many_premiums() -> String {
+    "Es darf nicht mehr Kursaufschläge als Schwellen geben.".into()
+}
+
+pub fn mix_not_one() -> String {
+    "Die Gewichte der Strategie (festgeld, anleihen, fonds, gold) müssen zusammen 1 ergeben.".into()
+}
+
 pub fn brackets_not_ascending() -> String {
     "Die Stufen müssen nach „ab“ aufsteigend sortiert sein.".into()
 }

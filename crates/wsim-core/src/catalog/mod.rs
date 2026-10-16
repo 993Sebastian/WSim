@@ -2955,6 +2955,37 @@ pub struct AssetModel {
     pub funds: [FundTerms; 2],
     /// Private real estate (PV3).
     pub property: Option<PropertyModel>,
+    /// Thresholds of holdings and the mandatory offer (PV5a).
+    pub stakes: Option<StakeRules>,
+    /// Property management, tax advisor, asset manager (PV5b).
+    pub services: Option<ServiceModel>,
+}
+
+/// Service providers of the person (PV5b, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ServiceModel {
+    /// Property management by level: fee on the rent, cut of vacancy, cut of damage.
+    pub housing: Vec<[f64; 3]>,
+    /// Tax advisor by level: cost in monthly wages, relief of the tax.
+    pub tax: Vec<[f64; 2]>,
+    pub manager_fee: f64,
+    pub dishonest_chance: f64,
+    pub embezzlement: f64,
+    pub reserve_months: u32,
+    /// Weights per strategy (cautious, balanced, risky): deposit, bonds, funds, gold.
+    pub strategies: [[f64; 4]; 3],
+}
+
+/// Thresholds of holdings in listed companies and the mandatory offer (PV5a).
+#[derive(Clone, Debug, PartialEq)]
+pub struct StakeRules {
+    pub thresholds: Vec<f64>,
+    /// Price rise at the first thresholds.
+    pub announce_premium: Vec<f64>,
+    pub blocking: f64,
+    pub offer_from: f64,
+    pub offer_premium: f64,
+    pub offer_acceptance: f64,
 }
 
 /// One kind of property (PV3).
@@ -2998,6 +3029,9 @@ pub struct PropertyModel {
     pub offer_quality: [f64; 2],
     pub offer_condition: [f64; 2],
     pub offer_countries: u32,
+    /// Relief of the wage pressure of a site per company flat, and its cap (PV5c).
+    pub company_relief: f64,
+    pub company_relief_max: f64,
 }
 
 /// Effects of a background at the start (PV1b); proportional ones are shares.

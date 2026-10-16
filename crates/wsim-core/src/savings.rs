@@ -168,6 +168,27 @@ pub enum Investment {
     Renovate {
         index: u32,
     },
+    /// Lets a property to a site of the person's firm (flats: company housing, office and
+    /// hall: lease), or ends it with none (PV5c).
+    AssignProperty {
+        index: u32,
+        site: Option<u32>,
+    },
+    /// The level of the property management, 0 to manage oneself (PV5b).
+    SetHousingManagement {
+        level: u32,
+    },
+    /// The level of the tax advisor, 0 for none.
+    SetTaxAdvisor {
+        level: u32,
+    },
+    /// An asset manager with a strategy (0 cautious, 1 balanced, 2 risky) and the share of
+    /// the free money he may invest each month.
+    HireAssetManager {
+        strategy: u32,
+        budget: f64,
+    },
+    DismissAssetManager,
 }
 
 fn model(catalog: &Catalog) -> Option<&AssetModel> {
@@ -377,10 +398,15 @@ pub(crate) fn apply(
             p.cost -= basis;
             receive(state, catalog, proceeds, basis);
         }
+        Investment::SetHousingManagement { .. }
+        | Investment::SetTaxAdvisor { .. }
+        | Investment::HireAssetManager { .. }
+        | Investment::DismissAssetManager => crate::services::apply(state, catalog, action)?,
         Investment::BuyProperty { .. }
         | Investment::SellProperty { .. }
         | Investment::SetRent { .. }
-        | Investment::Renovate { .. } => crate::property::apply(state, catalog, action)?,
+        | Investment::Renovate { .. }
+        | Investment::AssignProperty { .. } => crate::property::apply(state, catalog, action)?,
         Investment::SetPlan { fund, amount } => {
             state.person.portfolio.plan =
                 (amount > Money::ZERO).then_some(SavingsPlan { fund, amount });
@@ -522,6 +548,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         }
     }
     news.extend(crate::property::month_start(state, catalog, date));
+    news.extend(crate::services::month_start(state, catalog, date));
     // The plan.
     if let Some(plan) = state.person.portfolio.plan
         && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()

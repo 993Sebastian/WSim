@@ -709,7 +709,7 @@ fn the_wellbeing_replays_from_the_journal() {
     assert_eq!(again.state_hash(), game.state_hash());
 }
 
-fn asset_model() -> crate::catalog::AssetModel {
+pub(crate) fn asset_model() -> crate::catalog::AssetModel {
     use crate::catalog::{AssetModel, FundTerms};
     AssetModel {
         deposit_premium: 0.01,
@@ -727,6 +727,15 @@ fn asset_model() -> crate::catalog::AssetModel {
         gold_spread: 0.01,
         gold_fee: 0.005,
         property: None,
+        services: None,
+        stakes: Some(crate::catalog::StakeRules {
+            thresholds: vec![0.03, 0.05, 0.10, 0.25, 0.30, 0.50],
+            announce_premium: vec![0.01, 0.02, 0.03],
+            blocking: 0.25,
+            offer_from: 0.30,
+            offer_premium: 0.10,
+            offer_acceptance: 0.4,
+        }),
         funds: [
             FundTerms {
                 from: 1900,
@@ -1010,16 +1019,22 @@ fn property_model() -> crate::catalog::PropertyModel {
         offer_quality: [1.0, 1.0],
         offer_condition: [80.0, 80.0],
         offer_countries: 5,
+        company_relief: 0.15,
+        company_relief_max: 0.5,
     }
 }
 
 fn property_game() -> Game {
+    property_game_with(false)
+}
+
+fn property_game_with(found: bool) -> Game {
     let mut c = catalog();
     let mut a = asset_model();
     a.property = Some(property_model());
     c.person.assets = Some(a);
     let catalog = Arc::new(c);
-    let s = settings(&catalog, false, 5_000_000.0);
+    let s = settings(&catalog, found, 5_000_000.0);
     let mut game = Game::new(catalog, s).unwrap();
     // The market opens in the first quarter month.
     for _ in 0..3 {
@@ -1233,4 +1248,252 @@ fn the_properties_replay_from_the_journal() {
     let settings = game.state().settings.clone();
     let again = Game::replay(game.catalog().clone(), settings, game.journal()).unwrap();
     assert_eq!(again.state_hash(), game.state_hash());
+}
+
+fn service_model() -> crate::catalog::ServiceModel {
+    crate::catalog::ServiceModel {
+        housing: vec![[0.05, 0.25, 0.4], [0.09, 0.5, 0.7]],
+        tax: vec![[0.5, 0.05], [1.5, 0.12]],
+        manager_fee: 0.01,
+        dishonest_chance: 1.0,
+        embezzlement: 0.1,
+        reserve_months: 12,
+        strategies: [
+            [0.5, 0.2, 0.3, 0.0],
+            [0.2, 0.2, 0.5, 0.1],
+            [0.0, 0.0, 0.9, 0.1],
+        ],
+    }
+}
+
+fn service_game() -> Game {
+    let mut c = catalog();
+    let mut a = asset_model();
+    a.property = Some(property_model());
+    a.services = Some(service_model());
+    c.person.assets = Some(a);
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 5_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    for _ in 0..3 {
+        to_next_month(&mut game);
+        if !game.state().assets.offers.is_empty() {
+            break;
+        }
+    }
+    game
+}
+
+fn last_flow(game: &Game, kind: PrivateFlow) -> Money {
+    game.state()
+        .person
+        .account
+        .months
+        .last()
+        .and_then(|m| m.flows.get(&kind).copied())
+        .unwrap_or(Money::ZERO)
+}
+
+#[test]
+fn the_property_management_costs_a_fee_and_cuts_vacancy() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let run = |level: u32| {
+        let mut game = service_game();
+        let id = offer_of(&game, PropertyKind::Office);
+        invest(
+            &mut game,
+            Investment::BuyProperty {
+                offer: id,
+                mortgage: 0.0,
+            },
+        )
+        .unwrap();
+        invest(&mut game, Investment::SetHousingManagement { level }).unwrap();
+        months(&mut game, 1);
+        (
+            last_flow(&game, PrivateFlow::Rent),
+            last_flow(&game, PrivateFlow::PropertyCost),
+        )
+    };
+    let (rent0, cost0) = run(0);
+    let (rent2, cost2) = run(2);
+    assert!(rent2 > rent0, "{rent2:?} {rent0:?}");
+    // The fee of 9 % of the rent on top of the upkeep.
+    assert!(cost2 < cost0 - rent2.scale(0.05), "{cost2:?} {cost0:?}");
+    let mut game = service_game();
+    assert_eq!(
+        invest(&mut game, Investment::SetHousingManagement { level: 9 }),
+        Err(CommandError::NotPossible)
+    );
+}
+
+#[test]
+fn a_tax_advisor_lowers_the_tax_and_charges_his_fee() {
+    use crate::savings::Investment;
+    let run = |level: u32| {
+        let mut game = service_game();
+        invest(&mut game, Investment::SetTaxAdvisor { level }).unwrap();
+        months(&mut game, 2);
+        (
+            last_flow(&game, PrivateFlow::IncomeTax),
+            last_flow(&game, PrivateFlow::AdvisorFee),
+        )
+    };
+    let (tax0, fee0) = run(0);
+    let (tax2, fee2) = run(2);
+    assert_eq!(fee0, Money::ZERO);
+    assert!(fee2 < Money::ZERO);
+    // The tax is a negative flow: less of it with the advisor.
+    assert!(tax0 < Money::ZERO && tax2 > tax0, "{tax0:?} {tax2:?}");
+}
+
+#[test]
+fn the_asset_manager_invests_by_his_strategy_charges_and_may_embezzle() {
+    use crate::savings::Investment;
+    let mut game = service_game();
+    invest(
+        &mut game,
+        Investment::HireAssetManager {
+            strategy: 1,
+            budget: 0.5,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::HireAssetManager {
+                strategy: 7,
+                budget: 0.5
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    // An honest one.
+    game.state_mut()
+        .person
+        .services
+        .manager
+        .as_mut()
+        .unwrap()
+        .honesty = 100;
+    months(&mut game, 2);
+    let p = &game.state().person.portfolio;
+    assert!(!p.deposits.is_empty() && !p.bonds.is_empty() && p.gold_ounces > 0.0);
+    assert!(p.funds.iter().any(|f| f.units > 0.0));
+    assert!(last_flow(&game, PrivateFlow::AdvisorFee) < Money::ZERO);
+    // A dishonest one takes a tenth of the funds and is gone.
+    let units: f64 = game
+        .state()
+        .person
+        .portfolio
+        .funds
+        .iter()
+        .map(|f| f.units)
+        .sum();
+    game.state_mut()
+        .person
+        .services
+        .manager
+        .as_mut()
+        .unwrap()
+        .honesty = 0;
+    let keys = to_next_month(&mut game);
+    assert!(
+        keys.iter().any(|k| k == keys::MANAGER_EMBEZZLED),
+        "{keys:?}"
+    );
+    assert!(game.state().person.services.manager.is_none());
+    let after: f64 = game
+        .state()
+        .person
+        .portfolio
+        .funds
+        .iter()
+        .map(|f| f.units)
+        .sum();
+    assert!(after < units);
+}
+
+#[test]
+fn flats_let_to_a_site_relieve_its_wages_and_an_office_is_leased_to_the_firm() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game_with(true);
+    let country = game.catalog().countries.id("AAA").unwrap();
+    game.apply(Command::FoundSite {
+        country,
+        kind: crate::catalog::SiteType::Warehouse,
+    })
+    .unwrap();
+    assert!(!game.state().sites.is_empty());
+    game.state_mut().person.account.balance = usd(4_000_000.0);
+    let buy = |game: &mut Game, kind| {
+        let id = offer_of(game, kind);
+        invest(
+            game,
+            Investment::BuyProperty {
+                offer: id,
+                mortgage: 0.0,
+            },
+        )
+        .unwrap();
+    };
+    buy(&mut game, PropertyKind::Apartment);
+    buy(&mut game, PropertyKind::Office);
+    // Land and unknown sites are refused.
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::AssignProperty {
+                index: 0,
+                site: Some(99),
+            },
+        ),
+        Err(CommandError::NotPossible)
+    );
+    invest(
+        &mut game,
+        Investment::AssignProperty {
+            index: 0,
+            site: Some(0),
+        },
+    )
+    .unwrap();
+    invest(
+        &mut game,
+        Investment::AssignProperty {
+            index: 1,
+            site: Some(0),
+        },
+    )
+    .unwrap();
+    months(&mut game, 1);
+    let site = &game.state().sites[0];
+    assert!(
+        (site.housing_relief - 0.15).abs() < 1e-9,
+        "{}",
+        site.housing_relief
+    );
+    let rent = game
+        .state()
+        .person
+        .account
+        .months
+        .last()
+        .and_then(|m| m.flows.get(&PrivateFlow::Rent).copied())
+        .unwrap_or(Money::ZERO);
+    assert!(rent > Money::ZERO);
+    // Ending the use takes the relief away again.
+    invest(
+        &mut game,
+        Investment::AssignProperty {
+            index: 0,
+            site: None,
+        },
+    )
+    .unwrap();
+    months(&mut game, 1);
+    assert_eq!(game.state().sites[0].housing_relief, 0.0);
 }

@@ -3,7 +3,7 @@
 use wsim_core::catalog::{
     AgeSpan, AssetModel, BackgroundEffect, Catalog, CountrySeries, FoundingModel, FundTerms,
     LegacyModel, LifeModel, LifestyleLevel, PersonModel, PrivateLifeModel, PropertyModel,
-    PropertyTerms, WellbeingModel,
+    PropertyTerms, ServiceModel, StakeRules, WellbeingModel,
 };
 use wsim_core::ids::Id;
 use wsim_core::state::{Background, Lifestyle};
@@ -668,6 +668,14 @@ fn assets(ctx: &mut Ctx, a: &crate::raw::RawAssets, l: &Loc) -> AssetModel {
             .property
             .as_ref()
             .map(|p| property(ctx, p, &l.field("immobilien"))),
+        services: a
+            .services
+            .as_ref()
+            .map(|s| services(ctx, s, &l.field("dienste"))),
+        stakes: a
+            .stakes
+            .as_ref()
+            .map(|s| stake_rules(ctx, s, &l.field("beteiligung"))),
     }
 }
 
@@ -762,6 +770,24 @@ fn property(ctx: &mut Ctx, p: &crate::raw::RawProperty, l: &Loc) -> PropertyMode
         offer_quality: span(ctx, &p.offers.quality, 0.1, 5.0, ol.field("guete")),
         offer_condition: span(ctx, &p.offers.condition, 0.0, 100.0, ol.field("zustand")),
         offer_countries: p.offers.countries_max.max(1),
+        company_relief: p.company.as_ref().map_or(0.0, |c| {
+            in_range(
+                ctx,
+                c.relief,
+                0.0,
+                1.0,
+                &l.field("firma").field("entlastung"),
+            )
+        }),
+        company_relief_max: p.company.as_ref().map_or(0.0, |c| {
+            in_range(
+                ctx,
+                c.relief_max,
+                0.0,
+                1.0,
+                &l.field("firma").field("entlastung_max"),
+            )
+        }),
     }
 }
 
@@ -850,5 +876,106 @@ fn legacy(ctx: &mut Ctx, catalog: &Catalog, f: &crate::raw::RawLegacy, l: &Loc) 
             &l.field("streit_chance_jahr"),
         ),
         dispute_sale: in_range(ctx, f.dispute_sale, 0.0, 1.0, &l.field("streit_verkauf")),
+    }
+}
+
+/// Thresholds ascending within 0–1, at most as many price premiums as thresholds (PV5a).
+fn stake_rules(ctx: &mut Ctx, s: &crate::raw::RawStakeRules, l: &Loc) -> StakeRules {
+    let tl = l.field("schwellen");
+    let mut last = 0.0;
+    for (i, &t) in s.thresholds.iter().enumerate() {
+        in_range(ctx, t, 0.0, 1.0, &tl.index(i));
+        if t <= last {
+            ctx.error(&tl.index(i), messages::brackets_not_ascending());
+        }
+        last = t;
+    }
+    if s.announce_premium.len() > s.thresholds.len() {
+        ctx.error(&l.field("meldung_aufschlag"), messages::too_many_premiums());
+    }
+    let ml = l.field("meldung_aufschlag");
+    let announce_premium = s
+        .announce_premium
+        .iter()
+        .enumerate()
+        .map(|(i, &p)| in_range(ctx, p, 0.0, 1.0, &ml.index(i)))
+        .collect();
+    let ol = l.field("pflichtangebot");
+    StakeRules {
+        thresholds: s.thresholds.clone(),
+        announce_premium,
+        blocking: in_range(ctx, s.blocking, 0.0, 1.0, &l.field("sperrminoritaet")),
+        offer_from: in_range(ctx, s.offer.from, 0.0, 1.0, &ol.field("ab")),
+        offer_premium: in_range(ctx, s.offer.premium, 0.0, 1.0, &ol.field("aufschlag")),
+        offer_acceptance: in_range(ctx, s.offer.acceptance, 0.0, 1.0, &ol.field("annahme")),
+    }
+}
+
+/// Property management, tax advisor and asset manager (PV5b): shares within 0–1, the
+/// weights of a strategy adding up to 1.
+fn services(ctx: &mut Ctx, s: &crate::raw::RawServices, l: &Loc) -> ServiceModel {
+    let hl = l.field("hausverwaltung").field("stufen");
+    let housing = s
+        .housing
+        .levels
+        .iter()
+        .enumerate()
+        .map(|(i, x)| {
+            let at = hl.index(i);
+            [
+                in_range(ctx, x.fee, 0.0, 1.0, &at.field("gebuehr")),
+                in_range(ctx, x.vacancy, 0.0, 1.0, &at.field("leerstand")),
+                in_range(ctx, x.damage, 0.0, 1.0, &at.field("schaden")),
+            ]
+        })
+        .collect();
+    let tl = l.field("steuerberater").field("stufen");
+    let tax = s
+        .tax
+        .levels
+        .iter()
+        .enumerate()
+        .map(|(i, x)| {
+            let at = tl.index(i);
+            [
+                in_range(ctx, x.cost, 0.0, 50.0, &at.field("kosten")),
+                in_range(ctx, x.relief, 0.0, 1.0, &at.field("entlastung")),
+            ]
+        })
+        .collect();
+    let ml = l.field("verwalter");
+    let sl = ml.field("strategien");
+    let mix = |ctx: &mut Ctx, m: &crate::raw::RawMix, name: &str| -> [f64; 4] {
+        let at = sl.field(name);
+        let w = [
+            in_range(ctx, m.deposit, 0.0, 1.0, &at.field("festgeld")),
+            in_range(ctx, m.bonds, 0.0, 1.0, &at.field("anleihen")),
+            in_range(ctx, m.funds, 0.0, 1.0, &at.field("fonds")),
+            in_range(ctx, m.gold, 0.0, 1.0, &at.field("gold")),
+        ];
+        if (w.iter().sum::<f64>() - 1.0).abs() > 1e-6 {
+            ctx.error(&at, messages::mix_not_one());
+        }
+        w
+    };
+    let m = &s.manager;
+    ServiceModel {
+        housing,
+        tax,
+        manager_fee: in_range(ctx, m.fee, 0.0, 0.2, &ml.field("gebuehr")),
+        dishonest_chance: in_range(
+            ctx,
+            m.dishonest_chance,
+            0.0,
+            1.0,
+            &ml.field("unehrlich_chance"),
+        ),
+        embezzlement: in_range(ctx, m.embezzlement, 0.0, 1.0, &ml.field("veruntreuung")),
+        reserve_months: m.reserve_months,
+        strategies: [
+            mix(ctx, &m.strategies.cautious, "vorsichtig"),
+            mix(ctx, &m.strategies.balanced, "ausgewogen"),
+            mix(ctx, &m.strategies.risky, "riskant"),
+        ],
     }
 }

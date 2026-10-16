@@ -22,7 +22,8 @@ export type Geldanlage =
   | { BuyProperty: { offer: number; mortgage: number } }
   | { SellProperty: { index: number } }
   | { SetRent: { index: number; factor: number } }
-  | { Renovate: { index: number } };
+  | { Renovate: { index: number } }
+  | { AssignProperty: { index: number; site: number | null } };
 
 export type Preisart =
   | { Market: { markup: number; floor: number } }

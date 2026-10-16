@@ -430,7 +430,7 @@ pub(crate) fn slot_cost_line(
     let s = &state.sites[site.index()];
     let c = state.countries.get(s.country);
     let affinity = (c.automation_affinity, c.labor_productivity);
-    let wage_factor = 1.0 + s.wage_premium;
+    let wage_factor = 1.0 + s.wage_premium * (1.0 - s.housing_relief);
     let f = catalog.facilities.get(sl.facility);
     let utilization = if sl.utilization > 0.0 {
         sl.utilization
@@ -646,7 +646,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
     let worker_hours = hours_per_worker_day(catalog, date);
     let (affinity, grid_share, electricity_price, wages) = {
         let c = state.countries.get(country);
-        let factor = 1.0 + state.sites[index].wage_premium;
+        let factor =
+            1.0 + state.sites[index].wage_premium * (1.0 - state.sites[index].housing_relief);
         (
             (c.automation_affinity, c.labor_productivity),
             c.grid_share,
@@ -969,7 +970,7 @@ pub(crate) fn daily_wage_bill(
         .iter()
         .map(|(g, &w)| w * worker_hours * wages.get(g.index()).copied().unwrap_or(0.0))
         .sum::<f64>()
-        * (1.0 + s.wage_premium)
+        * (1.0 + s.wage_premium * (1.0 - s.housing_relief))
 }
 
 /// Wages, maintenance, depreciation and wear of one site for one day.

@@ -1070,8 +1070,10 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) ->
     let earned = of(&[PrivateFlow::Salary, PrivateFlow::Bonus, PrivateFlow::Rent]);
     let capital = of(&[PrivateFlow::Interest, PrivateFlow::LoanInterest]);
     // The month's earnings stand for a twelfth of a year at the progressive rates.
+    let relief = crate::services::tax_relief(catalog, state);
     let tax = (Money::from_units(earned_tax(catalog, state, earned.scale(12.0)).units() / 12)
         + capital.scale(capital_tax_rate(catalog, state)))
+    .scale(1.0 - relief)
     .min(state.person.account.balance);
     if tax > Money::ZERO {
         book(&mut state.person, PrivateFlow::IncomeTax, -tax);

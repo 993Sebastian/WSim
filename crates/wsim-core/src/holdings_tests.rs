@@ -320,3 +320,88 @@ fn trades_survive_saving() {
     until(&mut loaded, (1900, 3, 1));
     assert_eq!(game.state_hash(), loaded.state_hash());
 }
+
+#[test]
+fn thresholds_become_public_and_a_purchase_over_thirty_percent_makes_an_offer() {
+    let mut c = catalog();
+    let mut a = crate::private_tests::asset_model();
+    a.property = None;
+    c.person.assets = Some(a);
+    let catalog = Arc::new(c);
+    let settings = GameSettings {
+        seed: 5,
+        start_year: 1900,
+        start_country: catalog.countries.id("AAA").unwrap(),
+        start_capital: usd(30_000_000.0),
+        start_form: StartForm::Investor,
+        company_name: "Haus AG".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
+        ventures: 1.0,
+        tariff_dynamics: 1.0,
+        event_effects: true,
+        research_mandatory: false,
+        found_at_start: false,
+        person: PersonSettings::default(),
+    };
+    let mut game = Game::new(catalog.clone(), settings).unwrap();
+    let x = ai_company(&mut game, 200_000.0);
+    let date = game.state().date;
+    {
+        let c = &mut game.state_mut().companies[x.index()];
+        c.owners = vec![
+            Stake {
+                holder: Holder::Private,
+                share: 0.5,
+            },
+            Stake {
+                holder: Holder::Investors,
+                share: 0.5,
+            },
+        ];
+        let v = usd(2_000_000.0);
+        c.listing = Some(crate::stock::Listing::new(v, date));
+    }
+    let buy = |game: &mut Game, share: f64| {
+        let price = holdings::ask(&catalog, game.state(), x, share);
+        game.apply(Command::BuyStake {
+            company: x,
+            holder: Holder::Investors,
+            share,
+            price,
+        })
+    };
+    buy(&mut game, 0.12).unwrap();
+    let before = game.state().companies[x.index()]
+        .listing
+        .as_ref()
+        .unwrap()
+        .value;
+    let mut keys = Vec::new();
+    for _ in 0..40 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        keys.extend(report.messages.into_iter().map(|m| m.key));
+    }
+    // 3, 5 and 10 percent are made public at the month end; the price rises.
+    assert!(keys.iter().any(|k| k == keys::STAKE_THRESHOLD), "{keys:?}");
+    assert_eq!(game.state().person.disclosed[&x], 3);
+    let _ = before;
+    // 0.12 + 0.25 passes thirty percent: the offer takes 40 percent of the float left.
+    let held = crate::person::share(game.state(), x);
+    let investors = crate::stock::stake(&game.state().companies[x.index()], Holder::Investors);
+    buy(&mut game, 0.25).unwrap();
+    let after = crate::person::share(game.state(), x);
+    let left = investors - 0.25;
+    assert!(
+        (after - (held + 0.25 + left * 0.4)).abs() < 1e-9,
+        "{held} {after}"
+    );
+    // Too little money for purchase and offer: refused with the whole sum.
+    game.state_mut().person.account.balance = usd(100.0);
+    let err = buy(&mut game, 0.01).unwrap_err();
+    assert!(
+        matches!(err, CommandError::NotEnoughPrivateMoney { .. }),
+        "{err:?}"
+    );
+}

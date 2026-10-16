@@ -4740,6 +4740,11 @@ person:
     fonds:
       gemanagt: {ab: 1900, kosten: 0.015, aufschlag: 0.05, gebuehr: 0.005}
       index: {ab: 1990, kosten: 0.002, aufschlag: 0, gebuehr: 0.005}
+    beteiligung:
+      schwellen: [0.03, 0.05, 0.10, 0.25, 0.30, 0.50]
+      meldung_aufschlag: [0.01, 0.02, 0.03]
+      sperrminoritaet: 0.25
+      pflichtangebot: {ab: 0.30, aufschlag: 0.10, annahme: 0.4}
     immobilien:
       arten:
         wohnung: {preis_jahreslohn: 5, rendite: 0.045, leerstand: 0.04, instandhaltung: 0.012, verfall: 2}
@@ -5064,6 +5069,18 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
             "firmenbeguenstigung: 1.5",
             "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
             "person.nachwuchs.firmenbeguenstigung",
+        ),
+        (
+            "schwellen: [0.03, 0.05, 0.10, 0.25, 0.30, 0.50]",
+            "schwellen: [0.03, 0.05, 0.04, 0.25, 0.30, 0.50]",
+            "Die Stufen müssen nach „ab“ aufsteigend sortiert sein.",
+            "person.anlagen.beteiligung.schwellen[2]",
+        ),
+        (
+            "meldung_aufschlag: [0.01, 0.02, 0.03]",
+            "meldung_aufschlag: [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07]",
+            "Es darf nicht mehr Kursaufschläge als Schwellen geben.",
+            "person.anlagen.beteiligung.meldung_aufschlag",
         ),
         (
             "krank_chance: 0.3",
@@ -6609,4 +6626,33 @@ fn projekt_erstankunft_und_foerderung_werden_geprueft() {
     befund(&falsch, "geschätzt");
     let falsch = mit(&block.replace("anteil: 0.15", "anteil: 1.5")).laden();
     befund(&falsch, "außerhalb des erlaubten Bereichs");
+}
+
+#[test]
+fn werkswohnungen_der_privatimmobilien_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let mit = |firma: &str| {
+        let alt = "      zustandsgewicht: 0.3\n";
+        let neu = format!("{alt}      firma: {firma}\n");
+        Daten::neu()
+            .datei(datei, &PERSON.replacen(alt, &neu, 1))
+            .laden()
+    };
+    let gut = mit("{entlastung: 0.15, entlastung_max: 0.5}");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let pm = gut.data.as_ref().unwrap().catalog.person.assets.clone();
+    let m = pm.unwrap().property.unwrap();
+    assert!((m.company_relief - 0.15).abs() < 1e-12);
+    assert!((m.company_relief_max - 0.5).abs() < 1e-12);
+
+    let schlecht = mit("{entlastung: 1.5, entlastung_max: 0.5}");
+    let f = schlecht
+        .report
+        .findings()
+        .first()
+        .expect("Entlastung über 1 wird gemeldet");
+    assert_eq!(
+        f.path.to_string(),
+        "person.anlagen.immobilien.firma.entlastung"
+    );
 }

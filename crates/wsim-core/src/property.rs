@@ -70,6 +70,9 @@ pub struct Property {
     /// No rent until this day while it is renovated.
     pub renovating_until: Option<Date>,
     pub mortgage: Option<Mortgage>,
+    /// The site of the person's firm it is let to (PV5c).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tenant: Option<u32>,
 }
 
 /// A property for sale.
@@ -206,6 +209,7 @@ pub(crate) fn apply(
                 paid: o.price,
                 rent_factor: 1.0,
                 renovating_until: None,
+                tenant: None,
                 mortgage: (loan > Money::ZERO).then(|| Mortgage {
                     balance: loan,
                     rate,
@@ -256,9 +260,53 @@ pub(crate) fn apply(
             p.condition = (p.condition + m.reno_points).min(100.0);
             p.renovating_until = Some(state.date.add_months(m.reno_months));
         }
+        I::AssignProperty { index, site } => {
+            let kind = state
+                .person
+                .portfolio
+                .properties
+                .get(index as usize)
+                .ok_or(CommandError::NotPossible)?
+                .kind;
+            if let Some(s) = site {
+                let ok = state
+                    .sites
+                    .get(s as usize)
+                    .is_some_and(|x| crate::private::is_controlled(state, x.owner));
+                if !ok || kind == PropertyKind::Land {
+                    return Err(CommandError::NotPossible);
+                }
+            }
+            state.person.portfolio.properties[index as usize].tenant = site;
+        }
         _ => return Err(CommandError::NotPossible),
     }
     Ok(())
+}
+
+/// Sets the housing relief of every site from the flats let to it, and returns the leases
+/// of offices and halls as (company, site) pairs (docs/FORMELN.md, PV5c).
+fn company_use(state: &mut GameState, m: &PropertyModel) -> Vec<(usize, usize)> {
+    let mut relief = vec![0.0_f64; state.sites.len()];
+    let mut leases = Vec::new();
+    for (i, p) in state.person.portfolio.properties.iter().enumerate() {
+        let Some(s) = p.tenant.map(|s| s as usize) else {
+            continue;
+        };
+        if s >= relief.len() || !crate::private::is_controlled(state, state.sites[s].owner) {
+            continue;
+        }
+        match p.kind {
+            PropertyKind::Apartment => relief[s] += m.company_relief,
+            PropertyKind::Multi => relief[s] += 2.0 * m.company_relief,
+            PropertyKind::Office | PropertyKind::Hall => leases.push((i, s)),
+            PropertyKind::Land => {}
+        }
+    }
+    for (site, r) in state.sites.iter_mut().zip(relief) {
+        site.housing_relief = r.min(m.company_relief_max);
+    }
+    leases
 }
 
 /// Sells a property already taken out of the portfolio: the mortgage is repaid, the
@@ -295,6 +343,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     if month.is_multiple_of(m.offer_months) {
         refresh_offers(state, catalog, &m, &mut rng);
     }
+    let leases = company_use(state, &m);
     let mut i = 0;
     while i < state.person.portfolio.properties.len() {
         let p = state.person.portfolio.properties[i].clone();
@@ -305,18 +354,29 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             state.person.portfolio.properties[i].renovating_until = None;
         }
         // Income first, then the expenses.
+        let (fee_share, vacancy_cut, damage_cut) = crate::services::housing(catalog, state);
+        // A lease to the own firm has no vacancy; the firm pays the rent (PV5c).
+        let lessee = leases
+            .iter()
+            .find(|&&(k, _)| k == i)
+            .map(|&(_, s)| state.sites[s].owner);
         let rent = if empty {
             Money::ZERO
+        } else if lessee.is_some() {
+            market_rent(catalog, state, &m, &p).scale(p.rent_factor / 12.0)
         } else {
             market_rent(catalog, state, &m, &p)
-                .scale(p.rent_factor * (1.0 - vacancy(&m, &p)) / 12.0)
+                .scale(p.rent_factor * (1.0 - vacancy(&m, &p) * (1.0 - vacancy_cut)) / 12.0)
         };
+        if let (Some(company), true) = (lessee, rent > Money::ZERO) {
+            crate::management::book_personnel(state, company, crate::state::Unit::Board, rent);
+        }
         if rent > Money::ZERO {
             crate::private::book_flow(state, PrivateFlow::Rent, rent);
         }
-        let mut cost = v.scale(terms.upkeep / 12.0);
+        let mut cost = v.scale(terms.upkeep / 12.0) + rent.scale(fee_share);
         let mut damaged = false;
-        if p.kind != PropertyKind::Land && rng.chance(m.damage_chance) {
+        if p.kind != PropertyKind::Land && rng.chance(m.damage_chance * (1.0 - damage_cut)) {
             cost += v.scale(m.damage_cost);
             damaged = true;
         }

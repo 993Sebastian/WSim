@@ -598,6 +598,9 @@ fehler.befehl.zeit_summe: Die Anteile der Zeit müssen zusammen 100 ergeben.
 meldung.person.krank: "Du bist erschöpft oder erkrankt und fällst {monate} Monate aus. Die Manager entscheiden nach ihren Standardregeln."
 meldung.person.sparplan_beendet: "Dein Sparplan über {betrag} ist beendet – das Privatkonto reichte nicht."
 meldung.person.notverkauf: "Du konntest Zins und Tilgung nicht zahlen: Eine Immobilie ({art}) wurde im Notverkauf mit Abschlag verkauft."
+meldung.beteiligung.schwelle: "Dein Anteil an {firma} hat {anteil} % erreicht und ist jetzt öffentlich. Der Kurs reagiert."
+meldung.beteiligung.sperrminoritaet: "Mit {anteil} % an {firma} hältst du eine Sperrminorität: Grundsatzentscheidungen der Firma lassen sich ohne dich nicht mehr durchsetzen."
+meldung.person.verwalter_veruntreut: "Dein Vermögensverwalter hat {betrag} veruntreut und ist entlassen."
 meldung.person.gesund: Du bist wieder gesund und kehrst zurück.
 meldung.person.heirat: "Du hast geheiratet. Jetzt können Kinder kommen."
 meldung.person.familie_unbezahlt: "Dein Privatkonto reicht nicht für Partnersuche, Privatschule und Vorsorge – alles ist beendet."

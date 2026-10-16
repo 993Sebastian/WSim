@@ -1031,6 +1031,7 @@ fn found_company(
             development_shares: std::collections::BTreeMap::new(),
             lab_staff: crate::lab_staff::LabStaff::default(),
             wage_premium: 0.0,
+            housing_relief: 0.0,
             branch_strength: 0.0,
             training: 0.0,
             training_target: None,

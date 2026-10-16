@@ -3271,6 +3271,113 @@ pub struct RawAssets {
     pub funds: RawFunds,
     #[serde(default, rename = "immobilien")]
     pub property: Option<RawProperty>,
+    #[serde(default, rename = "beteiligung")]
+    pub stakes: Option<RawStakeRules>,
+    #[serde(default, rename = "dienste")]
+    pub services: Option<RawServices>,
+}
+
+/// Property management, tax advisor and asset manager (PV5b).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawServices {
+    #[serde(rename = "hausverwaltung")]
+    pub housing: RawServiceLevels<RawHousingLevel>,
+    #[serde(rename = "steuerberater")]
+    pub tax: RawServiceLevels<RawTaxLevel>,
+    #[serde(rename = "verwalter")]
+    pub manager: RawAssetManager,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawServiceLevels<T> {
+    #[serde(rename = "stufen")]
+    pub levels: Vec<T>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHousingLevel {
+    #[serde(rename = "gebuehr")]
+    pub fee: f64,
+    #[serde(rename = "leerstand")]
+    pub vacancy: f64,
+    #[serde(rename = "schaden")]
+    pub damage: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTaxLevel {
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "entlastung")]
+    pub relief: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAssetManager {
+    #[serde(rename = "gebuehr")]
+    pub fee: f64,
+    #[serde(rename = "unehrlich_chance")]
+    pub dishonest_chance: f64,
+    #[serde(rename = "veruntreuung")]
+    pub embezzlement: f64,
+    #[serde(rename = "reserve_monate")]
+    pub reserve_months: u32,
+    #[serde(rename = "strategien")]
+    pub strategies: RawStrategies,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStrategies {
+    #[serde(rename = "vorsichtig")]
+    pub cautious: RawMix,
+    #[serde(rename = "ausgewogen")]
+    pub balanced: RawMix,
+    #[serde(rename = "riskant")]
+    pub risky: RawMix,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMix {
+    #[serde(rename = "festgeld")]
+    pub deposit: f64,
+    #[serde(rename = "anleihen")]
+    pub bonds: f64,
+    #[serde(rename = "fonds")]
+    pub funds: f64,
+    #[serde(rename = "gold")]
+    pub gold: f64,
+}
+
+/// Thresholds of holdings and the mandatory offer (PV5a).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStakeRules {
+    #[serde(rename = "schwellen")]
+    pub thresholds: Vec<f64>,
+    #[serde(rename = "meldung_aufschlag")]
+    pub announce_premium: Vec<f64>,
+    #[serde(rename = "sperrminoritaet")]
+    pub blocking: f64,
+    #[serde(rename = "pflichtangebot")]
+    pub offer: RawMandatoryOffer,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMandatoryOffer {
+    #[serde(rename = "ab")]
+    pub from: f64,
+    #[serde(rename = "aufschlag")]
+    pub premium: f64,
+    #[serde(rename = "annahme")]
+    pub acceptance: f64,
 }
 
 /// Private real estate (PV3).
@@ -3305,6 +3412,8 @@ pub struct RawProperty {
     pub condition_weight: f64,
     #[serde(rename = "angebot")]
     pub offers: RawPropertyOffers,
+    #[serde(rename = "firma", default)]
+    pub company: Option<RawPropertyCompany>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -3366,6 +3475,15 @@ pub struct RawRenovation {
     pub points: f64,
     #[serde(rename = "monate")]
     pub months: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPropertyCompany {
+    #[serde(rename = "entlastung")]
+    pub relief: f64,
+    #[serde(rename = "entlastung_max")]
+    pub relief_max: f64,
 }
 
 #[derive(Debug, Deserialize)]

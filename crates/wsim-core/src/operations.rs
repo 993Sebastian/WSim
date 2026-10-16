@@ -149,7 +149,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             .map(|(g, &w)| w * wages.get(g.index()).copied().unwrap_or(0.0))
             .sum::<f64>()
             / workers
-            * (1.0 + s.wage_premium);
+            * (1.0 + s.wage_premium * (1.0 - s.housing_relief));
         let cost = Money::from_usd(wage * m.accident_hours).unwrap_or(Money::ZERO);
         let owner = s.owner;
         crate::reputation::accident(state, catalog, owner, country);

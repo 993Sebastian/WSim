@@ -4976,6 +4976,58 @@ Nachfolger bleiben `s ·` Firmenanteile.
 `streit_chance_jahr` den Anteil `streit_verkauf` an Investoren (Meldung); der Spieler kann ihn dann
 über den Markt zurückkaufen.
 
+## PV5a – Anteilsschwellen und Pflichtangebot
+
+Daten: `person.anlagen.beteiligung`. Kern: Modul `stakes` und `holdings::buy`.
+
+**Schwellen.** Für jede börsennotierte Firma, an der die Person beteiligt ist, gilt die Stufe `k` =
+Zahl der Schwellen `schwellen` (3, 5, 10, 25, 30, 50 %), die ihr Anteil erreicht. Steigt `k` gegenüber
+dem zuletzt gemeldeten Stand, wird der Besitz öffentlich (Meldung am Monatsende). Bei den ersten
+Stufen reagiert der Kurs: Börsenwert · (1 + `meldung_aufschlag[k]`). Die Schwelle `sperrminoritaet`
+(25 %) und die 50 % werden eigens gemeldet. Sinkt der Anteil, sinkt die gemerkte Stufe ohne Meldung.
+
+**Pflichtangebot.** Ein Kauf, der den Anteil der Person an einer börsennotierten Firma von unter
+`pflichtangebot.ab` auf mindestens diese Schwelle hebt, löst sofort ein Angebot an die übrigen
+Aktionäre aus: Es nehmen `pflichtangebot.annahme` des Streubesitzes (nach dem Kauf) zum Börsenwert ·
+(1 + `pflichtangebot.aufschlag`) an. Das Konto muss Kauf und Angebot decken, sonst wird der Kauf
+abgelehnt (der Fehler nennt die Gesamtsumme).
+
+## PV5b – Hausverwaltung, Steuerberater, Vermögensverwalter
+
+Daten: `person.anlagen.dienste`. Kern: Modul `services`. Alle drei sind Dienstleister, die die
+Person mit einer Stufe oder Strategie beauftragt; sie kosten laufend Geld und nehmen Arbeit ab.
+
+**Hausverwaltung** (Stufe 0 = selbst). Stufe `s`: Gebühr `gebuehr_s · Mieteinnahme` je Monat; der
+Leerstand sinkt um den Faktor `(1 − leerstand_s)`, die Schadenschance um `(1 − schaden_s)`.
+
+**Steuerberater** (Stufe 0 = keiner). Stufe `s`: Kosten `kosten_s · akademischer Monatslohn` je
+Monat; die Einkommen- und Kapitalertragsteuer des Monats sinken um den Anteil `entlastung_s`.
+
+**Vermögensverwalter.** Beauftragt mit Strategie `g` und Budget `b` (0–1). Jeden Monat legt er `b ·
+(Konto − Reserve)` nach den Gewichten der Strategie an (Festgeld 12 Monate, Staatsanleihe 24 Monate,
+Fonds, Gold; der günstigste verfügbare Fonds), die Reserve ist `reserve_monate` Monate Lebensstil.
+Gebühr `gebuehr/12 ·` (Festgeld + Anleihen + Gold + Fonds) je Monat. Seine Ehrlichkeit `h` (0–100) wird
+bei der Beauftragung gezogen; je Monat veruntreut er mit der Chance `unehrlich_chance · (1 − h/100)`
+den Anteil `veruntreuung` der Fonds und wird entlassen (Meldung). Seine Kompetenz wirkt nicht auf die
+Rendite (Annahme).
+
+## PV5c – Werkswohnungen und Vermietung an die eigene Firma
+
+Daten: `person.anlagen.immobilien.firma` (`entlastung`, `entlastung_max`). Kern: `property`
+(`company_use`), Befehl `AssignProperty {index, site}`. Ein Objekt der Person kann einem Standort
+einer von ihr beherrschten Firma zugewiesen werden (Grundstücke nicht).
+
+**Werkswohnung** (Wohnung, Mehrfamilienhaus). Zu Monatsbeginn gilt für jeden Standort
+`e_S = min(entlastung_max, entlastung · (Wohnungen + 2 · Mehrfamilienhäuser))`. Der Lohnaufschlag
+des Standorts wirkt nur mit `(1 − e_S)` (Lohnfaktor `1 + Aufschlag · (1 − e_S)`). Die Wohnung bringt
+der Person keine Marktmiete (sie ist nicht frei vermietet).
+
+**Pacht an die Firma** (Büro, Halle). Die Firma zahlt jeden Monat `Marktmiete · Mietfaktor / 12`
+ohne Leerstand; die Person bucht die Miete (Fluss `Rent`), die Firma bucht Aufwand (Personalkosten der
+Einheit Vorstand). Die Hausverwaltung nimmt auch hier ihre Gebühr.
+
+Vereinfachungen siehe OFFENE_PUNKTE (PV5).
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;

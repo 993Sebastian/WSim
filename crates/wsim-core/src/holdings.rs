@@ -109,10 +109,18 @@ pub(crate) fn buy(
     {
         crate::regulation::check_antitrust(catalog, state, b, company)?;
     }
+    // A purchase that takes the person over the threshold of a listed company obliges it
+    // to a public offer to the other shareholders (PV5a).
+    let offer = if buyer == Buyer::Person {
+        crate::stakes::mandatory_offer(catalog, state, company, holder, share)
+    } else {
+        None
+    };
     match buyer {
         Buyer::Person => {
-            if state.person.account.balance < price {
-                return Err(CommandError::NotEnoughPrivateMoney { needed: price });
+            let needed = price + offer.map_or(Money::ZERO, |o| o.1);
+            if state.person.account.balance < needed {
+                return Err(CommandError::NotEnoughPrivateMoney { needed });
             }
             crate::private::pay_stake(state, company, price);
         }
@@ -137,6 +145,12 @@ pub(crate) fn buy(
     let owners = &mut state.companies[company.index()].owners;
     crate::stock::remove_share(owners, holder, share.min(held));
     crate::stock::add_share(owners, buyer.holder(), share.min(held));
+    if let Some((taken, cost)) = offer {
+        crate::private::pay_stake(state, company, cost);
+        let owners = &mut state.companies[company.index()].owners;
+        crate::stock::remove_share(owners, Holder::Investors, taken);
+        crate::stock::add_share(owners, Holder::Player, taken);
+    }
     take_control(state, catalog, company);
     Ok(())
 }
