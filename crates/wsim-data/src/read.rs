@@ -12,9 +12,9 @@ use crate::raw::{
     RawEventModel, RawFacility, RawFinanceModel, RawInventor, RawLife, RawLogistics,
     RawMachineBuilder, RawMachineOffers, RawManagement, RawMarketModel, RawMeta, RawMilestone,
     RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming,
-    RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple,
-    RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology, RawTransportClass,
-    RawTransportModel, RawUnit, RawVehicle, RawVentures,
+    RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawReportModel,
+    RawResearchModel, RawSimple, RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology,
+    RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -179,6 +179,7 @@ pub(crate) struct RawData {
     pub ai_model: Vec<Entry<RawAiModel>>,
     pub deal_model: Vec<Entry<RawDealModel>>,
     pub plot_model: Vec<Entry<RawPlotModel>>,
+    pub report_model: Vec<Entry<RawReportModel>>,
     pub name_groups: Vec<Entry<RawNameGroup>>,
     pub product_naming: Vec<Entry<RawProductNaming>>,
     pub management: Vec<Entry<RawManagement>>,
@@ -234,6 +235,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "kimodell",
     "kaufmodell",
     "grundstuecksmodell",
+    "rundenbericht",
     "namensgruppen",
     "produktnamen",
     "management",
@@ -318,6 +320,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "grundstuecksmodell" => match de::from_node::<RawPlotModel>(value, &loc.path) {
                 Ok(model) => raw.plot_model.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "rundenbericht" => match de::from_node::<RawReportModel>(value, &loc.path) {
+                Ok(model) => raw.report_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "produktnamen" => match de::from_node::<RawProductNaming>(value, &loc.path) {

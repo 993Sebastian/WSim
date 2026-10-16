@@ -259,6 +259,7 @@ lagerstaetten:
 const KI: &str = include_str!("../../../data/parameter/kimodell.yaml");
 const KAUF: &str = include_str!("../../../data/parameter/kaufmodell.yaml");
 const GRUNDSTUECKE: &str = include_str!("../../../data/parameter/grundstuecksmodell.yaml");
+const BERICHT: &str = include_str!("../../../data/parameter/rundenbericht.yaml");
 const GRUNDSTUECKE_TEXTE: &str = include_str!("../../../data/texte/de/grundstuecke.yaml");
 
 const KI_NAMEN: &str = "\
@@ -369,6 +370,7 @@ impl Daten {
             ("parameter/kimodell.yaml", KI),
             ("parameter/kaufmodell.yaml", KAUF),
             ("parameter/grundstuecksmodell.yaml", GRUNDSTUECKE),
+            ("parameter/rundenbericht.yaml", BERICHT),
             ("ki/a.yaml", KI_NAMEN),
             ("texte/de/a.yaml", TEXTE),
             ("texte/de/grundstuecke.yaml", GRUNDSTUECKE_TEXTE),
@@ -6994,4 +6996,21 @@ fn persoenliche_ereignisse_werden_geprueft() {
             .unwrap_or_else(|| panic!("{alt} → {neu}: kein Befund"));
         assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
     }
+}
+
+#[test]
+fn rundenbericht_wird_geprueft() {
+    let datei = "parameter/rundenbericht.yaml";
+    let d = Daten::neu().datei(
+        datei,
+        "rundenbericht:\n  produkte_sichtbar: 5\n  hinweise_max: 5\n  auslastung: {rot_unter: 0.9, gruen_ab: 0.5}\n  anteil_verlust: 1.5\n",
+    );
+    let outcome = d.laden();
+    befund(&outcome, "„rot_unter“ muss kleiner als „gruen_ab“ sein.");
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "rundenbericht.anteil_verlust");
+    nur_fehler(&outcome, 2);
 }

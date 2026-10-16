@@ -1,0 +1,10 @@
+# Grenzen des Rundenberichts (RB2/RB3, docs/RUNDENBERICHT_2.md; Werte mit 🟡 der Vorgabe: Annäherungen).
+# So viele Produkte stehen sofort in der Tabelle (der Rest hinter „+ n weitere“; negative Deckungsbeiträge immer).
+rundenbericht:
+  produkte_sichtbar: 5
+# So viele Hinweise stehen unter „Bitte ansehen“ höchstens.
+  hinweise_max: 5
+# Auslastung: unter rot_unter rot, ab gruen_ab grün, dazwischen gelb.
+  auslastung: {rot_unter: 0.6, gruen_ab: 0.85}
+# Ein Marktanteil, der um diesen Teil seines Werts fällt, ist einen Hinweis wert.
+  anteil_verlust: 0.3

@@ -220,6 +220,9 @@ pub struct ReportDetail {
     pub sites: Vec<SiteRow>,
     /// Change of the person's wealth in the round.
     pub person_change_usd: f64,
+    /// Limits for display (visible rows, colors of the utilization).
+    #[serde(default)]
+    pub limits: crate::catalog::ReportModel,
 }
 
 /// Gives the rows of this round the values of the round before for the trend arrows.
@@ -382,6 +385,7 @@ pub(super) fn detail(game: &Game, before: &Snapshot) -> ReportDetail {
         person_change_usd: usd(
             crate::private::wealth(catalog, state).total() - before.rb.person_wealth
         ),
+        limits: catalog.report_model,
     }
 }
 

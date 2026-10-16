@@ -63,6 +63,8 @@ pub struct Catalog {
     pub deal_model: DealModel,
     /// Plots of land for the sites (M35); without size classes there are none.
     pub plot_model: PlotModel,
+    /// Limits of the round report (RB2/RB3).
+    pub report_model: ReportModel,
     /// Historical companies of the start population and later foundings.
     pub real_companies: Vec<RealCompany>,
     /// Historical events, sorted by date (Lastenheft §4.1), with their effects (H1).
@@ -2306,6 +2308,32 @@ pub struct PlotModel {
     pub ai_reserve: f64,
     /// Works in a rented hall (PV7c); none: not offered.
     pub hall: Option<HallTerms>,
+}
+
+/// Limits of the round report (`parameter/rundenbericht.yaml`, RB2/RB3).
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ReportModel {
+    /// Products shown at once (more of them behind "+ n weitere").
+    pub visible_products: u32,
+    /// Hints in "Bitte ansehen" at most.
+    pub attention_max: u32,
+    /// Utilization below which a works is red, and from which it is green.
+    pub utilization_red: f64,
+    pub utilization_green: f64,
+    /// Fall of a share (as a part of its value) that is worth a hint.
+    pub share_drop: f64,
+}
+
+impl Default for ReportModel {
+    fn default() -> Self {
+        Self {
+            visible_products: 5,
+            attention_max: 5,
+            utilization_red: 0.6,
+            utilization_green: 0.85,
+            share_drop: 0.3,
+        }
+    }
 }
 
 /// A works in a rented hall instead of an own building (PV7c, docs/FORMELN.md).

@@ -44,15 +44,17 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await ereignis.getByRole("button", { name: "Weiter" }).click();
   const bericht = page.getByRole("dialog", { name: "Rundenbericht" });
   await expect(bericht).toBeVisible();
+  // The product table is on top; the detailed evaluations sit behind a summary.
+  await bericht.locator("summary", { hasText: "Weitere Auswertungen" }).click();
   await expect(bericht.getByRole("rowheader", { name: "Umsatz", exact: true })).toBeVisible();
   // What each product brought in the round.
   await expect(
-    bericht.getByRole("table", { name: /Was lief/ }).getByRole("cell", { name: "Nägel" }),
+    bericht.getByRole("table", { name: /Was lief/ }).getByRole("rowheader", { name: "Nägel" }),
   ).toBeVisible();
   // Quantities top down: company, continent, country, site.
-  await bericht.locator("summary", { hasText: "Europa" }).click();
-  await bericht.locator("summary", { hasText: "Deutschland" }).first().click();
-  await bericht.locator("summary", { hasText: "Werk · Deutschland" }).click();
+  await bericht.locator(".bericht-weiteres summary", { hasText: "Europa" }).click();
+  await bericht.locator(".bericht-weiteres summary", { hasText: "Deutschland" }).first().click();
+  await bericht.locator(".bericht-weiteres summary", { hasText: "Werk · Deutschland" }).click();
   const werk = bericht.getByRole("table", { name: "Mengen: Werk · Deutschland" });
   // Made and sold.
   const naegel = werk.getByRole("row", { name: /Nägel/ }).getByRole("cell");

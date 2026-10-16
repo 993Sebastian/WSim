@@ -2273,6 +2273,29 @@ pub struct RawFacilityArea {
     pub min_site_area_ha: f64,
 }
 
+/// Limits of the round report (`parameter/rundenbericht.yaml`, RB2/RB3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawReportModel {
+    #[serde(rename = "produkte_sichtbar")]
+    pub visible_products: u32,
+    #[serde(rename = "hinweise_max")]
+    pub attention_max: u32,
+    #[serde(rename = "auslastung")]
+    pub utilization: RawReportUtilization,
+    #[serde(rename = "anteil_verlust")]
+    pub share_drop: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawReportUtilization {
+    #[serde(rename = "rot_unter")]
+    pub red_below: f64,
+    #[serde(rename = "gruen_ab")]
+    pub green_from: f64,
+}
+
 /// Offers between companies (`parameter/kaufmodell.yaml`, M30).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

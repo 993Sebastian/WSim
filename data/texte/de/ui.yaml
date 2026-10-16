@@ -3304,3 +3304,37 @@ lebensereignis.insider.entdeckt: "Der Insiderhandel wurde entdeckt: Strafe, Gewi
 person.entwicklung_laeuft: "wird gebaut: {art}, fertig am {datum}"
 person.entwickeln: "Bauen: {art} ({kosten} des Werts, ca. {monate} Monate)"
 produktion.gruenden_halle: "In gemieteter Halle gründen ({kosten} Ausbau, {miete} Miete im Jahr)"
+bericht.enter_weiter: "[Enter] weiter"
+bericht.privat: Privatvermögen
+bericht.produkte: Produkte
+bericht.spalte.prod: Prod.
+bericht.spalte.verk: Verk.
+bericht.spalte.umsatz: Umsatz
+bericht.spalte.deckungsbeitrag: Deckungsb.
+bericht.spalte.land: Anteil Land
+bericht.spalte.kontinent: Kont.
+bericht.spalte.welt: Welt
+bericht.summe: Summe
+bericht.fixkosten: Fixkosten
+bericht.sonstiges: Sonstiges (Zinsen, Steuern, Beteiligungen)
+bericht.weitere_produkte: "+ {anzahl} weitere"
+bericht.weniger_produkte: Weniger zeigen
+bericht.vorrunde_wert: "Vorrunde: {wert}"
+bericht.steigt: gestiegen gegenüber der Vorrunde
+bericht.faellt: gefallen gegenüber der Vorrunde
+bericht.auslastung: Auslastung
+bericht.weitere_auswertungen: Weitere Auswertungen (Finanzergebnis, Mengen, Meldungen)
+bericht.anlage_status.im_bau: "im Bau (noch {tage} Tage)"
+bericht.anlage_status.stillgelegt: stillgelegt
+bericht.anlage_status.anlauf: "fährt wieder an (noch {tage} Tage)"
+bericht.grund.gedrosselt: manuell gedrosselt
+bericht.grund.material: Material fehlte
+bericht.grund.personal: Personal fehlt
+bericht.grund.strom: Strom fehlte
+bericht.grund.lagerstaette: Lagerstätte erschöpft
+bericht.grund.ereignis: Ereignis
+bericht.grund.auflage: Verbot oder Auflage
+bericht.grund.patent: Patent eines anderen
+bericht.grund.lager_voll: Lager voll
+bericht.grund.stoerung: Störung
+bericht.grund.wartung: Wartung

@@ -784,6 +784,10 @@ export function Spiel({
           onEreignis={(m) =>
             setFenster({ art: "ereignis", bericht: fenster.bericht, liste: [m], index: 0 })
           }
+          onWerk={(site) => {
+            setFenster({ art: "keins" });
+            oeffneWerk(site);
+          }}
           onSchliessen={schliessen}
         />
       )}

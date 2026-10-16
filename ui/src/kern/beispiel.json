@@ -536,7 +536,62 @@
     "research": [],
     "rounds": 1,
     "stop": null,
-    "to": "1914-07-31"
+    "to": "1914-07-31",
+    "detail": {
+      "products": [
+        {
+          "product": "naegel",
+          "unit": "t",
+          "made": 15.0,
+          "sold": 15.0,
+          "revenue_usd": 26556.0158,
+          "contribution_usd": -1928.5081,
+          "country": "DEU",
+          "shares": {
+            "country": 0.18,
+            "continent": 0.06,
+            "world": 0.021
+          },
+          "countries": [],
+          "previous": {
+            "contribution_usd": -1500.0,
+            "shares": {
+              "country": 0.2,
+              "continent": 0.07,
+              "world": 0.02
+            }
+          }
+        }
+      ],
+      "result": {
+        "contribution_usd": -1928.5081,
+        "fixed_usd": -2095.4918,
+        "other_usd": 0.0,
+        "result_usd": -4023.9989
+      },
+      "sites": [
+        {
+          "site": 0,
+          "name": null,
+          "kind_text": "standorttyp.werk",
+          "country": "DEU",
+          "utilization": 0.55,
+          "loss": "material",
+          "slots": [
+            {
+              "facility": "nagelmaschine",
+              "product": "naegel",
+              "count": 1,
+              "state": "laeuft",
+              "days_left": null,
+              "utilization": 0.55,
+              "loss": "material"
+            }
+          ]
+        }
+      ],
+      "person_change_usd": -120.0
+    }
   },
   "bezugsquellen": {
     "contract_months": 12,
@@ -615,7 +670,7 @@
             "usd": 62146145214.6088
           }
         ],
-        "change_month": -7.469521175695881e-6,
+        "change_month": -7.469521175695881e-06,
         "change_year": 0.2730480578776766,
         "company": 79,
         "country": "USA",
@@ -53664,7 +53719,7 @@
               ],
               [
                 "kupferdraht",
-                0.000095
+                9.5e-05
               ],
               [
                 "lithium_ionen_akku",
@@ -64129,11 +64184,11 @@
           "inputs": [
             [
               "glas",
-              0.00003
+              3e-05
             ],
             [
               "kupferdraht",
-              5e-6
+              5e-06
             ]
           ],
           "key": "gluehlampe_wolfram",
@@ -64227,7 +64282,7 @@
             ],
             [
               "stahl",
-              0.000055
+              5.5e-05
             ]
           ],
           "key": "fahrradreifen_bauen",
@@ -64608,7 +64663,7 @@
           "inputs": [
             [
               "kunstseide",
-              0.00005
+              5e-05
             ]
           ],
           "key": "strumpf_wirken",
@@ -64634,11 +64689,11 @@
           "inputs": [
             [
               "glas",
-              0.00004
+              4e-05
             ],
             [
               "kupfer",
-              0.00002
+              2e-05
             ]
           ],
           "key": "radioroehre_bauen",
@@ -65653,11 +65708,11 @@
             ],
             [
               "gewuerze",
-              0.00003
+              3e-05
             ],
             [
               "salz",
-              0.00003
+              3e-05
             ]
           ],
           "key": "wurst_herstellen",
@@ -65687,7 +65742,7 @@
             ],
             [
               "salz",
-              0.00005
+              5e-05
             ]
           ],
           "key": "schinken_herstellen",
@@ -65726,7 +65781,7 @@
           "inputs": [
             [
               "getreide",
-              0.00006
+              6e-05
             ]
           ],
           "key": "eier_herstellen",
@@ -65752,7 +65807,7 @@
           "inputs": [
             [
               "glas",
-              0.00004
+              4e-05
             ],
             [
               "milch",
@@ -66040,7 +66095,7 @@
             ],
             [
               "salz",
-              0.00001
+              1e-05
             ]
           ],
           "key": "brot_herstellen",
@@ -66258,7 +66313,7 @@
             ],
             [
               "salz",
-              0.00002
+              2e-05
             ],
             [
               "zucker",
@@ -66292,7 +66347,7 @@
             ],
             [
               "gewuerze",
-              0.00005
+              5e-05
             ],
             [
               "salz",
@@ -66330,7 +66385,7 @@
             ],
             [
               "weissblech",
-              0.00004
+              4e-05
             ]
           ],
           "key": "fischkonserve_herstellen",
@@ -66429,7 +66484,7 @@
             ],
             [
               "weissblech",
-              0.00003
+              3e-05
             ]
           ],
           "key": "tierfutter_herstellen",
@@ -66485,7 +66540,7 @@
             ],
             [
               "zellstoff",
-              0.00005
+              5e-05
             ]
           ],
           "key": "teewaren_herstellen",
@@ -66567,7 +66622,7 @@
             ],
             [
               "hopfen",
-              3e-6
+              3e-06
             ],
             [
               "malz",
@@ -66790,11 +66845,11 @@
           "inputs": [
             [
               "tabak",
-              0.00002
+              2e-05
             ],
             [
               "zellstoff",
-              5e-6
+              5e-06
             ]
           ],
           "key": "zigaretten_herstellen",
@@ -66820,7 +66875,7 @@
           "inputs": [
             [
               "tabak",
-              0.00001
+              1e-05
             ]
           ],
           "key": "zigarren_herstellen",
@@ -67078,7 +67133,7 @@
           "inputs": [
             [
               "seidenstoff",
-              0.00004
+              4e-05
             ],
             [
               "stoff",
@@ -67160,7 +67215,7 @@
           "inputs": [
             [
               "garn",
-              0.00007
+              7e-05
             ]
           ],
           "key": "socken_herstellen",
@@ -67212,7 +67267,7 @@
           "inputs": [
             [
               "kupfer",
-              2e-6
+              2e-06
             ],
             [
               "stoff",
@@ -67320,7 +67375,7 @@
           "inputs": [
             [
               "seidenstoff",
-              0.00005
+              5e-05
             ]
           ],
           "key": "krawatte_herstellen",
@@ -67359,7 +67414,7 @@
           "inputs": [
             [
               "stoff",
-              0.00003
+              3e-05
             ],
             [
               "wolle",
@@ -67692,7 +67747,7 @@
           "inputs": [
             [
               "kupfer",
-              3e-6
+              3e-06
             ],
             [
               "leder",
@@ -67726,7 +67781,7 @@
             ],
             [
               "stahl",
-              3e-6
+              3e-06
             ]
           ],
           "key": "guertel_herstellen",
@@ -68068,7 +68123,7 @@
             ],
             [
               "schrauben",
-              0.00005
+              5e-05
             ]
           ],
           "key": "fenster_herstellen",
@@ -68098,7 +68153,7 @@
             ],
             [
               "schrauben",
-              0.00005
+              5e-05
             ]
           ],
           "key": "tueren_herstellen",
@@ -68373,7 +68428,7 @@
             ],
             [
               "schrauben",
-              0.00008
+              8e-05
             ]
           ],
           "key": "bett_herstellen",
@@ -68682,7 +68737,7 @@
           "inputs": [
             [
               "blech",
-              0.00007
+              7e-05
             ]
           ],
           "key": "besteck_herstellen",
@@ -68708,11 +68763,11 @@
           "inputs": [
             [
               "blech",
-              0.00008
+              8e-05
             ],
             [
               "kupfer",
-              5e-6
+              5e-06
             ]
           ],
           "key": "edelstahlbesteck_herstellen",
@@ -68841,7 +68896,7 @@
             ],
             [
               "zinn",
-              0.00001
+              1e-05
             ]
           ],
           "key": "eimer_herstellen",
@@ -68945,11 +69000,11 @@
           "inputs": [
             [
               "holz",
-              0.00002
+              2e-05
             ],
             [
               "schwefel",
-              2e-6
+              2e-06
             ]
           ],
           "key": "streichhoelzer_herstellen",
@@ -68975,7 +69030,7 @@
           "inputs": [
             [
               "baumwolle",
-              0.00003
+              3e-05
             ],
             [
               "schnittholz",
@@ -69413,11 +69468,11 @@
           "inputs": [
             [
               "kalkstein",
-              0.00005
+              5e-05
             ],
             [
               "zinn",
-              5e-6
+              5e-06
             ]
           ],
           "key": "zahnpasta_herstellen",
@@ -69456,7 +69511,7 @@
           "inputs": [
             [
               "glas",
-              0.00008
+              8e-05
             ],
             [
               "speiseoel",
@@ -69750,7 +69805,7 @@
           "inputs": [
             [
               "farbstoffe",
-              0.00002
+              2e-05
             ],
             [
               "oelsaaten",
@@ -69793,11 +69848,11 @@
           "inputs": [
             [
               "farbstoffe",
-              2e-6
+              2e-06
             ],
             [
               "zellstoff",
-              0.00002
+              2e-05
             ]
           ],
           "key": "fotofilm_herstellen",
@@ -70068,7 +70123,7 @@
           "inputs": [
             [
               "stahl",
-              3e-6
+              3e-06
             ]
           ],
           "key": "rasierklingen_herstellen",
@@ -70202,11 +70257,11 @@
           "inputs": [
             [
               "messing",
-              0.00005
+              5e-05
             ],
             [
               "stahl",
-              0.00002
+              2e-05
             ]
           ],
           "key": "taschenuhr_herstellen",
@@ -72388,7 +72443,7 @@
           "inputs": [
             [
               "heizleiter",
-              0.00005
+              5e-05
             ],
             [
               "kupferdraht",
@@ -72529,7 +72584,7 @@
             ],
             [
               "messing",
-              0.00005
+              5e-05
             ]
           ],
           "key": "taschenlampe_herstellen",
@@ -73976,7 +74031,7 @@
           "inputs": [
             [
               "glas",
-              0.00002
+              2e-05
             ]
           ],
           "key": "fieberthermometer_herstellen",
@@ -74015,11 +74070,11 @@
           "inputs": [
             [
               "glas",
-              0.00005
+              5e-05
             ],
             [
               "messing",
-              0.00003
+              3e-05
             ]
           ],
           "key": "brille_herstellen",
@@ -126208,7 +126263,7 @@
         "sold_last_month": 9491570.361249395,
         "state_price_usd": null,
         "supply": 0.9999999999999998,
-        "unmet_last_month": 1.862645149230957e-9
+        "unmet_last_month": 1.862645149230957e-09
       },
       {
         "chances": [],
@@ -131480,7 +131535,24 @@
     "married": true,
     "money": {
       "cash_usd": 0.0,
-      "classes": [["konto", 0.0], ["firmen", 0.0], ["startups", 0.0], ["darlehen", 0.0]],
+      "classes": [
+        [
+          "konto",
+          0.0
+        ],
+        [
+          "firmen",
+          0.0
+        ],
+        [
+          "startups",
+          0.0
+        ],
+        [
+          "darlehen",
+          0.0
+        ]
+      ],
       "flows": [],
       "history": [
         [
@@ -131641,7 +131713,24 @@
     "married": true,
     "money": {
       "cash_usd": 250000.0,
-      "classes": [["konto", 250000.0], ["firmen", 0.0], ["startups", 0.0], ["darlehen", 0.0]],
+      "classes": [
+        [
+          "konto",
+          250000.0
+        ],
+        [
+          "firmen",
+          0.0
+        ],
+        [
+          "startups",
+          0.0
+        ],
+        [
+          "darlehen",
+          0.0
+        ]
+      ],
       "flows": [],
       "history": [
         [
@@ -151028,11 +151117,11 @@
         "inputs": [
           [
             "glas",
-            0.00003
+            3e-05
           ],
           [
             "kupferdraht",
-            5e-6
+            5e-06
           ]
         ],
         "inputs_per_day": [
@@ -151068,11 +151157,11 @@
         "inputs": [
           [
             "glas",
-            0.00003
+            3e-05
           ],
           [
             "kupferdraht",
-            5e-6
+            5e-06
           ]
         ],
         "inputs_per_day": [
@@ -151178,7 +151267,7 @@
           ],
           [
             "stahl",
-            0.000055
+            5.5e-05
           ]
         ],
         "inputs_per_day": [
@@ -152020,7 +152109,7 @@
         "inputs": [
           [
             "kunstseide",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -152096,11 +152185,11 @@
         "inputs": [
           [
             "glas",
-            0.00004
+            4e-05
           ],
           [
             "kupfer",
-            0.00002
+            2e-05
           ]
         ],
         "inputs_per_day": [
@@ -153040,11 +153129,11 @@
           ],
           [
             "gewuerze",
-            0.00003
+            3e-05
           ],
           [
             "salz",
-            0.00003
+            3e-05
           ]
         ],
         "inputs_per_day": [
@@ -153092,7 +153181,7 @@
           ],
           [
             "salz",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -153132,7 +153221,7 @@
         "inputs": [
           [
             "getreide",
-            0.00006
+            6e-05
           ]
         ],
         "inputs_per_day": [
@@ -153168,7 +153257,7 @@
         "inputs": [
           [
             "glas",
-            0.00004
+            4e-05
           ],
           [
             "milch",
@@ -153252,7 +153341,7 @@
           ],
           [
             "salz",
-            0.00002
+            2e-05
           ]
         ],
         "inputs_per_day": [
@@ -153588,7 +153677,7 @@
           ],
           [
             "salz",
-            0.00001
+            1e-05
           ]
         ],
         "inputs_per_day": [
@@ -153944,7 +154033,7 @@
           ],
           [
             "salz",
-            0.00002
+            2e-05
           ],
           [
             "zucker",
@@ -154000,7 +154089,7 @@
           ],
           [
             "gewuerze",
-            0.00005
+            5e-05
           ],
           [
             "salz",
@@ -154056,7 +154145,7 @@
           ],
           [
             "weissblech",
-            0.00004
+            4e-05
           ]
         ],
         "inputs_per_day": [
@@ -154108,7 +154197,7 @@
           ],
           [
             "weissblech",
-            0.00003
+            3e-05
           ]
         ],
         "inputs_per_day": [
@@ -154192,7 +154281,7 @@
           ],
           [
             "zellstoff",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -154312,7 +154401,7 @@
           ],
           [
             "hopfen",
-            3e-6
+            3e-06
           ],
           [
             "malz",
@@ -154588,11 +154677,11 @@
         "inputs": [
           [
             "tabak",
-            0.00002
+            2e-05
           ],
           [
             "zellstoff",
-            5e-6
+            5e-06
           ]
         ],
         "inputs_per_day": [
@@ -154632,7 +154721,7 @@
         "inputs": [
           [
             "tabak",
-            0.00001
+            1e-05
           ]
         ],
         "inputs_per_day": [
@@ -154968,7 +155057,7 @@
         "inputs": [
           [
             "seidenstoff",
-            0.00004
+            4e-05
           ],
           [
             "stoff",
@@ -155096,7 +155185,7 @@
         "inputs": [
           [
             "garn",
-            0.00007
+            7e-05
           ]
         ],
         "inputs_per_day": [
@@ -155176,7 +155265,7 @@
         "inputs": [
           [
             "kupfer",
-            2e-6
+            2e-06
           ],
           [
             "stoff",
@@ -155304,7 +155393,7 @@
         "inputs": [
           [
             "seidenstoff",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -155344,7 +155433,7 @@
         "inputs": [
           [
             "stoff",
-            0.00003
+            3e-05
           ],
           [
             "wolle",
@@ -155800,7 +155889,7 @@
         "inputs": [
           [
             "kupfer",
-            3e-6
+            3e-06
           ],
           [
             "leder",
@@ -155852,7 +155941,7 @@
           ],
           [
             "stahl",
-            3e-6
+            3e-06
           ]
         ],
         "inputs_per_day": [
@@ -156287,7 +156376,7 @@
         "labor_hours": [
           [
             "akademiker.holz_bau",
-            0.00004
+            4e-05
           ],
           [
             "angelernt",
@@ -156410,7 +156499,7 @@
           ],
           [
             "schrauben",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -156462,7 +156551,7 @@
           ],
           [
             "schrauben",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -156798,7 +156887,7 @@
           ],
           [
             "schrauben",
-            0.00008
+            8e-05
           ]
         ],
         "inputs_per_day": [
@@ -157234,7 +157323,7 @@
         "inputs": [
           [
             "blech",
-            0.00007
+            7e-05
           ]
         ],
         "inputs_per_day": [
@@ -157274,11 +157363,11 @@
         "inputs": [
           [
             "blech",
-            0.00008
+            8e-05
           ],
           [
             "kupfer",
-            5e-6
+            5e-06
           ]
         ],
         "inputs_per_day": [
@@ -157462,7 +157551,7 @@
           ],
           [
             "zinn",
-            0.00001
+            1e-05
           ]
         ],
         "inputs_per_day": [
@@ -157586,11 +157675,11 @@
         "inputs": [
           [
             "holz",
-            0.00002
+            2e-05
           ],
           [
             "schwefel",
-            2e-6
+            2e-06
           ]
         ],
         "inputs_per_day": [
@@ -157607,7 +157696,7 @@
         "labor_hours": [
           [
             "akademiker.holz_bau",
-            0.0000916
+            9.16e-05
           ],
           [
             "angelernt",
@@ -157634,7 +157723,7 @@
         "inputs": [
           [
             "baumwolle",
-            0.00003
+            3e-05
           ],
           [
             "schnittholz",
@@ -158222,11 +158311,11 @@
         "inputs": [
           [
             "kalkstein",
-            0.00005
+            5e-05
           ],
           [
             "zinn",
-            5e-6
+            5e-06
           ]
         ],
         "inputs_per_day": [
@@ -158270,7 +158359,7 @@
         "inputs": [
           [
             "glas",
-            0.00008
+            8e-05
           ],
           [
             "speiseoel",
@@ -158406,7 +158495,7 @@
         "inputs": [
           [
             "farbstoffe",
-            0.00002
+            2e-05
           ],
           [
             "oelsaaten",
@@ -158454,11 +158543,11 @@
         "inputs": [
           [
             "farbstoffe",
-            2e-6
+            2e-06
           ],
           [
             "zellstoff",
-            0.00002
+            2e-05
           ]
         ],
         "inputs_per_day": [
@@ -158876,7 +158965,7 @@
         "inputs": [
           [
             "stahl",
-            3e-6
+            3e-06
           ]
         ],
         "inputs_per_day": [
@@ -159084,11 +159173,11 @@
         "inputs": [
           [
             "messing",
-            0.00005
+            5e-05
           ],
           [
             "stahl",
-            0.00002
+            2e-05
           ]
         ],
         "inputs_per_day": [
@@ -160934,11 +161023,11 @@
         "inputs": [
           [
             "kohle",
-            0.00003
+            3e-05
           ],
           [
             "zink",
-            0.00003
+            3e-05
           ]
         ],
         "inputs_per_day": [
@@ -161214,7 +161303,7 @@
         "inputs": [
           [
             "heizleiter",
-            0.00005
+            5e-05
           ],
           [
             "kupferdraht",
@@ -161334,7 +161423,7 @@
           ],
           [
             "messing",
-            0.00005
+            5e-05
           ]
         ],
         "inputs_per_day": [
@@ -162404,7 +162493,7 @@
         "inputs": [
           [
             "glas",
-            0.00002
+            2e-05
           ]
         ],
         "inputs_per_day": [
@@ -162444,11 +162533,11 @@
         "inputs": [
           [
             "glas",
-            0.00005
+            5e-05
           ],
           [
             "messing",
-            0.00003
+            3e-05
           ]
         ],
         "inputs_per_day": [
@@ -168593,8 +168682,33 @@
   },
   "ruecksprache": {
     "ceo": "Alexei Kowalski",
-    "branches": ["bergbau", "metallurgie", "chemie", "energie", "holz_papier", "textil", "lebensmittel", "bau", "maschinenbau", "fahrzeuge", "schiffbau", "luftfahrt", "raumfahrt", "elektro", "konsumgueter", "pharma", "ruestung"],
-    "continents": ["afrika", "asien", "europa", "nordamerika", "suedamerika", "ozeanien"],
+    "branches": [
+      "bergbau",
+      "metallurgie",
+      "chemie",
+      "energie",
+      "holz_papier",
+      "textil",
+      "lebensmittel",
+      "bau",
+      "maschinenbau",
+      "fahrzeuge",
+      "schiffbau",
+      "luftfahrt",
+      "raumfahrt",
+      "elektro",
+      "konsumgueter",
+      "pharma",
+      "ruestung"
+    ],
+    "continents": [
+      "afrika",
+      "asien",
+      "europa",
+      "nordamerika",
+      "suedamerika",
+      "ozeanien"
+    ],
     "countries": [
       "ARG",
       "AUS",

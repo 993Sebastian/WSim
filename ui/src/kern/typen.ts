@@ -348,6 +348,14 @@ export interface WerkZeile {
 
 /** The data of the new round report (RB1). */
 export interface BerichtDetail {
+  /** Limits from the data (visible rows, colors of the utilization). */
+  limits?: {
+    visible_products: number;
+    attention_max: number;
+    utilization_red: number;
+    utilization_green: number;
+    share_drop: number;
+  };
   /** By revenue, the largest first. */
   products: ProduktZeile[];
   result: {

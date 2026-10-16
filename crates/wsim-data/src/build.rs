@@ -37,6 +37,7 @@ mod milestones;
 mod names;
 mod plots;
 mod production;
+mod report;
 mod stock;
 mod subsidiaries;
 mod tariffs;
@@ -682,6 +683,7 @@ pub(crate) fn build(
     b.catalog.ai_model = ai_model;
     b.catalog.deal_model = deals::deal_model(b.ctx, &b.catalog, raw);
     b.catalog.plot_model = plots::plot_model(b.ctx, raw);
+    b.catalog.report_model = report::report_model(b.ctx, raw);
     b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
     b.catalog.product_naming = names::product_naming(b.ctx, &b.catalog, raw, &group_keys);
     b.catalog.management = management::management(b.ctx, &b.catalog, raw);
