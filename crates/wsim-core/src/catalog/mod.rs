@@ -2893,7 +2893,43 @@ pub struct PersonModel {
     pub private_life: PrivateLifeModel,
     /// Background, time budget and health (PV1b); `None` without the section.
     pub wellbeing: Option<WellbeingModel>,
+    /// Safe investments, gold and funds (PV2); `None` without the section.
+    pub assets: Option<AssetModel>,
     pub provenance: Provenance,
+}
+
+/// Terms of a fund (PV2).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FundTerms {
+    /// First year it can be bought.
+    pub from: i32,
+    /// Yearly running cost.
+    pub cost: f64,
+    /// Load on the money paid in.
+    pub load: f64,
+    pub fee: f64,
+}
+
+/// Safe investments, gold and funds of the person (PV2, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct AssetModel {
+    pub deposit_premium: f64,
+    pub deposit_months: [u32; 2],
+    /// Share of the interest paid so far that an early break costs.
+    pub deposit_penalty: f64,
+    pub bond_premium: f64,
+    pub bond_months: [u32; 2],
+    pub bond_duration_factor: f64,
+    pub bond_spread: f64,
+    /// Real gold price per ounce by year.
+    pub gold_price: crate::time_series::TimeSeries,
+    pub gold_crisis_beta: f64,
+    pub gold_noise: f64,
+    pub gold_reversion: f64,
+    pub gold_spread: f64,
+    pub gold_fee: f64,
+    /// Managed fund, index fund.
+    pub funds: [FundTerms; 2],
 }
 
 /// Effects of a background at the start (PV1b); proportional ones are shares.
@@ -2997,6 +3033,7 @@ impl Default for PersonModel {
             inheritance_tax: CountrySeries::default(),
             private_life: PrivateLifeModel::default(),
             wellbeing: None,
+            assets: None,
             provenance: Provenance::default(),
         }
     }

@@ -4720,6 +4720,26 @@ person:
     standard: {1900: 0, 2026: 0.25}
   sparzins:
     standard: {1900: 0.02}
+  anlagen:
+    festgeld:
+      aufschlag: 0.005
+      laufzeit_monate: {von: 3, bis: 120}
+      kuendigung_abschlag: 0.5
+    staatsanleihen:
+      aufschlag: 0.005
+      laufzeit_monate: {von: 12, bis: 360}
+      dauer_faktor: 0.8
+      spanne: 0.01
+    gold:
+      preis_usd: {1900: 800, 2026: 3000}
+      krisen_beta: 0.8
+      rauschen: 0.03
+      rueckkehr: 0.05
+      spanne: 0.01
+      gebuehr: 0.005
+    fonds:
+      gemanagt: {ab: 1900, kosten: 0.015, aufschlag: 0.05, gebuehr: 0.005}
+      index: {ab: 1990, kosten: 0.002, aufschlag: 0, gebuehr: 0.005}
   wohlbefinden:
     hintergruende:
       tueftler: {forschung: 0.05}
@@ -4947,6 +4967,24 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
             "",
             "Der Hintergrund „kaufmann“ fehlt.",
             "person.wohlbefinden.hintergruende",
+        ),
+        (
+            "laufzeit_monate: {von: 12, bis: 360}",
+            "laufzeit_monate: {von: 400, bis: 360}",
+            "Die Laufzeit braucht „von“ ≥ 1, „von“ ≤ „bis“ und höchstens 600 Monate.",
+            "person.anlagen.staatsanleihen.laufzeit_monate",
+        ),
+        (
+            "preis_usd: {1900: 800, 2026: 3000}",
+            "preis_usd: {1900: 0, 2026: 3000}",
+            "Wert 0 muss größer als 0 sein.",
+            "person.anlagen.gold.preis_usd.1900",
+        ),
+        (
+            "gemanagt: {ab: 1900, kosten: 0.015",
+            "gemanagt: {ab: 1900, kosten: 0.5",
+            "Wert 0.5 liegt außerhalb des erlaubten Bereichs 0 bis 0.1.",
+            "person.anlagen.fonds.gemanagt.kosten",
         ),
         (
             "krank_chance: 0.3",

@@ -215,6 +215,7 @@ pub(super) fn decode_v2(
         next_machine_tender: 0,
         freight_market: Default::default(),
         stock: Default::default(),
+        assets: Default::default(),
         main_company: Some(s.player),
         game_over: s.game_over,
         person: Default::default(),

@@ -41,6 +41,23 @@ enum Command {
     },
     /// Lässt eine Partie ohne Oberfläche laufen.
     Run(Box<RunArgs>),
+    /// Kalibrierlauf (PV2): lässt Welten ohne Spieler laufen und gibt die jährliche Rendite
+    /// des Börsenindex und der Fonds, die größten Einbrüche und die Streuung aus.
+    Kalibrierung {
+        /// Spieljahre je Lauf
+        #[arg(long, default_value_t = 30)]
+        jahre: u32,
+        /// Anzahl der Läufe (Zufallswerte 1 bis n)
+        #[arg(long, default_value_t = 3)]
+        laeufe: u64,
+        /// Zahl der KI-Firmen je Lauf
+        #[arg(long, default_value_t = 20)]
+        ki: u32,
+        #[arg(long, default_value_t = 1900)]
+        startjahr: i32,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
     /// Zeigt die berechneten Werte eines Landes (Ländermodell).
     Land {
         /// ISO-Code, z. B. DEU
@@ -291,6 +308,19 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        Command::Kalibrierung {
+            jahre,
+            laeufe,
+            ki,
+            startjahr,
+            daten,
+        } => match calibrate(&daten, jahre, laeufe, ki, startjahr) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(message) => {
+                eprintln!("{message}");
+                ExitCode::FAILURE
+            }
+        },
         Command::Run(args) => match run(&args) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
@@ -299,6 +329,92 @@ fn main() -> ExitCode {
             }
         },
     }
+}
+
+/// Wrapper to parse the arguments of a run from a list.
+#[derive(Parser)]
+struct RunOnly {
+    #[command(flatten)]
+    args: RunArgs,
+}
+
+/// Calibration run (PV2, docs/FORMELN.md, PV2): world-only games over some years; each
+/// January the stock index and the fund values are read. Prints the yearly returns.
+fn calibrate(data: &Path, years: u32, runs: u64, ai: u32, start: i32) -> Result<(), String> {
+    let loaded = load_data(data)?;
+    let catalog = Arc::new(loaded.catalog.clone());
+    println!("Kalibrierlauf: {runs} Läufe, {years} Jahre ab {start}, {ai} KI-Firmen");
+    let mut index_returns: Vec<f64> = Vec::new();
+    let mut fund_returns: Vec<f64> = Vec::new();
+    for seed in 1..=runs {
+        let parsed = RunOnly::parse_from([
+            "run".to_owned(),
+            "--nur-welt".to_owned(),
+            "--leise".to_owned(),
+            "--seed".to_owned(),
+            seed.to_string(),
+            "--startjahr".to_owned(),
+            start.to_string(),
+            "--ki".to_owned(),
+            ai.to_string(),
+        ]);
+        let mut game = fresh_game(&catalog, &loaded.texts, &parsed.args)?;
+        let mut yearly: Vec<(f64, f64)> = Vec::new();
+        let mut worst = 0.0_f64;
+        let mut peak = 0.0_f64;
+        let end = Date::first_of_year(start + i32::try_from(years).unwrap_or(30));
+        while game.date() < end && !game.is_over() {
+            let before = game.date();
+            game.advance(RoundLength::Month, |_| {});
+            let s = game.state();
+            let idx = s.stock.index;
+            if idx > 0.0 {
+                peak = peak.max(idx);
+                worst = worst.min(idx / peak - 1.0);
+            }
+            if game.date().year() != before.year() && idx > 0.0 {
+                yearly.push((
+                    idx,
+                    wsim_core::savings::nav(s, wsim_core::savings::FundKind::Index),
+                ));
+            }
+        }
+        let mut seed_returns: Vec<f64> = Vec::new();
+        for w in yearly.windows(2) {
+            index_returns.push(w[1].0 / w[0].0 - 1.0);
+            fund_returns.push(w[1].1 / w[0].1 - 1.0);
+            seed_returns.push(w[1].1 / w[0].1 - 1.0);
+        }
+        println!(
+            "Lauf {seed}: Fonds-Rendite je Jahr im Mittel {:.1} %, größter Einbruch des Index {:.0} %",
+            100.0 * seed_returns.iter().sum::<f64>() / seed_returns.len().max(1) as f64,
+            100.0 * worst
+        );
+    }
+    let stats = |name: &str, v: &mut Vec<f64>| {
+        if v.is_empty() {
+            println!("{name}: keine Daten");
+            return;
+        }
+        v.sort_by(f64::total_cmp);
+        let n = v.len() as f64;
+        let mean = v.iter().sum::<f64>() / n;
+        let sd = (v.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n).sqrt();
+        println!(
+            "{name}: Median {:.1} %, Mittel {:.1} %, Streuung {:.1} %, schlechtestes Jahr {:.0} %, bestes {:.0} %",
+            100.0 * v[v.len() / 2],
+            100.0 * mean,
+            100.0 * sd,
+            100.0 * v[0],
+            100.0 * v[v.len() - 1]
+        );
+    };
+    stats("Börsenindex (ohne Dividenden)", &mut index_returns);
+    stats(
+        "Index-Fonds (mit Dividenden, nach Kosten)",
+        &mut fund_returns,
+    );
+    Ok(())
 }
 
 fn validate(directory: &Path) -> ExitCode {
@@ -597,35 +713,9 @@ fn run(args: &RunArgs) -> Result<(), String> {
             loaded.game
         }
         None => {
-            let start_country = catalog
-                .countries
-                .id(&args.land)
-                .ok_or_else(|| format!("Land „{}“ gibt es in den Spieldaten nicht.", args.land))?;
-            let settings = GameSettings {
-                seed: args.seed,
-                start_year: args.startjahr,
-                start_country,
-                start_capital: Money::from_usd(if args.nur_welt {
-                    WORLD_ONLY_MONEY_USD
-                } else {
-                    args.kapital
-                })
-                .unwrap_or(Money::ZERO),
-                start_form: start_form(args.startform),
-                company_name: args.name.clone(),
-                research_ahead_factor: 1.0,
-                market_scale: 1.0,
-                ai: ai_settings(&catalog, args)?,
-                ventures: venture_factor(&catalog, args)?,
-                tariff_dynamics: tariff_factor(&catalog, args)?,
-                event_effects: !args.ohne_folgen,
-                research_mandatory: args.forschungspflicht,
-                found_at_start: !args.als_person && !args.nur_welt,
-                person: Default::default(),
-            };
-            let mut game =
-                Game::new(catalog.clone(), settings).map_err(|e| texts.render(&e.message()))?;
+            let mut game = fresh_game(&catalog, texts, args)?;
             if args.als_person {
+                let start_country = game.state().settings.start_country;
                 found_as_person(&mut game, args, start_country, texts)?;
             }
             game
@@ -707,6 +797,41 @@ fn run(args: &RunArgs) -> Result<(), String> {
         game.state_hash()
     );
     Ok(())
+}
+
+/// A new game from the arguments of a run.
+fn fresh_game(
+    catalog: &Arc<Catalog>,
+    texts: &wsim_data::Texts,
+    args: &RunArgs,
+) -> Result<Game, String> {
+    let start_country = catalog
+        .countries
+        .id(&args.land)
+        .ok_or_else(|| format!("Land „{}“ gibt es in den Spieldaten nicht.", args.land))?;
+    let settings = GameSettings {
+        seed: args.seed,
+        start_year: args.startjahr,
+        start_country,
+        start_capital: Money::from_usd(if args.nur_welt {
+            WORLD_ONLY_MONEY_USD
+        } else {
+            args.kapital
+        })
+        .unwrap_or(Money::ZERO),
+        start_form: start_form(args.startform),
+        company_name: args.name.clone(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: ai_settings(catalog, args)?,
+        ventures: venture_factor(catalog, args)?,
+        tariff_dynamics: tariff_factor(catalog, args)?,
+        event_effects: !args.ohne_folgen,
+        research_mandatory: args.forschungspflicht,
+        found_at_start: !args.als_person && !args.nur_welt,
+        person: Default::default(),
+    };
+    Game::new(catalog.clone(), settings).map_err(|e| texts.render(&e.message()))
 }
 
 fn start_form(form: Startform) -> StartForm {

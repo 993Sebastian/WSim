@@ -529,7 +529,7 @@ fn the_wealth_classes_add_up_to_the_net_worth() {
     let view = views::person(&game).money.expect("money");
     let shown: f64 = view.classes.iter().map(|(_, v)| *v).sum();
     assert!((shown - view.wealth_usd).abs() < 0.01);
-    assert_eq!(view.classes.len(), 4);
+    assert_eq!(view.classes.len(), 7);
 }
 
 fn wellbeing_model() -> crate::catalog::WellbeingModel {
@@ -704,6 +704,267 @@ fn the_wellbeing_replays_from_the_journal() {
     })
     .unwrap();
     months(&mut game, 8);
+    let settings = game.state().settings.clone();
+    let again = Game::replay(game.catalog().clone(), settings, game.journal()).unwrap();
+    assert_eq!(again.state_hash(), game.state_hash());
+}
+
+fn asset_model() -> crate::catalog::AssetModel {
+    use crate::catalog::{AssetModel, FundTerms};
+    AssetModel {
+        deposit_premium: 0.01,
+        deposit_months: [3, 120],
+        deposit_penalty: 0.5,
+        bond_premium: 0.005,
+        bond_months: [12, 360],
+        bond_duration_factor: 0.8,
+        bond_spread: 0.01,
+        gold_price: crate::time_series::TimeSeries::new(vec![(1900, 1000.0), (2100, 1000.0)])
+            .unwrap(),
+        gold_crisis_beta: 0.8,
+        gold_noise: 0.0,
+        gold_reversion: 0.1,
+        gold_spread: 0.01,
+        gold_fee: 0.005,
+        funds: [
+            FundTerms {
+                from: 1900,
+                cost: 0.015,
+                load: 0.05,
+                fee: 0.005,
+            },
+            FundTerms {
+                from: 1990,
+                cost: 0.002,
+                load: 0.0,
+                fee: 0.005,
+            },
+        ],
+    }
+}
+
+fn asset_game() -> Game {
+    let mut c = catalog();
+    c.person.assets = Some(asset_model());
+    let catalog = Arc::new(c);
+    // A person without a company holds its money on the account.
+    let s = settings(&catalog, false, 1_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    game
+}
+
+fn invest(game: &mut Game, action: crate::savings::Investment) -> Result<(), CommandError> {
+    game.apply(Command::Invest { action }).map(|_| ())
+}
+
+#[test]
+fn a_deposit_pays_interest_and_comes_back_and_a_break_costs_interest() {
+    use crate::savings::Investment;
+    let mut game = asset_game();
+    let start = balance(&game);
+    invest(
+        &mut game,
+        Investment::OpenDeposit {
+            amount: usd(100_000.0),
+            months: 3,
+        },
+    )
+    .unwrap();
+    assert_eq!(balance(&game), start - usd(100_000.0));
+    // Out of range terms are refused.
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::OpenDeposit {
+                amount: usd(1.0),
+                months: 1
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::OpenDeposit {
+                amount: usd(1e12),
+                months: 12
+            }
+        )
+        .unwrap_err()
+        .clone(),
+        CommandError::NotEnoughPrivateMoney {
+            needed: usd(1e12) - balance(&game)
+        }
+    );
+    let w = private::wealth(game.catalog(), game.state());
+    assert!(w.safe >= usd(100_000.0));
+    months(&mut game, 1);
+    let paid = game.state().person.portfolio.deposits[0].paid;
+    assert!(paid > Money::ZERO);
+    // Break after one month: the principal less half of the interest paid.
+    let before = balance(&game);
+    invest(&mut game, Investment::BreakDeposit { index: 0 }).unwrap();
+    assert_eq!(balance(&game) - before, usd(100_000.0) - paid.scale(0.5));
+    // A second deposit runs to its end.
+    invest(
+        &mut game,
+        Investment::OpenDeposit {
+            amount: usd(50_000.0),
+            months: 3,
+        },
+    )
+    .unwrap();
+    months(&mut game, 4);
+    assert!(game.state().person.portfolio.deposits.is_empty());
+}
+
+#[test]
+fn gold_costs_the_spread_and_fees_and_a_gain_is_taxed() {
+    use crate::savings::Investment;
+    let mut game = asset_game();
+    let price = game.state().assets.gold_price;
+    assert!(price > Money::ZERO);
+    let start = balance(&game);
+    invest(
+        &mut game,
+        Investment::BuyGold {
+            amount: usd(100_000.0),
+        },
+    )
+    .unwrap();
+    invest(&mut game, Investment::SellGold { share: 1.0 }).unwrap();
+    let lost = start - balance(&game);
+    // Fees both ways and the spread: about 0.5 % + 0.5 % + 1 %.
+    assert!(lost > usd(1_500.0) && lost < usd(2_600.0), "{lost:?}");
+    assert_eq!(game.state().person.portfolio.gold_ounces, 0.0);
+    // A rise of the price brings a gain that is taxed.
+    invest(
+        &mut game,
+        Investment::BuyGold {
+            amount: usd(100_000.0),
+        },
+    )
+    .unwrap();
+    game.state_mut().assets.gold_price = price.scale(1.5);
+    let before = balance(&game);
+    invest(&mut game, Investment::SellGold { share: 1.0 }).unwrap();
+    let got = balance(&game) - before;
+    // 150 000 less fees and spread, less 20 % tax on the gain.
+    assert!(got > usd(135_000.0) && got < usd(140_000.0), "{got:?}");
+    let tax = game
+        .state()
+        .person
+        .account
+        .month
+        .get(&PrivateFlow::GainTax)
+        .copied()
+        .unwrap_or(Money::ZERO);
+    assert!(tax < Money::ZERO);
+}
+
+#[test]
+fn funds_follow_the_index_less_costs_and_the_classes_add_up() {
+    use crate::savings::{FundKind, Investment};
+    let mut game = asset_game();
+    game.state_mut().stock.index = 100.0;
+    months(&mut game, 1);
+    // The index fund opens in 1990 only.
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::BuyFund {
+                fund: FundKind::Index,
+                amount: usd(1_000.0)
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    invest(
+        &mut game,
+        Investment::BuyFund {
+            fund: FundKind::Managed,
+            amount: usd(100_000.0),
+        },
+    )
+    .unwrap();
+    let pos = game.state().person.portfolio.funds[0];
+    // 5 % load and 0.5 % fee are gone from the money paid in.
+    assert!((pos.cost.to_usd() - 94_500.0).abs() < 1.0, "{pos:?}");
+    game.state_mut().stock.index *= 1.2;
+    months(&mut game, 1);
+    let value = crate::savings::funds_value(game.state());
+    assert!(
+        value > usd(94_500.0 * 1.15) && value < usd(94_500.0 * 1.21),
+        "{value:?}"
+    );
+    let w = private::wealth(game.catalog(), game.state());
+    let sum: Money = w.classes().iter().map(|(_, v)| *v).sum();
+    assert_eq!(sum, w.total());
+    assert!(w.funds > Money::ZERO);
+}
+
+#[test]
+fn a_savings_plan_buys_every_month_and_ends_when_the_account_is_short() {
+    use crate::savings::{FundKind, Investment};
+    let mut game = asset_game();
+    invest(
+        &mut game,
+        Investment::SetPlan {
+            fund: FundKind::Managed,
+            amount: usd(10_000.0),
+        },
+    )
+    .unwrap();
+    months(&mut game, 3);
+    let units = game.state().person.portfolio.funds[0].units;
+    assert!(units > 0.0);
+    assert!(game.state().person.portfolio.plan.is_some());
+    // Too big for the account: it ends with a message.
+    invest(
+        &mut game,
+        Investment::SetPlan {
+            fund: FundKind::Managed,
+            amount: usd(1e11),
+        },
+    )
+    .unwrap();
+    let keys = to_next_month(&mut game);
+    assert!(
+        keys.iter().any(|k| k == keys::SAVINGS_PLAN_ENDED),
+        "{keys:?}"
+    );
+    assert!(game.state().person.portfolio.plan.is_none());
+}
+
+#[test]
+fn the_investments_replay_from_the_journal() {
+    use crate::savings::{FundKind, Investment};
+    let mut game = asset_game();
+    invest(
+        &mut game,
+        Investment::BuyGold {
+            amount: usd(20_000.0),
+        },
+    )
+    .unwrap();
+    invest(
+        &mut game,
+        Investment::BuyBond {
+            face: usd(30_000.0),
+            months: 24,
+        },
+    )
+    .unwrap();
+    invest(
+        &mut game,
+        Investment::SetPlan {
+            fund: FundKind::Managed,
+            amount: usd(5_000.0),
+        },
+    )
+    .unwrap();
+    months(&mut game, 6);
     let settings = game.state().settings.clone();
     let again = Game::replay(game.catalog().clone(), settings, game.journal()).unwrap();
     assert_eq!(again.state_hash(), game.state_hash());

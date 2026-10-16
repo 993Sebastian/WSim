@@ -14,6 +14,7 @@ import {
 import {
   geld,
   STUFEN,
+  type Geldanlage,
   type Kern,
   type Nachfolge,
   type Person,
@@ -72,6 +73,190 @@ function Familie({ p }: { p: Person }) {
 }
 
 /** Partner search, private schools and health care: buttons, costs a month. */
+const FONDS = { gemanagt: "Managed", index: "Index" } as const;
+
+/** Safe investments, gold and funds (PV2). */
+function Anlagen({ a }: { a: NonNullable<Person["assets"]> }) {
+  const { los, antwort } = useAktion("anlagen");
+  const [betrag, setBetrag] = useState("");
+  const [monate, setMonate] = useState("12");
+  const [anteil, setAnteil] = useState("100");
+  const wert = (text: string) => {
+    const b = zahlLesen(text);
+    return b !== null && b > 0 ? geld(ausAnzeige(b)) : null;
+  };
+  const senden = (action: Geldanlage) => void los([{ Invest: { action } }]);
+  const monateZahl = Math.round(zahlLesen(monate) ?? 0);
+  const teil = Math.min(1, Math.max(0, (zahlLesen(anteil) ?? 0) / 100));
+  const mit = (f: (b: number) => Geldanlage) => {
+    const b = wert(betrag);
+    if (b !== null) senden(f(b));
+  };
+  return (
+    <section className="karte" aria-label={t("person.anlagen")}>
+      <h2>{t("person.anlagen")}</h2>
+      <p className="feld-hilfe">{t("person.anlagen_hilfe")}</p>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("person.anlage_betrag")}
+          einheit={geldEinheit()}
+          wert={betrag}
+          onWert={setBetrag}
+        />
+        <ZahlFeld name={t("person.anlage_monate")} einheit="" wert={monate} onWert={setMonate} />
+        <ZahlFeld name={t("person.anlage_anteil")} einheit="%" wert={anteil} onWert={setAnteil} />
+      </div>
+      <h3>{t("person.festgeld")}</h3>
+      <p className="feld-hilfe">
+        {t("person.festgeld_hilfe", {
+          zins: formatProzent(a.deposit_rate),
+          von: String(a.deposit_months[0]),
+          bis: String(a.deposit_months[1]),
+          abschlag: formatProzent(a.deposit_penalty),
+        })}
+      </p>
+      <button
+        type="button"
+        onClick={() => mit((b) => ({ OpenDeposit: { amount: b, months: monateZahl } }))}
+      >
+        {t("person.festgeld_anlegen")}
+      </button>
+      {a.deposits.length > 0 && (
+        <ul className="liste">
+          {a.deposits.map((d, i) => (
+            <li key={`${d.until}-${i}`}>
+              {t("person.festgeld_zeile", {
+                betrag: formatGeld(d.principal_usd),
+                zins: formatProzent(d.rate),
+                bis: formatDatum(d.until),
+              })}{" "}
+              <button type="button" onClick={() => senden({ BreakDeposit: { index: i } })}>
+                {t("person.kuendigen")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>{t("person.staatsanleihen")}</h3>
+      <p className="feld-hilfe">
+        {t("person.anleihen_hilfe", {
+          kupon: formatProzent(a.bond_coupon),
+          von: String(a.bond_months[0]),
+          bis: String(a.bond_months[1]),
+          spanne: formatProzent(a.bond_spread),
+        })}
+      </p>
+      <button
+        type="button"
+        onClick={() => mit((b) => ({ BuyBond: { face: b, months: monateZahl } }))}
+      >
+        {t("person.anleihe_kaufen")}
+      </button>
+      {a.bonds.length > 0 && (
+        <ul className="liste">
+          {a.bonds.map((b, i) => (
+            <li key={`${b.until}-${i}`}>
+              {t("person.anleihe_zeile", {
+                nennwert: formatGeld(b.face_usd),
+                kupon: formatProzent(b.coupon),
+                bis: formatDatum(b.until),
+                kurs: formatProzent(b.quote),
+                wert: formatGeld(b.value_usd),
+              })}{" "}
+              <button type="button" onClick={() => senden({ SellBond: { index: i } })}>
+                {t("person.verkaufen")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>{t("person.gold")}</h3>
+      <p className="feld-hilfe">
+        {t("person.gold_hilfe", {
+          preis: formatGeld(a.gold_price_usd),
+          gebuehr: formatProzent(a.gold_fee),
+          spanne: formatProzent(a.gold_spread),
+        })}
+      </p>
+      <p>
+        {t("person.gold_bestand", {
+          unzen: formatZahl(a.gold_ounces),
+          wert: formatGeld(a.gold_value_usd),
+        })}{" "}
+        <button type="button" onClick={() => mit((b) => ({ BuyGold: { amount: b } }))}>
+          {t("person.gold_kaufen")}
+        </button>{" "}
+        <button
+          type="button"
+          disabled={a.gold_ounces <= 0}
+          onClick={() => senden({ SellGold: { share: teil } })}
+        >
+          {t("person.gold_verkaufen")}
+        </button>
+      </p>
+      <h3>{t("person.fonds")}</h3>
+      {a.funds.map((f) => (
+        <div key={f.key}>
+          <p>
+            <strong>{t(`person.fonds_${f.key}`)}</strong>{" "}
+            {f.open
+              ? t("person.fonds_zeile", {
+                  anteile: formatZahl(f.units),
+                  wert: formatGeld(f.value_usd),
+                  kosten: formatProzent(f.running_cost),
+                  aufschlag: formatProzent(f.load + f.fee),
+                })
+              : t("person.fonds_ab", { jahr: String(f.from) })}
+          </p>
+          {f.open && (
+            <p>
+              <button
+                type="button"
+                onClick={() =>
+                  mit((b) => ({ BuyFund: { fund: FONDS[f.key as keyof typeof FONDS], amount: b } }))
+                }
+              >
+                {t("person.fonds_kaufen")}
+              </button>{" "}
+              <button
+                type="button"
+                disabled={f.units <= 0}
+                onClick={() =>
+                  senden({ SellFund: { fund: FONDS[f.key as keyof typeof FONDS], share: teil } })
+                }
+              >
+                {t("person.fonds_verkaufen")}
+              </button>{" "}
+              <button
+                type="button"
+                onClick={() =>
+                  senden({
+                    SetPlan: {
+                      fund: FONDS[f.key as keyof typeof FONDS],
+                      amount: wert(betrag) ?? 0,
+                    },
+                  })
+                }
+              >
+                {t("person.sparplan_setzen")}
+              </button>
+            </p>
+          )}
+        </div>
+      ))}
+      <p className="feld-hilfe">
+        {a.plan
+          ? t("person.sparplan_aktiv", {
+              fonds: t(`person.fonds_${a.plan[0]}`),
+              betrag: formatGeld(a.plan[1]),
+            })
+          : t("person.sparplan_keiner")}
+      </p>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Background, time budget and health (PV1b). */
 function Wohlbefinden({ w }: { w: NonNullable<Person["wellbeing"]> }) {
   const { los, antwort } = useAktion("zeit");
@@ -840,6 +1025,7 @@ export function PersonAnsicht({
       {g && <Vermoegen g={g} />}
       {g && <Lebensstil g={g} />}
       {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
+      {daten.assets && <Anlagen a={daten.assets} />}
       <Rollen p={daten} g={g} />
       {g &&
         daten.holdings

@@ -399,6 +399,10 @@ pub fn time_not_hundred() -> String {
     "Die Anteile der Zeit (firma, familie, netzwerk, erholung) müssen zusammen 100 ergeben.".into()
 }
 
+pub fn months_span_invalid() -> String {
+    "Die Laufzeit braucht „von“ ≥ 1, „von“ ≤ „bis“ und höchstens 600 Monate.".into()
+}
+
 pub fn brackets_not_ascending() -> String {
     "Die Stufen müssen nach „ab“ aufsteigend sortiert sein.".into()
 }

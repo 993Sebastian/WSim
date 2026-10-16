@@ -3041,6 +3041,37 @@ export interface Gruendung {
 }
 
 /** The player as a person (PE2). */
+/** Deposits, bonds, gold and funds of the person and the terms for more (PV2). */
+export interface PersonAnlagen {
+  deposits: { principal_usd: number; rate: number; until: string; paid_usd: number }[];
+  bonds: { face_usd: number; coupon: number; until: string; quote: number; value_usd: number }[];
+  gold_ounces: number;
+  gold_price_usd: number;
+  gold_value_usd: number;
+  gold_cost_usd: number;
+  gold_fee: number;
+  gold_spread: number;
+  funds: {
+    key: string;
+    open: boolean;
+    from: number;
+    units: number;
+    nav: number;
+    value_usd: number;
+    cost_usd: number;
+    running_cost: number;
+    load: number;
+    fee: number;
+  }[];
+  plan: [string, number] | null;
+  deposit_rate: number;
+  bond_coupon: number;
+  deposit_months: [number, number];
+  bond_months: [number, number];
+  deposit_penalty: number;
+  bond_spread: number;
+}
+
 /** Background, time and health of the person (PV1b). */
 export interface PersonWohlbefinden {
   background: string | null;
@@ -3083,6 +3114,8 @@ export interface Person {
   money?: PersonGeld | null;
   /** Background, time budget and health (PV1b). */
   wellbeing?: PersonWohlbefinden | null;
+  /** Deposits, bonds, gold and funds (PV2). */
+  assets?: PersonAnlagen | null;
   /** While the person has no company yet: the founding. */
   founding?: Gruendung | null;
   /** Heir, estate and tax (PE6). */

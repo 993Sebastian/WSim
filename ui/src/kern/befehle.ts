@@ -5,6 +5,18 @@ import type { Auftrag, Geltung, Halter, Vorgabe, Vorgabefeld } from "./typen";
 /** USD → Money units of the core. */
 export const geld = (usd: number): number => Math.round(usd * 10_000);
 
+/** An investment of the person (PV2); money in core units. */
+export type Geldanlage =
+  | { OpenDeposit: { amount: number; months: number } }
+  | { BreakDeposit: { index: number } }
+  | { BuyBond: { face: number; months: number } }
+  | { SellBond: { index: number } }
+  | { BuyGold: { amount: number } }
+  | { SellGold: { share: number } }
+  | { BuyFund: { fund: "Managed" | "Index"; amount: number } }
+  | { SellFund: { fund: "Managed" | "Index"; share: number } }
+  | { SetPlan: { fund: "Managed" | "Index"; amount: number } };
+
 export type Preisart =
   | { Market: { markup: number; floor: number } }
   | { Relative: { deviation: number; floor: number } }
@@ -115,6 +127,7 @@ export type Befehl =
   | { SeekPartner: { active: boolean } }
   | { SetPrivateSchool: { child: number; active: boolean } }
   | { SetHealthCare: { active: boolean } }
+  | { Invest: { action: Geldanlage } }
   | { SetTimeBudget: { firm: number; family: number; network: number; rest: number } }
   | { SetLifestyle: { level: Stufe } }
   | { ContributeCapital: { company: number; amount: number } }

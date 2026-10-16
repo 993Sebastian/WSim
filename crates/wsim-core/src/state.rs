@@ -2316,6 +2316,9 @@ pub struct GameState {
     /// The stock market as a whole (K1).
     #[serde(default, skip_serializing_if = "crate::stock::StockMarket::is_empty")]
     pub stock: crate::stock::StockMarket,
+    /// Prices of gold and funds (PV2).
+    #[serde(default, skip_serializing_if = "crate::savings::AssetMarket::is_empty")]
+    pub assets: crate::savings::AssetMarket,
     /// The person's main company (PE3): the first it founded; `None` before. Views,
     /// milestones, the ranking and the round report refer to it.
     #[serde(alias = "player")]
@@ -2395,6 +2398,9 @@ pub struct Person {
     /// Absent through illness until this day (PV1b).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ill_until: Option<Date>,
+    /// Deposits, bonds, gold and funds (PV2).
+    #[serde(default, skip_serializing_if = "crate::savings::Portfolio::is_empty")]
+    pub portfolio: crate::savings::Portfolio,
 }
 
 fn is_zero_f64(x: &f64) -> bool {
@@ -2495,6 +2501,7 @@ impl Default for Person {
             health: None,
             experience: 0.0,
             ill_until: None,
+            portfolio: Default::default(),
         }
     }
 }
@@ -2544,6 +2551,12 @@ pub enum PrivateFlow {
     Family,
     /// A one-off payment of a company to the person, taxed as income.
     Bonus,
+    /// Deposits, bonds, gold and funds bought (PV2).
+    AssetBought,
+    /// Those sold, matured or broken.
+    AssetSold,
+    /// Fees and loads on them.
+    InvestFee,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by
@@ -2580,6 +2593,13 @@ pub struct WealthPoint {
     /// Shares of start-ups at their value (PV1).
     #[serde(default, skip_serializing_if = "Money::is_zero")]
     pub ventures: Money,
+    /// Deposits and government bonds (PV2).
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub safe: Money,
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub gold: Money,
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub funds: Money,
 }
 
 /// The classes of the net worth (PV1); the parts add up to the total.
@@ -2593,14 +2613,21 @@ pub enum WealthClass {
     Ventures,
     /// Loans of the person to its companies.
     Loans,
+    /// Deposits and government bonds (PV2).
+    Safe,
+    Gold,
+    Funds,
 }
 
 impl WealthClass {
-    pub const ALL: [WealthClass; 4] = [
+    pub const ALL: [WealthClass; 7] = [
         WealthClass::Cash,
         WealthClass::Companies,
         WealthClass::Ventures,
         WealthClass::Loans,
+        WealthClass::Safe,
+        WealthClass::Gold,
+        WealthClass::Funds,
     ];
 
     pub fn key(self) -> &'static str {
@@ -2609,22 +2636,28 @@ impl WealthClass {
             WealthClass::Companies => "firmen",
             WealthClass::Ventures => "startups",
             WealthClass::Loans => "darlehen",
+            WealthClass::Safe => "sicher",
+            WealthClass::Gold => "gold",
+            WealthClass::Funds => "fonds",
         }
     }
 }
 
 impl WealthPoint {
     pub fn total(&self) -> Money {
-        self.cash + self.shares + self.loans + self.ventures
+        self.cash + self.shares + self.loans + self.ventures + self.safe + self.gold + self.funds
     }
 
     /// The net worth by class; the sum is `total`.
-    pub fn classes(&self) -> [(WealthClass, Money); 4] {
+    pub fn classes(&self) -> [(WealthClass, Money); 7] {
         [
             (WealthClass::Cash, self.cash),
             (WealthClass::Companies, self.shares),
             (WealthClass::Ventures, self.ventures),
             (WealthClass::Loans, self.loans),
+            (WealthClass::Safe, self.safe),
+            (WealthClass::Gold, self.gold),
+            (WealthClass::Funds, self.funds),
         ]
     }
 }

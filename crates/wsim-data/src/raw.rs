@@ -3202,10 +3202,98 @@ pub struct RawPerson {
     pub private_life: Option<RawPrivateLife>,
     #[serde(default, rename = "wohlbefinden")]
     pub wellbeing: Option<RawWellbeing>,
+    #[serde(default, rename = "anlagen")]
+    pub assets: Option<RawAssets>,
     #[serde(default, rename = "annaeherung")]
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// Safe investments, gold and funds of the person (PV2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAssets {
+    #[serde(rename = "festgeld")]
+    pub deposit: RawDepositTerms,
+    #[serde(rename = "staatsanleihen")]
+    pub bonds: RawGovBonds,
+    #[serde(rename = "gold")]
+    pub gold: RawGold,
+    #[serde(rename = "fonds")]
+    pub funds: RawFunds,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMonthsSpan {
+    #[serde(rename = "von")]
+    pub min: u32,
+    #[serde(rename = "bis")]
+    pub max: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDepositTerms {
+    #[serde(rename = "aufschlag")]
+    pub premium: f64,
+    #[serde(rename = "laufzeit_monate")]
+    pub months: RawMonthsSpan,
+    #[serde(rename = "kuendigung_abschlag")]
+    pub penalty: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawGovBonds {
+    #[serde(rename = "aufschlag")]
+    pub premium: f64,
+    #[serde(rename = "laufzeit_monate")]
+    pub months: RawMonthsSpan,
+    #[serde(rename = "dauer_faktor")]
+    pub duration_factor: f64,
+    #[serde(rename = "spanne")]
+    pub spread: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawGold {
+    #[serde(rename = "preis_usd")]
+    pub price: RawSeries,
+    #[serde(rename = "krisen_beta")]
+    pub crisis_beta: f64,
+    #[serde(rename = "rauschen")]
+    pub noise: f64,
+    #[serde(rename = "rueckkehr")]
+    pub reversion: f64,
+    #[serde(rename = "spanne")]
+    pub spread: f64,
+    #[serde(rename = "gebuehr")]
+    pub fee: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFunds {
+    #[serde(rename = "gemanagt")]
+    pub managed: RawFundTerms,
+    #[serde(rename = "index")]
+    pub index: RawFundTerms,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFundTerms {
+    #[serde(rename = "ab")]
+    pub from: i32,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "aufschlag")]
+    pub load: f64,
+    #[serde(rename = "gebuehr")]
+    pub fee: f64,
 }
 
 /// Background, time budget and health of the person (PV1b).

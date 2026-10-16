@@ -79,6 +79,7 @@ pub mod research;
 pub mod review;
 pub mod rng;
 pub mod save;
+pub mod savings;
 pub mod staffing;
 pub mod state;
 pub mod stock;

@@ -214,6 +214,7 @@ pub mod keys {
     pub const PERSON_MARRIED: &str = "meldung.person.heirat";
     pub const PERSON_FAMILY_SHORT: &str = "meldung.person.familie_unbezahlt";
     pub const PERSON_ILL: &str = "meldung.person.krank";
+    pub const SAVINGS_PLAN_ENDED: &str = "meldung.person.sparplan_beendet";
     pub const PERSON_WELL_AGAIN: &str = "meldung.person.gesund";
     pub const COMMAND_ILL: &str = "fehler.befehl.krank";
     pub const COMMAND_TIME_BUDGET: &str = "fehler.befehl.zeit_summe";
@@ -691,6 +692,7 @@ pub mod keys {
         PERSON_MARRIED,
         PERSON_FAMILY_SHORT,
         PERSON_ILL,
+        SAVINGS_PLAN_ENDED,
         PERSON_WELL_AGAIN,
         COMMAND_ILL,
         COMMAND_TIME_BUDGET,

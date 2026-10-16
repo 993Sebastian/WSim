@@ -625,6 +625,8 @@ pub enum Command {
     SetPrivateSchool { child: u32, active: bool },
     /// The person pays for health care: a lower chance to die.
     SetHealthCare { active: bool },
+    /// An investment of the person: deposits, bonds, gold, funds, savings plan (PV2).
+    Invest { action: crate::savings::Investment },
     /// The shares of the person's time in percent, adding up to 100 (PV1b).
     SetTimeBudget {
         firm: u32,
@@ -684,6 +686,7 @@ impl Command {
                 | Command::SetPrivateSchool { .. }
                 | Command::SetHealthCare { .. }
                 | Command::SetTimeBudget { .. }
+                | Command::Invest { .. }
                 | Command::ContributeCapital { .. }
                 | Command::LendToCompany { .. }
                 | Command::WithdrawCapital { .. }
@@ -2019,6 +2022,7 @@ fn run(
         | Command::SetPrivateSchool { .. }
         | Command::SetHealthCare { .. }
         | Command::SetTimeBudget { .. }
+        | Command::Invest { .. }
         | Command::ContributeCapital { .. }
         | Command::LendToCompany { .. }
         | Command::WithdrawCapital { .. }

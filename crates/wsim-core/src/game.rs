@@ -252,6 +252,7 @@ impl Game {
             next_contract: 0,
             freight_market: Default::default(),
             stock: Default::default(),
+            assets: Default::default(),
             main_company: None,
             game_over: false,
             person: Default::default(),
@@ -671,6 +672,11 @@ impl Game {
                 next,
             ));
             report.messages.extend(crate::wellbeing::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
+            report.messages.extend(crate::savings::month_start(
                 &mut self.state,
                 &self.catalog,
                 next,

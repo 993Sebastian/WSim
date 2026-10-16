@@ -1,8 +1,8 @@
 //! Age, retirement and death of the managers of `lebenslauf` (docs/FORMELN.md, PE1).
 
 use wsim_core::catalog::{
-    AgeSpan, BackgroundEffect, Catalog, CountrySeries, FoundingModel, LifeModel, LifestyleLevel,
-    PersonModel, PrivateLifeModel, WellbeingModel,
+    AgeSpan, AssetModel, BackgroundEffect, Catalog, CountrySeries, FoundingModel, FundTerms,
+    LifeModel, LifestyleLevel, PersonModel, PrivateLifeModel, WellbeingModel,
 };
 use wsim_core::ids::Id;
 use wsim_core::state::{Background, Lifestyle};
@@ -396,6 +396,10 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .map_or_else(PrivateLifeModel::default, |p| {
                 private_life(ctx, p, &l.field("privatleben"))
             }),
+        assets: v
+            .assets
+            .as_ref()
+            .map(|a| assets(ctx, a, &l.field("anlagen"))),
         wellbeing: v
             .wellbeing
             .as_ref()
@@ -582,5 +586,78 @@ fn wellbeing(ctx: &mut Ctx, w: &crate::raw::RawWellbeing, l: &Loc) -> WellbeingM
         ill_below: in_range(ctx, h.ill_below, 0.0, 100.0, &hl.field("krank_unter")),
         ill_chance: in_range(ctx, h.ill_chance, 0.0, 1.0, &hl.field("krank_chance")),
         ill_months: h.ill_months,
+    }
+}
+
+/// Safe investments, gold and funds (PV2): spans ascending, rates and fees within bounds.
+fn assets(ctx: &mut Ctx, a: &crate::raw::RawAssets, l: &Loc) -> AssetModel {
+    let fl = l.field("festgeld");
+    let bl = l.field("staatsanleihen");
+    let gl = l.field("gold");
+    let span = |ctx: &mut Ctx, s: &crate::raw::RawMonthsSpan, at: &Loc| -> [u32; 2] {
+        let lm = at.field("laufzeit_monate");
+        if s.min == 0 || s.min > s.max || s.max > 600 {
+            ctx.error(&lm, messages::months_span_invalid());
+        }
+        [s.min, s.max]
+    };
+    let fund = |ctx: &mut Ctx, f: &crate::raw::RawFundTerms, at: Loc| FundTerms {
+        from: i32::try_from(
+            in_range(ctx, f64::from(f.from), 1800.0, 2200.0, &at.field("ab")) as i64,
+        )
+        .unwrap_or(1900),
+        cost: in_range(ctx, f.cost, 0.0, 0.1, &at.field("kosten")),
+        load: in_range(ctx, f.load, 0.0, 0.2, &at.field("aufschlag")),
+        fee: in_range(ctx, f.fee, 0.0, 0.2, &at.field("gebuehr")),
+    };
+    let fnl = l.field("fonds");
+    AssetModel {
+        deposit_premium: in_range(ctx, a.deposit.premium, -0.05, 0.05, &fl.field("aufschlag")),
+        deposit_months: span(ctx, &a.deposit.months, &fl),
+        deposit_penalty: in_range(
+            ctx,
+            a.deposit.penalty,
+            0.0,
+            1.0,
+            &fl.field("kuendigung_abschlag"),
+        ),
+        bond_premium: in_range(ctx, a.bonds.premium, -0.05, 0.05, &bl.field("aufschlag")),
+        bond_months: span(ctx, &a.bonds.months, &bl),
+        bond_duration_factor: in_range(
+            ctx,
+            a.bonds.duration_factor,
+            0.0,
+            5.0,
+            &bl.field("dauer_faktor"),
+        ),
+        bond_spread: in_range(ctx, a.bonds.spread, 0.0, 0.2, &bl.field("spanne")),
+        gold_price: {
+            let points: Vec<(i32, f64)> = a
+                .gold
+                .price
+                .iter()
+                .map(|(&y, &v)| {
+                    (
+                        y,
+                        positive(ctx, v, &gl.field("preis_usd").field(&y.to_string())),
+                    )
+                })
+                .collect();
+            if points.is_empty() {
+                ctx.error(&gl.field("preis_usd"), messages::time_series_empty());
+            }
+            wsim_core::time_series::TimeSeries::new(points).unwrap_or_else(|_| {
+                wsim_core::time_series::TimeSeries::new(vec![(1900, 1.0)]).expect("valid")
+            })
+        },
+        gold_crisis_beta: in_range(ctx, a.gold.crisis_beta, 0.0, 5.0, &gl.field("krisen_beta")),
+        gold_noise: in_range(ctx, a.gold.noise, 0.0, 0.5, &gl.field("rauschen")),
+        gold_reversion: in_range(ctx, a.gold.reversion, 0.0, 1.0, &gl.field("rueckkehr")),
+        gold_spread: in_range(ctx, a.gold.spread, 0.0, 0.2, &gl.field("spanne")),
+        gold_fee: in_range(ctx, a.gold.fee, 0.0, 0.2, &gl.field("gebuehr")),
+        funds: [
+            fund(ctx, &a.funds.managed, fnl.field("gemanagt")),
+            fund(ctx, &a.funds.index, fnl.field("index")),
+        ],
     }
 }

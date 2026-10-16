@@ -242,4 +242,91 @@ describe("Person (PE2)", () => {
     await within(zeit).findByRole("status");
     expect(gesendet).toEqual([{ SetTimeBudget: { firm: 55, family: 15, network: 10, rest: 20 } }]);
   });
+
+  it("zeigt die Anlagen und sendet Käufe, Verkäufe und den Sparplan (PV2)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.assets = {
+          deposits: [{ principal_usd: 5000, rate: 0.02, until: "1916-01-01", paid_usd: 10 }],
+          bonds: [],
+          gold_ounces: 2,
+          gold_price_usd: 1000,
+          gold_value_usd: 2000,
+          gold_cost_usd: 1900,
+          gold_fee: 0.005,
+          gold_spread: 0.01,
+          funds: [
+            {
+              key: "gemanagt",
+              open: true,
+              from: 1900,
+              units: 3,
+              nav: 100,
+              value_usd: 300,
+              cost_usd: 290,
+              running_cost: 0.015,
+              load: 0.05,
+              fee: 0.005,
+            },
+            {
+              key: "index",
+              open: false,
+              from: 1990,
+              units: 0,
+              nav: 100,
+              value_usd: 0,
+              cost_usd: 0,
+              running_cost: 0.002,
+              load: 0,
+              fee: 0.005,
+            },
+          ],
+          plan: null,
+          deposit_rate: 0.02,
+          bond_coupon: 0.025,
+          deposit_months: [3, 120],
+          bond_months: [12, 360],
+          deposit_penalty: 0.5,
+          bond_spread: 0.01,
+        };
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const anlagen = await screen.findByRole("region", { name: "Anlagen" });
+    expect(within(anlagen).getByText(/ab 1990 erhältlich/)).toBeTruthy();
+    fireEvent.change(within(anlagen).getByLabelText(/^Betrag/), { target: { value: "1000" } });
+    fireEvent.click(within(anlagen).getByRole("button", { name: "Gold kaufen" }));
+    await within(anlagen).findByRole("status");
+    expect(gesendet[0]).toMatchObject({
+      Invest: { action: { BuyGold: { amount: expect.any(Number) } } },
+    });
+    fireEvent.click(within(anlagen).getByRole("button", { name: "Kündigen" }));
+    fireEvent.click(within(anlagen).getByRole("button", { name: /^Sparplan/ }));
+    await within(anlagen).findByRole("status");
+    expect(gesendet).toContainEqual({ Invest: { action: { BreakDeposit: { index: 0 } } } });
+    expect(gesendet[2]).toMatchObject({
+      Invest: { action: { SetPlan: { fund: "Managed", amount: expect.any(Number) } } },
+    });
+  });
 });

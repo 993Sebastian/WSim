@@ -197,6 +197,9 @@ pub fn wealth(catalog: &Catalog, state: &GameState) -> WealthPoint {
         shares,
         loans,
         ventures,
+        safe: crate::savings::safe_value(catalog, state),
+        gold: crate::savings::gold_value(state),
+        funds: crate::savings::funds_value(state),
     }
 }
 
@@ -327,6 +330,19 @@ pub fn education(catalog: &Catalog, person: &Person, born: Date, card: Date) -> 
 }
 
 /// Books a movement on the private account; the balance never goes below zero.
+/// A booking of the savings module (PV2).
+pub(crate) fn book_flow(state: &mut GameState, flow: PrivateFlow, amount: Money) {
+    book(&mut state.person, flow, amount);
+}
+
+/// Shows part of a purchase as a fee: the cash stays as it is, the flows tell the cost.
+pub(crate) fn note_fee(state: &mut GameState, fee: Money) {
+    if fee > Money::ZERO {
+        book(&mut state.person, PrivateFlow::AssetBought, fee);
+        book(&mut state.person, PrivateFlow::InvestFee, -fee);
+    }
+}
+
 fn book(person: &mut Person, flow: PrivateFlow, amount: Money) {
     let a = &mut person.account;
     a.balance += amount;
@@ -434,6 +450,7 @@ pub(crate) fn execute(
             c.private_school = *active;
             Ok(())
         }
+        Command::Invest { action } => crate::savings::apply(state, catalog, *action),
         Command::SetTimeBudget {
             firm,
             family,

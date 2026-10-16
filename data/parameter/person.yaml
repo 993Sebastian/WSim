@@ -103,6 +103,28 @@ person:
       krank_unter: 35
       krank_chance: 0.3
       krank_monate: 3
+  # Anlagen der Person (PV2): Festgeld, Staatsanleihen, Gold, Fonds. Alle Werte real.
+  anlagen:
+    festgeld:
+      aufschlag: 0.005
+      laufzeit_monate: {von: 3, bis: 120}
+      kuendigung_abschlag: 0.5
+    staatsanleihen:
+      aufschlag: 0.005
+      laufzeit_monate: {von: 12, bis: 360}
+      dauer_faktor: 0.8
+      spanne: 0.01
+    gold:
+      # Realer Preis je Unze (Kaufkraft 2026), grob.
+      preis_usd: {1900: 800, 1934: 1000, 1971: 1100, 1980: 2300, 2000: 700, 2011: 2200, 2026: 3000}
+      krisen_beta: 0.8
+      rauschen: 0.03
+      rueckkehr: 0.05
+      spanne: 0.01
+      gebuehr: 0.005
+    fonds:
+      gemanagt: {ab: 1900, kosten: 0.015, aufschlag: 0.05, gebuehr: 0.005}
+      index: {ab: 1990, kosten: 0.002, aufschlag: 0, gebuehr: 0.005}
   # Erbe (PE6): Ohne Kind erbt ein Neffe oder eine Nichte im Alter von–bis Jahren; ab
   # hinweis_ab Jahren jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe
   # bestimmt ist.

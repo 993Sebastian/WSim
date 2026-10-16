@@ -798,7 +798,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
 }
 
 /// A standard normal draw (Box–Muller).
-fn normal(rng: &mut SimRng) -> f64 {
+pub(crate) fn normal(rng: &mut SimRng) -> f64 {
     let u1 = rng.next_f64().max(1e-12);
     let u2 = rng.next_f64();
     libm::sqrt(-2.0 * libm::log(u1)) * libm::cos(2.0 * std::f64::consts::PI * u2)

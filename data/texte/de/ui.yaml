@@ -3093,3 +3093,40 @@ person.zeit_erholung: Erholung
 person.zeit_knapp: Zu wenig Zeit für die Firma – Anliegen verfallen {tage} Tage früher.
 person.zeit_speichern: Zeit verteilen
 person.zeit_summe: "Summe {summe} % – es müssen 100 sein."
+
+# Anlagen der Person (PV2)
+privat.anlagekauf: Anlagen gekauft
+privat.anlageverkauf: Anlagen verkauft
+privat.anlagegebuehr: Gebühren auf Anlagen
+privat.vermoegen_sicher: Festgeld und Staatsanleihen
+privat.vermoegen_gold: Gold
+privat.vermoegen_fonds: Fonds
+person.anlagen: Anlagen
+person.anlagen_hilfe: "Festgeld, Staatsanleihen, Gold und Fonds außerhalb deiner Firmen. Erst den Betrag und die Laufzeit (Monate) eintragen, dann kaufen; „Anteil“ gilt für Verkäufe. Gewinne beim Verkauf werden wie Kapitalerträge besteuert."
+person.anlage_betrag: Betrag
+person.anlage_monate: Laufzeit (Monate)
+person.anlage_anteil: Anteil beim Verkauf
+person.festgeld: Festgeld
+person.festgeld_hilfe: "Fester Zins heute {zins} im Jahr, Laufzeit {von} bis {bis} Monate. Bei vorzeitiger Kündigung verlierst du {abschlag} der bisher gezahlten Zinsen."
+person.festgeld_anlegen: Festgeld anlegen
+person.festgeld_zeile: "{betrag} zu {zins} bis {bis}"
+person.kuendigen: Kündigen
+person.staatsanleihen: Staatsanleihen
+person.anleihen_hilfe: "Fester Kupon heute {kupon}, Laufzeit {von} bis {bis} Monate. Der Kurs schwankt mit dem Zinsniveau; zwischen Kauf und Verkauf liegt eine Spanne von {spanne}."
+person.anleihe_kaufen: Anleihe kaufen
+person.anleihe_zeile: "{nennwert} zu {kupon} bis {bis}, Kurs {kurs}, Wert {wert}"
+person.gold: Gold
+person.gold_hilfe: "Preis je Unze {preis}. Gebühr {gebuehr}, Spanne {spanne}. Gold bringt keinen Ertrag, steigt aber tendenziell in Börsenkrisen."
+person.gold_bestand: "Bestand {unzen} Unzen, Wert {wert}."
+person.gold_kaufen: Gold kaufen
+person.gold_verkaufen: Gold verkaufen
+person.fonds: Fonds
+person.fonds_gemanagt: Gemanagter Fonds
+person.fonds_index: Index-Fonds (Welt-ETF)
+person.fonds_zeile: "– {anteile} Anteile, Wert {wert}; laufende Kosten {kosten} im Jahr, Kauf mit {aufschlag} Aufschlag und Gebühr."
+person.fonds_ab: "– ab {jahr} erhältlich."
+person.fonds_kaufen: Fonds kaufen
+person.fonds_verkaufen: Fonds verkaufen
+person.sparplan_setzen: Sparplan mit diesem Betrag (0 beendet)
+person.sparplan_aktiv: "Sparplan: jeden Monat {betrag} in {fonds}."
+person.sparplan_keiner: Kein Sparplan eingerichtet.

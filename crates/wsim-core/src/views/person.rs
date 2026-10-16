@@ -187,12 +187,72 @@ pub struct PersonView {
     /// Background, time budget and health (PV1b).
     #[serde(default)]
     pub wellbeing: Option<WellbeingView>,
+    /// Deposits, bonds, gold and funds (PV2).
+    #[serde(default)]
+    pub assets: Option<AssetsView>,
     /// While the person has no company yet: the founding.
     #[serde(default)]
     pub founding: Option<FoundingView>,
     /// Heir, estate and tax (PE6).
     #[serde(default)]
     pub succession: Option<SuccessionView>,
+}
+
+/// What the person holds besides companies and the terms for more (PV2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AssetsView {
+    pub deposits: Vec<DepositView>,
+    pub bonds: Vec<GovBondView>,
+    pub gold_ounces: f64,
+    pub gold_price_usd: f64,
+    pub gold_value_usd: f64,
+    pub gold_cost_usd: f64,
+    /// Fee and half spread of gold, as shares.
+    pub gold_fee: f64,
+    pub gold_spread: f64,
+    pub funds: Vec<FundView>,
+    /// The plan: fund key and monthly amount.
+    pub plan: Option<(String, f64)>,
+    /// Rates of new deposits and coupons of new bonds now.
+    pub deposit_rate: f64,
+    pub bond_coupon: f64,
+    pub deposit_months: [u32; 2],
+    pub bond_months: [u32; 2],
+    pub deposit_penalty: f64,
+    pub bond_spread: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DepositView {
+    pub principal_usd: f64,
+    pub rate: f64,
+    pub until: String,
+    pub paid_usd: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GovBondView {
+    pub face_usd: f64,
+    pub coupon: f64,
+    pub until: String,
+    pub quote: f64,
+    pub value_usd: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FundView {
+    /// `gemanagt` or `index` (text `person.fonds_<key>`).
+    pub key: String,
+    pub open: bool,
+    pub from: i32,
+    pub units: f64,
+    pub nav: f64,
+    pub value_usd: f64,
+    pub cost_usd: f64,
+    /// Yearly running cost, load on money paid in, order fee.
+    pub running_cost: f64,
+    pub load: f64,
+    pub fee: f64,
 }
 
 /// Background, time and health of the person (PV1b).
@@ -446,7 +506,69 @@ pub fn person(game: &Game) -> PersonView {
                 .flatten(),
         }
     });
+    let assets = catalog.person.assets.as_ref().map(|m| {
+        let pf = &state.person.portfolio;
+        AssetsView {
+            deposits: pf
+                .deposits
+                .iter()
+                .map(|d| DepositView {
+                    principal_usd: usd(d.principal),
+                    rate: d.rate,
+                    until: iso(d.until),
+                    paid_usd: usd(d.paid),
+                })
+                .collect(),
+            bonds: pf
+                .bonds
+                .iter()
+                .map(|b| {
+                    let quote = crate::savings::bond_quote(catalog, state, m, b);
+                    GovBondView {
+                        face_usd: usd(b.face),
+                        coupon: b.coupon,
+                        until: iso(b.until),
+                        quote,
+                        value_usd: usd(b.face.scale(quote)),
+                    }
+                })
+                .collect(),
+            gold_ounces: pf.gold_ounces,
+            gold_price_usd: usd(state.assets.gold_price),
+            gold_value_usd: usd(crate::savings::gold_value(state)),
+            gold_cost_usd: usd(pf.gold_cost),
+            gold_fee: crate::savings::order_fee(catalog, state, m.gold_fee),
+            gold_spread: m.gold_spread,
+            funds: crate::savings::FundKind::ALL
+                .iter()
+                .map(|&k| {
+                    let t = m.funds[k as usize];
+                    let pos = pf.funds[k as usize];
+                    FundView {
+                        key: k.key().to_owned(),
+                        open: crate::savings::fund_open(catalog, state, k),
+                        from: t.from,
+                        units: pos.units,
+                        nav: crate::savings::nav(state, k),
+                        value_usd: pos.units * crate::savings::nav(state, k),
+                        cost_usd: usd(pos.cost),
+                        running_cost: t.cost,
+                        load: t.load,
+                        fee: crate::savings::order_fee(catalog, state, t.fee),
+                    }
+                })
+                .collect(),
+            plan: pf.plan.map(|p| (p.fund.key().to_owned(), usd(p.amount))),
+            deposit_rate: crate::savings::deposit_rate(catalog, state, m),
+            bond_coupon: crate::savings::bond_coupon(catalog, state, m),
+            deposit_months: m.deposit_months,
+            bond_months: m.bond_months,
+            deposit_penalty: m.deposit_penalty,
+            bond_spread: m.bond_spread,
+        }
+    });
     PersonView {
+        assets,
         wellbeing,
         money: Some(money),
         founding,
@@ -542,6 +664,9 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::StakeSold => "privat.anteilsverkauf",
         PrivateFlow::GainTax => "privat.veraeusserungsteuer",
         PrivateFlow::Bonus => "privat.sonderzahlung",
+        PrivateFlow::AssetBought => "privat.anlagekauf",
+        PrivateFlow::AssetSold => "privat.anlageverkauf",
+        PrivateFlow::InvestFee => "privat.anlagegebuehr",
     }
 }
 

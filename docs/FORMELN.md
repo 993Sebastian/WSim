@@ -4874,6 +4874,42 @@ Fällt `G` unter die Schwelle `krank_unter`, tritt je Monat mit Chance
 Zufallsstrom `Person`). Während des Ausfalls zählt der Firmenanteil als 0, `AnswerConcern` wird abgelehnt, und offene
 Anliegen verfallen (die Manager entscheiden nach ihren Standardregeln).
 
+## PV2 – Sichere Anlagen, Fonds, Gold, Sparplan
+
+Daten: `person.anlagen`. Kern: Modul `savings`. Die Kurs- und Handelsregeln der Aktien (fairer Wert,
+Trägheit, Stimmung, Rauschen, Aufschlag/Abschlag, Preiswirkung) bestehen seit K1/PE5 und werden
+nicht doppelt gebaut. Neu sind die Anlagen der Person außerhalb einzelner Firmen. Alle Beträge sind
+real (Kaufkraft 2026); die Spieleinstellung „Inflation an/aus“ der Vorgabe ist **nicht** umgesetzt
+(OFFENE_PUNKTE PV2).
+
+**Gebühr.** Ordergebühr `g = gebuehr · (1 + ordergebuehr_hintergrund)` (Kaufmann −20 %).
+
+**Festgeld.** Betrag P, Laufzeit n Monate (`laufzeit_monate`), fester Zins `r = sparzins(Land, Jahr) + festgeld.aufschlag`
+am Kauftag. Monatlich P·r/12 aufs Privatkonto (Zins, mit Kapitalertragsteuer). Am Ende kommt P
+zurück. Vorzeitig: P − `kuendigung_abschlag` · (bisher gezahlte Zinsen).
+
+**Staatsanleihe.** Nennwert N, Laufzeit n, Kupon `c = sparzins + festgeld.aufschlag + aufschlag`, fest. Kurs
+`k = clamp(1 − D · (r_jetzt − c), 0,5; 1,5)` mit `r_jetzt = sparzins + festgeld.aufschlag + aufschlag` heute mit `D = dauer_faktor · Restjahre`. Kauf
+zu N·k·(1 + spanne/2), Verkauf zu N·k·(1 − spanne/2). Kupon N·c/12 monatlich, am Ende N.
+
+**Gold.** Preis `G = G_Reihe(Jahr) · exp(x − krisen_beta · ln S)` mit der Marktstimmung `ln S` (K1) und
+einem Rauschen `x' = (1 − rueckkehr) · x + rauschen · ε` (Zufallsstrom der Person). Kauf zu
+G·(1 + spanne/2) + Gebühr, Verkauf zu G·(1 − spanne/2) − Gebühr. Kein laufender Ertrag.
+
+**Fonds.** Zwei Arten (`gemanagt` ab 1900, `index` ab dem Jahr `ab`), beide folgen dem Börsenindex I
+(K1). Anteilswert `A' = A · (I'/I + d) · (1 − kosten/12)` monatlich; `d` = Dividendenrendite des Monats
+= Σ letzte Dividenden / Σ Börsenwert / 12 der notierten Firmen. Der Fonds thesauriert (die
+ausschüttende Wahl der Vorgabe entfällt). Kauf: Einsatz E, Gebühr E·(g + aufschlag), angelegt
+E·(1 − g − aufschlag)/A Anteile. Verkauf: Erlös Anteile·A·(1 − g). Fonds zählen nicht zu Meldeschwellen
+oder Kontrolle.
+
+**Sparplan.** Zum Monatsbeginn kauft die Person für den festen Betrag Anteile des gewählten Fonds,
+solange das Konto reicht.
+
+**Steuer.** Verkauf mit Gewinn (Erlös − Einstand der verkauften Teile): Kapitalertragsteuer auf den
+Gewinn (`GainTax`); Verlust bleibt ohne Folgen. Nettovermögen: Festgeld zum Nennbetrag, Anleihen zum
+Kurs, Gold und Fonds zum Wert (Klassen „Sicher“, „Gold“, „Fonds“).
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;
