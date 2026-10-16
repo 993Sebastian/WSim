@@ -2,8 +2,8 @@
 
 use wsim_core::catalog::{
     AgeSpan, AssetModel, BackgroundEffect, Catalog, CountrySeries, FoundingModel, FundTerms,
-    LifeModel, LifestyleLevel, PersonModel, PrivateLifeModel, PropertyModel, PropertyTerms,
-    WellbeingModel,
+    LegacyModel, LifeModel, LifestyleLevel, PersonModel, PrivateLifeModel, PropertyModel,
+    PropertyTerms, WellbeingModel,
 };
 use wsim_core::ids::Id;
 use wsim_core::state::{Background, Lifestyle};
@@ -397,6 +397,10 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .map_or_else(PrivateLifeModel::default, |p| {
                 private_life(ctx, p, &l.field("privatleben"))
             }),
+        legacy: v
+            .legacy
+            .as_ref()
+            .map(|f| legacy(ctx, catalog, f, &l.field("nachwuchs"))),
         assets: v
             .assets
             .as_ref()
@@ -758,5 +762,93 @@ fn property(ctx: &mut Ctx, p: &crate::raw::RawProperty, l: &Loc) -> PropertyMode
         offer_quality: span(ctx, &p.offers.quality, 0.1, 5.0, ol.field("guete")),
         offer_condition: span(ctx, &p.offers.condition, 0.0, 100.0, ol.field("zustand")),
         offer_countries: p.offers.countries_max.max(1),
+    }
+}
+
+/// Children, education and succession (PV4): shares within 0–1, traits ascending within
+/// 0–100, the functions of an education known to the management.
+fn legacy(ctx: &mut Ctx, catalog: &Catalog, f: &crate::raw::RawLegacy, l: &Loc) -> LegacyModel {
+    let el = l.field("ausbildungen");
+    let list = |ctx: &mut Ctx, keys: &[String], name: &str| -> Vec<usize> {
+        let at = el.field(name);
+        keys.iter()
+            .enumerate()
+            .filter_map(|(i, key)| {
+                let found = catalog.management.function(key);
+                if found.is_none() {
+                    ctx.error(&at.index(i), messages::function_unknown(key));
+                }
+                found
+            })
+            .collect()
+    };
+    let educations = [
+        list(ctx, &f.educations.engineer, "ingenieur"),
+        list(ctx, &f.educations.merchant, "kaufmann"),
+        list(ctx, &f.educations.lawyer, "jurist"),
+        list(ctx, &f.educations.scientist, "naturwissenschaftler"),
+    ];
+    let tl = l.field("eigenschaften");
+    let a = in_range(ctx, f.traits.min, 0.0, 100.0, &tl.field("von"));
+    let b = in_range(ctx, f.traits.max, 0.0, 100.0, &tl.field("bis"));
+    if a > b {
+        ctx.error(&tl, messages::range_inverted("von", "bis"));
+    }
+    LegacyModel {
+        education_from: f.education_from.clamp(10, 25),
+        education_cost: in_range(
+            ctx,
+            f.education_cost,
+            0.0,
+            50.0,
+            &l.field("ausbildung_kosten"),
+        ),
+        education_points: in_range(
+            ctx,
+            f.education_points,
+            0.0,
+            100.0,
+            &l.field("ausbildung_punkte"),
+        ),
+        ambition_points: in_range(
+            ctx,
+            f.ambition_points,
+            0.0,
+            100.0,
+            &l.field("ehrgeiz_punkte"),
+        ),
+        talent_points: in_range(ctx, f.talent_points, 0.0, 100.0, &l.field("talent_punkte")),
+        traits: [a, b],
+        interest_per_month: in_range(
+            ctx,
+            f.interest_per_month,
+            0.0,
+            10.0,
+            &l.field("interesse_je_monat"),
+        ),
+        interest_base: in_range(
+            ctx,
+            f.interest_base,
+            0.0,
+            100.0,
+            &l.field("interesse_basis"),
+        ),
+        educations,
+        partner_share: in_range(ctx, f.partner_share, 0.0, 1.0, &l.field("partner_anteil")),
+        firm_relief: in_range(
+            ctx,
+            f.firm_relief,
+            0.0,
+            1.0,
+            &l.field("firmenbeguenstigung"),
+        ),
+        dispute_chance: in_range(
+            ctx,
+            f.dispute_chance,
+            0.0,
+            1.0,
+            &l.field("streit_chance_jahr"),
+        ),
+        dispute_sale: in_range(ctx, f.dispute_sale, 0.0, 1.0, &l.field("streit_verkauf")),
     }
 }

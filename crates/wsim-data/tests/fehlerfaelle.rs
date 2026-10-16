@@ -4765,6 +4765,24 @@ person:
         guete: {von: 0.7, bis: 1.4}
         zustand: {von: 30, bis: 95}
         laender_max: 5
+  nachwuchs:
+    ausbildung_ab: 16
+    ausbildung_kosten: 3
+    ausbildung_punkte: 12
+    ehrgeiz_punkte: 8
+    talent_punkte: 15
+    eigenschaften: {von: 20, bis: 100}
+    interesse_je_monat: 1.0
+    interesse_basis: 15
+    ausbildungen:
+      ingenieur: []
+      kaufmann: []
+      jurist: []
+      naturwissenschaftler: []
+    partner_anteil: 0.5
+    firmenbeguenstigung: 0.5
+    streit_chance_jahr: 0.3
+    streit_verkauf: 0.5
   wohlbefinden:
     hintergruende:
       tueftler: {forschung: 0.05}
@@ -5028,6 +5046,24 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
             "wohnung: {preis_jahreslohn: 0,",
             "Wert 0 liegt außerhalb des erlaubten Bereichs 0.1 bis 500.",
             "person.anlagen.immobilien.arten.wohnung.preis_jahreslohn",
+        ),
+        (
+            "ingenieur: []",
+            "ingenieur: [zauberei]",
+            "Der Bereich „zauberei“ gibt es in der Verwaltung (management.bereiche) nicht.",
+            "person.nachwuchs.ausbildungen.ingenieur[0]",
+        ),
+        (
+            "eigenschaften: {von: 20, bis: 100}",
+            "eigenschaften: {von: 90, bis: 20}",
+            "„von“ muss kleiner als „bis“ sein.",
+            "person.nachwuchs.eigenschaften",
+        ),
+        (
+            "firmenbeguenstigung: 0.5",
+            "firmenbeguenstigung: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.nachwuchs.firmenbeguenstigung",
         ),
         (
             "krank_chance: 0.3",

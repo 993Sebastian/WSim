@@ -52,6 +52,7 @@ export type * from "./typen";
 export type {
   Anliegenantwort,
   Antwort,
+  Ausbildung,
   Befehl,
   Einheit,
   Gegenstand,

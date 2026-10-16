@@ -3156,3 +3156,27 @@ person.immobilie_mehrfamilienhaus: Mehrfamilienhaus
 person.immobilie_buero: Büro
 person.immobilie_halle: Gewerbehalle
 person.immobilie_grundstueck: Grundstück
+
+# Kinder, Ausbildung und Testament (PV4)
+privat.erbausgleich: Auszahlung an die Miterben
+privat.ausbildung: Ausbildung der Kinder
+person.kind_ehrgeiz: Ehrgeiz
+person.kind_interesse: Interesse an der Firma
+person.kind_ausbildung: Ausbildung
+person.kind_ausbildung_fuer: "Ausbildung von {name}"
+person.ausbildung_keine: noch keine
+person.ausbildung_ingenieur: Ingenieur
+person.ausbildung_kaufmann: Kaufmann
+person.ausbildung_jurist: Jurist
+person.ausbildung_naturwissenschaftler: Naturwissenschaftler
+person.ausbildung_frei: freie Wahl des Kindes
+person.ausbildung_gesetzt: Ausbildung festgelegt.
+person.testament: Testament
+person.testament_gesetzlich: Ohne Testament gilt die gesetzliche Erbfolge (Partner und Kinder anteilig). Firmenanteile zersplittern dann auf die Miterben.
+person.testament_gesetzt: Dein Testament verteilt den Nachlass so; der Nachfolger behält seinen Teil, die Miterben bekommen ihre Teile (Firmenanteile als Anteile, den Rest als Geld).
+person.erbe_partner: Partner
+person.testament_speichern: Testament speichern
+person.testament_gespeichert: Testament gespeichert.
+person.testament_zurueck: Gesetzliche Erbfolge gilt wieder.
+person.testament_gesetzlich_knopf: Zur gesetzlichen Erbfolge zurück
+person.erbanteile: "Anteile der Miterben: {liste}."

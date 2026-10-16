@@ -2401,6 +2401,12 @@ pub struct Person {
     /// Deposits, bonds, gold and funds (PV2).
     #[serde(default, skip_serializing_if = "crate::savings::Portfolio::is_empty")]
     pub portfolio: crate::savings::Portfolio,
+    /// How the estate is divided; none: the statutory succession (PV4).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub will: Vec<WillShare>,
+    /// Shares of companies the co-heirs hold from an inheritance (PV4).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub heir_stakes: BTreeMap<CompanyId, f64>,
 }
 
 fn is_zero_f64(x: &f64) -> bool {
@@ -2502,6 +2508,8 @@ impl Default for Person {
             experience: 0.0,
             ill_until: None,
             portfolio: Default::default(),
+            will: Vec::new(),
+            heir_stakes: BTreeMap::new(),
         }
     }
 }
@@ -2557,6 +2565,10 @@ pub enum PrivateFlow {
     AssetSold,
     /// Fees and loads on them.
     InvestFee,
+    /// The co-heirs' share of the estate, paid out (PV4).
+    InheritancePayout,
+    /// Education of the children (PV4).
+    Education,
     /// Rent of properties (PV3), taxed as income.
     Rent,
     /// Upkeep, damage and renovation of properties.
@@ -2697,6 +2709,82 @@ pub struct Child {
     pub private_school: bool,
     #[serde(default, skip_serializing_if = "is_zero_days")]
     pub school_days: u32,
+    /// Ambition and interest in the firm, 0–100 (PV4); 0 in older saves.
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub ambition: u32,
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub interest: u32,
+    /// The branch the child is talented for (PV4).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub talent: Option<crate::ids::BranchId>,
+    /// The education the player chose, and the months paid so far (PV4).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub education: Option<Education>,
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub education_months: u32,
+}
+
+impl Default for Child {
+    fn default() -> Self {
+        Child {
+            name: String::new(),
+            born: Date::first_of_year(1870),
+            manager: None,
+            died: None,
+            private_school: false,
+            school_days: 0,
+            ambition: 0,
+            interest: 0,
+            talent: None,
+            education: None,
+            education_months: 0,
+        }
+    }
+}
+
+/// What a child studies (PV4).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Education {
+    Engineer,
+    Merchant,
+    Lawyer,
+    Scientist,
+    /// The child decides.
+    Free,
+}
+
+impl Education {
+    pub const ALL: [Education; 5] = [
+        Education::Engineer,
+        Education::Merchant,
+        Education::Lawyer,
+        Education::Scientist,
+        Education::Free,
+    ];
+
+    pub fn key(self) -> &'static str {
+        match self {
+            Education::Engineer => "ingenieur",
+            Education::Merchant => "kaufmann",
+            Education::Lawyer => "jurist",
+            Education::Scientist => "naturwissenschaftler",
+            Education::Free => "frei",
+        }
+    }
+}
+
+/// Who gets a part of the estate (PV4).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Heir {
+    Partner,
+    Child(u32),
+}
+
+/// A part of the estate in percent.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct WillShare {
+    pub heir: Heir,
+    pub percent: u32,
 }
 
 fn is_zero_days(d: &u32) -> bool {

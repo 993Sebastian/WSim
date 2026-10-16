@@ -218,6 +218,8 @@ pub mod keys {
     pub const PROPERTY_DISTRESS: &str = "meldung.person.notverkauf";
     pub const PERSON_WELL_AGAIN: &str = "meldung.person.gesund";
     pub const COMMAND_ILL: &str = "fehler.befehl.krank";
+    pub const COMMAND_WILL_INVALID: &str = "fehler.befehl.testament";
+    pub const HEIRS_DISPUTE: &str = "meldung.person.erbstreit";
     pub const COMMAND_TIME_BUDGET: &str = "fehler.befehl.zeit_summe";
     pub const COMMAND_OFFER_EXISTS: &str = "fehler.befehl.angebot_offen";
     pub const COMMAND_OFFER_BLOCKED: &str = "fehler.befehl.angebot_gesperrt";
@@ -697,6 +699,8 @@ pub mod keys {
         PROPERTY_DISTRESS,
         PERSON_WELL_AGAIN,
         COMMAND_ILL,
+        COMMAND_WILL_INVALID,
+        HEIRS_DISPUTE,
         COMMAND_TIME_BUDGET,
         COMMAND_OFFER_EXISTS,
         COMMAND_OFFER_BLOCKED,

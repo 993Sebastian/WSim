@@ -4943,6 +4943,39 @@ Tilgung nicht, wird das Objekt zum Notverkauf (zusätzlicher Abschlag `notverkau
 
 **Vermögen.** Klasse „Immobilien“: Summe der Werte abzüglich der Hypotheken.
 
+## PV4 – Kinder, Ausbildung, Testament, Erbfolge
+
+Daten: `person.nachwuchs`. Kern: Module `person` (Kinder), `heirs` (Erbfall).
+
+**Eigenschaften der Kinder.** Bei der Geburt (und beim Start): Ehrgeiz `a` und Interesse `i` je
+gleichverteilt in `eigenschaften.von…bis` (0–100), Talent = eine Branche (gleichverteilt). Jeden Monat
+steigt das Interesse um `interesse_je_monat · (Familienzeit − interesse_basis)/100`, gekappt auf 0–100;
+sinkt bei Familienzeit unter der Basis.
+
+**Ausbildung.** Ab `ausbildung_ab` Jahren wählt der Spieler `SetEducation` (Ingenieur, Kaufmann,
+Jurist, Naturwissenschaftler, frei). Bis zum Alter der Managerkarte kostet sie monatlich
+`ausbildung_kosten · akademischer Monatslohn` vom Privatkonto (bei leerem Konto ruht sie). Bei der
+Karte (Alter `card_age`) erhalten die Fähigkeiten der Bereiche der Ausbildung `ausbildung_punkte ·
+Ausbildungsmonate/Gesamtmonate`, die Führung `ehrgeiz_punkte · a/100`, die Talent-Branche
+`talent_punkte` Branchenerfahrung. „Frei“ wählt zwei Bereiche nach dem Zufall des Kindes. Das Kind
+tritt wie jeder Manager ein (Leistung, Erfahrung, Beförderung); das ist der Trainee-Pfad.
+
+**Testament.** `SetWill` verteilt Anteile in Prozent auf Partner und lebende Kinder (Summe 100) und
+bestimmt den Nachfolger (wie `SetHeir`). Ohne Testament: Partner `partner_anteil` (falls verheiratet),
+der Rest zu gleichen Teilen auf die lebenden Kinder; Nachfolger wie bisher (gewähltes oder ältestes
+Kind). Ohne Kind erbt der Neffe/die Nichte alles.
+
+**Erbfall.** Nachlass `N` = Nettovermögen. Steuer `t · (N − firmenbeguenstigung · Firmenanteile)`,
+`t` der Satz des Landes (PE6). Der Anteil des Nachfolgers sei `s`. Die Miterben (1 − s) bekommen:
+(a) `(1 − s) ·` Firmenanteile als Anteile (Eigentümer „Privat“, vermerkt als Erbanteil) und (b) einen
+Barausgleich `(1 − s) ·` (Nettovermögen ohne Firmenanteile) vom Konto; reicht es nicht, werden
+zuerst Fonds, Gold, Festgeld und Anleihen, dann Anteile verkauft (wie bei der Steuer). Beim
+Nachfolger bleiben `s ·` Firmenanteile.
+
+**Erbstreit.** Jeden Januar verkauft die Erbengemeinschaft je Firma mit Erbanteilen mit der Chance
+`streit_chance_jahr` den Anteil `streit_verkauf` an Investoren (Meldung); der Spieler kann ihn dann
+über den Markt zurückkaufen.
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;

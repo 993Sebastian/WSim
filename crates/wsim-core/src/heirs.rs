@@ -51,6 +51,73 @@ pub fn estate(catalog: &Catalog, state: &GameState) -> Money {
     crate::private::wealth(catalog, state).total()
 }
 
+/// The inheritance tax of the estate now: the rate on the estate less the relief for the
+/// shares of companies that go on (PV4).
+pub fn tax_due(catalog: &Catalog, state: &GameState) -> Money {
+    let relief = catalog
+        .person
+        .legacy
+        .as_ref()
+        .map_or(0.0, |l| l.firm_relief);
+    let firms = crate::private::wealth(catalog, state)
+        .shares
+        .max(Money::ZERO);
+    (estate(catalog, state) - firms.scale(relief))
+        .max(Money::ZERO)
+        .scale(tax_rate(catalog, state))
+}
+
+/// The part of the estate that stays with the successor, as a fraction (PV4).
+pub fn successor_share(catalog: &Catalog, state: &GameState) -> f64 {
+    let Some(i) = heir(state) else {
+        return 1.0;
+    };
+    let me = u32::try_from(i).unwrap_or(u32::MAX);
+    let all = shares(catalog, state);
+    if all.is_empty() {
+        return 1.0;
+    }
+    all.iter()
+        .find(|(h, _)| *h == crate::state::Heir::Child(me))
+        .map_or(0.0, |(_, f)| *f)
+}
+
+/// The co-heirs take their parts: the shares of companies in kind (they become private
+/// holders), the rest as money from the account, if need be after sales. Returns what the
+/// sales raised.
+fn pay_co_heirs(state: &mut GameState, catalog: &Catalog, keep: f64) -> Money {
+    if catalog.person.legacy.is_none() || keep >= 1.0 {
+        return Money::ZERO;
+    }
+    let gone = 1.0 - keep;
+    let w = crate::private::wealth(catalog, state);
+    let claim = (w.total() - w.shares).max(Money::ZERO).scale(gone);
+    // Shares of companies in kind.
+    for i in 0..state.companies.len() {
+        // Few companies; the cast is exact.
+        let id = CompanyId(i as u32);
+        let held = person::share(state, id);
+        if held <= 0.0 || state.companies[i].bankrupt {
+            continue;
+        }
+        let moved = held * gone;
+        let owners = &mut state.companies[i].owners;
+        crate::stock::remove_share(owners, crate::state::Holder::Player, moved);
+        crate::stock::add_share(owners, crate::state::Holder::Private, moved);
+        *state.person.heir_stakes.entry(id).or_insert(0.0) += moved;
+    }
+    crate::savings::liquidate(state, catalog, claim);
+    let mut raised = Money::ZERO;
+    if state.person.account.balance < claim {
+        raised = raise(state, catalog, claim);
+    }
+    let pay = claim.min(state.person.account.balance);
+    if pay > Money::ZERO {
+        crate::private::book_flow(state, crate::state::PrivateFlow::InheritancePayout, -pay);
+    }
+    raised
+}
+
 /// The inheritance or gift tax rate at home today.
 pub fn tax_rate(catalog: &Catalog, state: &GameState) -> f64 {
     catalog
@@ -77,6 +144,9 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         news.push(succeed(state, catalog, &mut rng, date, true));
         return news;
     }
+    if date.month() == 1 {
+        news.extend(dispute(state, catalog, &mut rng));
+    }
     let age = person::age(state, date);
     if date.month() == 1
         && age >= catalog.person.succession_hint_from
@@ -88,6 +158,127 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         );
     }
     news
+}
+
+/// Shares of the estate as fractions: the will, else the statutory succession (PV4).
+pub fn shares(catalog: &Catalog, state: &GameState) -> Vec<(crate::state::Heir, f64)> {
+    use crate::state::Heir;
+    let p = &state.person;
+    if !p.will.is_empty() {
+        let total: f64 = p.will.iter().map(|w| f64::from(w.percent)).sum();
+        if total > 0.0 {
+            return p
+                .will
+                .iter()
+                .map(|w| (w.heir, f64::from(w.percent) / total))
+                .collect();
+        }
+    }
+    let kids: Vec<u32> = p
+        .children
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.died.is_none())
+        .map(|(i, _)| u32::try_from(i).unwrap_or(u32::MAX))
+        .collect();
+    let partner = if p.married {
+        catalog
+            .person
+            .legacy
+            .as_ref()
+            .map_or(0.0, |l| l.partner_share)
+    } else {
+        0.0
+    };
+    if kids.is_empty() {
+        return if p.married {
+            vec![(Heir::Partner, 1.0)]
+        } else {
+            Vec::new()
+        };
+    }
+    // Few children; the cast is exact.
+    #[allow(clippy::cast_precision_loss)]
+    let each = (1.0 - partner) / kids.len() as f64;
+    let mut out = Vec::new();
+    if partner > 0.0 {
+        out.push((Heir::Partner, partner));
+    }
+    out.extend(kids.into_iter().map(|i| (Heir::Child(i), each)));
+    out
+}
+
+/// A quarrel among the co-heirs (PV4): each January, with the chance of the data, they sell
+/// part of their shares of a company to investors.
+fn dispute(state: &mut GameState, catalog: &Catalog, rng: &mut SimRng) -> Vec<Message> {
+    let Some(l) = &catalog.person.legacy else {
+        return Vec::new();
+    };
+    let mut news = Vec::new();
+    let held: Vec<(CompanyId, f64)> = state
+        .person
+        .heir_stakes
+        .iter()
+        .map(|(&c, &q)| (c, q))
+        .collect();
+    for (id, q) in held {
+        if !rng.chance(l.dispute_chance) {
+            continue;
+        }
+        let sold = q * l.dispute_sale;
+        let owners = &mut state.companies[id.index()].owners;
+        crate::stock::remove_share(owners, crate::state::Holder::Private, sold);
+        crate::stock::add_share(owners, crate::state::Holder::Investors, sold);
+        let left = q - sold;
+        if left < 1e-6 {
+            state.person.heir_stakes.remove(&id);
+        } else {
+            state.person.heir_stakes.insert(id, left);
+        }
+        news.push(
+            Message::new(MessageKind::Warning, keys::HEIRS_DISPUTE)
+                .with("anteil", Param::Number((sold * 1000.0).round() / 10.0))
+                .with(
+                    "firma",
+                    Param::Text(state.companies[id.index()].name.clone()),
+                ),
+        );
+    }
+    news
+}
+
+/// `SetWill`: shares of partner and living children adding up to 100 percent; an empty list
+/// restores the statutory succession.
+pub(crate) fn set_will(
+    state: &mut GameState,
+    shares: &[crate::state::WillShare],
+) -> Result<(), CommandError> {
+    use crate::state::Heir;
+    if shares.is_empty() {
+        state.person.will.clear();
+        return Ok(());
+    }
+    let total: u32 = shares.iter().map(|w| w.percent).sum();
+    let mut seen: Vec<Heir> = Vec::new();
+    for w in shares {
+        let valid = match w.heir {
+            Heir::Partner => state.person.married,
+            Heir::Child(i) => state
+                .person
+                .children
+                .get(i as usize)
+                .is_some_and(|c| c.died.is_none()),
+        };
+        if !valid || seen.contains(&w.heir) {
+            return Err(CommandError::WillInvalid);
+        }
+        seen.push(w.heir);
+    }
+    if total != 100 {
+        return Err(CommandError::WillInvalid);
+    }
+    state.person.will = shares.to_vec();
+    Ok(())
 }
 
 /// `SetHeir`: a living child, or the rule.
@@ -131,15 +322,17 @@ fn succeed(
 ) -> Message {
     let old = state.person.name.clone();
     let age = person::age(state, date);
-    let tax = estate(catalog, state)
-        .max(Money::ZERO)
-        .scale(tax_rate(catalog, state));
+    let tax = tax_due(catalog, state);
     revalue(catalog, state);
-    let sold = raise(state, catalog, tax);
+    let mut sold = raise(state, catalog, tax);
     let paid = tax.min(state.person.account.balance);
     if paid > Money::ZERO {
         crate::private::pay_inheritance_tax(state, paid);
     }
+    // The co-heirs get their parts (PV4): the successor keeps only its share.
+    let keep = successor_share(catalog, state);
+    sold += pay_co_heirs(state, catalog, keep);
+    revalue(catalog, state);
     let (heir, nephew) = take_heir(state, catalog, rng, date);
     let p = &mut state.person;
     p.ancestors.push(Ancestor {
@@ -267,17 +460,7 @@ fn take_heir(
     // Below 365; the cast is exact.
     let born = latest.add_days(-(rng.below(365) as i32));
     let name = person::child_name(catalog, rng, &state.person);
-    (
-        Child {
-            name,
-            born,
-            manager: None,
-            died: None,
-            private_school: false,
-            school_days: 0,
-        },
-        true,
-    )
+    (person::new_child(catalog, rng, name, born), true)
 }
 
 /// The heir's own children, as if born in the years already past (docs/FORMELN.md, PE6).
@@ -308,14 +491,7 @@ fn own_children(
         }
         let born = person::day_in(rng, year).max(heir.born);
         let name = person::child_name(catalog, rng, &named);
-        let child = Child {
-            name,
-            born,
-            manager: None,
-            died: None,
-            private_school: false,
-            school_days: 0,
-        };
+        let child = person::new_child(catalog, rng, name, born);
         named.children.push(child.clone());
         kids.push(child);
     }

@@ -150,6 +150,25 @@ person:
     fonds:
       gemanagt: {ab: 1900, kosten: 0.015, aufschlag: 0.05, gebuehr: 0.005}
       index: {ab: 1990, kosten: 0.002, aufschlag: 0, gebuehr: 0.005}
+  # Kinder, Ausbildung, Erbfolge (PV4).
+  nachwuchs:
+    ausbildung_ab: 16
+    ausbildung_kosten: 3
+    ausbildung_punkte: 12
+    ehrgeiz_punkte: 8
+    talent_punkte: 15
+    eigenschaften: {von: 20, bis: 100}
+    interesse_je_monat: 1.0
+    interesse_basis: 15
+    ausbildungen:
+      ingenieur: [produktion, forschung]
+      kaufmann: [einkauf_lager, vertrieb_marketing, finanzen]
+      jurist: [recht, personal, strategie]
+      naturwissenschaftler: [forschung, produktion]
+    partner_anteil: 0.5
+    firmenbeguenstigung: 0.5
+    streit_chance_jahr: 0.3
+    streit_verkauf: 0.5
   # Erbe (PE6): Ohne Kind erbt ein Neffe oder eine Nichte im Alter von–bis Jahren; ab
   # hinweis_ab Jahren jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe
   # bestimmt ist.

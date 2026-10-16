@@ -3204,10 +3204,57 @@ pub struct RawPerson {
     pub wellbeing: Option<RawWellbeing>,
     #[serde(default, rename = "anlagen")]
     pub assets: Option<RawAssets>,
+    #[serde(default, rename = "nachwuchs")]
+    pub legacy: Option<RawLegacy>,
     #[serde(default, rename = "annaeherung")]
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// Children, education and succession of the person (PV4).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLegacy {
+    #[serde(rename = "ausbildung_ab")]
+    pub education_from: u32,
+    #[serde(rename = "ausbildung_kosten")]
+    pub education_cost: f64,
+    #[serde(rename = "ausbildung_punkte")]
+    pub education_points: f64,
+    #[serde(rename = "ehrgeiz_punkte")]
+    pub ambition_points: f64,
+    #[serde(rename = "talent_punkte")]
+    pub talent_points: f64,
+    #[serde(rename = "eigenschaften")]
+    pub traits: RawFloatSpan,
+    #[serde(rename = "interesse_je_monat")]
+    pub interest_per_month: f64,
+    #[serde(rename = "interesse_basis")]
+    pub interest_base: f64,
+    #[serde(rename = "ausbildungen")]
+    pub educations: RawEducations,
+    #[serde(rename = "partner_anteil")]
+    pub partner_share: f64,
+    #[serde(rename = "firmenbeguenstigung")]
+    pub firm_relief: f64,
+    #[serde(rename = "streit_chance_jahr")]
+    pub dispute_chance: f64,
+    #[serde(rename = "streit_verkauf")]
+    pub dispute_sale: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEducations {
+    #[serde(rename = "ingenieur")]
+    pub engineer: Vec<String>,
+    #[serde(rename = "kaufmann")]
+    pub merchant: Vec<String>,
+    #[serde(rename = "jurist")]
+    pub lawyer: Vec<String>,
+    #[serde(rename = "naturwissenschaftler")]
+    pub scientist: Vec<String>,
 }
 
 /// Safe investments, gold and funds of the person (PV2).

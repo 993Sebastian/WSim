@@ -10,6 +10,7 @@ use crate::command::CommandError;
 use crate::management;
 use crate::math;
 use crate::message::{Message, MessageKind, Param, keys};
+use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
     Child, CompanyId, GameState, Holder, LifeEvent, LifeEventKind, Manager, ManagerId, Person,
@@ -194,14 +195,7 @@ pub(crate) fn start(state: &mut GameState, catalog: &Catalog, today: Date) {
             date: b,
             kind: LifeEventKind::ChildBorn { name: name.clone() },
         });
-        person.children.push(Child {
-            name,
-            born: b,
-            manager: None,
-            died: None,
-            private_school: false,
-            school_days: 0,
-        });
+        person.children.push(new_child(catalog, &mut rng, name, b));
     }
     person.history.sort_by_key(|e| e.date);
     state.person = person;
@@ -250,6 +244,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         return news;
     }
     births(state, catalog, date, &mut news);
+    legacy_month(state, catalog, date);
     careers(state, catalog, date, &mut news);
     leadership(state, date, &mut news);
     news
@@ -282,14 +277,9 @@ fn births(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<M
     }
     let name = child_name(catalog, &mut rng, &state.person);
     let person = &mut state.person;
-    person.children.push(Child {
-        name: name.clone(),
-        born: date,
-        manager: None,
-        died: None,
-        private_school: false,
-        school_days: 0,
-    });
+    person
+        .children
+        .push(new_child(catalog, &mut rng, name.clone(), date));
     person.history.push(LifeEvent {
         date,
         kind: LifeEventKind::ChildBorn { name: name.clone() },
@@ -302,6 +292,88 @@ fn births(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<M
                 Param::Integer(i64::try_from(person.children.len()).unwrap_or(0)),
             ),
     );
+}
+
+/// A new child with its traits drawn: ambition, interest in the firm, a talent for a branch
+/// (PV4; without the data section the traits stay 0).
+pub(crate) fn new_child(catalog: &Catalog, rng: &mut SimRng, name: String, born: Date) -> Child {
+    let mut child = Child {
+        name,
+        born,
+        ..Child::default()
+    };
+    if let Some(l) = &catalog.person.legacy {
+        let draw = |rng: &mut SimRng| -> u32 {
+            // Within 0–100; the cast is exact.
+            (l.traits[0] + (l.traits[1] - l.traits[0]) * rng.next_f64()).round() as u32
+        };
+        child.ambition = draw(rng);
+        child.interest = draw(rng);
+        let n = catalog.branches.keys().len();
+        if n > 0 {
+            let pick = usize::try_from(rng.below(n as u64)).unwrap_or(0);
+            child.talent = Some(<crate::ids::BranchId as crate::ids::Id>::from_index(pick));
+        }
+    }
+    child
+}
+
+/// `SetEducation`: from the age of education until the manager card.
+pub(crate) fn set_education(
+    state: &mut GameState,
+    catalog: &Catalog,
+    child: u32,
+    education: crate::state::Education,
+) -> Result<(), crate::command::CommandError> {
+    let Some(l) = &catalog.person.legacy else {
+        return Err(crate::command::CommandError::NotPossible);
+    };
+    let today = state.date;
+    let c = state
+        .person
+        .children
+        .get_mut(child as usize)
+        .ok_or(crate::command::CommandError::UnknownChild)?;
+    let age = aging::age(c.born, today);
+    if c.died.is_some() || c.manager.is_some() || age < l.education_from {
+        return Err(crate::command::CommandError::NotPossible);
+    }
+    c.education = Some(education);
+    Ok(())
+}
+
+/// Each month: the interest of the children in the firm follows the family time; an education
+/// that was chosen is paid (PV4).
+fn legacy_month(state: &mut GameState, catalog: &Catalog, date: Date) {
+    let Some(l) = &catalog.person.legacy else {
+        return;
+    };
+    let family =
+        crate::wellbeing::time(catalog, state).map_or(l.interest_base, |t| f64::from(t.family));
+    let delta = l.interest_per_month * (family - l.interest_base) / 100.0;
+    let wage = crate::private::academic_monthly_wage(catalog, state, state.person.home);
+    let cost = wage.scale(l.education_cost);
+    let card_age = catalog.person.card_age;
+    for i in 0..state.person.children.len() {
+        let c = &mut state.person.children[i];
+        if c.died.is_some() {
+            continue;
+        }
+        let v = f64::from(c.interest) + delta;
+        // Within 0–100; the cast is exact.
+        c.interest = v.round().clamp(0.0, 100.0) as u32;
+        let age = aging::age(c.born, date);
+        if c.education.is_some()
+            && c.manager.is_none()
+            && age >= l.education_from
+            && age < card_age
+            && state.person.account.balance >= cost
+            && cost > Money::ZERO
+        {
+            crate::private::book_flow(state, crate::state::PrivateFlow::Education, -cost);
+            state.person.children[i].education_months += 1;
+        }
+    }
 }
 
 /// Points of a private school: its points for a whole childhood, by the share of the
@@ -352,6 +424,7 @@ fn careers(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<
         m.detection = up(m.detection);
         m.judgment = up(m.judgment);
         m.leadership = up(m.leadership);
+        apply_education(catalog, &child, &mut m, &mut rng);
         m.name.clone_from(&child.name);
         m.born = Some(child.born);
         m.family = true;
@@ -373,6 +446,55 @@ fn careers(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<
         );
     }
     crate::staffing::set_potentials(state, catalog);
+}
+
+/// The education, ambition and talent of a child raise the card's skills (PV4).
+fn apply_education(
+    catalog: &Catalog,
+    child: &Child,
+    m: &mut crate::state::Manager,
+    rng: &mut SimRng,
+) {
+    let Some(l) = &catalog.person.legacy else {
+        return;
+    };
+    let months = f64::from((catalog.person.card_age.saturating_sub(l.education_from)).max(1) * 12);
+    let done = (f64::from(child.education_months) / months).min(1.0);
+    let functions: Vec<usize> = match child.education {
+        None => Vec::new(),
+        Some(crate::state::Education::Engineer) => l.educations[0].clone(),
+        Some(crate::state::Education::Merchant) => l.educations[1].clone(),
+        Some(crate::state::Education::Lawyer) => l.educations[2].clone(),
+        Some(crate::state::Education::Scientist) => l.educations[3].clone(),
+        Some(crate::state::Education::Free) => {
+            let n = catalog.management.functions.len();
+            if n == 0 {
+                Vec::new()
+            } else {
+                (0..2)
+                    .map(|_| usize::try_from(rng.below(n as u64)).unwrap_or(0))
+                    .collect()
+            }
+        }
+    };
+    let up = |v: u8, points: f64| -> u8 {
+        // Within 0–100; the cast is exact.
+        (f64::from(v) + points).round().clamp(0.0, 100.0) as u8
+    };
+    for f in functions {
+        let key = &catalog.management.functions[f].key;
+        if let Some(v) = m.expertise.get_mut(key) {
+            *v = up(*v, l.education_points * done);
+        }
+    }
+    m.leadership = up(
+        m.leadership,
+        l.ambition_points * f64::from(child.ambition) / 100.0,
+    );
+    if let Some(b) = child.talent {
+        let v = m.branch.entry(b).or_insert(0);
+        *v = up(*v, l.talent_points);
+    }
 }
 
 /// The person hands the lead of the company to a manager who became CEO, and takes it

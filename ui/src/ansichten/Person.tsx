@@ -37,7 +37,16 @@ function kindStatus(k: PersonKind): string {
   return t("person.kind_im_ruhestand");
 }
 
+const AUSBILDUNGEN = {
+  ingenieur: "Engineer",
+  kaufmann: "Merchant",
+  jurist: "Lawyer",
+  naturwissenschaftler: "Scientist",
+  frei: "Free",
+} as const;
+
 function Familie({ p }: { p: Person }) {
+  const { los, antwort } = useAktion("ausbildung");
   return (
     <section aria-label={t("person.familie")}>
       <h2>{t("person.familie")}</h2>
@@ -51,10 +60,13 @@ function Familie({ p }: { p: Person }) {
               <th>{t("person.geboren")}</th>
               <th className="zahl">{t("person.kind_alter")}</th>
               <th>{t("person.kind_status")}</th>
+              <th className="zahl">{t("person.kind_ehrgeiz")}</th>
+              <th className="zahl">{t("person.kind_interesse")}</th>
+              <th>{t("person.kind_ausbildung")}</th>
             </tr>
           </thead>
           <tbody>
-            {p.children.map((k) => (
+            {p.children.map((k, i) => (
               <tr key={`${k.name}-${k.born}`}>
                 <td>{k.name}</td>
                 <td data-spalte={t("person.geboren")}>{formatDatum(k.born)}</td>
@@ -62,12 +74,46 @@ function Familie({ p }: { p: Person }) {
                   {formatZahl(k.age)}
                 </td>
                 <td data-spalte={t("person.kind_status")}>{kindStatus(k)}</td>
+                <td className="zahl" data-spalte={t("person.kind_ehrgeiz")}>
+                  {k.ambition ? formatZahl(k.ambition) : "–"}
+                </td>
+                <td className="zahl" data-spalte={t("person.kind_interesse")}>
+                  {k.interest ? formatZahl(k.interest) : "–"}
+                </td>
+                <td data-spalte={t("person.kind_ausbildung")}>
+                  {k.can_study ? (
+                    <select
+                      aria-label={t("person.kind_ausbildung_fuer", { name: k.name })}
+                      value={k.education ?? ""}
+                      onChange={(e) => {
+                        const wahl = AUSBILDUNGEN[e.target.value as keyof typeof AUSBILDUNGEN];
+                        if (wahl)
+                          void los(
+                            [{ SetEducation: { child: i, education: wahl } }],
+                            t("person.ausbildung_gesetzt"),
+                          );
+                      }}
+                    >
+                      <option value="">{t("person.ausbildung_keine")}</option>
+                      {Object.keys(AUSBILDUNGEN).map((a) => (
+                        <option key={a} value={a}>
+                          {t(`person.ausbildung_${a}`)}
+                        </option>
+                      ))}
+                    </select>
+                  ) : k.education ? (
+                    t(`person.ausbildung_${k.education}`)
+                  ) : (
+                    "–"
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
       {p.children_possible && <p className="feld-hilfe">{t("person.kinder_moeglich")}</p>}
+      <Rueckmeldung meldung={antwort} />
     </section>
   );
 }
@@ -774,6 +820,82 @@ function Sonderzahlung({ h }: { h: PersonAnteil }) {
 }
 
 /** Heir, estate and the hand-over while alive (PE6). */
+/** The will: shares in percent; the statutory succession while none is set (PV4). */
+function Testament({ n }: { n: Nachfolge }) {
+  const { los, antwort } = useAktion("testament");
+  const zeilen = n.shares ?? [];
+  const [prozent, setProzent] = useState<Record<string, string>>({});
+  const schluessel = (z: { partner: boolean; child: number | null }) =>
+    z.partner ? "partner" : String(z.child);
+  const wert = (z: (typeof zeilen)[number]) =>
+    prozent[schluessel(z)] ?? String(Math.round(z.percent));
+  const summe = zeilen.reduce((a, z) => a + (Number(wert(z)) || 0), 0);
+  return (
+    <div>
+      <h3>{t("person.testament")}</h3>
+      <p className="feld-hilfe">
+        {n.will_set ? t("person.testament_gesetzt") : t("person.testament_gesetzlich")}
+      </p>
+      <ul className="liste">
+        {zeilen.map((z) => (
+          <li key={schluessel(z)}>
+            <label>
+              {z.partner ? t("person.erbe_partner") : z.name} (%)
+              <input
+                type="number"
+                min={0}
+                max={100}
+                value={wert(z)}
+                onChange={(e) => setProzent({ ...prozent, [schluessel(z)]: e.target.value })}
+              />
+            </label>
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        disabled={summe !== 100 || zeilen.length === 0}
+        onClick={() =>
+          void los(
+            [
+              {
+                SetWill: {
+                  shares: zeilen.map((z) => ({
+                    heir: z.partner ? "Partner" : { Child: z.child ?? 0 },
+                    percent: Number(wert(z)) || 0,
+                  })),
+                },
+              },
+            ],
+            t("person.testament_gespeichert"),
+          )
+        }
+      >
+        {t("person.testament_speichern")}
+      </button>{" "}
+      {n.will_set && (
+        <button
+          type="button"
+          onClick={() => void los([{ SetWill: { shares: [] } }], t("person.testament_zurueck"))}
+        >
+          {t("person.testament_gesetzlich_knopf")}
+        </button>
+      )}
+      {summe !== 100 && (
+        <span className="fehlertext"> {t("person.zeit_summe", { summe: formatZahl(summe) })}</span>
+      )}
+      {(n.heir_stakes ?? []).length > 0 && (
+        <p className="feld-hilfe">
+          {t("person.erbanteile", {
+            liste: (n.heir_stakes ?? []).map(([f, q]) => `${f} ${formatProzent(q)}`).join(", "),
+          })}
+        </p>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </div>
+  );
+}
+
 function NachfolgeAbschnitt({ n }: { n: Nachfolge }) {
   const { los, antwort } = useAktion("nachfolge");
   const [fragen, setFragen] = useState(false);
@@ -793,6 +915,7 @@ function NachfolgeAbschnitt({ n }: { n: Nachfolge }) {
           steuer: formatGeld(n.tax_usd),
         })}
       </p>
+      {n.shares_enabled && <Testament n={n} />}
       {n.choices.length > 0 && (
         <label className="feld">
           <span>{t("person.erbe_waehlen")}</span>

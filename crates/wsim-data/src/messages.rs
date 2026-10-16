@@ -403,6 +403,10 @@ pub fn months_span_invalid() -> String {
     "Die Laufzeit braucht „von“ ≥ 1, „von“ ≤ „bis“ und höchstens 600 Monate.".into()
 }
 
+pub fn function_unknown(key: &str) -> String {
+    format!("Der Bereich „{key}“ gibt es in der Verwaltung (management.bereiche) nicht.")
+}
+
 pub fn brackets_not_ascending() -> String {
     "Die Stufen müssen nach „ab“ aufsteigend sortiert sein.".into()
 }

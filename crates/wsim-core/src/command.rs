@@ -667,6 +667,16 @@ pub enum Command {
     InvestPrivately { venture: u32, amount: Money },
     /// The child who inherits (index among the children); `None`: the rule decides (PE6).
     SetHeir { child: Option<u32> },
+    /// How the estate is divided among partner and children, in percent adding up to 100;
+    /// an empty list restores the statutory succession (PV4).
+    SetWill {
+        shares: Vec<crate::state::WillShare>,
+    },
+    /// What a child studies (PV4).
+    SetEducation {
+        child: u32,
+        education: crate::state::Education,
+    },
     /// The person hands everything to the heir while alive (PE6).
     HandOver {},
     /// A one-off payment of a company the person leads or owns part of to the person,
@@ -695,6 +705,8 @@ impl Command {
                 | Command::SelectCompany { .. }
                 | Command::InvestPrivately { .. }
                 | Command::SetHeir { .. }
+                | Command::SetWill { .. }
+                | Command::SetEducation { .. }
                 | Command::HandOver {}
                 | Command::PayBonus { .. }
         )
@@ -879,6 +891,9 @@ pub enum CommandError {
     PersonIll,
     /// The shares of the time do not add up to 100 (PV1b).
     TimeBudgetSum,
+    /// The shares of the will do not add up to 100 percent, or name someone who cannot
+    /// inherit (PV4).
+    WillInvalid,
     OfferExists,
     OfferBlocked {
         until: Date,
@@ -1249,6 +1264,7 @@ impl CommandError {
             CommandError::UnknownChild => e(keys::COMMAND_UNKNOWN_CHILD),
             CommandError::PersonIll => e(keys::COMMAND_ILL),
             CommandError::TimeBudgetSum => e(keys::COMMAND_TIME_BUDGET),
+            CommandError::WillInvalid => e(keys::COMMAND_WILL_INVALID),
             CommandError::OfferExists => e(keys::COMMAND_OFFER_EXISTS),
             CommandError::OfferBlocked { until } => {
                 e(keys::COMMAND_OFFER_BLOCKED).with("datum", Param::Date(*until))
@@ -2031,6 +2047,8 @@ fn run(
         | Command::SelectCompany { .. }
         | Command::InvestPrivately { .. }
         | Command::SetHeir { .. }
+        | Command::SetWill { .. }
+        | Command::SetEducation { .. }
         | Command::HandOver {}
         | Command::PayBonus { .. } => return Err(CommandError::PersonOnly),
         Command::BidForStake {

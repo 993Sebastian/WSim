@@ -5,6 +5,9 @@ import type { Auftrag, Geltung, Halter, Vorgabe, Vorgabefeld } from "./typen";
 /** USD → Money units of the core. */
 export const geld = (usd: number): number => Math.round(usd * 10_000);
 
+/** What a child studies (PV4). */
+export type Ausbildung = "Engineer" | "Merchant" | "Lawyer" | "Scientist" | "Free";
+
 /** An investment of the person (PV2); money in core units. */
 export type Geldanlage =
   | { OpenDeposit: { amount: number; months: number } }
@@ -132,6 +135,8 @@ export type Befehl =
   | { SetPrivateSchool: { child: number; active: boolean } }
   | { SetHealthCare: { active: boolean } }
   | { Invest: { action: Geldanlage } }
+  | { SetWill: { shares: { heir: "Partner" | { Child: number }; percent: number }[] } }
+  | { SetEducation: { child: number; education: Ausbildung } }
   | { SetTimeBudget: { firm: number; family: number; network: number; rest: number } }
   | { SetLifestyle: { level: Stufe } }
   | { ContributeCapital: { company: number; amount: number } }

@@ -2895,7 +2895,30 @@ pub struct PersonModel {
     pub wellbeing: Option<WellbeingModel>,
     /// Safe investments, gold and funds (PV2); `None` without the section.
     pub assets: Option<AssetModel>,
+    /// Children, education and succession (PV4); `None` without the section.
+    pub legacy: Option<LegacyModel>,
     pub provenance: Provenance,
+}
+
+/// Children's traits, education and succession (PV4, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct LegacyModel {
+    pub education_from: u32,
+    pub education_cost: f64,
+    pub education_points: f64,
+    pub ambition_points: f64,
+    pub talent_points: f64,
+    /// Range of ambition and interest at birth.
+    pub traits: [f64; 2],
+    pub interest_per_month: f64,
+    pub interest_base: f64,
+    /// Indices into the management functions, per education (engineer, merchant, lawyer,
+    /// scientist).
+    pub educations: [Vec<usize>; 4],
+    pub partner_share: f64,
+    pub firm_relief: f64,
+    pub dispute_chance: f64,
+    pub dispute_sale: f64,
 }
 
 /// Terms of a fund (PV2).
@@ -3079,6 +3102,7 @@ impl Default for PersonModel {
             private_life: PrivateLifeModel::default(),
             wellbeing: None,
             assets: None,
+            legacy: None,
             provenance: Provenance::default(),
         }
     }

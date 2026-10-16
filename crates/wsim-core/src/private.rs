@@ -518,6 +518,10 @@ pub(crate) fn execute(
             crate::ventures::invest_person(state, catalog, *venture, *amount)
         }
         Command::SetHeir { child } => crate::heirs::set_heir(state, *child),
+        Command::SetWill { shares } => crate::heirs::set_will(state, shares),
+        Command::SetEducation { child, education } => {
+            crate::person::set_education(state, catalog, *child, *education)
+        }
         Command::HandOver {} => crate::heirs::hand_over(state, catalog).map(|_| ()),
         _ => Err(CommandError::PersonOnly),
     }

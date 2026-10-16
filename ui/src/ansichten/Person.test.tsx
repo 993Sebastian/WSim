@@ -96,7 +96,7 @@ describe("Person (PE2)", () => {
     expect(within(steckbrief).getByText(/10\.07\.1884 \(30 Jahre\)/)).toBeTruthy();
     const familie = screen.getByRole("region", { name: "Familie" });
     const zeilen = within(familie).getAllByRole("row");
-    expect(zeilen[1]!.textContent).toMatch(/^Clara Albrecht02\.03\.19104in 21 Jahren$/);
+    expect(zeilen[1]!.textContent).toMatch(/^Clara Albrecht02\.03\.19104in 21 Jahren/);
     expect(within(familie).getByText(/Weitere Kinder sind möglich/)).toBeTruthy();
     const rollen = screen.getByRole("region", { name: "Rollen" });
     expect(within(rollen).getByText("CEO – du führst die Firma selbst")).toBeTruthy();
@@ -371,5 +371,96 @@ describe("Person (PE2)", () => {
     fireEvent.click(within(immo).getByRole("button", { name: "Miete setzen" }));
     await within(immo).findByRole("status");
     expect(gesendet[4]).toEqual({ Invest: { action: { SetRent: { index: 0, factor: 1.1 } } } });
+  });
+
+  it("setzt Ausbildung und Testament der Erben (PV4)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.children = [
+          {
+            name: "Clara Albrecht",
+            born: "1897-03-02",
+            age: 17,
+            died: null,
+            manager: null,
+            position: null,
+            card_in: 8,
+            ambition: 60,
+            interest: 40,
+            talent: null,
+            education: null,
+            can_study: true,
+          },
+          {
+            name: "Paul Albrecht",
+            born: "1900-01-02",
+            age: 14,
+            died: null,
+            manager: null,
+            position: null,
+            card_in: 11,
+            ambition: 50,
+            interest: 30,
+            talent: null,
+            education: null,
+            can_study: false,
+          },
+        ];
+        if (p.succession) {
+          p.succession.shares_enabled = true;
+          p.succession.shares = [
+            { partner: true, child: null, name: "", percent: 50 },
+            { partner: false, child: 0, name: "Clara Albrecht", percent: 25 },
+            { partner: false, child: 1, name: "Paul Albrecht", percent: 25 },
+          ];
+        }
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const wahl = await screen.findByLabelText("Ausbildung von Clara Albrecht");
+    fireEvent.change(wahl, { target: { value: "jurist" } });
+    await screen.findByText("Ausbildung festgelegt.");
+    expect(gesendet[0]).toEqual({ SetEducation: { child: 0, education: "Lawyer" } });
+    const nachfolge = await screen.findByRole("region", { name: "Nachfolge" });
+    const speichern = within(nachfolge).getByRole("button", { name: "Testament speichern" });
+    fireEvent.change(within(nachfolge).getByLabelText(/^Partner/), { target: { value: "0" } });
+    fireEvent.change(within(nachfolge).getByLabelText(/^Clara Albrecht/), {
+      target: { value: "70" },
+    });
+    fireEvent.change(within(nachfolge).getByLabelText(/^Paul Albrecht/), {
+      target: { value: "30" },
+    });
+    fireEvent.click(speichern);
+    await within(nachfolge).findByText("Testament gespeichert.");
+    expect(gesendet[1]).toEqual({
+      SetWill: {
+        shares: [
+          { heir: "Partner", percent: 0 },
+          { heir: { Child: 0 }, percent: 70 },
+          { heir: { Child: 1 }, percent: 30 },
+        ],
+      },
+    });
   });
 });

@@ -592,6 +592,8 @@ meldung.spielende_mittellos: "Du hältst keine Anteile mehr, und dein Guthaben r
 fehler.befehl.nicht_moeglich: Das geht im Moment nicht.
 fehler.befehl.unbekanntes_kind: Dieses Kind gibt es nicht.
 fehler.befehl.krank: Du bist krank und kannst im Moment nichts entscheiden – die Manager entscheiden nach ihren Standardregeln.
+fehler.befehl.testament: Das Testament muss zusammen 100 Prozent an Personen verteilen, die erben können (Partner nur, wenn verheiratet; Kinder nur lebend).
+meldung.person.erbstreit: "Streit unter den Erben: Sie verkaufen {anteil} der Firma {firma} an Investoren."
 fehler.befehl.zeit_summe: Die Anteile der Zeit müssen zusammen 100 ergeben.
 meldung.person.krank: "Du bist erschöpft oder erkrankt und fällst {monate} Monate aus. Die Manager entscheiden nach ihren Standardregeln."
 meldung.person.sparplan_beendet: "Dein Sparplan über {betrag} ist beendet – das Privatkonto reichte nicht."

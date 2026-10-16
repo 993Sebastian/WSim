@@ -412,6 +412,27 @@ fn buy_fund(
     Ok(())
 }
 
+/// Sells funds, gold, deposits and bonds, in that order, until the account holds `need`
+/// (the estate's payout to the co-heirs, PV4).
+pub(crate) fn liquidate(state: &mut GameState, catalog: &Catalog, need: Money) {
+    let enough = |s: &GameState| s.person.account.balance >= need;
+    for fund in FundKind::ALL {
+        if enough(state) {
+            return;
+        }
+        let _ = apply(state, catalog, Investment::SellFund { fund, share: 1.0 });
+    }
+    if !enough(state) {
+        let _ = apply(state, catalog, Investment::SellGold { share: 1.0 });
+    }
+    while !enough(state) && !state.person.portfolio.deposits.is_empty() {
+        let _ = apply(state, catalog, Investment::BreakDeposit { index: 0 });
+    }
+    while !enough(state) && !state.person.portfolio.bonds.is_empty() {
+        let _ = apply(state, catalog, Investment::SellBond { index: 0 });
+    }
+}
+
 /// At a month start: interest and maturities, the gold price, the fund values, the plan.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let mut news = Vec::new();

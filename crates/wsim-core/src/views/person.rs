@@ -27,6 +27,19 @@ pub struct ChildView {
     /// At a private school now.
     #[serde(default)]
     pub private_school: bool,
+    /// Ambition and interest in the firm 0–100, the branch of its talent (PV4).
+    #[serde(default)]
+    pub ambition: u32,
+    #[serde(default)]
+    pub interest: u32,
+    #[serde(default)]
+    pub talent: Option<String>,
+    /// What it studies (`ingenieur`, `kaufmann`, `jurist`, `naturwissenschaftler`, `frei`).
+    #[serde(default)]
+    pub education: Option<String>,
+    /// From this age on the education can be chosen; the child's age is `age`.
+    #[serde(default)]
+    pub can_study: bool,
 }
 
 /// What the person can do privately and what it costs a month (USD).
@@ -337,6 +350,26 @@ pub struct SuccessionView {
     pub generation: u32,
     /// The persons before, the earliest first.
     pub ancestors: Vec<AncestorView>,
+    /// The shares of the will and, if none is set, the statutory succession (PV4).
+    #[serde(default)]
+    pub shares: Vec<EstateShareView>,
+    #[serde(default)]
+    pub will_set: bool,
+    /// Whether the data has children's traits, education and succession shares.
+    #[serde(default)]
+    pub shares_enabled: bool,
+    /// Shares of companies the co-heirs hold: company and share.
+    #[serde(default)]
+    pub heir_stakes: Vec<(String, f64)>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EstateShareView {
+    /// `partner`, or the index of a child.
+    pub partner: bool,
+    pub child: Option<u32>,
+    pub name: String,
+    pub percent: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -392,6 +425,17 @@ pub fn person(game: &Game) -> PersonView {
                 position,
                 card_in: (c.died.is_none() && age < card).then(|| card - age),
                 private_school: c.private_school,
+                ambition: c.ambition,
+                interest: c.interest,
+                talent: c.talent.map(|b| catalog.branches.key(b).to_owned()),
+                education: c.education.map(|e| e.key().to_owned()),
+                can_study: catalog
+                    .person
+                    .legacy
+                    .as_ref()
+                    .is_some_and(|l| age >= l.education_from)
+                    && c.died.is_none()
+                    && c.manager.is_none(),
             }
         })
         .collect();
@@ -710,8 +754,35 @@ fn succession(game: &Game) -> SuccessionView {
             .collect(),
         estate_usd: usd(estate),
         tax_rate: rate,
-        tax_usd: usd(estate.scale(rate)),
+        tax_usd: usd(crate::heirs::tax_due(catalog, state)),
         death_chance_year: 1.0 - crate::math::pow(1.0 - month, 12.0),
+        shares_enabled: catalog.person.legacy.is_some(),
+        will_set: !p.will.is_empty(),
+        shares: crate::heirs::shares(catalog, state)
+            .into_iter()
+            .map(|(h, f)| match h {
+                crate::state::Heir::Partner => EstateShareView {
+                    partner: true,
+                    child: None,
+                    name: String::new(),
+                    percent: f * 100.0,
+                },
+                crate::state::Heir::Child(i) => EstateShareView {
+                    partner: false,
+                    child: Some(i),
+                    name: p
+                        .children
+                        .get(i as usize)
+                        .map_or_else(String::new, |c| c.name.clone()),
+                    percent: f * 100.0,
+                },
+            })
+            .collect(),
+        heir_stakes: p
+            .heir_stakes
+            .iter()
+            .map(|(&c, &q)| (state.companies[c.index()].name.clone(), q))
+            .collect(),
         generation: u32::try_from(p.ancestors.len()).unwrap_or(0) + 1,
         ancestors: p
             .ancestors
@@ -752,6 +823,8 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::AssetSold => "privat.anlageverkauf",
         PrivateFlow::InvestFee => "privat.anlagegebuehr",
         PrivateFlow::Rent => "privat.miete",
+        PrivateFlow::InheritancePayout => "privat.erbausgleich",
+        PrivateFlow::Education => "privat.ausbildung",
         PrivateFlow::PropertyCost => "privat.immobilienkosten",
         PrivateFlow::MortgageInterest => "privat.hypothekzins",
         PrivateFlow::MortgageRepay => "privat.hypothektilgung",

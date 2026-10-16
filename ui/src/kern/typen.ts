@@ -2954,6 +2954,12 @@ export interface PersonKind {
   card_in: number | null;
   /** At a private school now. */
   private_school?: boolean;
+  /** Traits and education (PV4). */
+  ambition?: number;
+  interest?: number;
+  talent?: string | null;
+  education?: string | null;
+  can_study?: boolean;
 }
 
 /** A company the person holds shares of (PE2) with its money (PE3). */
@@ -3166,6 +3172,12 @@ export interface Nachfolge {
   death_chance_year: number;
   generation: number;
   ancestors: { name: string; born: string; until: string; died: boolean }[];
+  /** The shares of the will or of the statutory succession (PV4). */
+  shares?: { partner: boolean; child: number | null; name: string; percent: number }[];
+  will_set?: boolean;
+  shares_enabled?: boolean;
+  /** Shares of companies the co-heirs hold: company and share. */
+  heir_stakes?: [string, number][];
 }
 
 /** A site a facility can be moved to (free within the company, sold within the group). */
