@@ -1033,3 +1033,141 @@ fn within_the_limit_the_head_hires_alone_and_the_file_waits_for_the_review() {
             .all(|c| c.decision.topic != Topic::Hiring)
     );
 }
+
+// --- MG8 §8.2/8.3: courting managers of other companies, dismissals as concerns ---
+
+#[test]
+fn unhappy_managers_of_other_companies_are_candidates_to_court() {
+    let (mut game, _, _) = with_rival(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    let rival = CompanyId(1);
+    let boss = free(&game)[0];
+    let today = game.state().date;
+    let mut job = crate::state::Job {
+        company: rival,
+        position: ceo(),
+        salary: usd(80_000.0),
+        since: today,
+        satisfaction: Some(10),
+        successor: false,
+    };
+    game.state_mut().managers.get_mut(&boss).unwrap().job = Some(job.clone());
+    let pool =
+        |g: &Game| staffing::poachable(g.catalog(), g.state(), g.player(), Unit::Site(works));
+    assert!(pool(&game).contains(&boss), "unhappy: a candidate");
+    // A content manager is not courted.
+    job.satisfaction = Some(90);
+    game.state_mut().managers.get_mut(&boss).unwrap().job = Some(job);
+    assert!(!pool(&game).contains(&boss));
+    // Nor one who has an offer already.
+    game.state_mut()
+        .managers
+        .get_mut(&boss)
+        .unwrap()
+        .job
+        .as_mut()
+        .unwrap()
+        .satisfaction = Some(10);
+    game.apply(Command::PoachManager {
+        manager: boss,
+        position: head(works),
+    })
+    .unwrap();
+    assert!(!pool(&game).contains(&boss));
+}
+
+#[test]
+fn a_hire_that_did_not_work_out_is_put_to_the_player_as_a_dismissal() {
+    let (mut game, works, _) = limited_game(Money::ZERO);
+    to_next_month(&mut game);
+    let id = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.decision.topic == Topic::Hiring && c.status == ConcernStatus::Open)
+        .map(|c| c.id)
+        .unwrap();
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: ConcernAnswer::Choose(0),
+    })
+    .unwrap();
+    let hired = game.state().hire_files[0].hired;
+    assert!(job(&game, hired).position.unit == Unit::Site(works));
+    // The hired manager is unhappy at the review: a miss.
+    game.state_mut()
+        .managers
+        .get_mut(&hired)
+        .unwrap()
+        .job
+        .as_mut()
+        .unwrap()
+        .satisfaction = Some(0);
+    for _ in 0..13 {
+        to_next_month(&mut game);
+    }
+    let c = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.reason == crate::state::ConcernReason::Dismissal)
+        .expect("a question about the dismissal");
+    assert_eq!(c.status, ConcernStatus::Open);
+    assert_eq!(c.decision.choices[0].kind, ChoiceKind::Dismiss);
+    assert!(c.options[0].amount > Money::ZERO, "the severance is shown");
+    // Nobody was let go on his own.
+    if game.state().managers[&hired].job.is_some() {
+        let cid = c.id;
+        game.apply(Command::AnswerConcern {
+            concern: cid,
+            answer: ConcernAnswer::Choose(0),
+        })
+        .unwrap();
+        assert!(game.state().managers[&hired].job.is_none());
+    }
+}
+
+#[test]
+fn a_working_personnel_department_proposes_targets_among_unhappy_managers() {
+    let (mut game, _, _) = with_rival(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    hire_sharp(&mut game, head(works));
+    game.apply(Command::StaffDepartment {
+        department: crate::catalog::DepartmentKind::Personnel,
+        staff: 1,
+    })
+    .unwrap();
+    hire_sharp(&mut game, crate::board_tests::member("personal"));
+    let target = free(&game)[0];
+    let today = game.state().date;
+    game.state_mut().managers.get_mut(&target).unwrap().job = Some(crate::state::Job {
+        company: CompanyId(1),
+        position: ceo(),
+        salary: usd(80_000.0),
+        since: today,
+        satisfaction: Some(5),
+        successor: false,
+    });
+    let mut found = None;
+    for _ in 0..4 {
+        to_next_month(&mut game);
+        found = game
+            .state()
+            .concerns
+            .iter()
+            .find(|c| c.reason == ConcernReason::Target)
+            .map(|c| c.id);
+        if found.is_some() {
+            break;
+        }
+    }
+    let id = found.expect("a proposal of the personnel department");
+    let c = game.state().concerns.iter().find(|c| c.id == id).unwrap();
+    assert!(
+        c.decision
+            .choices
+            .iter()
+            .any(|ch| ch.kind == ChoiceKind::Poach),
+        "the unhappy manager of the rival is an option"
+    );
+}

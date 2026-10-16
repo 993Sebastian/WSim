@@ -1459,6 +1459,7 @@ zentrale.kosten: "Kosten jetzt {betrag}; Dauer {monate} Monate; {anteil} der Ang
 zentrale.verlegt: "Der Umzug nach {land} beginnt; er dauert {monate} Monate."
 organisation.trefferquote: Trefferquote
 organisation.personalgespuer: Personalgespür
+organisation.spuersinn: Spürsinn (erkannte Gelegenheiten)
 organisation.reiter_chronik: Chronik
 chronik.titel: Chronik der Entscheidungen
 chronik.hilfe: Jede Entscheidung über ein Anliegen mit Prognose, Messung nach der Wirkzeit und dem Urteil, ob die Empfehlung die bessere war. Zeilen gegen die Empfehlung sind hervorgehoben.
@@ -1856,6 +1857,11 @@ anliegen.stellungnahme_dafuer: "Stellungnahme der Strategieabteilung ({name}): u
 anliegen.stellungnahme_dagegen: "Stellungnahme der Strategieabteilung ({name}): rät ab."
 anliegen.grund.einstellung: Eine Leitung sucht Verstärkung. Das Gehalt des besten Bewerbers liegt über der Freigabegrenze Personal; sie legt dir die besten Bewerber vor.
 thema.einstellung: Einstellung
+anliegen.grund.abwerbeziel: Die Personalabteilung hat unzufriedene Manager anderer Firmen gefunden, die zu einer freien Stelle passen.
+anliegen.grund.freigabe_vorschlag: Der CEO sieht Gelegenheiten in einer Branche, die Ihre Freigabe zurückhält. Er schlägt vor, die Stufe zu lockern.
+anliegen.grund.entlassung: Eine Einstellung hat sich nach einem Jahr nicht bewährt. Entlassungen entscheidest du.
+option.abwerben: Abwerben
+option.entlassen: Entlassen
 thema.personalbedarf: Personalbedarf einer Abteilung
 anliegen.grund.personalbedarf: Die Leitung einer Zentralabteilung empfiehlt eine andere Mitarbeiterzahl; die Mehrkosten liegen über ihrer Freigabegrenze oder der CEO stellt nicht selbst ein.
 option.einstellen: Einstellen
@@ -2804,6 +2810,9 @@ anliegen.stil: "Stil: {stil}"
 chronik.einwand: "Einwand des Managers: Seine Empfehlung hätte nach seiner Prognose {betrag} im Jahr mehr gebracht."
 menue.marktaufbau: "Einstellung dieser Version: Die Märkte haben {jahr} nur {anteil} % ihrer späteren Größe und wachsen gleichmäßig über {jahre} Jahre (bis {bis}) auf die volle Größe – zusätzlich zum Wachstum von Bevölkerung und Wirtschaft."
 freigabe.titel: Freigabe der Branchen
+freigabe.laender_zeigen: Spalten für Länder mit eigenen Standorten zeigen
+freigabe.beteiligungen: Die Freigabe gilt auch für Übernahmen von Standorten (Beteiligungen)
+organisation.aktiv_in: "Aktiv in"
 freigabe.hilfe: "Wie weit dürfen die Stellen in einer Branche gehen? Frei: alles im Rahmen der Budgets. Mit Rückfrage: Betrieb frei, jede Erweiterung kommt als Anliegen zu Ihnen. Nur halten: Betrieb und Ersatz, keine Erweiterung. Gesperrt: keine Erweiterung, bestehende Werke laufen weiter. Eine leere Zelle erbt vom Konzern, „Übrige Branchen“ gilt für alle nicht genannten."
 freigabe.branche: Branche
 freigabe.konzern: Konzern

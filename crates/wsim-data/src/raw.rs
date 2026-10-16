@@ -2686,6 +2686,22 @@ pub struct RawMandateModel {
     pub proposal_postpone_days: u32,
     #[serde(rename = "vorschlag_branche_gewicht")]
     pub proposal_branch_weight: f64,
+    #[serde(rename = "abwehr_monate", default = "RawMandateModel::defence_default")]
+    pub defence_months: u32,
+    #[serde(
+        rename = "freigabe_vorschlag_ab",
+        default = "RawMandateModel::release_default"
+    )]
+    pub release_proposal_from: u32,
+}
+
+impl RawMandateModel {
+    fn defence_default() -> u32 {
+        6
+    }
+    fn release_default() -> u32 {
+        2
+    }
 }
 
 /// The living market of managers (MA6).
@@ -2851,9 +2867,25 @@ pub struct RawStaffing {
         default = "RawStaffing::review_default"
     )]
     pub dept_review_months: u32,
+    #[serde(
+        rename = "abwerben_unter",
+        default = "RawStaffing::poach_below_default"
+    )]
+    pub poach_below: u32,
+    #[serde(
+        rename = "ziele_monate",
+        default = "RawStaffing::target_months_default"
+    )]
+    pub target_months: u32,
 }
 
 impl RawStaffing {
+    fn poach_below_default() -> u32 {
+        45
+    }
+    fn target_months_default() -> u32 {
+        3
+    }
     fn candidates_default() -> u32 {
         3
     }

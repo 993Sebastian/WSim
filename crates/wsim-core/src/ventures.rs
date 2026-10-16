@@ -398,6 +398,7 @@ fn issue(v: &mut Venture, givers: &[(Holder, Money)], valuation: f64) {
 /// All phases passed: the technology counts as invented from today if that is earlier
 /// than so far, or the level as reached; then the owners settle (SU2).
 fn succeed(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Vec<Message> {
+    crate::central::note_opportunity(state, catalog, i);
     let v = &mut state.ventures[i];
     v.status = VentureStatus::Succeeded(date);
     v.phase = catalog.ventures.phases.len();

@@ -104,6 +104,9 @@ pub struct MandateView {
     pub blocked_groups: Vec<String>,
     /// The branch release cells (MG10).
     pub release: Vec<ReleaseCellView>,
+    /// Whether the release also holds for takeovers (MG10).
+    #[serde(default)]
+    pub release_stakes: bool,
     /// `monatlich`, `quartalsweise`, `halbjaehrlich`, `jaehrlich`.
     pub review: String,
 }
@@ -140,6 +143,10 @@ pub struct ReviewsView {
     /// Branches and continents of the release matrix (MG10).
     pub branches: Vec<String>,
     pub continents: Vec<String>,
+    /// Countries with a site of the company, the columns the release matrix can open
+    /// (MG10).
+    #[serde(default)]
+    pub own_countries: Vec<String>,
     /// The CEO's name; `None` without a CEO (no reviews then).
     pub ceo: Option<String>,
     /// The next review with a CEO.
@@ -325,6 +332,7 @@ pub fn reviews(game: &Game) -> ReviewsView {
                     }
                 })
                 .collect(),
+            release_stakes: m.release_stakes,
             review: m.review.key().to_owned(),
         },
         guidelines: if c.management.enabled() {
@@ -346,6 +354,19 @@ pub fn reviews(game: &Game) -> ReviewsView {
         countries: c.countries.keys().to_vec(),
         branches: c.branches.keys().to_vec(),
         continents: c.continents.keys().to_vec(),
+        own_countries: {
+            let mut own: Vec<crate::ids::CountryId> = state
+                .sites
+                .iter()
+                .filter(|s| s.held_by(player))
+                .map(|s| s.country)
+                .collect();
+            own.sort();
+            own.dedup();
+            own.into_iter()
+                .map(|k| c.countries.key(k).to_owned())
+                .collect()
+        },
         ceo: ceo.map(|id| state.managers[&id].name.clone()),
         next_review: ceo.map(|_| iso(review::next_review(m.review, state.date))),
         goals_now: review::goals(state, player).iter().map(goal_view).collect(),

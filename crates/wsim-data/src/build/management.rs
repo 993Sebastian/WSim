@@ -312,6 +312,8 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         ),
         proposals_per_quarter: v.mandate.proposals_per_quarter,
         proposal_postpone_days: v.mandate.proposal_postpone_days.max(1),
+        defence_months: v.mandate.defence_months.clamp(1, 36),
+        release_proposal_from: v.mandate.release_proposal_from.min(100),
         proposal_branch_weight: in_range(
             ctx,
             v.mandate.proposal_branch_weight,
@@ -498,6 +500,8 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
                 &l.field("personal").field("ueberbesetzt_ab"),
             ),
             dept_review_months: v.staffing.dept_review_months.clamp(1, 60),
+            poach_below: u8::try_from(v.staffing.poach_below.min(100)).unwrap_or(100),
+            target_months: v.staffing.target_months.clamp(1, 60),
             limit_usd: non_negative(
                 ctx,
                 v.staffing.limit_usd,

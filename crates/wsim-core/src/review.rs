@@ -392,8 +392,13 @@ fn proposals(
                 ),
             )
         });
-    let mut decisions =
-        crate::ai::opportunities(state, catalog, company, max - usize::from(offer.is_some()));
+    // A working strategy department proposes the defence against rivals first (MG9c).
+    let mut decisions = defence(state, catalog, company);
+    decisions.truncate(max.saturating_sub(usize::from(offer.is_some())));
+    let room = max
+        .saturating_sub(usize::from(offer.is_some()))
+        .saturating_sub(decisions.len());
+    decisions.extend(crate::ai::opportunities(state, catalog, company, room));
     decisions.extend(offer);
     let open: Vec<(Topic, Option<Unit>, Option<ProductId>)> = state
         .concerns
@@ -475,6 +480,59 @@ fn proposals(
             dissent: None,
             statement,
         });
+    }
+    out
+}
+
+/// Defence proposals (MG9c, docs/FORMELN.md): a rival founded a site in a country where the
+/// company has sites, of a kind it has none of there, and the strategy department works.
+/// One decision: founding a site of the same kind, or keeping things as they are.
+pub(crate) fn defence(state: &GameState, catalog: &Catalog, company: CompanyId) -> Vec<Decision> {
+    let works = crate::central::head_position(catalog, DepartmentKind::Strategy)
+        .is_some_and(|p| crate::central::accuracy(catalog, state, company, &p) > 0.0);
+    if !state.is_main(company) || !works {
+        return Vec::new();
+    }
+    let mut out: Vec<Decision> = Vec::new();
+    for mv in &state.rival_moves {
+        if mv.rival == company {
+            continue;
+        }
+        let has = |country, kind| {
+            state
+                .sites
+                .iter()
+                .any(|s| s.held_by(company) && s.country == country && s.kind == kind)
+        };
+        let own_here = state
+            .sites
+            .iter()
+            .any(|s| s.held_by(company) && s.country == mv.country);
+        if !own_here || has(mv.country, mv.kind) {
+            continue;
+        }
+        let asked = out.iter().any(|d| {
+            d.choices.iter().any(|c| {
+                c.steps.iter().any(|s| {
+                    matches!(&s.command, Command::FoundSite { country, kind }
+                        if *country == mv.country && *kind == mv.kind)
+                })
+            })
+        });
+        if asked {
+            continue;
+        }
+        out.push(Decision::new(
+            Topic::Expansion,
+            company,
+            Choice::one(
+                ChoiceKind::Build,
+                Command::FoundSite {
+                    country: mv.country,
+                    kind: mv.kind,
+                },
+            ),
+        ));
     }
     out
 }

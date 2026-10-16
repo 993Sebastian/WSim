@@ -1513,6 +1513,11 @@ export interface Manager {
   /** His feeling for people: reviewed hires and the share of hits (MG8). */
   hire_judged?: number;
   hire_rate?: number | null;
+  /** His flair for chances: judged and the share caught (MG9). */
+  /** The branches the unit he leads may expand in, and how many there are (MG10). */
+  active_in?: { branches: string[]; total: number } | null;
+  sense_judged?: number;
+  sense_rate?: number | null;
   /** Age today, the age at which he plans to retire and the day (PE1). */
   age?: number | null;
   retires_at?: number | null;
@@ -2235,6 +2240,7 @@ export interface Auftrag {
     branch: string | null;
     stage: "Free" | "Ask" | "Hold" | "Locked";
   }[];
+  release_stakes?: boolean;
   review: Ruecksprachetakt;
 }
 
@@ -2310,6 +2316,8 @@ export interface AuftragSicht {
   blocked_countries: string[];
   blocked_groups: string[];
   release: FreigabeZelle[];
+  /** Whether the release also holds for takeovers of sites (MG10). */
+  release_stakes?: boolean;
   review: "monatlich" | "quartalsweise" | "halbjaehrlich" | "jaehrlich";
 }
 
@@ -2337,6 +2345,8 @@ export interface Ruecksprachen {
   /** Branches and continents of the release matrix (MG10). */
   branches: string[];
   continents: string[];
+  /** Countries with a site of the company: the columns the matrix can open (MG10). */
+  own_countries?: string[];
   /** The CEO's name; null without a CEO. */
   ceo: string | null;
   next_review: string | null;

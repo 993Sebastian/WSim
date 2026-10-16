@@ -383,6 +383,12 @@ pub mod keys {
     pub const STEP_STAFF_DEPARTMENT: &str = "schritt.abteilung_personal";
     pub const STEP_PROMOTE: &str = "schritt.befoerdern";
     pub const STEP_EXTEND: &str = "schritt.verlaengern";
+    pub const BECAUSE_DEFENCE: &str = "anliegen.begruendung.abwehr";
+    pub const STEP_RELEASE: &str = "schritt.freigabe";
+    pub const STEP_POACH: &str = "schritt.abwerben";
+    pub const STEP_DISMISS: &str = "schritt.entlassen";
+    pub const BECAUSE_POACH: &str = "anliegen.begruendung.abwerben";
+    pub const BECAUSE_DISMISS: &str = "anliegen.begruendung.entlassen";
     pub const STEP_VACANT: &str = "schritt.unbesetzt";
     pub const BECAUSE_SUCCESSOR: &str = "anliegen.begruendung.nachfolger";
     pub const BECAUSE_HIRE: &str = "anliegen.begruendung.einstellen";
@@ -866,6 +872,12 @@ pub mod keys {
         STEP_PROMOTE,
         STEP_EXTEND,
         STEP_VACANT,
+        STEP_POACH,
+        STEP_RELEASE,
+        BECAUSE_DEFENCE,
+        STEP_DISMISS,
+        BECAUSE_POACH,
+        BECAUSE_DISMISS,
         BECAUSE_SUCCESSOR,
         BECAUSE_HIRE,
         BECAUSE_EXTEND,

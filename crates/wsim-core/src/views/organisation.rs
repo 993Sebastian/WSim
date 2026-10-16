@@ -26,6 +26,13 @@ pub struct SkillView {
     pub level: u8,
 }
 
+/// The branches a head may expand in (MG10).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ActiveInView {
+    pub branches: Vec<String>,
+    pub total: u32,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ManagerView {
     pub id: u32,
@@ -50,6 +57,15 @@ pub struct ManagerView {
     pub hire_judged: u32,
     #[serde(default)]
     pub hire_rate: Option<f64>,
+    /// The branches the unit he leads may expand in under the release, and how many there
+    /// are; none without a release or for other positions (MG10).
+    #[serde(default)]
+    pub active_in: Option<ActiveInView>,
+    /// His flair (MG9): the chances in sight that were judged, and the share he caught.
+    #[serde(default)]
+    pub sense_judged: u32,
+    #[serde(default)]
+    pub sense_rate: Option<f64>,
     /// Age today and the age at which he plans to retire, with the day (PE1).
     pub age: Option<u32>,
     pub retires_at: Option<u32>,
@@ -647,6 +663,47 @@ pub(super) fn kind_text(state: &GameState, unit: Unit) -> String {
     }
 }
 
+/// The branches in which the unit of a head of the company, a continent or a country may
+/// expand (stage free or with query), if the release is set (MG10).
+fn active_in(game: &Game, m: &Manager) -> Option<ActiveInView> {
+    let job = m.job.as_ref()?;
+    if job.position.role != crate::state::Role::Head {
+        return None;
+    }
+    let state = game.state();
+    let c = game.catalog();
+    let cells = &state.companies.get(job.company.index())?.mandate.release;
+    if cells.is_empty() {
+        return None;
+    }
+    let (country, continent) = match job.position.unit {
+        Unit::Board => (None, None),
+        Unit::Continent(k) => (None, Some(k)),
+        Unit::Country(x) => (Some(x), None),
+        Unit::Site(_) => return None,
+    };
+    let keys = c.branches.keys();
+    let branches: Vec<String> = (0..keys.len())
+        .filter(|&i| {
+            matches!(
+                crate::mandate::release_stage(
+                    c,
+                    cells,
+                    country,
+                    continent,
+                    Some(<crate::ids::BranchId as crate::ids::Id>::from_index(i)),
+                ),
+                crate::mandate::ReleaseStage::Free | crate::mandate::ReleaseStage::Ask
+            )
+        })
+        .map(|i| keys[i].clone())
+        .collect();
+    Some(ActiveInView {
+        branches,
+        total: u32::try_from(keys.len()).unwrap_or(u32::MAX),
+    })
+}
+
 fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
     let c = game.catalog();
     // The personnel member of the board sees more sharply (MA5).
@@ -674,6 +731,7 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
         .collect();
     branches.sort_by(|a, b| b.level.cmp(&a.level).then_with(|| a.key.cmp(&b.key)));
     ManagerView {
+        active_in: active_in(game, m),
         branches,
         id: id.0,
         name: m.name.clone(),
@@ -686,6 +744,8 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
         skills,
         judged: m.judged,
         hit_rate: (m.judged > 0).then(|| crate::central::hit_rate(c, m)),
+        sense_judged: m.sense_judged,
+        sense_rate: (m.sense_judged > 0).then(|| crate::central::flair(c, m)),
         hire_judged: m.hire_judged,
         hire_rate: (m.hire_judged > 0).then(|| f64::from(m.hire_hits) / f64::from(m.hire_judged)),
         age: crate::aging::age_of(m, game.state().date),

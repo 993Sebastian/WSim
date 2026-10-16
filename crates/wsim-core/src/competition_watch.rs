@@ -46,6 +46,47 @@ pub(crate) fn month_start(state: &GameState, catalog: &Catalog, date: Date) -> V
     news
 }
 
+/// Keeps the sites other companies founded in the countries of the player's sites, for
+/// the defence proposals of the department (MG9c); moves older than the data's months
+/// leave.
+pub(crate) fn record(state: &mut GameState, catalog: &Catalog, date: Date) {
+    let Some(me) = state.main_company else {
+        return;
+    };
+    if !catalog.management.enabled() || state.companies[me.index()].bankrupt {
+        return;
+    }
+    let since = date.first_of_month();
+    let from = previous_month(since);
+    let own: std::collections::BTreeSet<_> = state
+        .sites
+        .iter()
+        .filter(|s| s.held_by(me))
+        .map(|s| s.country)
+        .collect();
+    let seen: Vec<crate::state::RivalMove> = state
+        .sites
+        .iter()
+        .filter(|s| {
+            s.owner != me
+                && s.closed.is_none()
+                && s.founded >= from
+                && s.founded < since
+                && own.contains(&s.country)
+        })
+        .map(|s| crate::state::RivalMove {
+            rival: s.owner,
+            country: s.country,
+            kind: s.kind,
+            date: s.founded,
+        })
+        .collect();
+    state.rival_moves.extend(seen);
+    let keep =
+        date.add_days(-30 * i32::try_from(catalog.management.mandate.defence_months).unwrap_or(6));
+    state.rival_moves.retain(|m| m.date >= keep);
+}
+
 fn previous_month(first: Date) -> Date {
     first.add_days(-1).first_of_month()
 }

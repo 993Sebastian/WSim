@@ -104,7 +104,10 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     review_hires(state, catalog, date, &mut news);
     crate::dept_staff::month_start(state, catalog, date, &mut news);
     news.extend(crate::competition_watch::month_start(state, catalog, date));
+    crate::competition_watch::record(state, catalog, date);
+    crate::release_proposals::month_start(state, catalog, date);
     heads_hire(state, catalog, &mut streams, &mut news);
+    personnel_targets(state, catalog, &mut streams);
     ai_staffing(state, catalog, date, &mut news);
     ai_competence(state, catalog);
     news
@@ -439,7 +442,8 @@ fn heads_hire(
                 Role::Specialist(function) => management::expertise_key(function),
                 Role::Head => management::LEADERSHIP.to_owned(),
             };
-            let all = candidates(catalog, state, company, head.unit);
+            let mut all = candidates(catalog, state, company, head.unit);
+            all.extend(poachable(catalog, state, company, head.unit));
             let focused: Vec<ManagerId> = match &position.role {
                 Role::Specialist(function) => all
                     .iter()
@@ -493,9 +497,8 @@ fn hire_one(
     // Cases are few; the cast is exact.
     let looked = (model.candidates + k as u32 / model.per_personnel.max(1)) as usize;
     let examined = &ranked[..ranked.len().min(looked)];
-    let salary_of = |state: &GameState, id: ManagerId| {
-        management::salary_demand(catalog, state, company, &state.managers[&id], position)
-    };
+    let salary_of =
+        |state: &GameState, id: ManagerId| offer_salary(catalog, state, company, id, position);
     let head_salary = state.managers[&boss]
         .job
         .as_ref()
@@ -526,8 +529,16 @@ fn hire_one(
             state,
             catalog,
             (company, head, boss),
-            (position, &affordable),
+            (position, &affordable, ConcernReason::Hiring),
         );
+    }
+    // A manager of another company is courted; he joins when he accepts (MG8).
+    if state.managers[&best].job.is_some() {
+        let offer = Command::PoachManager {
+            manager: best,
+            position: position.clone(),
+        };
+        return command::execute(state, catalog, company, &offer).is_ok();
     }
     let hire = Command::HireManager {
         manager: best,
@@ -574,7 +585,7 @@ fn ask_hiring(
     state: &mut GameState,
     catalog: &Catalog,
     (company, head, boss): (CompanyId, &Position, ManagerId),
-    (position, affordable): (&Position, &[ManagerId]),
+    (position, affordable, reason): (&Position, &[ManagerId], ConcernReason),
 ) -> bool {
     let model = catalog.management.staffing;
     let today = state.date;
@@ -584,6 +595,7 @@ fn ask_hiring(
             && c.decision.choices.iter().any(|ch| {
                 ch.steps.iter().any(|s| {
                     matches!(&s.command, Command::HireManager { position: p, .. } if p == position)
+                        || matches!(&s.command, Command::PoachManager { position: p, .. } if p == position)
                         || matches!(&s.command, Command::LeaveVacant { position: p } if p == position)
                 })
             })
@@ -603,15 +615,24 @@ fn ask_hiring(
     let mut choices = Vec::new();
     let mut options = Vec::new();
     for &id in affordable.iter().take(model.options as usize) {
-        let salary =
-            management::salary_demand(catalog, state, company, &state.managers[&id], position);
-        choices.push(Choice::one(
-            ChoiceKind::Hire,
-            Command::HireManager {
-                manager: id,
-                position: position.clone(),
-            },
-        ));
+        let salary = offer_salary(catalog, state, company, id, position);
+        choices.push(if state.managers[&id].job.is_some() {
+            Choice::one(
+                ChoiceKind::Poach,
+                Command::PoachManager {
+                    manager: id,
+                    position: position.clone(),
+                },
+            )
+        } else {
+            Choice::one(
+                ChoiceKind::Hire,
+                Command::HireManager {
+                    manager: id,
+                    position: position.clone(),
+                },
+            )
+        });
         options.push(ConcernOption {
             amount: salary,
             forecast: None,
@@ -648,7 +669,7 @@ fn ask_hiring(
         },
         recommended: 0,
         options,
-        reason: ConcernReason::Hiring,
+        reason,
         path: Vec::new(),
         parts: Vec::new(),
         created: today,
@@ -660,6 +681,176 @@ fn ask_hiring(
         statement: None,
     });
     true
+}
+
+/// A hire that did not work out: the head asks whether to let the manager go (MG8, only
+/// ever as a concern, the severance is a cost at once).
+fn ask_dismissal(state: &mut GameState, catalog: &Catalog, f: &HireFile) {
+    let Some(job) = state.managers.get(&f.hired).and_then(|m| m.job.as_ref()) else {
+        return;
+    };
+    if job.company != f.company || job.position != f.position {
+        return;
+    }
+    let severance = job.salary.scale(catalog.management.severance_months / 12.0);
+    let today = state.date;
+    let id = state.next_concern;
+    state.next_concern += 1;
+    let deadline =
+        today.add_days(i32::try_from(catalog.management.concerns.deadline_days).unwrap_or(30));
+    state.concerns.push(Concern {
+        id,
+        company: f.company,
+        position: f.asker.clone(),
+        manager: f.head,
+        decision: Decision {
+            topic: Topic::Hiring,
+            company: f.company,
+            site: f.position.site(),
+            product: None,
+            choices: vec![
+                Choice::one(
+                    ChoiceKind::Dismiss,
+                    Command::DismissManager { manager: f.hired },
+                ),
+                Choice::keep(),
+            ],
+            rule: 0,
+        },
+        recommended: 0,
+        options: vec![
+            ConcernOption {
+                amount: severance,
+                forecast: None,
+                once: Money::ZERO,
+            },
+            ConcernOption {
+                amount: Money::ZERO,
+                forecast: None,
+                once: Money::ZERO,
+            },
+        ],
+        reason: ConcernReason::Dismissal,
+        path: Vec::new(),
+        parts: Vec::new(),
+        created: today,
+        deadline,
+        status: ConcernStatus::Open,
+        closed: None,
+        memory: None,
+        dissent: None,
+        statement: None,
+    });
+}
+
+/// With a working personnel department, the player's company gets a proposal every few
+/// months: unhappy managers of other companies for a free position with work (MG8).
+fn personnel_targets(state: &mut GameState, catalog: &Catalog, streams: &mut Streams) {
+    let model = catalog.management.staffing;
+    let Some(company) = state.main_company else {
+        return;
+    };
+    if !streams.month.is_multiple_of(model.target_months)
+        || crate::central::strength(
+            catalog,
+            state,
+            company,
+            crate::catalog::DepartmentKind::Personnel,
+        ) <= 0.0
+    {
+        return;
+    }
+    for unit in management::units(catalog, state, company) {
+        let head = Position::new(unit, Role::Head);
+        let Some(boss) = management::holder(state, company, &head) else {
+            continue;
+        };
+        let free: Vec<Position> = management::positions(catalog, state, company, unit)
+            .into_iter()
+            .filter(|p| {
+                matches!(p.role, Role::Specialist(_))
+                    && management::holder(state, company, p).is_none()
+                    && has_work(catalog, state, p)
+                    && !offered(state, company, p)
+            })
+            .collect();
+        for position in free {
+            let Role::Specialist(function) = &position.role else {
+                continue;
+            };
+            let key = management::expertise_key(function);
+            let pool = poachable(catalog, state, company, unit);
+            if pool.is_empty() {
+                continue;
+            }
+            let judgment = state.managers[&boss].judgment;
+            let ranked = rank(
+                catalog,
+                state,
+                company,
+                (&pool, &key),
+                (judgment, streams.of(boss)),
+            );
+            let n = ranked.len().min(model.options as usize);
+            if ask_hiring(
+                state,
+                catalog,
+                (company, &head, boss),
+                (&position, &ranked[..n], ConcernReason::Target),
+            ) {
+                // One proposal per round keeps the mailbox short.
+                return;
+            }
+        }
+    }
+}
+
+/// What a company pays a candidate: his demand when free, the offer to lure him away
+/// when he works for another company.
+fn offer_salary(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    id: ManagerId,
+    position: &Position,
+) -> Money {
+    let m = &state.managers[&id];
+    if m.job.is_some() {
+        poach_salary(catalog, state, company, m, position)
+    } else {
+        management::salary_demand(catalog, state, company, m, position)
+    }
+}
+
+/// Managers of other companies a head may court: unhappy with their job, on the same
+/// continent, not courted lately and without an offer (docs/FORMELN.md, MG8).
+pub(crate) fn poachable(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    unit: Unit,
+) -> Vec<ManagerId> {
+    let Some(country) = management::seat_country(catalog, state, company, unit) else {
+        return Vec::new();
+    };
+    let continent = catalog.countries.get(country).continent;
+    let below = catalog.management.staffing.poach_below;
+    state
+        .managers
+        .iter()
+        .filter(|(id, m)| {
+            m.job.as_ref().is_some_and(|j| {
+                j.company != company
+                    && !state.companies[j.company.index()].bankrupt
+                    && !j.successor
+                    && satisfaction(catalog, j) < below
+            }) && !m.family
+                && catalog.countries.get(m.home).continent == continent
+                && courted_until(catalog, m).is_none_or(|d| d <= state.date)
+                && !state.poach_offers.iter().any(|o| o.manager == **id)
+        })
+        .map(|(&id, _)| id)
+        .collect()
 }
 
 /// A hire by a head waiting for its review (docs/FORMELN.md, MG8).
@@ -717,6 +908,9 @@ fn review_hires(state: &mut GameState, catalog: &Catalog, today: Date, news: &mu
         if let Some(m) = state.managers.get_mut(&f.head) {
             m.hire_judged += 1;
             m.hire_hits += u32::from(hit);
+        }
+        if !hit && state.is_main(f.company) {
+            ask_dismissal(state, catalog, &f);
         }
         if state.is_main(f.company) && state.managers.contains_key(&f.hired) {
             news.push(

@@ -943,6 +943,8 @@ pub(crate) fn draw(
         hits: 0,
         hire_judged: 0,
         hire_hits: 0,
+        sense_judged: 0,
+        sense_hits: 0,
         born: None,
         retire_offset: 0,
         extended: 0,

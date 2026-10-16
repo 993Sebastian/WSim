@@ -731,6 +731,8 @@ pub fn management() -> Catalog {
             personnel_sharpness: 0.8,
             proposals_per_quarter: 1,
             proposal_postpone_days: 30,
+            defence_months: 6,
+            release_proposal_from: 2,
             proposal_branch_weight: 0.5,
         },
         head_discount: 0.2,

@@ -116,10 +116,25 @@ export function AlleFaehigkeiten({ m }: { m: Manager }) {
             <dd>{stufeText("branche", b.level)}</dd>
           </Fragment>
         ))}
+        {m.active_in && (
+          <>
+            <dt>{t("organisation.aktiv_in")}</dt>
+            <dd>
+              {m.active_in.branches.map((b) => t(`branche.${b}`)).join(", ") || "–"} (
+              {m.active_in.branches.length} / {m.active_in.total})
+            </dd>
+          </>
+        )}
         <dt>{t("organisation.trefferquote")}</dt>
         <dd>{trefferquote(m.hit_rate, m.judged)}</dd>
         <dt>{t("organisation.personalgespuer")}</dt>
         <dd>{trefferquote(m.hire_rate ?? null, m.hire_judged ?? 0)}</dd>
+        {(m.sense_judged ?? 0) > 0 && (
+          <>
+            <dt>{t("organisation.spuersinn")}</dt>
+            <dd>{trefferquote(m.sense_rate ?? null, m.sense_judged ?? 0)}</dd>
+          </>
+        )}
         {m.style && (
           <>
             <dt>{t("stil.titel")}</dt>

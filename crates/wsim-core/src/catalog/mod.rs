@@ -245,6 +245,10 @@ pub struct StaffingModel {
     pub over: f64,
     /// Months until the file on a staff decision is reviewed.
     pub dept_review_months: u32,
+    /// Satisfaction below which a manager of another company counts as a candidate, and
+    /// the months between the proposals of targets by the personnel department (MG8).
+    pub poach_below: u8,
+    pub target_months: u32,
 }
 
 impl Default for StaffingModel {
@@ -260,6 +264,8 @@ impl Default for StaffingModel {
             under: 0.8,
             over: 0.6,
             dept_review_months: 12,
+            poach_below: 45,
+            target_months: 3,
         }
     }
 }
@@ -465,6 +471,11 @@ pub struct MandateModel {
     /// Proposals out of turn per quarter and the days a postponed one gains (MG6).
     pub proposals_per_quarter: u32,
     pub proposal_postpone_days: u32,
+    /// Chances the release holds back in a branch from which on the CEO proposes to loosen
+    /// it, once a year (MG10); 0 = never.
+    pub release_proposal_from: u32,
+    /// Months a new site of a rival stays a reason for a defence proposal (MG9c).
+    pub defence_months: u32,
     /// Share of the missing expertise full branch strength of the proposer makes up for.
     pub proposal_branch_weight: f64,
 }

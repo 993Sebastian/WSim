@@ -249,6 +249,9 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Dividend => "dividende",
         ConcernReason::Hiring => "einstellung",
         ConcernReason::StaffNeed => "personalbedarf",
+        ConcernReason::Target => "abwerbeziel",
+        ConcernReason::Dismissal => "entlassung",
+        ConcernReason::Release => "freigabe_vorschlag",
     }
 }
 
@@ -604,6 +607,32 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 .with("chance", percent(aging::acceptance(catalog, x, state.date)))
         }
         Command::LeaveVacant { .. } => m(keys::STEP_VACANT),
+        Command::PoachManager { manager, position } => {
+            let x = state.managers.get(manager)?;
+            let offer =
+                crate::staffing::poach_salary(catalog, state, state.main_company?, x, position);
+            m(keys::STEP_POACH)
+                .with("name", Param::Text(x.name.clone()))
+                .with("staerke", integer(management::strength(x).round() as i64))
+                .with("gehalt", Param::Money(offer))
+        }
+        Command::SetMandate { mandate } => {
+            let now = &state.companies.get(state.main_company?.index())?.mandate;
+            let cell = mandate.release.iter().find(|c| !now.release.contains(c))?;
+            m(keys::STEP_RELEASE)
+                .with(
+                    "branche",
+                    Param::TextKey(format!("branche.{}", catalog.branches.key(cell.branch?))),
+                )
+                .with(
+                    "stufe",
+                    Param::TextKey(format!("freigabe.{}", cell.stage.key())),
+                )
+        }
+        Command::DismissManager { manager } => {
+            let x = state.managers.get(manager)?;
+            m(keys::STEP_DISMISS).with("name", Param::Text(x.name.clone()))
+        }
         _ => return None,
     })
 }
@@ -691,6 +720,31 @@ fn department_because(catalog: &Catalog, state: &GameState, c: &Concern) -> Opti
         }
         Command::ExtendContract { .. } => m(keys::BECAUSE_EXTEND),
         Command::LeaveVacant { .. } => m(keys::BECAUSE_VACANT),
+        Command::FoundSite { country, kind } => {
+            let rival = state
+                .rival_moves
+                .iter()
+                .find(|r| r.country == country && r.kind == kind)?;
+            m(keys::BECAUSE_DEFENCE)
+                .with(
+                    "firma",
+                    Param::Text(state.companies[rival.rival.index()].name.clone()),
+                )
+                .with(
+                    "land",
+                    Param::Country(catalog.countries.key(country).to_owned()),
+                )
+        }
+        Command::PoachManager { manager, .. } => {
+            let x = state.managers.get(&manager)?;
+            m(keys::BECAUSE_POACH)
+                .with("name", Param::Text(x.name.clone()))
+                .with("staerke", integer(management::strength(x).round() as i64))
+        }
+        Command::DismissManager { manager } => {
+            let x = state.managers.get(&manager)?;
+            m(keys::BECAUSE_DISMISS).with("name", Param::Text(x.name.clone()))
+        }
         Command::RaiseSalary { manager, salary } => {
             let x = state.managers.get(&manager)?;
             let now = x.job.as_ref()?.salary;

@@ -6766,6 +6766,60 @@ Anliegen „Personalbedarf“ mit „auf n setzen“ und „so lassen“.
 Abteilung ihre Last deckt (`Abdeckung ≥ unterdeckt_ab`) und ausgelastet ist (`Last ≥ ueberbesetzt_ab · Kapazität`).
 Der Ausgang zählt in der Trefferquote der Leitung.
 
+## MG8e – Abwerbekandidaten, Abwerbeziele, Entlassungen als Anliegen (16.10.2026)
+
+Vorgabe `docs/MANAGER_2.md` §8.2 und §8.3. Daten: `management.personal.abwerben_unter`, `ziele_monate`.
+Kern: `staffing::poachable`, `personnel_targets`, `ask_dismissal`.
+
+**Abwerbekandidaten.** Zu den freien Bewerbern der Einheit kommen Manager anderer Firmen auf demselben
+Kontinent, deren Zufriedenheit unter `abwerben_unter` liegt (nicht Familie, nicht Nachfolger, nicht
+umworben innerhalb der Pause, ohne laufendes Angebot). Sie werden wie alle Kandidaten nach der
+Fachkompetenz in der Funktion bewertet (Urteilsvermögen der Leitung). Gehalt = `poach_salary` (MA6)
+statt der Forderung. Ist der beste ein Fremder und die Leitung entscheidet allein, geht das Angebot
+(`PoachManager`) hinaus; er kommt, wenn er annimmt (kein sofortiger Aktenvorgang). Über der Grenze
+„Personal“ legt die Leitung Optionen vor; Fremde stehen mit der Auswahlart `abwerben`.
+
+**Abwerbeziele.** Mit arbeitender Personalabteilung (Stärke > 0) prüft das Hauptunternehmen alle
+`ziele_monate` Monate die freien Fachstellen mit Arbeit in allen Einheiten mit besetzter Leitung. Für
+die erste Stelle mit mindestens einem Abwerbekandidaten entsteht ein Anliegen (Anlass „Abwerbeziel“) mit
+den besten `optionen` Fremden und „Stelle offen lassen“; höchstens eines je Prüfung.
+
+**Entlassungen.** Fällt die Akte einer Einstellung durch (Fehlgriff nach `wirkzeit_monate`) und ist der
+Eingestellte noch auf der Stelle im Hauptunternehmen, fragt die einstellende Leitung: „Entlassen“ (Abfindung
+`severance_months`/12 Jahresgehälter sofort als Kosten) oder „Beibehalten“. Entlassungen geschehen so nie
+still.
+
+## MG9c – Spürsinn und Abwehr (16.10.2026)
+
+Vorgabe `docs/MANAGER_2.md` §9.1, §9.4, §9.5. Daten: `management.strategieauftrag.abwehr_monate`.
+
+**Spürsinn (zweite Trefferquote).** Wird ein Start-up erfolgreich, zählt es für die Leitung Strategie des Hauptunternehmens
+(bei arbeitender Abteilung) als Gelegenheit im Blickfeld: Treffer, wenn das Unternehmen beteiligt war (Anteil, Buchwert oder
+Zusage), sonst verpasst. `Spürsinn = (Treffer + Mittel · Vorlauf) / (Fälle + Vorlauf)` mit den Werten der Trefferquote (ZA3).
+Die Trefferquote des Leiters für Gehaltsforderung und Stärke ist ab dem ersten Fall das Mittel aus Treffsicherheit und
+Spürsinn.
+
+**Abwehr.** Gründet eine fremde Firma einen Standort in einem Land mit eigenem Standort, merkt die Abteilung ihn für
+`abwehr_monate` Monate. Arbeitet die Strategieabteilung, enthält jeder Vorschlag-Lauf (Rücksprache, Quartal) zuerst einen
+Abwehrvorschlag je Land und Art, die das Unternehmen dort noch nicht hat: „Standort gleicher Art gründen“ oder abwarten,
+mit der Begründung „Abwehr“ (Wettbewerber, Land).
+
+## MG10b – Beteiligungs-Schalter, Freigabe-Vorschläge, „Aktiv in“ (16.10.2026)
+
+Vorgabe `docs/MANAGER_2.md` §10.2, §10.4, §10.5. Daten: `strategieauftrag.freigabe_vorschlag_ab` (Standard 2).
+
+**Beteiligungen.** Der Schalter `release_stakes` im Strategieauftrag lässt die Branchenfreigabe auch für Kaufangebote auf
+Standorte gelten: Ist die Stufe der Standortbranche im Land „nur halten“ oder „gesperrt“, wird das Angebot zurückgehalten
+(Start-ups sind davon nicht erfasst).
+
+**Freigabe-Vorschlag.** Jeden Januar zählt der CEO die Gelegenheiten (`ai::opportunities`, höchstens 24), die die Freigabe
+zurückhält, je Branche. Ab `freigabe_vorschlag_ab` schlägt er höchstens einmal im Jahr und je Branche vor, die Zelle der
+Branche in der Geltung, die sie regelt, auf „frei“ (Alternative „mit Rückfrage“, empfohlen) zu stellen; Antwort ist ein
+`SetMandate` mit dieser einen Änderung, sonst „beibehalten“.
+
+**Aktiv in.** Auf der Karte einer Leitung von Konzern, Kontinent oder Land: die Branchen, deren aufgelöste Stufe frei oder
+„mit Rückfrage“ ist, und ihre Zahl von allen; ohne gesetzte Freigabe nichts.
+
 ## MG9b – Stellungnahme der Strategieabteilung und Konkurrenzbeobachtung (16.10.2026)
 
 Vorgabe: `docs/MANAGER_2.md` §9.1 (Stellungnahme) und §9.5 (Konkurrenzbeobachtung).

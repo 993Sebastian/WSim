@@ -612,6 +612,21 @@ pub enum ConcernReason {
     Hiring,
     /// A department head recommends a new staff (MG8).
     StaffNeed,
+    /// The personnel department proposes managers of other companies (MG8).
+    Target,
+    /// A head asks to let a manager go whose hire did not work out (MG8).
+    Dismissal,
+    /// The CEO proposes to loosen the release of a branch (MG10).
+    Release,
+}
+
+/// A site another company founded in a country the strategy department watches (MG9c).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RivalMove {
+    pub rival: CompanyId,
+    pub country: CountryId,
+    pub kind: crate::catalog::SiteType,
+    pub date: Date,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -876,6 +891,12 @@ pub struct Manager {
     pub hire_judged: u32,
     #[serde(default, skip_serializing_if = "no_count")]
     pub hire_hits: u32,
+    /// Chances in sight of the strategy department he led, and the ones he caught (MG9:
+    /// his flair).
+    #[serde(default, skip_serializing_if = "no_count")]
+    pub sense_judged: u32,
+    #[serde(default, skip_serializing_if = "no_count")]
+    pub sense_hits: u32,
     /// Day of birth (PE1); drawn with him, for older saves when loading.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub born: Option<Date>,
@@ -2251,6 +2272,12 @@ pub struct GameState {
     /// Counts of the market of managers per year and continent, for the protocol (MG1).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub manager_market_log: Vec<MarketCount>,
+    /// Branches the managers proposed to release, by company and day (MG10).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub release_asked: Vec<(CompanyId, crate::ids::BranchId, Date)>,
+    /// New sites of other companies the strategy department saw lately (MG9c).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub rival_moves: Vec<RivalMove>,
     /// Estimates of heads waiting for their judgment, oldest first (ZA3).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub judgments: Vec<Judgment>,

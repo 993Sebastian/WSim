@@ -56,14 +56,27 @@ const STUFE_BEFEHL: Record<Freigabestufe, "Free" | "Ask" | "Hold" | "Locked"> = 
 /** The key of a cell of the release matrix; the column is the company or a continent. */
 const zellenSchluessel = (spalte: string, branche: string | null) => `${spalte}|${branche ?? ""}`;
 
-/** The cells of the release as a map; country cells stay as they are (MG10). */
+/** Columns of countries carry this prefix in the key (MG10). */
+const LAND = "land:";
+
+/** The cells of the release as a map (MG10). */
 function zellenMap(zellen: FreigabeZelle[]): Map<string, Freigabestufe> {
   const karte = new Map<string, Freigabestufe>();
   for (const z of zellen) {
-    if (z.scope === "land") continue;
-    karte.set(zellenSchluessel(z.key ?? "", z.branch), z.stage);
+    const spalte = z.scope === "land" ? `${LAND}${z.key ?? ""}` : (z.key ?? "");
+    karte.set(zellenSchluessel(spalte, z.branch), z.stage);
   }
   return karte;
+}
+
+/** The countries that have a column: those with cells and the company's own ones. */
+function landSpalten(daten: Ruecksprachen, zellen: Map<string, Freigabestufe>): string[] {
+  const mit = new Set(daten.own_countries ?? []);
+  for (const k of zellen.keys()) {
+    const spalte = k.split("|")[0] ?? "";
+    if (spalte.startsWith(LAND)) mit.add(spalte.slice(LAND.length));
+  }
+  return daten.countries.filter((c) => mit.has(c));
 }
 
 /**
@@ -79,7 +92,18 @@ function Freigabe({
   zellen: Map<string, Freigabestufe>;
   onZellen: (z: Map<string, Freigabestufe>) => void;
 }) {
-  const spalten = ["", ...daten.continents];
+  const [laenderZeigen, setLaenderZeigen] = useState(false);
+  const spalten = [
+    "",
+    ...daten.continents,
+    ...(laenderZeigen ? landSpalten(daten, zellen).map((c) => `${LAND}${c}`) : []),
+  ];
+  const spaltenName = (s: string) =>
+    s === ""
+      ? t("freigabe.konzern")
+      : s.startsWith(LAND)
+        ? landName(s.slice(LAND.length))
+        : t(`kontinent.${s}`);
   const zeilen: (string | null)[] = [...daten.branches, null];
   const setze = (spalte: string, branche: string | null, wert: string) => {
     const neu = new Map(zellen);
@@ -92,13 +116,21 @@ function Freigabe({
     <fieldset>
       <legend>{t("freigabe.titel")}</legend>
       <p className="feld-hilfe">{t("freigabe.hilfe")}</p>
+      <label>
+        <input
+          type="checkbox"
+          checked={laenderZeigen}
+          onChange={(e) => setLaenderZeigen(e.target.checked)}
+        />{" "}
+        {t("freigabe.laender_zeigen")}
+      </label>
       <div className="tabelle">
         <table className="freigabe" aria-label={t("freigabe.titel")}>
           <thead>
             <tr>
               <th>{t("freigabe.branche")}</th>
               {spalten.map((s) => (
-                <th key={s}>{s === "" ? t("freigabe.konzern") : t(`kontinent.${s}`)}</th>
+                <th key={s}>{spaltenName(s)}</th>
               ))}
             </tr>
           </thead>
@@ -111,7 +143,7 @@ function Freigabe({
                   {spalten.map((s) => (
                     <td key={s}>
                       <select
-                        aria-label={`${name}, ${s === "" ? t("freigabe.konzern") : t(`kontinent.${s}`)}`}
+                        aria-label={`${name}, ${spaltenName(s)}`}
                         value={zellen.get(zellenSchluessel(s, b)) ?? ""}
                         onChange={(ev) => setze(s, b, ev.target.value)}
                       >
@@ -141,31 +173,25 @@ function Freigabe({
 function freigabeBefehl(
   daten: Ruecksprachen,
   zellen: Map<string, Freigabestufe>,
-  laender: FreigabeZelle[],
 ): NonNullable<Auftrag["release"]> {
   const zeilen: (string | null)[] = [null, ...daten.branches];
   const aus: NonNullable<Auftrag["release"]> = [];
-  const spalten = ["", ...daten.continents];
+  const spalten = ["", ...daten.continents, ...daten.countries.map((c) => `${LAND}${c}`)];
   for (const s of spalten) {
     for (const b of zeilen) {
       const stufe = zellen.get(zellenSchluessel(s, b));
       if (stufe === undefined) continue;
       aus.push({
-        scope: s === "" ? "Company" : { Continent: s },
+        scope:
+          s === ""
+            ? "Company"
+            : s.startsWith(LAND)
+              ? { Country: s.slice(LAND.length) }
+              : { Continent: s },
         branch: b,
         stage: STUFE_BEFEHL[stufe],
       });
     }
-  }
-  const land = (k: string) => daten.countries.indexOf(k);
-  const sortiert = [...laender].sort(
-    (a, b) =>
-      land(a.key ?? "") - land(b.key ?? "") ||
-      (a.branch === null ? -1 : daten.branches.indexOf(a.branch)) -
-        (b.branch === null ? -1 : daten.branches.indexOf(b.branch)),
-  );
-  for (const z of sortiert) {
-    aus.push({ scope: { Country: z.key ?? "" }, branch: z.branch, stage: STUFE_BEFEHL[z.stage] });
   }
   return aus;
 }
@@ -264,6 +290,7 @@ function AuftragFormular({ daten }: { daten: Ruecksprachen }) {
   const [gruppen, setGruppen] = useState<string[]>(m.blocked_groups);
   const [takt, setTakt] = useState(m.review);
   const [freigabe, setFreigabe] = useState(() => zellenMap(m.release));
+  const [beteiligungen, setBeteiligungen] = useState(m.release_stakes ?? false);
   const [fehler, setFehler] = useState<string | null>(null);
   const uebernehmen = (ev: FormEvent) => {
     ev.preventDefault();
@@ -283,11 +310,7 @@ function AuftragFormular({ daten }: { daten: Ruecksprachen }) {
       return;
     }
     setFehler(null);
-    const release = freigabeBefehl(
-      daten,
-      freigabe,
-      m.release.filter((z) => z.scope === "land"),
-    );
+    const release = freigabeBefehl(daten, freigabe);
     const mandate: Auftrag = {
       guideline: leitlinie === "marktfuehrung" ? { Leadership: gruppe } : LEITLINIEN[leitlinie],
       goals: { growth, margin, equity_ratio: equity, rank: platz },
@@ -295,6 +318,7 @@ function AuftragFormular({ daten }: { daten: Ruecksprachen }) {
       blocked_countries: laender,
       blocked_groups: gruppen,
       ...(release.length > 0 ? { release } : {}),
+      ...(beteiligungen ? { release_stakes: true } : {}),
       review: TAKTE[takt],
     };
     void los([{ SetMandate: { mandate } }], t("auftrag.gesetzt"));
@@ -423,6 +447,14 @@ function AuftragFormular({ daten }: { daten: Ruecksprachen }) {
         <p className="feld-hilfe">{t("auftrag.sperren_hilfe")}</p>
       </fieldset>
       <Freigabe daten={daten} zellen={freigabe} onZellen={setFreigabe} />
+      <label className="feld">
+        <input
+          type="checkbox"
+          checked={beteiligungen}
+          onChange={(e) => setBeteiligungen(e.target.checked)}
+        />{" "}
+        {t("freigabe.beteiligungen")}
+      </label>
       {fehler && <p className="fehlertext">{fehler}</p>}
       <div className="knopfreihe links">
         <button type="submit">{t("auftrag.uebernehmen")}</button>

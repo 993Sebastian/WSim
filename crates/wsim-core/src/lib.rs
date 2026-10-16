@@ -73,6 +73,7 @@ pub mod purchase;
 pub mod purchasing;
 pub mod ranking;
 pub mod regulation;
+pub mod release_proposals;
 pub mod relocation;
 pub mod reports;
 pub mod reputation;

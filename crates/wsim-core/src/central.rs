@@ -799,17 +799,67 @@ pub(crate) fn refinance(
 pub fn hit_rate(catalog: &Catalog, manager: &Manager) -> f64 {
     let h = &catalog.central.hit_rate;
     let n = f64::from(manager.judged) + h.prior;
-    if n > 0.0 {
+    let accuracy = if n > 0.0 {
         (f64::from(manager.hits) + h.mean * h.prior) / n
     } else {
         h.mean
+    };
+    // A strategy head is judged by both values: the mean of accuracy and flair (MG9).
+    if manager.sense_judged == 0 {
+        accuracy
+    } else {
+        (accuracy + flair(catalog, manager)) / 2.0
+    }
+}
+
+/// The flair of a strategy head with the prior: the share of the chances in sight that
+/// he caught (docs/FORMELN.md, MG9c).
+pub fn flair(catalog: &Catalog, manager: &Manager) -> f64 {
+    let h = &catalog.central.hit_rate;
+    let n = f64::from(manager.sense_judged) + h.prior;
+    if n > 0.0 {
+        (f64::from(manager.sense_hits) + h.mean * h.prior) / n
+    } else {
+        h.mean
+    }
+}
+
+/// A start-up in the sight of the strategy department succeeded: a hit for the head when
+/// the company took part, else a chance missed (MG9c).
+pub(crate) fn note_opportunity(state: &mut GameState, catalog: &Catalog, venture: usize) {
+    let Some(me) = state.main_company else {
+        return;
+    };
+    let works = head_position(catalog, DepartmentKind::Strategy)
+        .is_some_and(|p| accuracy(catalog, state, me, &p) > 0.0);
+    if !works {
+        return;
+    }
+    let Some(head) = head(catalog, state, me, DepartmentKind::Strategy) else {
+        return;
+    };
+    let v = &state.ventures[venture];
+    let took_part = v
+        .owners
+        .iter()
+        .any(|s| s.holder == crate::state::Holder::Company(me))
+        || v.book.iter().any(|(c, _)| *c == me)
+        || v.pledges.iter().any(|(c, _)| *c == me);
+    count_chance(state, head, took_part);
+}
+
+/// One chance judged for the flair of a strategy head.
+pub(crate) fn count_chance(state: &mut GameState, head: ManagerId, caught: bool) {
+    if let Some(m) = state.managers.get_mut(&head) {
+        m.sense_judged += 1;
+        m.sense_hits += u32::from(caught);
     }
 }
 
 /// The factor of the hit rate on the salary demand and the strength others see
 /// (docs/FORMELN.md, ZA3): e^(k · (q − mean)); 1 before the first judgment.
 pub fn hit_factor(catalog: &Catalog, manager: &Manager) -> f64 {
-    if manager.judged == 0 {
+    if manager.judged == 0 && manager.sense_judged == 0 {
         return 1.0;
     }
     let h = &catalog.central.hit_rate;

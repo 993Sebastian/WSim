@@ -198,6 +198,9 @@ pub struct Mandate {
     /// The release of branches per scope (MG10); empty = everything free.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub release: Vec<ReleaseCell>,
+    /// The release also holds for takeovers of sites in branches that are not free (MG10).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub release_stakes: bool,
     #[serde(default)]
     pub review: ReviewInterval,
 }
@@ -337,9 +340,6 @@ pub fn banned(catalog: &Catalog, state: &GameState, d: &Decision, choice: &Choic
     {
         return true;
     }
-    if mandate.blocked_countries.is_empty() && mandate.blocked_groups.is_empty() {
-        return false;
-    }
     if grows
         && d.product.is_some_and(|p| {
             mandate
@@ -348,6 +348,17 @@ pub fn banned(catalog: &Catalog, state: &GameState, d: &Decision, choice: &Choic
         })
     {
         return true;
+    }
+    if mandate.release_stakes
+        && choice.steps.iter().any(|s| {
+            matches!(s.command, Command::MakeOffer { object: DealObject::Site(site), .. }
+                if stake_held(catalog, state, mandate, site))
+        })
+    {
+        return true;
+    }
+    if mandate.blocked_countries.is_empty() && mandate.blocked_groups.is_empty() {
+        return false;
     }
     choice.steps.iter().any(|s| match s.command {
         Command::FoundSite { country, .. } => mandate.blocked_countries.contains(&country),
@@ -360,6 +371,21 @@ pub fn banned(catalog: &Catalog, state: &GameState, d: &Decision, choice: &Choic
         }
         _ => false,
     })
+}
+
+/// Whether the release holds back a takeover of this site: its branch is held or locked
+/// in its country (MG10, with the switch „also for stakes“).
+fn stake_held(
+    catalog: &Catalog,
+    state: &GameState,
+    mandate: &Mandate,
+    site: crate::state::SiteId,
+) -> bool {
+    let s = &state.sites[site.index()];
+    matches!(
+        release_stage(catalog, &mandate.release, Some(s.country), None, s.branch),
+        ReleaseStage::Hold | ReleaseStage::Locked
+    )
 }
 
 fn grows(topic: Topic) -> bool {

@@ -1136,3 +1136,61 @@ fn the_strategy_department_reports_what_the_competition_built() {
         "{seen:?}"
     );
 }
+
+#[test]
+fn flair_joins_the_accuracy_in_the_hit_rate_of_the_strategy_head() {
+    let mut game = new_game(test_support::management());
+    mine_and_works(&mut game);
+    staff(&mut game, DepartmentKind::Strategy, 1);
+    let head = hire_sharp(&mut game, member("strategie"));
+    let catalog = game.catalog().clone();
+    let prior = central::hit_rate(&catalog, &game.state().managers[&head]);
+    // Three chances missed, none caught: the flair drags the hit rate down.
+    for _ in 0..3 {
+        central::count_chance(game.state_mut(), head, false);
+    }
+    let m = &game.state().managers[&head];
+    assert_eq!(m.sense_judged, 3);
+    assert!(central::flair(&catalog, m) < catalog.central.hit_rate.mean);
+    assert!(central::hit_rate(&catalog, m) < prior);
+    // The factor on the salary demand reacts although no estimate was judged.
+    assert!(central::hit_factor(&catalog, m) < 1.0);
+    for _ in 0..12 {
+        central::count_chance(game.state_mut(), head, true);
+    }
+    let m = &game.state().managers[&head];
+    assert!(central::flair(&catalog, m) > catalog.central.hit_rate.mean);
+}
+
+#[test]
+fn a_rival_site_in_a_country_of_ours_draws_a_defence_proposal() {
+    let mut game = new_game(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    let player = game.player();
+    let catalog = game.catalog().clone();
+    let country = game.state().sites[works.index()].country;
+    let rival = ai_company(&mut game, (1_000_000.0, 100_000.0), &[]);
+    let today = game.state().date;
+    game.state_mut().rival_moves.push(crate::state::RivalMove {
+        rival,
+        country,
+        kind: crate::catalog::SiteType::SalesOffice,
+        date: today,
+    });
+    // Without a working department nobody proposes anything.
+    assert!(crate::review::defence(game.state(), &catalog, player).is_empty());
+    staff(&mut game, DepartmentKind::Strategy, 1);
+    hire_sharp(&mut game, member("strategie"));
+    let found = crate::review::defence(game.state(), &catalog, player);
+    assert_eq!(found.len(), 1);
+    assert!(matches!(
+        &found[0].choices[0].steps[0].command,
+        Command::FoundSite {
+            kind: crate::catalog::SiteType::SalesOffice,
+            ..
+        }
+    ));
+    // A site of the kind of our own ends the reason.
+    game.state_mut().rival_moves[0].kind = game.state().sites[works.index()].kind;
+    assert!(crate::review::defence(game.state(), &catalog, player).is_empty());
+}

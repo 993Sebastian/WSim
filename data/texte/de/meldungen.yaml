@@ -429,6 +429,9 @@ schritt.nachfolger: "{name} ({alter} Jahre, Stärke {staerke}) aus dem Managerma
 schritt.befoerdern: "{name} ({alter} Jahre, Stärke {staerke}, bisher {bisher}) übernimmt die Stelle – Gehalt {gehalt} im Jahr; die bisherige Stelle wird frei."
 schritt.verlaengern: "{name} bitten, {jahre} Jahre länger zu bleiben – Gehalt {gehalt} im Jahr (+{aufschlag} %); Zusage etwa {chance} %."
 schritt.unbesetzt: Die Stelle unbesetzt lassen.
+schritt.freigabe: "Die Branche {branche} wird auf „{stufe}“ gestellt."
+schritt.abwerben: "{name} (Stärke {staerke}) wird bei einer anderen Firma abgeworben – Angebot {gehalt} im Jahr."
+schritt.entlassen: "{name} wird entlassen (Abfindung nach Vertrag)."
 schritt.forschung: "Forschung an {technologie}"
 schritt.forschung_ende: Labor ohne Ziel lassen
 schritt.weiterentwicklung: "{produkt} weiterentwickeln"
@@ -457,6 +460,9 @@ anliegen.begruendung.einstellen: "{name} hat mit Stärke {staerke} unter den gep
 anliegen.begruendung.nachfolger: "{name} ist mit Stärke {staerke} die stärkste Wahl für die Stelle."
 anliegen.begruendung.verlaengern: Es gibt keinen geeigneten Nachfolger – besser, die Stelle bleibt noch besetzt.
 anliegen.begruendung.unbesetzt: Es gibt keinen geeigneten Nachfolger.
+anliegen.begruendung.abwehr: "{firma} hat in {land} einen Standort gegründet, wo wir diese Art noch nicht haben. Ein eigener Standort sichert unseren Anteil (Abwehr)."
+anliegen.begruendung.abwerben: "{name} ist bei der bisherigen Firma unzufrieden und hat mit Stärke {staerke} die passendste Stärke für die Stelle."
+anliegen.begruendung.entlassen: "{name} hat sich im Amt nicht bewährt; die Leitung rät zur Trennung."
 anliegen.begruendung.passung: "Passt zum eigenen Geschäft ({gruppe}) – mehr Absatz, Anlagen und Leute, ohne neu zu bauen."
 anliegen.begruendung.streuung: "Streut das Risiko: eine Warengruppe, in der die Firma noch nicht tätig ist."
 anliegen.begruendung.abkuerzung: "Erspart die eigene Forschung an {technologie} – nach unserer Schätzung rund {betrag}."

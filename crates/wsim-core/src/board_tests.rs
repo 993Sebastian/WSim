@@ -1334,3 +1334,104 @@ fn a_working_strategy_department_adds_a_statement_to_a_proposal() {
         Some(statement.supports)
     );
 }
+
+#[test]
+fn the_switch_for_stakes_holds_takeovers_in_a_locked_branch_back() {
+    use crate::deals::DealObject;
+    let mut game = new_game(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    let player = game.player();
+    let offer = Decision::new(
+        Topic::Offer,
+        player,
+        Choice::one(
+            ChoiceKind::Offer,
+            Command::MakeOffer {
+                seller: CompanyId(0),
+                object: DealObject::Site(works),
+                price: Money::from_usd(1_000.0).unwrap(),
+            },
+        ),
+    );
+    let locked = |stakes| Mandate {
+        release: vec![ReleaseCell {
+            scope: ReleaseScope::Company,
+            branch: None,
+            stage: ReleaseStage::Locked,
+        }],
+        release_stakes: stakes,
+        ..Mandate::default()
+    };
+    let catalog = game.catalog().clone();
+    game.apply(Command::SetMandate {
+        mandate: locked(false),
+    })
+    .unwrap();
+    assert!(!crate::mandate::banned(
+        &catalog,
+        game.state(),
+        &offer,
+        offer.chosen()
+    ));
+    game.apply(Command::SetMandate {
+        mandate: locked(true),
+    })
+    .unwrap();
+    assert!(crate::mandate::banned(
+        &catalog,
+        game.state(),
+        &offer,
+        offer.chosen()
+    ));
+}
+
+#[test]
+fn the_ceo_proposes_a_looser_stage_and_the_answer_changes_the_release() {
+    let mut game = new_game(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    let ceo_id = hire_sharp(&mut game, ceo());
+    let catalog = game.catalog().clone();
+    let branch = catalog.branches.id("bergbau").unwrap();
+    let player = game.player();
+    let locked = Mandate {
+        release: vec![ReleaseCell {
+            scope: ReleaseScope::Company,
+            branch: None,
+            stage: ReleaseStage::Locked,
+        }],
+        ..Mandate::default()
+    };
+    game.apply(Command::SetMandate { mandate: locked }).unwrap();
+    let date = game.state().date;
+    crate::release_proposals::ask(
+        game.state_mut(),
+        &catalog,
+        (player, ceo_id),
+        (branch, None, None),
+        date,
+    );
+    let c = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.reason == ConcernReason::Release)
+        .expect("a proposal")
+        .clone();
+    assert_eq!(c.decision.choices.len(), 3);
+    game.apply(Command::AnswerConcern {
+        concern: c.id,
+        answer: ConcernAnswer::Choose(0),
+    })
+    .unwrap();
+    let cells = &game.state().companies[player.index()].mandate.release;
+    assert!(cells.iter().any(|x| x.scope == ReleaseScope::Company
+        && x.branch == Some(branch)
+        && x.stage == ReleaseStage::Free));
+    // All other branches stay locked.
+    assert!(
+        cells
+            .iter()
+            .any(|x| x.branch.is_none() && x.stage == ReleaseStage::Locked)
+    );
+    let _ = works;
+}

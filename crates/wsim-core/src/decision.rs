@@ -165,6 +165,10 @@ pub enum ChoiceKind {
     Vacant,
     /// A candidate a head chose for a free position (MG8).
     Hire,
+    /// A manager of another company a head wants to court (MG8).
+    Poach,
+    /// Letting a manager of the company go for good (MG8).
+    Dismiss,
 }
 
 impl ChoiceKind {
@@ -194,6 +198,8 @@ impl ChoiceKind {
             ChoiceKind::Extend => "verlaengern",
             ChoiceKind::Vacant => "unbesetzt",
             ChoiceKind::Hire => "einstellen",
+            ChoiceKind::Poach => "abwerben",
+            ChoiceKind::Dismiss => "entlassen",
         }
     }
 }

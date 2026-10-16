@@ -140,6 +140,12 @@ management:
     # Strategievorschläge (MG6): höchstens so viele Vorschläge außer der Reihe je Quartal
     # (zusätzlich zur Rücksprache); so viele Tage rückt die Frist beim Zurückstellen vor.
     vorschlaege_je_quartal: 1
+    # Standorte von Wettbewerbern in Ländern eigener Standorte bleiben so viele Monate ein
+    # Anlass für einen Abwehrvorschlag der Strategieabteilung (MG9c).
+    abwehr_monate: 6
+    # Ab so vielen von der Branchenfreigabe zurückgehaltenen Gelegenheiten schlägt der CEO
+    # einmal im Jahr und je Branche eine lockerere Stufe vor (MG10; 0 = nie).
+    freigabe_vorschlag_ab: 2
     vorschlag_aufschub_tage: 30
     # Wie viel der fehlenden Fachkompetenz die volle Branchenstärke des Vorschlagenden ausgleicht (0–1).
     vorschlag_branche_gewicht: 0.5
@@ -273,5 +279,10 @@ management:
     unterdeckt_ab: 0.8
     ueberbesetzt_ab: 0.6
     abteilung_wirkzeit_monate: 12
+    # Abwerbekandidaten und Abwerbeziele (MG8 §8.2/8.3): Manager fremder Firmen unter
+    # abwerben_unter Zufriedenheit zählen als Kandidaten; mit arbeitender Personalabteilung
+    # schlägt sie alle ziele_monate Monate Ziele für freie Stellen vor.
+    abwerben_unter: 45
+    ziele_monate: 3
 
   annaeherung: true

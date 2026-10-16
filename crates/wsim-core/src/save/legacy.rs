@@ -199,6 +199,8 @@ pub(super) fn decode_v2(
         poach_offers: Vec::new(),
         manager_market_log: Vec::new(),
         judgments: Vec::new(),
+        rival_moves: Vec::new(),
+        release_asked: Vec::new(),
         ventures: Vec::new(),
         next_venture: 0,
         tariff_offsets: Default::default(),
