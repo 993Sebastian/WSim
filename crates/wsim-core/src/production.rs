@@ -672,6 +672,14 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         state.sites[index].slots[slot].last_runs = 0.0;
         state.sites[index].slots[slot].limit = None;
         let Some((recipe_id, planned)) = planned_runs(catalog, state, site, slot, date) else {
+            // Switched off by hand while it could work: the whole capacity is lost (RB1).
+            let sl = &state.sites[index].slots[slot];
+            if sl.recipe.is_some() && sl.operating(date) && sl.utilization <= 0.0 {
+                let full = sl.full_runs(catalog);
+                let u = &mut state.sites[index].slots[slot].usage;
+                u.full += full;
+                u.lost[crate::state::Shortfall::Throttled as usize] += full;
+            }
             continue;
         };
         let recipe = catalog.recipes.get(recipe_id);
@@ -781,6 +789,24 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             bound(&mut runs, room.max(0.0) / recipe.output, Limit::Deposit);
         }
         state.sites[index].slots[slot].limit = limit;
+        {
+            // The books of the use (RB1): full capacity, what the plan left out, what the
+            // bottleneck cost and what ran.
+            let full = state.sites[index].slots[slot].full_runs(catalog);
+            let done = runs.max(0.0);
+            let u = &mut state.sites[index].slots[slot].usage;
+            u.full += full;
+            u.runs += done;
+            u.lost[crate::state::Shortfall::Throttled as usize] += (full - planned).max(0.0);
+            let cut = (planned - done).max(0.0);
+            if cut > 0.0 {
+                let why = limit.map_or(
+                    crate::state::Shortfall::Throttled,
+                    crate::state::Shortfall::from,
+                );
+                u.lost[why as usize] += cut;
+            }
+        }
         if runs <= 1e-9 {
             continue;
         }

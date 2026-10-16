@@ -148,7 +148,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PV6 | Familienholding, Stiftung, Ansehen, Netzwerk, persönliche Ereignisse, Vetternwirtschaft, Ehevertrag, Besitzobjekte, Chronik, Nachruf | ✅ 16.10.2026 (PV6a–c) |
 | PV7 | Wertpapierkredit, Insider-Ereignis, Sammlermarkt, Projektentwicklung, Werk in gemieteter Halle | ✅ 16.10.2026 |
 | PV8 | KI-Unternehmer als Personen mit Privatvermögen; Balanceprüfung nach §15 und Gleichstellungstest | ✅ 16.10.2026 (Kern und Gleichstellungstest; Balanceprüfung in E2E) |
-| RB1 | Rundenbericht neu: Datengrundlage – Deckungsbeitrag je Produkt, Auslastung je Anlage/Werk mit Engpassgrund, Marktanteile Land/Kontinent/Welt, Vorrundenwerte (`docs/RUNDENBERICHT_2.md`; Wunsch vom 15.10.2026) | ⏳ Vorgabe aufgenommen 15.10.2026; Reihenfolge (Auftraggeber, geändert 16.10.2026): vor E2E, direkt nach der Auswertung MN6/PD1 |
+| RB1 | Rundenbericht neu: Datengrundlage – Deckungsbeitrag je Produkt, Auslastung je Anlage/Werk mit Engpassgrund, Marktanteile Land/Kontinent/Welt, Vorrundenwerte (`docs/RUNDENBERICHT_2.md`; Wunsch vom 15.10.2026) | ✅ 16.10.2026 (vor E2E, Wunsch 16.10.) |
 | RB2 | Rundenbericht neu: Kopfzeile, Produkttabelle (Top 5, Summen), Auslastung mit Aufklappen | ⏳ |
 | RB3 | Rundenbericht neu: „Bitte ansehen“ (höchstens 5), Relevanzfilter Welt/Wettbewerb, Verweis aufs Meldungsfach | ⏳ |
 | RB4 | Rundenbericht neu: Enter/Esc, Klickziele, „Letzter Rundenbericht“, Einstellung „nur bei Hinweisen“; Lastenheft §13.2 und FORTSCHRITT anpassen | ⏳ |

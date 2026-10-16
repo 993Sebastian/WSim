@@ -197,6 +197,8 @@ pub struct Session<S: SaveStore = DirStore> {
     game: Option<Game>,
     /// Result of the last round, for the comparison in the next report.
     last_period: Option<views::PeriodView>,
+    /// Products of the last round, for the trend arrows (RB1).
+    last_detail: Option<views::ReportDetail>,
 }
 
 fn error(key: &str) -> MessageView {
@@ -230,6 +232,7 @@ impl<S: SaveStore> Session<S> {
             store,
             game: None,
             last_period: None,
+            last_detail: None,
         }
     }
 
@@ -317,6 +320,7 @@ impl<S: SaveStore> Session<S> {
         let overview = views::overview(&game);
         self.game = Some(game);
         self.last_period = None;
+        self.last_detail = None;
         Ok(overview)
     }
 
@@ -681,6 +685,12 @@ impl<S: SaveStore> Session<S> {
         view.rounds = rounds;
         view.stop = (rounds > 1 || stop != "runde").then(|| stop.to_owned());
         view.previous = self.last_period.replace(view.period.clone());
+        if let Some(d) = view.detail.as_mut() {
+            if let Some(prev) = &self.last_detail {
+                views::attach_previous(d, prev);
+            }
+            self.last_detail = Some(d.clone());
+        }
         if let Err(e) = self.save(AUTOSAVE_NAME) {
             view.messages.push(e);
         }
@@ -752,6 +762,7 @@ impl<S: SaveStore> Session<S> {
         let overview = views::overview(&loaded.game);
         self.game = Some(loaded.game);
         self.last_period = None;
+        self.last_detail = None;
         Ok(overview)
     }
 }

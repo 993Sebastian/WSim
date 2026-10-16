@@ -19,6 +19,7 @@ mod organisation;
 mod person;
 mod play;
 mod projects;
+mod rb;
 mod review;
 mod stock;
 mod strategy;
@@ -41,6 +42,7 @@ pub use organisation::*;
 pub use person::*;
 pub use play::*;
 pub use projects::*;
+pub use rb::*;
 pub use review::*;
 pub use stock::*;
 pub use strategy::*;
@@ -893,6 +895,8 @@ pub struct Snapshot {
     site_totals: BTreeMap<(usize, crate::ids::ProductId), crate::state::SiteTotals>,
     /// Every company the person controls: cash, the running year and the years closed.
     companies: Vec<CompanySnapshot>,
+    /// What the new round report compares with (RB1).
+    rb: rb::Base,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -1079,6 +1083,7 @@ pub fn snapshot(game: &Game) -> Snapshot {
         products: product_totals(&ledger.year),
         years_closed: ledger.years.len(),
         site_totals: site_totals(state),
+        rb: rb::base(game),
         companies: crate::private::controlled(state)
             .into_iter()
             .map(|c| {
@@ -1259,6 +1264,9 @@ pub struct RoundReportView {
     /// Every company the person controls (more than one: a table in the report).
     #[serde(default)]
     pub companies: Vec<CompanyRoundView>,
+    /// Products with shares, the split of the result and the utilization (RB1).
+    #[serde(default)]
+    pub detail: Option<rb::ReportDetail>,
 }
 
 fn one() -> u32 {
@@ -1321,6 +1329,7 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
         stop: None,
         quantities: round_quantities(game, before),
         companies: round_companies(game, before),
+        detail: Some(rb::detail(game, before)),
     }
 }
 
@@ -2261,6 +2270,77 @@ mod tests {
             q.products.iter().any(|l| l.made > 0.0),
             "the chain makes goods"
         );
+    }
+
+    #[test]
+    fn round_report_detail_adds_up_and_shows_the_use_of_the_plants() {
+        use crate::command::Command;
+        use crate::state::{PriceMode, SiteId};
+        let (mut g, mine, _) = chain();
+        let c = g.catalog().clone();
+        let bread = c.products.id("brot").expect("exists");
+        g.state_mut().sites[mine as usize]
+            .inventory
+            .entry(bread)
+            .or_default()
+            .add(1e9, Money::from_usd(1e9).expect("valid"), 50.0);
+        g.apply(Command::SetSale {
+            site: SiteId(mine),
+            product: bread,
+            mode: Some(PriceMode::Fixed(Money::from_usd(2.0).expect("valid"))),
+            keep: 0.0,
+        })
+        .expect("valid");
+        for _ in 0..2 {
+            g.advance(RoundLength::Month, |_| {});
+        }
+        let before = snapshot(&g);
+        let report = g.advance(RoundLength::Quarter, |_| {});
+        let view = round_report(&g, &report, &before);
+        let d = view.detail.expect("the detail is there");
+        // The contribution margins less fixed costs and the rest are the result.
+        let r = &d.result;
+        assert!(
+            (r.contribution_usd + r.fixed_usd + r.other_usd - r.result_usd).abs() < 0.01,
+            "{r:?}"
+        );
+        assert!(
+            (r.result_usd - view.period.result_usd).abs() < 0.01,
+            "{} vs {}",
+            r.result_usd,
+            view.period.result_usd
+        );
+        let row = d
+            .products
+            .iter()
+            .find(|p| p.product == "brot")
+            .expect("bread was sold");
+        assert!(row.revenue_usd > 0.0 && row.sold > 0.0);
+        // Bought in at 1 USD, sold at 2 USD: the contribution is half of the revenue.
+        assert!(
+            (row.contribution_usd - 0.5 * row.revenue_usd).abs() < 0.01,
+            "{row:?}"
+        );
+        for p in &d.products {
+            for s in [p.shares.country, p.shares.continent, p.shares.world]
+                .into_iter()
+                .flatten()
+            {
+                assert!((0.0..=1.0).contains(&s), "{p:?}");
+            }
+        }
+        // The plants: every row with working facilities has a use between 0 and 1.
+        assert!(!d.sites.is_empty());
+        let mut worked = false;
+        for s in &d.sites {
+            for sl in &s.slots {
+                if let Some(u) = sl.utilization {
+                    worked = true;
+                    assert!((0.0..=1.0).contains(&u), "{sl:?}");
+                }
+            }
+        }
+        assert!(worked, "a facility worked in the quarter");
     }
 
     #[test]

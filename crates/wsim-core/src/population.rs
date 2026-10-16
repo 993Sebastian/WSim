@@ -896,6 +896,7 @@ fn found_company(
                 down: None,
                 batches: Vec::new(),
                 last_runs: 0.0,
+                usage: Default::default(),
                 limit: None,
                 operation: crate::state::Operation::Running,
                 size: p.size,

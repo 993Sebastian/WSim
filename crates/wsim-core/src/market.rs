@@ -894,6 +894,7 @@ fn settle_idle(
     day.outside_sold = day.sold;
     market.month.demand += day.demand * n;
     market.month.sold += day.sold * n;
+    market.sold_total += day.sold * n;
     market.month.outside_demand += day.outside_demand * n;
     market.month.outside_sold += day.outside_sold * n;
     market.month.revenue += Money::times(day.revenue, n);

@@ -6940,3 +6940,22 @@ zwei Trefferquoten (Spürsinn), Abwehrvorschlag aus der Konkurrenzmeldung, Gebot
   verlässt die Simulation (Miterben).
 - **Balance §15:** Der Kalibrierlauf (`wsim kalibrierung`) misst den Welt-ETF; der Gleichstellungstest prüft, dass
   Spieler und KI dieselbe Anlageregel bei gleichem Zustand gleich behandeln.
+
+## RB1 – Datengrundlage des Rundenberichts
+
+Sicht `views::rb` (`RoundReportView.detail`), rechnet nur aus Hauptbuch und Zählern der Runde.
+
+- **Deckungsbeitrag** je Produkt: Buchungen auf Kostenstellen mit Produkt der Arten Umsatz, Material,
+  Bestandsveränderung, Energie, Transport, Zoll, Lizenzen, Umwelt, Lager, **Personal** (die Löhne der Stunden, die das
+  Produkt gebraucht hat, werden von der Werkskasse auf das Produkt umgebucht) und Pacht/Förderabgaben.
+- **Fixkosten:** Verwaltung, Instandhaltung, Abschreibung, Forschung, Werbung, übriges Personal/Pacht ohne Produkt und
+  variable Arten ohne Produkt. **Sonstiges:** Zinsen, Steuern, Beteiligungen, Übriges, Umsatz ohne Produkt.
+  Summe Deckungsbeiträge + Fixkosten + Sonstiges = Ergebnis der Runde (Test).
+- **Marktanteil** eines Produkts: eigene verkaufte Menge der eigenen Werke in der Region ÷ Absatz des Marktes in der Region in der
+  Runde (Zähler `Market.sold_total`, Menge der Werke `Site.totals`); Land = Land mit der größten eigenen Produktion
+  des Produkts, Kontinent = dessen Kontinent, Welt = alle Märkte. Höchstens 100 %.
+- **Auslastung** einer Anlage: `Σ gefahrene Läufe ÷ Σ mögliche Läufe` an Tagen, an denen sie arbeiten konnte
+  (`Slot.usage`, Zuwachs der Runde); ein Werk: Summe über seine betriebsbereiten Anlagen. Verlorene Läufe nach Grund:
+  gedrosselt (Plan unter Volllast), Material, Personal, Strom, Lagerstätte, Ereignis, Auflage, Patent, Lager voll,
+  Störung, Wartung. Anlagen im Bau, im Anlauf oder stillgelegt zählen nicht.
+- **Vorrunde:** Die Sitzung hängt die Werte der Vorrunde an die Zeilen (Pfeile).

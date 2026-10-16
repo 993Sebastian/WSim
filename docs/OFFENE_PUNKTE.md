@@ -2882,3 +2882,9 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - **PV8 (16.10.2026, eigene Entscheidungen):** (1) KI-Unternehmer anlegen wie ein Vermögensverwalter nach seinem Profil (Festgeld, Anleihen, Fonds, Gold); Immobilien, Clubs, persönliche Ereignisse, Holding und Stiftung nutzen sie nicht (spätere Ausbaustufe). (2) Ihre Firmenanteile zählen nicht zum Nachlass (die Anteile bleiben bei den privaten Eigentümern der Firma); es gibt keine zersplitterten KI-Erbschaften, der Nachfolger führt die Firma weiter. (3) Aufzeichnungen (Chronik, Vermögensverlauf) werden bei KI-Personen kurz gehalten (Speicher). (4) Die Balanceprüfung nach §15 (Kalibrierlauf, Anlage gegen Firmenaufbau) läuft in der E2E-Gesamtprüfung. (5) Sätze sind Annäherungen.
 
 - **Reihenfolge (Auftraggeber, 16.10.2026, ersetzt die frühere):** RB1–RB4 kommen **vor** der Gesamtprüfung E2E: Auswertung MN6/PD1 → RB1–RB4 → E2E → DM1–DM6 → ZP1. E2E läuft weiterhin allein; WG1–WG5 bleiben zurückgestellt.
+- **RB1 (16.10.2026, eigene Entscheidungen, 🟡-Werte der Vorgabe):** (1) Marktanteil mengenbasiert. (2) Land = größte eigene Produktion;
+  weitere Länder als Unterzeilen. (3) Der Zähler des Marktes enthält auch Mengen, die Händler weiterverkaufen; Verträge außerhalb des Marktes
+  sind im Marktnenner nicht, deshalb wird der Anteil bei 100 % gekappt. (4) Zinsen, Steuern und Beteiligungen stehen unter „Sonstiges“,
+  Forschung, Werbung und Verwaltung unter den Fixkosten. (5) Die Gründe der Auslastung sind die, die die Simulation kennt; „kein Absatz“ gibt es als
+  Grund nur als „Lager voll“. (6) Farben der Auslastung (85/60 %) und die Schwelle für einen Hinweis „Marktanteil stark gefallen“ legt RB2/RB3 fest.
+  (7) Entgangener Absatz bleibt außerhalb des Berichts (offener Punkt der Vorgabe, an Strategie/Produktmanagement geknüpft).

@@ -1472,6 +1472,9 @@ pub struct Slot {
     /// What held the facility below its plan on the last production day.
     #[serde(default)]
     pub limit: Option<Limit>,
+    /// Runs made, possible and lost by reason since the facility was built (RB1).
+    #[serde(default, skip_serializing_if = "SlotUse::is_empty")]
+    pub usage: SlotUse,
     /// Running, shut down or starting up again (M22).
     #[serde(default)]
     pub operation: Operation,
@@ -1505,6 +1508,124 @@ pub enum LabWork {
     },
     /// Develops a product: half development, half manufacturing research.
     Development(ProductId),
+}
+
+/// The reasons a facility ran less than at full capacity, as indices into `SlotUse::lost`
+/// (RB1).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Shortfall {
+    /// The planned utilization is below the full capacity (throttled by hand).
+    Throttled = 0,
+    Input = 1,
+    Labor = 2,
+    Electricity = 3,
+    Deposit = 4,
+    Event = 5,
+    Regulation = 6,
+    Patent = 7,
+    Storage = 8,
+    Breakdown = 9,
+    Overhaul = 10,
+}
+
+impl Shortfall {
+    pub const COUNT: usize = 11;
+    pub const ALL: [Shortfall; Self::COUNT] = [
+        Shortfall::Throttled,
+        Shortfall::Input,
+        Shortfall::Labor,
+        Shortfall::Electricity,
+        Shortfall::Deposit,
+        Shortfall::Event,
+        Shortfall::Regulation,
+        Shortfall::Patent,
+        Shortfall::Storage,
+        Shortfall::Breakdown,
+        Shortfall::Overhaul,
+    ];
+
+    pub fn key(self) -> &'static str {
+        match self {
+            Shortfall::Throttled => "gedrosselt",
+            Shortfall::Input => "material",
+            Shortfall::Labor => "personal",
+            Shortfall::Electricity => "strom",
+            Shortfall::Deposit => "lagerstaette",
+            Shortfall::Event => "ereignis",
+            Shortfall::Regulation => "auflage",
+            Shortfall::Patent => "patent",
+            Shortfall::Storage => "lager_voll",
+            Shortfall::Breakdown => "stoerung",
+            Shortfall::Overhaul => "wartung",
+        }
+    }
+}
+
+impl From<Limit> for Shortfall {
+    fn from(l: Limit) -> Self {
+        match l {
+            Limit::Input(_) => Shortfall::Input,
+            Limit::Labor(_) => Shortfall::Labor,
+            Limit::Electricity => Shortfall::Electricity,
+            Limit::Deposit => Shortfall::Deposit,
+            Limit::Event => Shortfall::Event,
+            Limit::Regulation => Shortfall::Regulation,
+            Limit::Patent => Shortfall::Patent,
+            Limit::Storage => Shortfall::Storage,
+            Limit::Breakdown => Shortfall::Breakdown,
+            Limit::Overhaul => Shortfall::Overhaul,
+        }
+    }
+}
+
+/// Runs a facility made against the runs it could have made at full capacity, and the
+/// runs lost by reason (RB1, docs/FORMELN.md). Only days it was ready to work count.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SlotUse {
+    pub full: f64,
+    pub runs: f64,
+    pub lost: [f64; Shortfall::COUNT],
+}
+
+impl SlotUse {
+    pub fn is_empty(&self) -> bool {
+        *self == Self::default()
+    }
+
+    /// What was added since an earlier state of the same facility.
+    pub fn since(&self, before: &SlotUse) -> SlotUse {
+        let mut d = SlotUse {
+            full: (self.full - before.full).max(0.0),
+            runs: (self.runs - before.runs).max(0.0),
+            lost: [0.0; Shortfall::COUNT],
+        };
+        for i in 0..Shortfall::COUNT {
+            d.lost[i] = (self.lost[i] - before.lost[i]).max(0.0);
+        }
+        d
+    }
+
+    /// Runs made as a share of the runs possible; 1 without any day of work.
+    pub fn utilization(&self) -> f64 {
+        if self.full <= 1e-12 {
+            1.0
+        } else {
+            (self.runs / self.full).clamp(0.0, 1.0)
+        }
+    }
+
+    /// The reason that cost the most runs, if any cost more than a rounding error.
+    pub fn main_loss(&self) -> Option<Shortfall> {
+        Shortfall::ALL
+            .iter()
+            .copied()
+            .filter(|s| self.lost[*s as usize] > self.full * 1e-6 + 1e-12)
+            .max_by(|a, b| {
+                self.lost[*a as usize]
+                    .partial_cmp(&self.lost[*b as usize])
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+    }
 }
 
 /// A facility stands still until a day (BP2).
@@ -1884,6 +2005,9 @@ pub struct Market {
     pub today: Trade,
     pub month: Trade,
     pub last_month: Trade,
+    /// Units sold here since the start, for the market shares of the round (RB1).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub sold_total: f64,
     /// Goods imported by traders and offered here.
     #[serde(default)]
     pub imports: Stock,
@@ -1969,6 +2093,7 @@ impl Market {
     pub(crate) fn record_day(&mut self, day: Trade) {
         self.today = day;
         self.month.add(&day);
+        self.sold_total += day.sold;
     }
 
     pub(crate) fn close_month(&mut self) {

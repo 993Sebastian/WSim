@@ -284,6 +284,80 @@ export interface Rundenbericht {
   quantities?: Mengenknoten | null;
   /** Every company the person controls: result and cash of the round. */
   companies?: FirmaInRunde[];
+  /** Products with shares, the split of the result and the use of the plants (RB1). */
+  detail?: BerichtDetail | null;
+}
+
+/** Shares of a product's market in the country, the continent and the world (RB1). */
+export interface Marktanteile {
+  country: number | null;
+  continent: number | null;
+  world: number | null;
+}
+
+/** The values of the round before, for the trend arrows. */
+export interface VorrundeZeile {
+  contribution_usd: number;
+  shares: Marktanteile;
+}
+
+/** A product in the round report: quantities, contribution margin and shares. */
+export interface ProduktZeile {
+  product: string;
+  unit: string;
+  made: number;
+  sold: number;
+  revenue_usd: number;
+  contribution_usd: number;
+  /** The country with the largest production. */
+  country: string | null;
+  shares: Marktanteile;
+  /** Every country it was made in when more than one. */
+  countries: {
+    country: string;
+    made: number;
+    country_share: number | null;
+    continent_share: number | null;
+  }[];
+  previous?: VorrundeZeile | null;
+}
+
+/** A facility in the round report. */
+export interface AnlagenZeile {
+  facility: string;
+  product: string | null;
+  count: number;
+  /** `laeuft`, `im_bau`, `stillgelegt`, `anlauf`. */
+  state: string;
+  days_left: number | null;
+  utilization: number | null;
+  /** Main reason for a shortfall (`gedrosselt`, `material`, `personal`, …). */
+  loss: string | null;
+}
+
+/** A works in the round report. */
+export interface WerkZeile {
+  site: number;
+  name: string | null;
+  kind_text: string;
+  country: string;
+  utilization: number | null;
+  loss: string | null;
+  slots: AnlagenZeile[];
+}
+
+/** The data of the new round report (RB1). */
+export interface BerichtDetail {
+  /** By revenue, the largest first. */
+  products: ProduktZeile[];
+  result: {
+    contribution_usd: number;
+    fixed_usd: number;
+    other_usd: number;
+    result_usd: number;
+  };
+  sites: WerkZeile[];
+  person_change_usd: number;
 }
 
 /** A company of the person in the round report. */
