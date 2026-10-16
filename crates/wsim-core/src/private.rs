@@ -1073,7 +1073,12 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) ->
             .sum::<Money>()
             .max(Money::ZERO)
     };
-    let earned = of(&[PrivateFlow::Salary, PrivateFlow::Bonus, PrivateFlow::Rent]);
+    let earned = of(&[
+        PrivateFlow::Salary,
+        PrivateFlow::Bonus,
+        PrivateFlow::Rent,
+        PrivateFlow::FoundationPayout,
+    ]);
     let capital = of(&[PrivateFlow::Interest, PrivateFlow::LoanInterest]);
     // The month's earnings stand for a twelfth of a year at the progressive rates.
     let relief = crate::services::tax_relief(catalog, state);

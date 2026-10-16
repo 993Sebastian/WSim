@@ -103,7 +103,9 @@ pub fn target(catalog: &Catalog, state: &GameState) -> f64 {
     // Few companies; the cast is exact.
     #[allow(clippy::cast_precision_loss)]
     let firms = m.target_per_company * companies as f64;
-    (m.target_base + m.target_lifestyle[level.min(3)] + firms + goods).clamp(0.0, 100.0)
+    let foundation = crate::trust::standing_points(catalog, state);
+    (m.target_base + m.target_lifestyle[level.min(3)] + firms + goods + foundation)
+        .clamp(0.0, 100.0)
 }
 
 /// The strength 0–1 of the best living contact of a role.

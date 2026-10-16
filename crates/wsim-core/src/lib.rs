@@ -99,6 +99,7 @@ pub mod trade;
 pub mod training;
 pub mod transport;
 pub mod trims;
+pub mod trust;
 pub mod ventures;
 pub mod views;
 pub mod wellbeing;

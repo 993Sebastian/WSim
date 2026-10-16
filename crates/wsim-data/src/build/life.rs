@@ -417,6 +417,47 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .personal
             .as_ref()
             .map(|p| personal(ctx, p, &l.field("persoenliches"))),
+        trust: v.trust.as_ref().map(|t| {
+            let bl = l.field("bindung");
+            let fl = bl.field("stiftung");
+            wsim_core::catalog::TrustModel {
+                holding_cost: non_negative(ctx, t.holding_cost, &bl.field("holding_kosten")),
+                foundation_min: non_negative(ctx, t.foundation.min, &fl.field("mindest")),
+                gift_tax: in_range(
+                    ctx,
+                    t.foundation.gift_tax,
+                    0.0,
+                    1.0,
+                    &fl.field("einlage_steuer"),
+                ),
+                yield_year: in_range(
+                    ctx,
+                    t.foundation.yield_year,
+                    -0.5,
+                    1.0,
+                    &fl.field("rendite_jahr"),
+                ),
+                payout_year: in_range(
+                    ctx,
+                    t.foundation.payout_year,
+                    0.0,
+                    1.0,
+                    &fl.field("ausschuettung_jahr"),
+                ),
+                standing_per_wage: non_negative(
+                    ctx,
+                    t.foundation.standing_per_wage,
+                    &fl.field("ansehen_je_jahreslohn"),
+                ),
+                standing_cap: in_range(
+                    ctx,
+                    t.foundation.standing_cap,
+                    0.0,
+                    100.0,
+                    &fl.field("ansehen_deckel"),
+                ),
+            }
+        }),
         provenance: provenance(v.approximation, v.source.as_ref()),
         ..PersonModel::default()
     }

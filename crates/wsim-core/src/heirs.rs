@@ -100,6 +100,17 @@ fn pay_co_heirs(state: &mut GameState, catalog: &Catalog, keep: f64) -> Money {
         if held <= 0.0 || state.companies[i].bankrupt {
             continue;
         }
+        if state.person.trust.holding {
+            // The holding keeps the shares together; the co-heirs get a claim on the
+            // dividends and the successor keeps the votes (PV6c).
+            let old = crate::trust::claim(state, id);
+            state
+                .person
+                .trust
+                .claims
+                .insert(id, old + (1.0 - old) * gone);
+            continue;
+        }
         let moved = held * gone;
         let owners = &mut state.companies[i].owners;
         crate::stock::remove_share(owners, crate::state::Holder::Player, moved);

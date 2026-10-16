@@ -1798,3 +1798,68 @@ fn too_little_time_for_the_family_ends_in_a_separation_that_shares_the_wealth() 
     assert!(after < before.scale(0.7), "{before:?} → {after:?}");
     assert!(game.state().person.life.bond.is_none());
 }
+
+fn trust_model() -> crate::catalog::TrustModel {
+    crate::catalog::TrustModel {
+        holding_cost: 6.0,
+        foundation_min: 2.0,
+        gift_tax: 0.02,
+        yield_year: 0.06,
+        payout_year: 0.03,
+        standing_per_wage: 1.0,
+        standing_cap: 20.0,
+    }
+}
+
+fn trust_game() -> Game {
+    let mut c = catalog();
+    c.person.assets = Some(asset_model());
+    c.person.standing = Some(standing_model());
+    c.person.trust = Some(trust_model());
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 5_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    game
+}
+
+#[test]
+fn the_holding_costs_once_and_the_foundation_needs_its_minimum() {
+    use crate::savings::Investment;
+    let mut game = trust_game();
+    let cash = balance(&game);
+    invest(&mut game, Investment::FoundHolding).unwrap();
+    assert!(game.state().person.trust.holding);
+    assert!(balance(&game) < cash);
+    assert_eq!(
+        invest(&mut game, Investment::FoundHolding),
+        Err(CommandError::NotPossible)
+    );
+    assert_eq!(
+        invest(&mut game, Investment::EndowFoundation { amount: usd(1.0) }),
+        Err(CommandError::NotPossible)
+    );
+}
+
+#[test]
+fn the_foundation_grows_pays_the_family_and_lifts_the_standing_target() {
+    use crate::savings::Investment;
+    let mut game = trust_game();
+    let catalog = game.catalog().clone();
+    let target = crate::standing::target(&catalog, game.state());
+    invest(
+        &mut game,
+        Investment::EndowFoundation {
+            amount: usd(1_000_000.0),
+        },
+    )
+    .unwrap();
+    assert!(crate::standing::target(&catalog, game.state()) > target);
+    let estate = game.state().person.trust.capital;
+    assert_eq!(estate, usd(1_000_000.0));
+    game.advance(RoundLength::Month, |_| {});
+    // Yield 0.5 % a month, payout 0.25 %: the capital grows by 0.25 %.
+    let capital = game.state().person.trust.capital;
+    assert!(capital > estate, "{capital:?}");
+    assert!(flow(&game, PrivateFlow::FoundationPayout) > Money::ZERO);
+}

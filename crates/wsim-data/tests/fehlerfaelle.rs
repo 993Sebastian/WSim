@@ -6727,6 +6727,50 @@ fn ansehen_clubs_und_besitz_werden_geprueft() {
     }
 }
 
+const BINDUNG: &str = "  bindung:
+    holding_kosten: 24
+    stiftung: {mindest: 5, einlage_steuer: 0.02, rendite_jahr: 0.03, ausschuettung_jahr: 0.025, ansehen_je_jahreslohn: 2, ansehen_deckel: 20}
+";
+
+#[test]
+fn bindung_wird_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        let mit = PERSON.replacen("  wohlbefinden:", &format!("{BINDUNG}  wohlbefinden:"), 1);
+        Daten::neu()
+            .datei(datei, &mit.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    assert!(gut.data.as_ref().unwrap().catalog.person.trust.is_some());
+    for (alt, neu, pfad) in [
+        (
+            "holding_kosten: 24",
+            "holding_kosten: -1",
+            "person.bindung.holding_kosten",
+        ),
+        (
+            "einlage_steuer: 0.02",
+            "einlage_steuer: 1.5",
+            "person.bindung.stiftung.einlage_steuer",
+        ),
+        (
+            "ausschuettung_jahr: 0.025",
+            "ausschuettung_jahr: -0.1",
+            "person.bindung.stiftung.ausschuettung_jahr",
+        ),
+    ] {
+        let r = lauf(alt, neu);
+        let f = r
+            .report
+            .findings()
+            .first()
+            .unwrap_or_else(|| panic!("{alt} → {neu}: kein Befund"));
+        assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
+    }
+}
+
 const PERSOENLICHES: &str = "  persoenliches:
     chance_faktor: 1.0
     frist_tage: 60

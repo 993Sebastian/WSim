@@ -206,6 +206,9 @@ pub struct PersonView {
     /// Standing, clubs, contacts and possessions (PV6a).
     #[serde(default)]
     pub circle: Option<CircleView>,
+    /// Family holding and foundation (PV6c).
+    #[serde(default)]
+    pub trust: Option<TrustView>,
     /// The relationship, waiting events and the family tree (PV6b).
     #[serde(default)]
     pub life: Option<LifeView>,
@@ -254,6 +257,21 @@ pub struct TreeNodeView {
     pub role: String,
     /// What the person does in the company, if anything.
     pub position: Option<MessageView>,
+}
+
+/// Family holding and foundation (PV6c).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TrustView {
+    pub holding: bool,
+    pub holding_cost_usd: f64,
+    pub capital_usd: f64,
+    pub foundation_min_usd: f64,
+    pub gift_tax: f64,
+    pub yield_year: f64,
+    pub payout_year_usd: f64,
+    pub standing_points: f64,
+    /// Companies whose dividends the co-heirs share: company name, share.
+    pub claims: Vec<(String, f64)>,
 }
 
 /// Standing, clubs, contacts and possessions (PV6a).
@@ -837,6 +855,7 @@ pub fn person(game: &Game) -> PersonView {
         assets,
         wellbeing,
         circle: circle_view(game),
+        trust: trust_view(game),
         life: life_view(game),
         money: Some(money),
         founding,
@@ -979,6 +998,8 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::GoodSold => "privat.besitzverkauf",
         PrivateFlow::CircleCost => "privat.kreiskosten",
         PrivateFlow::Personal => "privat.ereignisse",
+        PrivateFlow::Trust => "privat.bindung",
+        PrivateFlow::FoundationPayout => "privat.stiftungsertrag",
     }
 }
 
@@ -1077,6 +1098,34 @@ fn founding(game: &Game) -> FoundingView {
             private::academic_monthly_wage(catalog, state, home).scale(f.cost_min_months)
         ),
     }
+}
+
+fn trust_view(game: &Game) -> Option<TrustView> {
+    let catalog = game.catalog();
+    let state = game.state();
+    let m = crate::trust::model(catalog)?;
+    let wage = private::academic_monthly_wage(catalog, state, state.person.home);
+    let t = &state.person.trust;
+    Some(TrustView {
+        holding: t.holding,
+        holding_cost_usd: wage.scale(m.holding_cost).to_usd(),
+        capital_usd: t.capital.to_usd(),
+        foundation_min_usd: wage.scale(12.0 * m.foundation_min).to_usd(),
+        gift_tax: m.gift_tax,
+        yield_year: m.yield_year,
+        payout_year_usd: crate::trust::payout_year(catalog, state).to_usd(),
+        standing_points: crate::trust::standing_points(catalog, state),
+        claims: t
+            .claims
+            .iter()
+            .filter_map(|(id, share)| {
+                state
+                    .companies
+                    .get(id.index())
+                    .map(|c| (c.name.clone(), *share))
+            })
+            .collect(),
+    })
 }
 
 fn circle_view(game: &Game) -> Option<CircleView> {

@@ -3167,6 +3167,8 @@ export interface Person {
   assets?: PersonAnlagen | null;
   /** Standing, clubs, contacts and possessions (PV6a). */
   circle?: PersonKreis | null;
+  /** Family holding and foundation (PV6c). */
+  trust?: PersonBindung | null;
   /** The relationship, waiting events and the family tree (PV6b). */
   life?: PersonLeben | null;
   /** While the person has no company yet: the founding. */
@@ -3193,6 +3195,19 @@ export interface PersonLeben {
     role: string;
     position: Meldung | null;
   }[];
+}
+
+/** Family holding and foundation (PV6c). */
+export interface PersonBindung {
+  holding: boolean;
+  holding_cost_usd: number;
+  capital_usd: number;
+  foundation_min_usd: number;
+  gift_tax: number;
+  yield_year: number;
+  payout_year_usd: number;
+  standing_points: number;
+  claims: [string, number][];
 }
 
 /** Standing, clubs, contacts and possessions of the person (PV6a). */

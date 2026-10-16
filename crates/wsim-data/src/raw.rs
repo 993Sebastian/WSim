@@ -3238,6 +3238,8 @@ pub struct RawPerson {
     pub standing: Option<RawStanding>,
     #[serde(default, rename = "persoenliches")]
     pub personal: Option<RawPersonal>,
+    #[serde(default, rename = "bindung")]
+    pub trust: Option<RawTrust>,
     #[serde(default, rename = "anlagen")]
     pub assets: Option<RawAssets>,
     #[serde(default, rename = "nachwuchs")]
@@ -3619,6 +3621,33 @@ pub struct RawFundTerms {
 }
 
 /// Background, time budget and health of the person (PV1b).
+/// Family holding and foundation (PV6c).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTrust {
+    #[serde(rename = "holding_kosten")]
+    pub holding_cost: f64,
+    #[serde(rename = "stiftung")]
+    pub foundation: RawFoundation,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFoundation {
+    #[serde(rename = "mindest")]
+    pub min: f64,
+    #[serde(rename = "einlage_steuer")]
+    pub gift_tax: f64,
+    #[serde(rename = "rendite_jahr")]
+    pub yield_year: f64,
+    #[serde(rename = "ausschuettung_jahr")]
+    pub payout_year: f64,
+    #[serde(rename = "ansehen_je_jahreslohn")]
+    pub standing_per_wage: f64,
+    #[serde(rename = "ansehen_deckel")]
+    pub standing_cap: f64,
+}
+
 /// Relationship, personal events and nepotism (PV6b).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

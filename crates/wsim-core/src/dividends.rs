@@ -199,8 +199,10 @@ fn pay(
     for p in parts {
         match p.holder {
             Holder::Player => {
-                paid.person_gross += p.gross;
-                paid.person_tax += p.tax;
+                // What the holding passes on to the co-heirs does not reach the person.
+                let keep = 1.0 - crate::trust::claim(state, company);
+                paid.person_gross += p.gross.scale(keep);
+                paid.person_tax += p.tax.scale(keep);
             }
             Holder::Company(h) => {
                 let Some(holder) = state.companies.get_mut(h.index()).filter(|x| !x.bankrupt)

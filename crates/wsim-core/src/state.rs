@@ -2446,6 +2446,9 @@ pub struct Person {
     /// Standing, clubs, contacts and possessions (PV6a).
     #[serde(default, skip_serializing_if = "crate::standing::Circle::is_empty")]
     pub circle: crate::standing::Circle,
+    /// Family holding and foundation (PV6c).
+    #[serde(default, skip_serializing_if = "crate::trust::Trust::is_empty")]
+    pub trust: crate::trust::Trust,
     /// The relationship and the personal events (PV6b).
     #[serde(default, skip_serializing_if = "crate::personal::Life::is_empty")]
     pub life: crate::personal::Life,
@@ -2567,6 +2570,7 @@ impl Default for Person {
             disclosed: BTreeMap::new(),
             circle: crate::standing::Circle::default(),
             life: crate::personal::Life::default(),
+            trust: crate::trust::Trust::default(),
             services: Default::default(),
         }
     }
@@ -2644,6 +2648,10 @@ pub enum PrivateFlow {
     CircleCost,
     /// Personal events and separations (PV6b).
     Personal,
+    /// Founding the holding, endowing the foundation (PV6c).
+    Trust,
+    /// What the foundation pays to the family, taxed as income.
+    FoundationPayout,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by

@@ -3273,3 +3273,14 @@ person.testament_gespeichert: Testament gespeichert.
 person.testament_zurueck: Gesetzliche Erbfolge gilt wieder.
 person.testament_gesetzlich_knopf: Zur gesetzlichen Erbfolge zurück
 person.erbanteile: "Anteile der Miterben: {liste}."
+privat.bindung: Familienholding und Stiftung
+privat.stiftungsertrag: Ausschüttung der Stiftung
+person.bindung: Familienholding und Stiftung
+person.bindung_hilfe: "Die Holding hält deine Firmenanteile zusammen: bei deinem Tod behält der Nachfolger die Stimmen, die Miterben erhalten nur einen Anspruch auf die Dividenden. Das Stiftungskapital zählt nicht zum Erbe, wächst mit dem Ertrag, zahlt der Familie jährlich aus und hebt das Ansehen; zurück kommt es nie."
+person.holding_gruenden: "Holding gründen ({kosten})"
+person.holding_besteht: Holding besteht.
+person.stiftung_kapital: Stiftungskapital
+person.stiftung_ertrag: "Ertrag {ertrag} im Jahr, Ausschüttung {ausschuettung}, Ansehen +{ansehen}"
+person.stiftung_einlage: Einlage in die Stiftung
+person.stiftung_einzahlen: "Einzahlen (mindestens {mindest}, Steuer {steuer})"
+person.holding_anspruch: "{firma}: {anteil} der Dividenden gehen an die Miterben"

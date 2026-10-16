@@ -182,6 +182,12 @@ pub enum Investment {
     BuyGood {
         good: u32,
     },
+    /// Founds the family holding (PV6c).
+    FoundHolding,
+    /// Pays into the foundation for good (PV6c).
+    EndowFoundation {
+        amount: Money,
+    },
     SellGood {
         index: u32,
     },
@@ -419,6 +425,9 @@ pub(crate) fn apply(
         | Investment::SetTaxAdvisor { .. }
         | Investment::HireAssetManager { .. }
         | Investment::DismissAssetManager => crate::services::apply(state, catalog, action)?,
+        Investment::FoundHolding | Investment::EndowFoundation { .. } => {
+            crate::trust::apply(state, catalog, action)?
+        }
         Investment::Donate { .. }
         | Investment::JoinClub { .. }
         | Investment::LeaveClub { .. }
@@ -573,6 +582,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     news.extend(crate::services::month_start(state, catalog, date));
     news.extend(crate::standing::month_start(state, catalog, date));
     news.extend(crate::personal::month_start(state, catalog, date));
+    news.extend(crate::trust::month_start(state, catalog, date));
     // The plan.
     if let Some(plan) = state.person.portfolio.plan
         && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()

@@ -2908,6 +2908,8 @@ pub struct PersonModel {
     pub standing: Option<StandingModel>,
     /// Relationship, personal events, nepotism (PV6b).
     pub personal: Option<PersonalModel>,
+    /// Family holding and foundation (PV6c).
+    pub trust: Option<TrustModel>,
     /// Safe investments, gold and funds (PV2); `None` without the section.
     pub assets: Option<AssetModel>,
     /// Children, education and succession (PV4); `None` without the section.
@@ -3063,6 +3065,22 @@ pub struct BackgroundEffect {
     /// Standing and contacts at the start (from PV6).
     pub standing: f64,
     pub network: f64,
+}
+
+/// Family holding and foundation (PV6c, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct TrustModel {
+    /// One-off cost of the holding in academic monthly wages.
+    pub holding_cost: f64,
+    /// Least endowment of the foundation in academic yearly wages, the gift tax on it,
+    /// the yearly yield and the yearly payout to the family, both of the capital.
+    pub foundation_min: f64,
+    pub gift_tax: f64,
+    pub yield_year: f64,
+    pub payout_year: f64,
+    /// Points of standing per academic yearly wage of the capital, and the most.
+    pub standing_per_wage: f64,
+    pub standing_cap: f64,
 }
 
 /// Relationship, personal events and nepotism (PV6b, docs/FORMELN.md).
@@ -3306,6 +3324,7 @@ impl Default for PersonModel {
             wellbeing: None,
             standing: None,
             personal: None,
+            trust: None,
             assets: None,
             legacy: None,
             provenance: Provenance::default(),

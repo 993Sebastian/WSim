@@ -473,3 +473,23 @@ fn education_is_chosen_from_sixteen_costs_money_and_shapes_the_card() {
     assert!(game.state().person.account.balance < cash);
     assert!(game.state().person.children[0].education_months >= 1);
 }
+
+#[test]
+fn a_holding_keeps_the_shares_together_and_gives_the_co_heirs_a_claim() {
+    let mut game = legacy_game(false, 2);
+    game.apply(Command::SetHeir { child: Some(0) }).unwrap();
+    game.state_mut().person.trust.holding = true;
+    let main = game.player();
+    let before = crate::person::share(game.state(), main);
+    die(&mut game);
+    let after = crate::person::share(game.state(), main);
+    assert!((before - after).abs() < 1e-12, "{before} {after}");
+    let claim = crate::trust::claim(game.state(), main);
+    assert!(claim > 0.0 && claim < 1.0, "{claim}");
+    // Without the holding the shares move and no claim arises.
+    let mut free = legacy_game(false, 2);
+    free.apply(Command::SetHeir { child: Some(0) }).unwrap();
+    die(&mut free);
+    assert!(crate::person::share(free.state(), main) < before);
+    assert_eq!(crate::trust::claim(free.state(), main), 0.0);
+}

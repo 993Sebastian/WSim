@@ -28,6 +28,8 @@ export type Geldanlage =
   | { JoinClub: { club: number } }
   | { LeaveClub: { club: number } }
   | { BuyGood: { good: number } }
+  | "FoundHolding"
+  | { EndowFoundation: { amount: number } }
   | { SellGood: { index: number } };
 
 export type Preisart =

@@ -6891,3 +6891,15 @@ Land mit eigenem Standort: Firma, Land, Art.
 
 **Offen (MG9c ff.):** weitere Fallarten (Branche, Land, Start-up-Ausstieg, Abwehr), Analysten je Branche, Klausur als Ansicht,
 zwei Trefferquoten (Spürsinn), Abwehrvorschlag aus der Konkurrenzmeldung, Gebote auf Ziele der Abteilung.
+
+## PV6c – Familienholding und Stiftung
+
+- **Holding:** einmalige Gründung für `holding_kosten` akademische Monatslöhne. Mit Holding
+  bleiben bei der Nachfolge (`pay_co_heirs`) die Firmenanteile beim Nachfolger; die Miterben erhalten
+  je Firma einen Anspruch `a' = a + (1 − a)·g` auf die Dividenden (`g` = Anteil der Miterben am
+  Erbe). Die Dividende der Person sinkt auf `(1 − a)` (Brutto und Steuer); die Stimmen bleiben bei der Person.
+- **Stiftung:** Einlage `E` ≥ `mindest` akademische Jahreslöhne, Schenkungssteuer
+  `E·einlage_steuer` zusätzlich aus dem Privatkonto. Das Kapital `K` zählt nicht zum Erbe und
+  kommt nie zurück. Monatlich: `K += K·rendite_jahr/12`, Ausschüttung `A = K·ausschuettung_jahr/12`
+  aufs Privatkonto (Fluss `FoundationPayout`, als Einkommen versteuert).
+- **Ansehen:** Zielwert `+ min(ansehen_je_jahreslohn · K/Jahreslohn, ansehen_deckel)`.

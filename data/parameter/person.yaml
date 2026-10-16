@@ -159,6 +159,10 @@ person:
         optionen:
           - {id: pause, kosten: 5, gesundheit: 15}
           - {id: weitermachen, gesundheit: -5}
+  # Familienholding und Stiftung (PV6c, FORMELN PV6c). Annäherungen.
+  bindung:
+    holding_kosten: 24
+    stiftung: {mindest: 5, einlage_steuer: 0.02, rendite_jahr: 0.03, ausschuettung_jahr: 0.025, ansehen_je_jahreslohn: 2, ansehen_deckel: 20}
   wohlbefinden:
     hintergruende:
       tueftler: {forschung: 0.05}

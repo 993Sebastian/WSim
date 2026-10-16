@@ -82,6 +82,69 @@ function Leben({ l }: { l: NonNullable<Person["life"]> }) {
   );
 }
 
+/** Family holding and foundation (PV6c). */
+function Bindung({ b }: { b: NonNullable<Person["trust"]> }) {
+  const { los, antwort } = useAktion("bindung");
+  const [einlage, setEinlage] = useState("");
+  const senden = (action: Geldanlage) => void los([{ Invest: { action } }]);
+  const betrag = zahlLesen(einlage);
+  return (
+    <section className="karte" aria-label={t("person.bindung")}>
+      <h2>{t("person.bindung")}</h2>
+      <p className="feld-hilfe">{t("person.bindung_hilfe")}</p>
+      {b.holding ? (
+        <p>{t("person.holding_besteht")}</p>
+      ) : (
+        <button type="button" onClick={() => senden("FoundHolding")}>
+          {t("person.holding_gruenden", { kosten: formatGeld(b.holding_cost_usd) })}
+        </button>
+      )}
+      {b.claims.length > 0 && (
+        <ul className="liste">
+          {b.claims.map(([firma, anteil]) => (
+            <li key={firma}>
+              {t("person.holding_anspruch", { firma, anteil: formatProzent(anteil) })}
+            </li>
+          ))}
+        </ul>
+      )}
+      <dl className="werte">
+        <dt>{t("person.stiftung_kapital")}</dt>
+        <dd>
+          {formatGeld(b.capital_usd)} (
+          {t("person.stiftung_ertrag", {
+            ertrag: formatProzent(b.yield_year),
+            ausschuettung: formatGeld(b.payout_year_usd),
+            ansehen: formatZahl(b.standing_points),
+          })}
+          )
+        </dd>
+      </dl>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("person.stiftung_einlage")}
+          einheit={geldEinheit()}
+          wert={einlage}
+          onWert={setEinlage}
+        />
+        <button
+          type="button"
+          disabled={betrag === null || betrag <= 0}
+          onClick={() =>
+            betrag !== null && senden({ EndowFoundation: { amount: geld(ausAnzeige(betrag)) } })
+          }
+        >
+          {t("person.stiftung_einzahlen", {
+            mindest: formatGeld(b.foundation_min_usd),
+            steuer: formatProzent(b.gift_tax),
+          })}
+        </button>
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Standing, clubs, contacts and possessions (PV6a). */
 function Ansehen({ k }: { k: NonNullable<Person["circle"]> }) {
   const { los, antwort } = useAktion("ansehen");
@@ -1463,6 +1526,7 @@ export function PersonAnsicht({
       {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
       {daten.assets && <Anlagen a={daten.assets} />}
       {daten.circle && <Ansehen k={daten.circle} />}
+      {daten.trust && <Bindung b={daten.trust} />}
       {daten.life && <Leben l={daten.life} />}
       {daten.assets?.property && <Immobilien p={daten.assets.property} />}
       <Rollen p={daten} g={g} />

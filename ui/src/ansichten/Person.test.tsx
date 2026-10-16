@@ -532,6 +532,50 @@ describe("Person (PE2)", () => {
     expect(gesendet[1]).toEqual({ Invest: { action: { BuyGood: { good: 0 } } } });
   });
 
+  it("gründet die Holding und zahlt in die Stiftung ein (PV6c)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      person: async () => {
+        const p = await vorschau.person();
+        p.trust = {
+          holding: false,
+          holding_cost_usd: 5000,
+          capital_usd: 0,
+          foundation_min_usd: 20000,
+          gift_tax: 0.02,
+          yield_year: 0.03,
+          payout_year_usd: 0,
+          standing_points: 0,
+          claims: [["Test AG", 0.5]],
+        };
+        return p;
+      },
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const karte = await screen.findByRole("region", { name: "Familienholding und Stiftung" });
+    fireEvent.click(within(karte).getByRole("button", { name: /Holding gründen/ }));
+    expect(gesendet[0]).toEqual({ Invest: { action: "FoundHolding" } });
+    expect(within(karte).getByText(/Test AG/)).toBeTruthy();
+  });
+
   it("zeigt Beziehung, Ereignis und Stammbaum und beantwortet das Ereignis (PV6b)", async () => {
     const vorschau = vorschauKern(0);
     await vorschau.neuesSpiel({
