@@ -3,7 +3,7 @@
 Stand: 15.10.2026 · Status: zur Umsetzung freigegeben
 
 **Reihenfolge (Auftraggeber, 15.10.2026):** DM1–DM6 (Meilensteine dieser Vorgabe, von mir benannt) kommen **direkt nach RB4**, vor ZP1.
-Gesamtreihenfolge: PD7–PD10 → MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → E2E → RB1–RB4 → DM1–DM6 → ZP1. WG1–WG5 bleiben zurückgestellt.
+Gesamtreihenfolge: PD7–PD10 → MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → RB1–RB4 → E2E → DM1–DM6 → ZP1. WG1–WG5 bleiben zurückgestellt.
 
 Bitte vor der Umsetzung den aktuellen Code-Stand prüfen und Namen, Strukturen und Rundenlogik an das Bestehende anpassen. Das betrifft vor allem das Nachfragemodell aus `docs/WELT_MARKT_BETRIEB.md`, die Produktentwicklung (Meilensteine M0–M7), die Strategieabteilung und das System der Maschinenangebote. Alte Spielstände müssen nicht kompatibel bleiben.
 

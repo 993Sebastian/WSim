@@ -15,7 +15,7 @@ Produktentwicklung (Projekte mit Meilensteinen PM0–PM7/WM0–WM3, Laborrollen,
 „Produkt erforschen“, Wunsch vom 13.10.2026): `docs/PRODUKTENTWICKLUNG.md`.
 Zukunftsprodukte ab 2026 (92 Produkte 2027–2085, Technologiestopp 2026 fällt; ZP1, Wunsch vom 14.10.2026):
 `docs/ZUKUNFTSPRODUKTE.md`.
-Rundenbericht überarbeiten (RB1–RB4, Wunsch vom 15.10.2026; ersetzt Lastenheft §13.2, Reihenfolge: nach E2E, vor ZP1):
+Rundenbericht überarbeiten (RB1–RB4, Wunsch vom 15.10.2026; ersetzt Lastenheft §13.2, Reihenfolge: vor E2E, Wunsch vom 16.10.2026):
 `docs/RUNDENBERICHT_2.md`.
 Produktdiversifikation und Marktforschung (Profil Q/L/E, Kundensegmente, Studien, Marktforscher, DM1–DM6, Wunsch vom
 15.10.2026; Reihenfolge: nach RB4, vor ZP1): `docs/PRODUKTDIVERSIFIKATION.md`.

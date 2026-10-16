@@ -2,8 +2,8 @@
 
 Stand: 15.10.2026 · Auftraggeber: Sebastian · Ersetzt Lastenheft §13.2 (dort verweist §13.2 auf dieses Dokument).
 
-**Reihenfolge (Auftraggeber, 15.10.2026):** RB1–RB4 kommen **direkt nach der Gesamtprüfung E2E** und vor ZP1.
-Gesamtreihenfolge: PD7–PD10 → Auswertung MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → E2E → RB1–RB4 → ZP1.
+**Reihenfolge (Auftraggeber, 15.10.2026, geändert am 16.10.2026):** RB1–RB4 kommen **vor der Gesamtprüfung E2E** (direkt nach der Auswertung MN6/PD1); danach E2E, DM1–DM6, ZP1.
+Gesamtreihenfolge: PD7–PD10 → Auswertung MN6/PD1 → PD11 → Manager-Reste → PV1–PV8 → RB1–RB4 → E2E → DM1–DM6 → ZP1.
 WG1–WG5 bleiben zurückgestellt.
 
 ## Ziel
