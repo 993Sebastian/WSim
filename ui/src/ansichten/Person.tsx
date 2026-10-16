@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ausAnzeige,
   formatDatum,
@@ -219,6 +219,14 @@ function Vermoegen({ g }: { g: PersonGeld }) {
         <dd>{formatGeld(g.shares_usd)}</dd>
         <dt>{t("person.darlehen")}</dt>
         <dd>{formatGeld(g.loans_usd)}</dd>
+        {g.classes
+          .filter(([k, v]) => k === "startups" && v !== 0)
+          .map(([k, v]) => (
+            <Fragment key={k}>
+              <dt>{t(`privat.vermoegen_${k}`)}</dt>
+              <dd>{formatGeld(v)}</dd>
+            </Fragment>
+          ))}
         <dt>{t("person.vermoegen_gesamt")}</dt>
         <dd>
           <strong>{formatGeld(g.wealth_usd)}</strong>

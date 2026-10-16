@@ -59,6 +59,17 @@ person:
       FRA: {1900: 0, 1916: 0.05, 1946: 0.3, 1980: 0.35, 2026: 0.35}
       XNO: {1900: 0.03, 1920: 0.15, 1950: 0.45, 1980: 0.55, 2000: 0.45, 2026: 0.4}
       JPN: {1900: 0.03, 1940: 0.2, 1950: 0.4, 1990: 0.35, 2026: 0.33}
+  # Stufen der Einkommensteuer (PV1, FORMELN PV1): Einkommen in Akademiker-Jahreslöhnen des
+  # Wohnsitzlandes ab `ab` wird mit `faktor` mal dem Satz der Reihe oben besteuert (Grenzsatz,
+  # höchstens 90 %). Ohne Stufen gilt der Satz für das ganze Einkommen.
+  einkommensteuer_stufen:
+    - {ab: 0, faktor: 0.2}
+    - {ab: 1, faktor: 0.6}
+    - {ab: 3, faktor: 1.0}
+    - {ab: 10, faktor: 1.3}
+  # Pauschale Kapitalertragsteuer auf Zinsen (Dividenden: Quellensteuer der Länder).
+  kapitalertragsteuer:
+    standard: {1900: 0, 1920: 0.05, 1950: 0.15, 2000: 0.25, 2026: 0.25}
   # Guthabenzins des Privatkontos je Land und Jahr (real, Kaufkraft 2026).
   sparzins:
     standard: {1900: 0.02}

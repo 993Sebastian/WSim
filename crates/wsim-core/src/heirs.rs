@@ -10,9 +10,7 @@ use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::person;
 use crate::rng::{SimRng, Stream};
-use crate::state::{
-    Ancestor, Child, CompanyId, Departure, GameState, LifeEvent, LifeEventKind, VentureStatus,
-};
+use crate::state::{Ancestor, Child, CompanyId, Departure, GameState, LifeEvent, LifeEventKind};
 
 /// The person's chance to die within a month: the managers' table times the lifestyle.
 pub fn death_chance(catalog: &Catalog, state: &GameState, today: Date) -> f64 {
@@ -49,16 +47,7 @@ pub fn heir(state: &GameState) -> Option<usize> {
 
 /// What the person leaves: account, shares at value, start-ups, open loans.
 pub fn estate(catalog: &Catalog, state: &GameState) -> Money {
-    let ventures: Money = state
-        .ventures
-        .iter()
-        .filter(|v| v.status == VentureStatus::Active)
-        .map(|v| {
-            crate::ventures::value(&catalog.ventures, v).scale(crate::ventures::person_share(v))
-                + v.person_pledge
-        })
-        .sum();
-    crate::private::wealth(catalog, state).total() + ventures
+    crate::private::wealth(catalog, state).total()
 }
 
 /// The inheritance or gift tax rate at home today.

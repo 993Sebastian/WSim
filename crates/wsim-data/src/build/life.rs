@@ -7,7 +7,7 @@ use wsim_core::catalog::{
 use wsim_core::ids::Id;
 use wsim_core::state::Lifestyle;
 
-use super::{in_range, positive, provenance, time_series};
+use super::{in_range, non_negative, positive, provenance, time_series};
 use crate::messages;
 use crate::raw::{RawAgeSpan, RawCountrySeries, RawLifestyle, RawPerson};
 use crate::read::{Ctx, Loc, RawData};
@@ -356,6 +356,11 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             &l.field("einkommensteuer"),
             (0.0, 1.0),
         ),
+        income_brackets: tax_brackets(ctx, &v.income_brackets, &l.field("einkommensteuer_stufen")),
+        capital_tax: v
+            .capital_tax
+            .as_ref()
+            .map(|s| country_series(ctx, catalog, s, &l.field("kapitalertragsteuer"), (0.0, 1.0))),
         savings_rate: country_series(
             ctx,
             catalog,
@@ -441,4 +446,19 @@ fn lifestyle(ctx: &mut Ctx, r: &RawLifestyle, l: &Loc) -> LifestyleLevel {
         education: in_range(ctx, r.education, 0.0, 50.0, &l.field("ausbildung")),
         mortality: in_range(ctx, r.mortality, 0.0, 10.0, &l.field("sterblichkeit")),
     }
+}
+
+/// The brackets of the income tax: rising starts from 0, factors 0–5 (PV1).
+fn tax_brackets(ctx: &mut Ctx, raw: &[crate::raw::RawTaxBracket], l: &Loc) -> Vec<(f64, f64)> {
+    let mut out: Vec<(f64, f64)> = Vec::new();
+    for (i, x) in raw.iter().enumerate() {
+        let at = l.index(i);
+        let from = non_negative(ctx, x.from, &at.field("ab"));
+        let factor = in_range(ctx, x.factor, 0.0, 5.0, &at.field("faktor"));
+        if out.last().is_some_and(|&(prev, _)| from <= prev) {
+            ctx.error(&at.field("ab"), messages::brackets_not_ascending());
+        }
+        out.push((from, factor));
+    }
+    out
 }

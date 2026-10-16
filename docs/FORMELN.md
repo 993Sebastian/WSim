@@ -4818,6 +4818,61 @@ einem Akademikerhaushalt.
   25; vor Spielbeginn gilt die Stufe des Spielbeginns), höchstens bis 100.
 - **Sterblichkeit:** Faktor auf die Sterbechance der Person (PE6).
 
+## PV1a – Steuerstufen und Vermögensklassen
+
+**Einkommensteuer (Stufen).** Die Reihe `einkommensteuer` liefert den Basissatz `s` des Wohnsitzlandes.
+Mit `einkommensteuer_stufen` `[(ab_i, f_i)]` und dem Jahreslohn `L` des Wohnsitzlandes gilt für das
+Jahreseinkommen `E`:
+
+`Steuer(E) = Σ_i max(0, min(E, ab_{i+1}·L) − ab_i·L) · min(0,9, s·f_i)`
+
+(`ab_{n+1} = ∞`). Ohne Stufen: `E · s`. Die Steuer wird weiter monatlich am Monatsende auf das
+Gehalt des Monats gerechnet (Jahreshochrechnung `E = 12 · Monatsgehalt`, Steuer anteilig).
+
+**Kapitalertragsteuer.** Zinsen des Privatkontos werden mit `kapitalertragsteuer` (je Land und Jahr)
+besteuert, ohne Reihe mit dem Einkommensteuersatz `s`.
+
+**Vermögensklassen.** Nettovermögen `W = Konto + Firmenanteile + Start-up-Anteile + Darlehen an
+Firmen`. Start-up-Anteile = Σ (Anteil der Spielerfigur × `ventures::value`) aller aktiven Start-ups.
+Die Sicht liefert die Klassen einzeln; Summenprüfung: Σ Klassen = `W` (Test).
+
+## PV1b – Hintergrund, Zeitbudget und Gesundheit
+
+**Hintergrund.** Beim Spielstart wählt der Spieler einen von vier Hintergründen (Daten
+`person.hintergruende`): Tüftler, Kaufmann, Charismatiker, Erbe. Jeder hat Wirkungen als
+Startwerte `w` (Anteile; Obergrenze `deckel` = 0,1 für die Eigenschaftsboni):
+
+- *Forschung* `f`: Faktor `1 + f·e` auf den Fortschritt der Forschung und der Entwicklungsprojekte
+  aller Firmen unter Führung der Person (Tüftler 0,05).
+- *Kreditzins* `z`: Aufschlag auf den Zins neuer Bankkredite kontrollierter Firmen, in
+  Prozentpunkten (Kaufmann −0,005); wirkt wie der Lebensstil in `loan_rate_offset`.
+- *Ordergebühr* `g`: Anteil der Gebühr (Kaufmann −0,2); wirkt ab PV2, bis dahin nur Anzeige.
+- *Loyalität* `l`: Zuschlag auf die Zufriedenheit der Manager in Firmen unter Führung der Person
+  (Charismatiker 0,1 · Zufriedenheitsschritt je Monat).
+- *Ansehen/Netzwerk* zum Start (Erbe): als Zahlen gespeichert, wirken ab PV6.
+
+`e` ist die Erfahrung der Person (0…1, wächst um `erfahrung_je_jahr` je Jahr bei aktiver
+Führung einer Firma). Wirkung = Startwert · (0,5 + 0,5·e) gedeckelt auf `deckel`.
+
+**Zeitbudget.** Vier Anteile `(Firma, Familie, Netzwerk, Erholung)` in Prozent, Summe 100,
+dauerhaft; Voreinstellung aus den Daten. Mindestanteil Firma
+`m = min(m_max, m_0 + m_rolle · Rollen)` mit `Rollen` = Zahl der Firmen, die die Person als
+CEO leitet. Liegt der Firmenanteil unter `m`, entscheiden die Manager häufiger nach Standard:
+Anliegen an die Person laufen nach `(m − Firma)/m` · `verzoegerung` Tagen länger (Frist).
+
+**Gesundheit.** Wert `G` in 0…100. Monatliche Änderung:
+
+`ΔG = −altern(a) − überlastung · max(0, Firma − 70)/30 + erholung · Erholung/100 + lebensstil(L) + kur`
+
+mit `altern(a) = a_0 · max(0, a − a_ab)` je Monat (a = Alter), `lebensstil` aus den Stufen
+(`gesundheit`). Die Sterbechance des Lebenslaufs wird mit
+`s(G) = 1 + (s_0 − 1) · (1 − G/100)` multipliziert (`s_0` = Faktor bei G = 0).
+Fällt `G` unter die Schwelle `krank_unter`, tritt je Monat mit Chance
+`krank_chance · (schwelle − G)/schwelle` ein Ausfall von `ausfall_monate` Monaten ein (eigener
+Zufallsstrom `Person`). Während des Ausfalls zählt der Firmenanteil als 0 (Standard-
+entscheidungen der Manager), und Anliegen laufen über die Hierarchie zum CEO. Eine Kur
+(Befehl) kostet `kur_kosten` Monatslöhne und bringt `kur_gewinn` Gesundheit.
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;

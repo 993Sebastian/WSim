@@ -134,7 +134,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PD9 | First-Mover, Förderprogramme, Portfolio-Ansicht | ✅ 15.10.2026: First-Mover-Bonus (Bekanntheit, Ruf), Förderprogramme nach Epoche mit Zuschuss am Projekt, Portfolio-Ansicht |
 | PD10 | Balancing und Gleichstellungstests KI/Spieler | ✅ |
 | PD11 | Entwicklungsleitung: Vorstand, Kontinent, Land, Laborleiter, Budgetkaskade, Eskalation, Branchenfreigabe, KI (`docs/PRODUKTENTWICKLUNG.md` §10; Reihenfolge (Auftraggeber, 15.10.2026): direkt nach PD10, vor der Auswertung MN6/PD1) | ✅ |
-| PV1 | Privatleben und Privatvermögen: Nettovermögen nach Klassen, Einkommen- und Kapitalertragsteuer, Spielerhintergrund, Zeitbudget und Gesundheit (`docs/PRIVATLEBEN_VERMOEGEN.md`; Wunsch vom 15.10.2026) | ⏳ Vorgabe aufgenommen 15.10.2026; Reihenfolge (Auftraggeber): nach den Manager-Resten, danach E2E, dann ZP1 |
+| PV1 | Privatleben und Privatvermögen: Nettovermögen nach Klassen, Einkommen- und Kapitalertragsteuer, Spielerhintergrund, Zeitbudget und Gesundheit (`docs/PRIVATLEBEN_VERMOEGEN.md`; Wunsch vom 15.10.2026) | 🔧 PV1a (Steuerstufen, Kapitalertragsteuer, Vermögensklassen mit Summenprüfung) 16.10.2026 umgesetzt; offen: Hintergrund, Zeitbudget, Gesundheit, Bereich „Privat“; danach PV2–PV8, E2E, ZP1 |
 | PV2 | Sichere Anlagen, Kursmodell der Börse, Gebühr, Spanne, Marktwirkung, Welt-ETF/Fonds mit Sparplan, Inflation an/aus, Kalibrierlauf | ⏳ |
 | PV3 | Privatimmobilien: Miete, Zustand, Hypothek, Werkseffekt | ⏳ |
 | PV4 | Kinder mit Eigenschaften und Ausbildung, Trainee-Pfad, Testament, gesetzliche Erbfolge, Erbschaftsteuer | ⏳ |

@@ -3188,6 +3188,10 @@ pub struct RawPerson {
     pub lifestyle: RawLifestyles,
     #[serde(rename = "einkommensteuer")]
     pub income_tax: RawCountrySeries,
+    #[serde(default, rename = "einkommensteuer_stufen")]
+    pub income_brackets: Vec<RawTaxBracket>,
+    #[serde(default, rename = "kapitalertragsteuer")]
+    pub capital_tax: Option<RawCountrySeries>,
     #[serde(rename = "sparzins")]
     pub savings_rate: RawCountrySeries,
     #[serde(rename = "erbe")]
@@ -3200,6 +3204,16 @@ pub struct RawPerson {
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// A bracket of the income tax (PV1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTaxBracket {
+    #[serde(rename = "ab")]
+    pub from: f64,
+    #[serde(rename = "faktor")]
+    pub factor: f64,
 }
 
 /// What the person can do privately: look for a partner, private schools, health care.

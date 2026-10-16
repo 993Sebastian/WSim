@@ -131480,6 +131480,7 @@
     "married": true,
     "money": {
       "cash_usd": 0.0,
+      "classes": [["konto", 0.0], ["firmen", 0.0], ["startups", 0.0], ["darlehen", 0.0]],
       "flows": [],
       "history": [
         [
@@ -131640,6 +131641,7 @@
     "married": true,
     "money": {
       "cash_usd": 250000.0,
+      "classes": [["konto", 250000.0], ["firmen", 0.0], ["startups", 0.0], ["darlehen", 0.0]],
       "flows": [],
       "history": [
         [

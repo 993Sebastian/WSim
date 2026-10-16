@@ -2877,6 +2877,11 @@ pub struct PersonModel {
     pub lifestyle_months: u32,
     /// Income tax rate and savings rate by country and year.
     pub income_tax: CountrySeries,
+    /// Brackets of the income tax: from so many academic yearly wages, the factor on the
+    /// rate; empty: the rate for all income (PV1).
+    pub income_brackets: Vec<(f64, f64)>,
+    /// Flat tax on interest; `None`: taxed like income (PV1).
+    pub capital_tax: Option<CountrySeries>,
     pub savings_rate: CountrySeries,
     /// Without a child a nephew or niece of this age inherits, from–to years (PE6).
     pub nephew_age: [u32; 2],
@@ -2929,6 +2934,8 @@ impl Default for PersonModel {
             default_lifestyle: crate::state::Lifestyle::Middle,
             lifestyle_months: 12,
             income_tax: CountrySeries::default(),
+            income_brackets: Vec::new(),
+            capital_tax: None,
             savings_rate: CountrySeries::default(),
             nephew_age: [25, 40],
             succession_hint_from: 70,

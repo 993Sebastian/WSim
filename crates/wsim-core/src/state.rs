@@ -2507,11 +2507,55 @@ pub struct WealthPoint {
     pub cash: Money,
     pub shares: Money,
     pub loans: Money,
+    /// Shares of start-ups at their value (PV1).
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub ventures: Money,
+}
+
+/// The classes of the net worth (PV1); the parts add up to the total.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum WealthClass {
+    /// The private account.
+    Cash,
+    /// Shares of companies at their value.
+    Companies,
+    /// Shares of start-ups.
+    Ventures,
+    /// Loans of the person to its companies.
+    Loans,
+}
+
+impl WealthClass {
+    pub const ALL: [WealthClass; 4] = [
+        WealthClass::Cash,
+        WealthClass::Companies,
+        WealthClass::Ventures,
+        WealthClass::Loans,
+    ];
+
+    pub fn key(self) -> &'static str {
+        match self {
+            WealthClass::Cash => "konto",
+            WealthClass::Companies => "firmen",
+            WealthClass::Ventures => "startups",
+            WealthClass::Loans => "darlehen",
+        }
+    }
 }
 
 impl WealthPoint {
     pub fn total(&self) -> Money {
-        self.cash + self.shares + self.loans
+        self.cash + self.shares + self.loans + self.ventures
+    }
+
+    /// The net worth by class; the sum is `total`.
+    pub fn classes(&self) -> [(WealthClass, Money); 4] {
+        [
+            (WealthClass::Cash, self.cash),
+            (WealthClass::Companies, self.shares),
+            (WealthClass::Ventures, self.ventures),
+            (WealthClass::Loans, self.loans),
+        ]
     }
 }
 

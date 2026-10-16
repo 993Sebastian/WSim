@@ -488,3 +488,46 @@ fn a_bonus_leaves_the_company_and_is_taxed_as_income() {
     assert!(flow(&game, PrivateFlow::IncomeTax) < Money::ZERO);
     assert!(game.state().companies[id.index()].ledger.is_balanced());
 }
+
+#[test]
+fn the_income_tax_is_progressive_with_brackets_and_flat_without() {
+    let game = new_game(true, 1_000_000.0);
+    let mut c = catalog();
+    let flat = private::earned_tax(&c, game.state(), usd(100_000.0));
+    assert_eq!(flat, usd(20_000.0));
+    c.person.income_brackets = vec![(0.0, 0.5), (1.0, 1.5)];
+    let unit = crate::management::yearly_wage(&c, game.state(), game.state().person.home);
+    let low = private::earned_tax(&c, game.state(), usd(unit * 0.5));
+    let high = private::earned_tax(&c, game.state(), usd(unit * 4.0));
+    // The lower bracket: half the base rate; above it the rate rises.
+    assert!((low.to_usd() - unit * 0.5 * 0.1).abs() < 1.0);
+    assert!(high.to_usd() / (unit * 4.0) > low.to_usd() / (unit * 0.5));
+    assert_eq!(
+        private::earned_tax(&c, game.state(), Money::ZERO),
+        Money::ZERO
+    );
+}
+
+#[test]
+fn the_capital_tax_falls_back_to_the_income_tax_rate() {
+    let game = new_game(false, 100_000.0);
+    let mut c = catalog();
+    assert_eq!(private::capital_tax_rate(&c, game.state()), 0.2);
+    c.person.capital_tax = Some(c.person.income_tax.clone());
+    c.person.capital_tax.as_mut().unwrap().default =
+        Some(crate::time_series::TimeSeries::new(vec![(1900, 0.1), (2100, 0.1)]).unwrap());
+    assert_eq!(private::capital_tax_rate(&c, game.state()), 0.1);
+}
+
+#[test]
+fn the_wealth_classes_add_up_to_the_net_worth() {
+    let mut game = new_game(true, 1_000_000.0);
+    to_next_month(&mut game);
+    let w = private::wealth(game.catalog(), game.state());
+    let sum: Money = w.classes().iter().map(|(_, v)| *v).sum();
+    assert_eq!(sum, w.total());
+    let view = views::person(&game).money.expect("money");
+    let shown: f64 = view.classes.iter().map(|(_, v)| *v).sum();
+    assert!((shown - view.wealth_usd).abs() < 0.01);
+    assert_eq!(view.classes.len(), 4);
+}

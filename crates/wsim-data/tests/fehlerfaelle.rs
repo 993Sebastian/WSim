@@ -4713,6 +4713,11 @@ person:
     standard: {1900: 0.04, 2026: 0.3}
     laender:
       SWE: {1900: 0.03, 2026: 0.4}
+  einkommensteuer_stufen:
+    - {ab: 0, faktor: 0.2}
+    - {ab: 1, faktor: 1}
+  kapitalertragsteuer:
+    standard: {1900: 0, 2026: 0.25}
   sparzins:
     standard: {1900: 0.02}
   erbe: {neffe_alter: {von: 25, bis: 40}, hinweis_ab: 70}
@@ -4886,6 +4891,18 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
             "SWE: {1900: 1.03",
             "Wert 1.03 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
             "person.einkommensteuer.laender.SWE.1900",
+        ),
+        (
+            "- {ab: 1, faktor: 1}",
+            "- {ab: 0, faktor: 1}",
+            "Die Stufen müssen nach „ab“ aufsteigend sortiert sein.",
+            "person.einkommensteuer_stufen[1].ab",
+        ),
+        (
+            "standard: {1900: 0, 2026: 0.25}",
+            "standard: {1900: 0, 2026: 2.5}",
+            "Wert 2.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.kapitalertragsteuer.standard.2026",
         ),
         (
             "kosten_anteil: 0.005",

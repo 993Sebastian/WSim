@@ -116,6 +116,8 @@ pub struct PersonMoneyView {
     pub shares_usd: f64,
     pub loans_usd: f64,
     pub wealth_usd: f64,
+    /// The net worth by class (text `privat.vermoegen_<key>`); sums to `wealth_usd`.
+    pub classes: Vec<(String, f64)>,
     /// Wealth on the first day of each month, the earliest first.
     pub history: Vec<(String, f64)>,
     /// Income and spending of the last twelve closed months by kind (text
@@ -518,6 +520,11 @@ fn money(game: &Game) -> PersonMoneyView {
         shares_usd: usd(w.shares),
         loans_usd: usd(w.loans),
         wealth_usd: usd(w.total()),
+        classes: w
+            .classes()
+            .into_iter()
+            .map(|(c, v)| (c.key().to_owned(), usd(v)))
+            .collect(),
         history: p
             .account
             .wealth

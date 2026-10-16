@@ -3006,6 +3006,8 @@ export interface PersonGeld {
   shares_usd: number;
   loans_usd: number;
   wealth_usd: number;
+  /** The net worth by class (texts `privat.vermoegen_<key>`). */
+  classes: [string, number][];
   /** Wealth on the first day of each month, the earliest first. */
   history: [string, number][];
   /** Income and spending of the last twelve months (texts `privat.<key>`). */

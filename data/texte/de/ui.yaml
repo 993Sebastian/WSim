@@ -1608,6 +1608,7 @@ person.vermoegen: Vermögen
 person.privatkonto: Privatkonto
 person.anteile: Firmenanteile
 person.darlehen: Darlehen an Firmen
+privat.vermoegen_startups: Anteile an Start-ups
 person.vermoegen_gesamt: Vermögen gesamt
 person.konto_leer: Dein Privatkonto reicht nicht für deinen Lebensstil. Erhöhe dein Gehalt oder senke den Lebensstil, sonst lebst du ab dem nächsten Monat bescheiden.
 person.einnahmen_ausgaben: Einnahmen und Ausgaben der letzten zwölf Monate

@@ -182,11 +182,21 @@ pub fn wealth(catalog: &Catalog, state: &GameState) -> WealthPoint {
             .map(|l| l.balance)
             .sum();
     }
+    let ventures: Money = state
+        .ventures
+        .iter()
+        .filter(|v| v.status == crate::state::VentureStatus::Active)
+        .map(|v| {
+            crate::ventures::value(&catalog.ventures, v).scale(crate::ventures::person_share(v))
+                + v.person_pledge
+        })
+        .sum();
     WealthPoint {
         date: state.date,
         cash: state.person.account.balance,
         shares,
         loans,
+        ventures,
     }
 }
 
@@ -221,6 +231,40 @@ pub fn salary_max(catalog: &Catalog, state: &GameState, company: CompanyId) -> O
     (crate::person::share(state, company) < 1.0 - 1e-9).then(|| {
         salary_suggestion(catalog, state, company).scale(catalog.person.salary_co_owner_max)
     })
+}
+
+/// The income tax of a yearly earned income (docs/FORMELN.md, PV1): the rate of the series
+/// times the factor of each bracket on the part of the income inside it, brackets in
+/// academic yearly wages of the home country; the rate for all income without brackets.
+pub fn earned_tax(catalog: &Catalog, state: &GameState, yearly: Money) -> Money {
+    let base = income_tax(catalog, state);
+    let brackets = &catalog.person.income_brackets;
+    let income = yearly.to_usd().max(0.0);
+    if brackets.is_empty() {
+        return Money::from_usd(income * base).unwrap_or(Money::ZERO);
+    }
+    let unit = crate::management::yearly_wage(catalog, state, state.person.home).max(1.0);
+    let mut tax = 0.0;
+    for (i, &(from, factor)) in brackets.iter().enumerate() {
+        let lo = from * unit;
+        let hi = brackets
+            .get(i + 1)
+            .map_or(f64::INFINITY, |&(next, _)| next * unit);
+        let part = (income.min(hi) - lo).max(0.0);
+        tax += part * (base * factor).min(0.9);
+    }
+    Money::from_usd(tax).unwrap_or(Money::ZERO)
+}
+
+/// The tax on interest: the flat capital tax, else the income tax rate (docs/FORMELN.md, PV1).
+pub fn capital_tax_rate(catalog: &Catalog, state: &GameState) -> f64 {
+    catalog.person.capital_tax.as_ref().map_or_else(
+        || income_tax(catalog, state),
+        |s| {
+            s.value(state.person.home, state.date.year_fraction())
+                .clamp(0.0, 1.0)
+        },
+    )
 }
 
 fn income_tax(catalog: &Catalog, state: &GameState) -> f64 {
@@ -965,20 +1009,20 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) ->
     if interest > Money::ZERO {
         book(&mut state.person, PrivateFlow::Interest, interest);
     }
-    let taxed: Money = [
-        PrivateFlow::Salary,
-        PrivateFlow::Bonus,
-        PrivateFlow::Interest,
-        PrivateFlow::LoanInterest,
-    ]
-    .iter()
-    .filter_map(|f| state.person.account.month.get(f))
-    .copied()
-    .sum();
-    let tax = taxed
-        .max(Money::ZERO)
-        .scale(income_tax(catalog, state))
-        .min(state.person.account.balance);
+    let of = |flows: &[PrivateFlow]| -> Money {
+        flows
+            .iter()
+            .filter_map(|f| state.person.account.month.get(f))
+            .copied()
+            .sum::<Money>()
+            .max(Money::ZERO)
+    };
+    let earned = of(&[PrivateFlow::Salary, PrivateFlow::Bonus]);
+    let capital = of(&[PrivateFlow::Interest, PrivateFlow::LoanInterest]);
+    // The month's earnings stand for a twelfth of a year at the progressive rates.
+    let tax = (Money::from_units(earned_tax(catalog, state, earned.scale(12.0)).units() / 12)
+        + capital.scale(capital_tax_rate(catalog, state)))
+    .min(state.person.account.balance);
     if tax > Money::ZERO {
         book(&mut state.person, PrivateFlow::IncomeTax, -tax);
     }
