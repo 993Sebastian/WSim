@@ -220,6 +220,47 @@ pub struct AssetsView {
     pub bond_months: [u32; 2],
     pub deposit_penalty: f64,
     pub bond_spread: f64,
+    /// Real estate (PV3); `None` if the data has none.
+    pub property: Option<PropertyView>,
+}
+
+/// Properties held and for sale (PV3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PropertyView {
+    pub owned: Vec<OwnedPropertyView>,
+    pub offers: Vec<PropertyOfferView>,
+    /// Least equity share, costs of buying as a share, rent band, mortgage rate now.
+    pub equity_min: f64,
+    pub costs: f64,
+    pub rent_band: [f64; 2],
+    pub mortgage_rate: f64,
+    pub sale_discount: f64,
+    pub renovation_cost: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct OwnedPropertyView {
+    /// Text `person.immobilie_<kind>`.
+    pub kind: String,
+    pub country: String,
+    pub condition: f64,
+    pub value_usd: f64,
+    pub paid_usd: f64,
+    pub market_rent_usd: f64,
+    pub rent_factor: f64,
+    pub vacancy: f64,
+    pub debt_usd: f64,
+    pub renovating_until: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PropertyOfferView {
+    pub id: u32,
+    pub kind: String,
+    pub country: String,
+    pub condition: f64,
+    pub price_usd: f64,
+    pub market_rent_usd: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -565,6 +606,49 @@ pub fn person(game: &Game) -> PersonView {
             bond_months: m.bond_months,
             deposit_penalty: m.deposit_penalty,
             bond_spread: m.bond_spread,
+            property: m.property.as_ref().map(|pm| PropertyView {
+                owned: pf
+                    .properties
+                    .iter()
+                    .map(|p| OwnedPropertyView {
+                        kind: p.kind.key().to_owned(),
+                        country: catalog.countries.key(p.country).to_owned(),
+                        condition: p.condition,
+                        value_usd: usd(crate::property::value(catalog, state, pm, p)),
+                        paid_usd: usd(p.paid),
+                        market_rent_usd: usd(crate::property::market_rent(catalog, state, pm, p)),
+                        rent_factor: p.rent_factor,
+                        vacancy: crate::property::vacancy(pm, p),
+                        debt_usd: usd(p.mortgage.map_or(Money::ZERO, |h| h.balance)),
+                        renovating_until: p.renovating_until.map(iso),
+                    })
+                    .collect(),
+                offers: state
+                    .assets
+                    .offers
+                    .iter()
+                    .map(|o| PropertyOfferView {
+                        id: o.id,
+                        kind: o.kind.key().to_owned(),
+                        country: catalog.countries.key(o.country).to_owned(),
+                        condition: o.condition,
+                        price_usd: usd(o.price),
+                        market_rent_usd: usd(crate::property::value_of(
+                            catalog,
+                            state,
+                            pm,
+                            (o.kind, o.country, o.quality, o.condition),
+                        )
+                        .scale(pm.kinds[o.kind as usize].rent_yield)),
+                    })
+                    .collect(),
+                equity_min: pm.equity_min,
+                costs: pm.costs,
+                rent_band: pm.rent_band,
+                mortgage_rate: crate::property::mortgage_rate(catalog, state, pm),
+                sale_discount: pm.sale_discount,
+                renovation_cost: pm.reno_cost,
+            }),
         }
     });
     PersonView {
@@ -667,6 +751,10 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::AssetBought => "privat.anlagekauf",
         PrivateFlow::AssetSold => "privat.anlageverkauf",
         PrivateFlow::InvestFee => "privat.anlagegebuehr",
+        PrivateFlow::Rent => "privat.miete",
+        PrivateFlow::PropertyCost => "privat.immobilienkosten",
+        PrivateFlow::MortgageInterest => "privat.hypothekzins",
+        PrivateFlow::MortgageRepay => "privat.hypothektilgung",
     }
 }
 

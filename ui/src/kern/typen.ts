@@ -3070,6 +3070,37 @@ export interface PersonAnlagen {
   bond_months: [number, number];
   deposit_penalty: number;
   bond_spread: number;
+  property: PersonImmobilien | null;
+}
+
+/** Properties held and for sale (PV3). */
+export interface PersonImmobilien {
+  owned: {
+    kind: string;
+    country: string;
+    condition: number;
+    value_usd: number;
+    paid_usd: number;
+    market_rent_usd: number;
+    rent_factor: number;
+    vacancy: number;
+    debt_usd: number;
+    renovating_until: string | null;
+  }[];
+  offers: {
+    id: number;
+    kind: string;
+    country: string;
+    condition: number;
+    price_usd: number;
+    market_rent_usd: number;
+  }[];
+  equity_min: number;
+  costs: number;
+  rent_band: [number, number];
+  mortgage_rate: number;
+  sale_discount: number;
+  renovation_cost: number;
 }
 
 /** Background, time and health of the person (PV1b). */

@@ -68,6 +68,7 @@ pub mod project_policy;
 pub mod project_reports;
 pub mod project_suggestions;
 pub mod projects;
+pub mod property;
 pub mod purchase;
 pub mod purchasing;
 pub mod ranking;

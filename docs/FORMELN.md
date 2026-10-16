@@ -4910,6 +4910,39 @@ solange das Konto reicht.
 Gewinn (`GainTax`); Verlust bleibt ohne Folgen. Nettovermögen: Festgeld zum Nennbetrag, Anleihen zum
 Kurs, Gold und Fonds zum Wert (Klassen „Sicher“, „Gold“, „Fonds“).
 
+## PV3 – Privatimmobilien
+
+Daten: `person.anlagen.immobilien`. Kern: Modul `property`. Fünf Arten: Wohnung, Mehrfamilienhaus,
+Büro, Gewerbehalle, Grundstück.
+
+**Wert.** Für ein Objekt der Art `a` im Land `c` am Tag `t`:
+
+`W = preis_jahreslohn_a · Jahreslohn(c, t) · Q · Z(zustand) · (1 + L_c)`
+
+`Q` = Güte des Objekts (Lage/Größe, 0,7–1,4 aus dem Angebot), `Z = 1 − zustandsgewicht · (1 − zustand/100)`,
+`L_c = min(werk_effekt_max, werk_effekt · Zahl eigener Standorte im Land)` (ein eigenes Werk erhöht
+Nachfrage, Miete und Preis). Angebote: alle `angebotsmonate` Monate je Art und Land (Heimatland und
+Länder eigener Standorte, höchstens `laender_max`) ein Angebot mit Güte, Zustand und Preis
+`W · (1 + Spanne)` (Spanne gleichverteilt in `angebot_spanne`).
+
+**Kauf.** Preis P, Nebenkosten `nebenkosten · P` (Grunderwerbsteuer, Notar; Gebühr). Hypothek `H ≤
+(1 − eigenkapital_min) · P` mit Zins `r = sparzins + hypothek_aufschlag` fest und Tilgung
+`tilgung_jahr · H₀` je Jahr; monatlich Zins + Tilgung vom Privatkonto.
+
+**Miete.** Marktmiete `M = rendite_a · W`; gewählt `f · M`, `f` im Band `mietband`. Leerstand
+`v = leerstand_a + leerstand_steigung · max(0, f − 1)`; Einnahme monatlich `f · M · (1 − v)/12`,
+als Mieteinnahme (Einkommensteuer, wie Gehalt). Instandhaltung `instandhaltung_a · W/12` monatlich.
+Zustand sinkt um `verfall_a/12` je Monat, gebremst um die Hälfte durch die Instandhaltung (die
+bezahlt wird). Schaden: je Monat Chance `schaden.chance`, kostet `schaden.kosten · W`, senkt den
+Zustand um `schaden.punkte`. Sanierung: kostet `sanierung.kosten · W`, hebt den Zustand um
+`sanierung.punkte`, `sanierung.monate` Monate ohne Miete.
+
+**Verkauf.** Erlös `W · (1 − verkauf_abschlag)`, Hypothek wird getilgt, Steuer auf den Gewinn
+(Erlös − Einstand ohne Nebenkosten) mit der Kapitalertragsteuer. Reicht das Konto für Zins und
+Tilgung nicht, wird das Objekt zum Notverkauf (zusätzlicher Abschlag `notverkauf_abschlag`).
+
+**Vermögen.** Klasse „Immobilien“: Summe der Werte abzüglich der Hypotheken.
+
 ## PE4 – Dividenden
 
 Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;

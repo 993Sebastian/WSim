@@ -4740,6 +4740,31 @@ person:
     fonds:
       gemanagt: {ab: 1900, kosten: 0.015, aufschlag: 0.05, gebuehr: 0.005}
       index: {ab: 1990, kosten: 0.002, aufschlag: 0, gebuehr: 0.005}
+    immobilien:
+      arten:
+        wohnung: {preis_jahreslohn: 5, rendite: 0.045, leerstand: 0.04, instandhaltung: 0.012, verfall: 2}
+        mehrfamilienhaus: {preis_jahreslohn: 25, rendite: 0.05, leerstand: 0.05, instandhaltung: 0.014, verfall: 2}
+        buero: {preis_jahreslohn: 30, rendite: 0.055, leerstand: 0.08, instandhaltung: 0.015, verfall: 2.5}
+        halle: {preis_jahreslohn: 20, rendite: 0.06, leerstand: 0.06, instandhaltung: 0.012, verfall: 2}
+        grundstueck: {preis_jahreslohn: 8, rendite: 0.01, leerstand: 0.0, instandhaltung: 0.002, verfall: 0}
+      nebenkosten: 0.09
+      eigenkapital_min: 0.2
+      hypothek_aufschlag: 0.015
+      tilgung_jahr: 0.03
+      mietband: {von: 0.8, bis: 1.2}
+      leerstand_steigung: 1.5
+      schaden: {chance: 0.01, kosten: 0.02, punkte: 8}
+      sanierung: {kosten: 0.12, punkte: 40, monate: 3}
+      werk_effekt: {je_standort: 0.02, hoechstens: 0.08}
+      verkauf_abschlag: 0.03
+      notverkauf_abschlag: 0.15
+      zustandsgewicht: 0.3
+      angebot:
+        monate: 3
+        spanne: {von: -0.1, bis: 0.15}
+        guete: {von: 0.7, bis: 1.4}
+        zustand: {von: 30, bis: 95}
+        laender_max: 5
   wohlbefinden:
     hintergruende:
       tueftler: {forschung: 0.05}
@@ -4985,6 +5010,24 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
             "gemanagt: {ab: 1900, kosten: 0.5",
             "Wert 0.5 liegt außerhalb des erlaubten Bereichs 0 bis 0.1.",
             "person.anlagen.fonds.gemanagt.kosten",
+        ),
+        (
+            "mietband: {von: 0.8, bis: 1.2}",
+            "mietband: {von: 1.3, bis: 1.2}",
+            "„von“ muss kleiner als „bis“ sein.",
+            "person.anlagen.immobilien.mietband",
+        ),
+        (
+            "eigenkapital_min: 0.2",
+            "eigenkapital_min: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.anlagen.immobilien.eigenkapital_min",
+        ),
+        (
+            "wohnung: {preis_jahreslohn: 5,",
+            "wohnung: {preis_jahreslohn: 0,",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 0.1 bis 500.",
+            "person.anlagen.immobilien.arten.wohnung.preis_jahreslohn",
         ),
         (
             "krank_chance: 0.3",

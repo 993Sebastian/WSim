@@ -2557,6 +2557,12 @@ pub enum PrivateFlow {
     AssetSold,
     /// Fees and loads on them.
     InvestFee,
+    /// Rent of properties (PV3), taxed as income.
+    Rent,
+    /// Upkeep, damage and renovation of properties.
+    PropertyCost,
+    MortgageInterest,
+    MortgageRepay,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by
@@ -2600,6 +2606,9 @@ pub struct WealthPoint {
     pub gold: Money,
     #[serde(default, skip_serializing_if = "Money::is_zero")]
     pub funds: Money,
+    /// Properties at their value, less the mortgages (PV3).
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub property: Money,
 }
 
 /// The classes of the net worth (PV1); the parts add up to the total.
@@ -2617,10 +2626,11 @@ pub enum WealthClass {
     Safe,
     Gold,
     Funds,
+    Property,
 }
 
 impl WealthClass {
-    pub const ALL: [WealthClass; 7] = [
+    pub const ALL: [WealthClass; 8] = [
         WealthClass::Cash,
         WealthClass::Companies,
         WealthClass::Ventures,
@@ -2628,6 +2638,7 @@ impl WealthClass {
         WealthClass::Safe,
         WealthClass::Gold,
         WealthClass::Funds,
+        WealthClass::Property,
     ];
 
     pub fn key(self) -> &'static str {
@@ -2639,17 +2650,25 @@ impl WealthClass {
             WealthClass::Safe => "sicher",
             WealthClass::Gold => "gold",
             WealthClass::Funds => "fonds",
+            WealthClass::Property => "immobilien",
         }
     }
 }
 
 impl WealthPoint {
     pub fn total(&self) -> Money {
-        self.cash + self.shares + self.loans + self.ventures + self.safe + self.gold + self.funds
+        self.cash
+            + self.shares
+            + self.loans
+            + self.ventures
+            + self.safe
+            + self.gold
+            + self.funds
+            + self.property
     }
 
     /// The net worth by class; the sum is `total`.
-    pub fn classes(&self) -> [(WealthClass, Money); 7] {
+    pub fn classes(&self) -> [(WealthClass, Money); 8] {
         [
             (WealthClass::Cash, self.cash),
             (WealthClass::Companies, self.shares),
@@ -2658,6 +2677,7 @@ impl WealthPoint {
             (WealthClass::Safe, self.safe),
             (WealthClass::Gold, self.gold),
             (WealthClass::Funds, self.funds),
+            (WealthClass::Property, self.property),
         ]
     }
 }

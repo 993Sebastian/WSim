@@ -2,7 +2,8 @@
 
 use wsim_core::catalog::{
     AgeSpan, AssetModel, BackgroundEffect, Catalog, CountrySeries, FoundingModel, FundTerms,
-    LifeModel, LifestyleLevel, PersonModel, PrivateLifeModel, WellbeingModel,
+    LifeModel, LifestyleLevel, PersonModel, PrivateLifeModel, PropertyModel, PropertyTerms,
+    WellbeingModel,
 };
 use wsim_core::ids::Id;
 use wsim_core::state::{Background, Lifestyle};
@@ -659,5 +660,103 @@ fn assets(ctx: &mut Ctx, a: &crate::raw::RawAssets, l: &Loc) -> AssetModel {
             fund(ctx, &a.funds.managed, fnl.field("gemanagt")),
             fund(ctx, &a.funds.index, fnl.field("index")),
         ],
+        property: a
+            .property
+            .as_ref()
+            .map(|p| property(ctx, p, &l.field("immobilien"))),
+    }
+}
+
+/// Private real estate (PV3): shares and spans within bounds, spans ascending.
+fn property(ctx: &mut Ctx, p: &crate::raw::RawProperty, l: &Loc) -> PropertyModel {
+    let kl = l.field("arten");
+    let kind = |ctx: &mut Ctx, k: &crate::raw::RawPropertyKind, key: &str| {
+        let at = kl.field(key);
+        PropertyTerms {
+            price_years: in_range(
+                ctx,
+                k.price_years,
+                0.1,
+                500.0,
+                &at.field("preis_jahreslohn"),
+            ),
+            rent_yield: in_range(ctx, k.yield_, 0.0, 0.3, &at.field("rendite")),
+            vacancy: in_range(ctx, k.vacancy, 0.0, 1.0, &at.field("leerstand")),
+            upkeep: in_range(ctx, k.upkeep, 0.0, 0.2, &at.field("instandhaltung")),
+            decay: in_range(ctx, k.decay, 0.0, 50.0, &at.field("verfall")),
+        }
+    };
+    let span = |ctx: &mut Ctx, s: &crate::raw::RawFloatSpan, lo: f64, hi: f64, at: Loc| {
+        let a = in_range(ctx, s.min, lo, hi, &at.field("von"));
+        let b = in_range(ctx, s.max, lo, hi, &at.field("bis"));
+        if a > b {
+            ctx.error(&at, messages::range_inverted("von", "bis"));
+        }
+        [a, b]
+    };
+    let ol = l.field("angebot");
+    let dl = l.field("schaden");
+    let rl = l.field("sanierung");
+    let wl = l.field("werk_effekt");
+    PropertyModel {
+        kinds: [
+            kind(ctx, &p.kinds.apartment, "wohnung"),
+            kind(ctx, &p.kinds.multi, "mehrfamilienhaus"),
+            kind(ctx, &p.kinds.office, "buero"),
+            kind(ctx, &p.kinds.hall, "halle"),
+            kind(ctx, &p.kinds.land, "grundstueck"),
+        ],
+        costs: in_range(ctx, p.costs, 0.0, 0.3, &l.field("nebenkosten")),
+        equity_min: in_range(ctx, p.equity_min, 0.0, 1.0, &l.field("eigenkapital_min")),
+        mortgage_premium: in_range(
+            ctx,
+            p.mortgage_premium,
+            0.0,
+            0.2,
+            &l.field("hypothek_aufschlag"),
+        ),
+        repay_year: in_range(ctx, p.repay_year, 0.0, 1.0, &l.field("tilgung_jahr")),
+        rent_band: span(ctx, &p.rent_band, 0.3, 3.0, l.field("mietband")),
+        vacancy_slope: in_range(
+            ctx,
+            p.vacancy_slope,
+            0.0,
+            10.0,
+            &l.field("leerstand_steigung"),
+        ),
+        damage_chance: in_range(ctx, p.damage.chance, 0.0, 1.0, &dl.field("chance")),
+        damage_cost: in_range(ctx, p.damage.cost, 0.0, 1.0, &dl.field("kosten")),
+        damage_points: in_range(ctx, p.damage.points, 0.0, 100.0, &dl.field("punkte")),
+        reno_cost: in_range(ctx, p.renovation.cost, 0.0, 1.0, &rl.field("kosten")),
+        reno_points: in_range(ctx, p.renovation.points, 0.0, 100.0, &rl.field("punkte")),
+        reno_months: p.renovation.months,
+        site_effect: in_range(
+            ctx,
+            p.site_effect.per_site,
+            0.0,
+            1.0,
+            &wl.field("je_standort"),
+        ),
+        site_effect_max: in_range(ctx, p.site_effect.most, 0.0, 2.0, &wl.field("hoechstens")),
+        sale_discount: in_range(ctx, p.sale_discount, 0.0, 0.5, &l.field("verkauf_abschlag")),
+        distress_discount: in_range(
+            ctx,
+            p.distress_discount,
+            0.0,
+            0.9,
+            &l.field("notverkauf_abschlag"),
+        ),
+        condition_weight: in_range(
+            ctx,
+            p.condition_weight,
+            0.0,
+            1.0,
+            &l.field("zustandsgewicht"),
+        ),
+        offer_months: p.offers.months.max(1),
+        offer_spread: span(ctx, &p.offers.spread, -0.9, 3.0, ol.field("spanne")),
+        offer_quality: span(ctx, &p.offers.quality, 0.1, 5.0, ol.field("guete")),
+        offer_condition: span(ctx, &p.offers.condition, 0.0, 100.0, ol.field("zustand")),
+        offer_countries: p.offers.countries_max.max(1),
     }
 }

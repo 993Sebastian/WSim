@@ -2930,6 +2930,51 @@ pub struct AssetModel {
     pub gold_fee: f64,
     /// Managed fund, index fund.
     pub funds: [FundTerms; 2],
+    /// Private real estate (PV3).
+    pub property: Option<PropertyModel>,
+}
+
+/// One kind of property (PV3).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct PropertyTerms {
+    /// Value in yearly wages of the country.
+    pub price_years: f64,
+    /// Gross rent yield on the value.
+    pub rent_yield: f64,
+    pub vacancy: f64,
+    /// Yearly upkeep as a share of the value.
+    pub upkeep: f64,
+    /// Points of condition lost per year.
+    pub decay: f64,
+}
+
+/// Private real estate of the person (PV3, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PropertyModel {
+    /// Apartment, multi-family house, office, hall, land.
+    pub kinds: [PropertyTerms; 5],
+    pub costs: f64,
+    pub equity_min: f64,
+    pub mortgage_premium: f64,
+    pub repay_year: f64,
+    pub rent_band: [f64; 2],
+    pub vacancy_slope: f64,
+    pub damage_chance: f64,
+    pub damage_cost: f64,
+    pub damage_points: f64,
+    pub reno_cost: f64,
+    pub reno_points: f64,
+    pub reno_months: u32,
+    pub site_effect: f64,
+    pub site_effect_max: f64,
+    pub sale_discount: f64,
+    pub distress_discount: f64,
+    pub condition_weight: f64,
+    pub offer_months: u32,
+    pub offer_spread: [f64; 2],
+    pub offer_quality: [f64; 2],
+    pub offer_condition: [f64; 2],
+    pub offer_countries: u32,
 }
 
 /// Effects of a background at the start (PV1b); proportional ones are shares.

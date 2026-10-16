@@ -15,7 +15,11 @@ export type Geldanlage =
   | { SellGold: { share: number } }
   | { BuyFund: { fund: "Managed" | "Index"; amount: number } }
   | { SellFund: { fund: "Managed" | "Index"; share: number } }
-  | { SetPlan: { fund: "Managed" | "Index"; amount: number } };
+  | { SetPlan: { fund: "Managed" | "Index"; amount: number } }
+  | { BuyProperty: { offer: number; mortgage: number } }
+  | { SellProperty: { index: number } }
+  | { SetRent: { index: number; factor: number } }
+  | { Renovate: { index: number } };
 
 export type Preisart =
   | { Market: { markup: number; floor: number } }

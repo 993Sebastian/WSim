@@ -3222,6 +3222,127 @@ pub struct RawAssets {
     pub gold: RawGold,
     #[serde(rename = "fonds")]
     pub funds: RawFunds,
+    #[serde(default, rename = "immobilien")]
+    pub property: Option<RawProperty>,
+}
+
+/// Private real estate (PV3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProperty {
+    #[serde(rename = "arten")]
+    pub kinds: RawPropertyKinds,
+    #[serde(rename = "nebenkosten")]
+    pub costs: f64,
+    #[serde(rename = "eigenkapital_min")]
+    pub equity_min: f64,
+    #[serde(rename = "hypothek_aufschlag")]
+    pub mortgage_premium: f64,
+    #[serde(rename = "tilgung_jahr")]
+    pub repay_year: f64,
+    #[serde(rename = "mietband")]
+    pub rent_band: RawFloatSpan,
+    #[serde(rename = "leerstand_steigung")]
+    pub vacancy_slope: f64,
+    #[serde(rename = "schaden")]
+    pub damage: RawDamage,
+    #[serde(rename = "sanierung")]
+    pub renovation: RawRenovation,
+    #[serde(rename = "werk_effekt")]
+    pub site_effect: RawSiteEffect,
+    #[serde(rename = "verkauf_abschlag")]
+    pub sale_discount: f64,
+    #[serde(rename = "notverkauf_abschlag")]
+    pub distress_discount: f64,
+    #[serde(rename = "zustandsgewicht")]
+    pub condition_weight: f64,
+    #[serde(rename = "angebot")]
+    pub offers: RawPropertyOffers,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPropertyKinds {
+    #[serde(rename = "wohnung")]
+    pub apartment: RawPropertyKind,
+    #[serde(rename = "mehrfamilienhaus")]
+    pub multi: RawPropertyKind,
+    #[serde(rename = "buero")]
+    pub office: RawPropertyKind,
+    #[serde(rename = "halle")]
+    pub hall: RawPropertyKind,
+    #[serde(rename = "grundstueck")]
+    pub land: RawPropertyKind,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPropertyKind {
+    #[serde(rename = "preis_jahreslohn")]
+    pub price_years: f64,
+    #[serde(rename = "rendite")]
+    pub yield_: f64,
+    #[serde(rename = "leerstand")]
+    pub vacancy: f64,
+    #[serde(rename = "instandhaltung")]
+    pub upkeep: f64,
+    #[serde(rename = "verfall")]
+    pub decay: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFloatSpan {
+    #[serde(rename = "von")]
+    pub min: f64,
+    #[serde(rename = "bis")]
+    pub max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDamage {
+    #[serde(rename = "chance")]
+    pub chance: f64,
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "punkte")]
+    pub points: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRenovation {
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "punkte")]
+    pub points: f64,
+    #[serde(rename = "monate")]
+    pub months: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSiteEffect {
+    #[serde(rename = "je_standort")]
+    pub per_site: f64,
+    #[serde(rename = "hoechstens")]
+    pub most: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPropertyOffers {
+    #[serde(rename = "monate")]
+    pub months: u32,
+    #[serde(rename = "spanne")]
+    pub spread: RawFloatSpan,
+    #[serde(rename = "guete")]
+    pub quality: RawFloatSpan,
+    #[serde(rename = "zustand")]
+    pub condition: RawFloatSpan,
+    #[serde(rename = "laender_max")]
+    pub countries_max: u32,
 }
 
 #[derive(Debug, Deserialize)]

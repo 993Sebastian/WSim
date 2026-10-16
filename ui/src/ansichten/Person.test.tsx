@@ -304,6 +304,38 @@ describe("Person (PE2)", () => {
           bond_months: [12, 360],
           deposit_penalty: 0.5,
           bond_spread: 0.01,
+          property: {
+            owned: [
+              {
+                kind: "wohnung",
+                country: "DEU",
+                condition: 70,
+                value_usd: 100_000,
+                paid_usd: 95_000,
+                market_rent_usd: 4500,
+                rent_factor: 1,
+                vacancy: 0.04,
+                debt_usd: 40_000,
+                renovating_until: null,
+              },
+            ],
+            offers: [
+              {
+                id: 7,
+                kind: "halle",
+                country: "DEU",
+                condition: 80,
+                price_usd: 300_000,
+                market_rent_usd: 18_000,
+              },
+            ],
+            equity_min: 0.2,
+            costs: 0.09,
+            rent_band: [0.8, 1.2],
+            mortgage_rate: 0.035,
+            sale_discount: 0.03,
+            renovation_cost: 0.12,
+          },
         };
         return p;
       },
@@ -328,5 +360,16 @@ describe("Person (PE2)", () => {
     expect(gesendet[2]).toMatchObject({
       Invest: { action: { SetPlan: { fund: "Managed", amount: expect.any(Number) } } },
     });
+    // Real estate: buy the offer with 60 % mortgage, set the rent, sell.
+    const immo = await screen.findByRole("region", { name: "Immobilien" });
+    fireEvent.click(within(immo).getByRole("button", { name: "Kaufen" }));
+    await within(immo).findByRole("status");
+    expect(gesendet[3]).toEqual({
+      Invest: { action: { BuyProperty: { offer: 7, mortgage: 0.6 } } },
+    });
+    fireEvent.change(within(immo).getByLabelText(/^Miete \(Anteil/), { target: { value: "110" } });
+    fireEvent.click(within(immo).getByRole("button", { name: "Miete setzen" }));
+    await within(immo).findByRole("status");
+    expect(gesendet[4]).toEqual({ Invest: { action: { SetRent: { index: 0, factor: 1.1 } } } });
   });
 });

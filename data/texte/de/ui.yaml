@@ -3130,3 +3130,29 @@ person.fonds_verkaufen: Fonds verkaufen
 person.sparplan_setzen: Sparplan mit diesem Betrag (0 beendet)
 person.sparplan_aktiv: "Sparplan: jeden Monat {betrag} in {fonds}."
 person.sparplan_keiner: Kein Sparplan eingerichtet.
+
+# Privatimmobilien (PV3)
+privat.miete: Mieteinnahmen
+privat.immobilienkosten: Unterhalt und Sanierung von Immobilien
+privat.hypothekzins: Hypothekenzinsen
+privat.hypothektilgung: Hypothekentilgung
+privat.vermoegen_immobilien: Immobilien (nach Hypothek)
+person.immobilien: Immobilien
+person.immobilien_hilfe: "Kauf nur mit mindestens {eigenkapital} Eigenkapital, Hypothekenzins heute {zins}, Kaufnebenkosten {nebenkosten}. Die Miete darf zwischen {band_von} und {band_bis} der Marktmiete liegen; höhere Miete bedeutet mehr Leerstand. Ein eigenes Werk im Land hebt Mieten und Preise."
+person.hypothek_anteil: Hypothek beim Kauf
+person.miete_anteil: Miete (Anteil der Marktmiete)
+person.immobilien_bestand: Bestand
+person.immobilien_keine: Du besitzt keine Immobilien.
+person.immobilie_zeile: "{art} in {land}: Wert {wert}, Hypothek {schulden}, Miete {miete} im Jahr, Leerstand {leerstand}, Zustand {zustand} %"
+person.saniert_bis: wird saniert bis {datum}
+person.miete_setzen: Miete setzen
+person.sanieren: "Sanieren ({kosten} des Werts)"
+person.immobilien_angebote: Angebote
+person.angebot_miete: "Marktmiete {miete}"
+person.angebot_zustand: "Zustand {zustand} %"
+person.immobilie_kaufen: Kaufen
+person.immobilie_wohnung: Wohnung
+person.immobilie_mehrfamilienhaus: Mehrfamilienhaus
+person.immobilie_buero: Büro
+person.immobilie_halle: Gewerbehalle
+person.immobilie_grundstueck: Grundstück

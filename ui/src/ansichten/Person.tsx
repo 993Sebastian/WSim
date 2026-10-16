@@ -257,6 +257,104 @@ function Anlagen({ a }: { a: NonNullable<Person["assets"]> }) {
   );
 }
 
+/** Private real estate: offers, own properties, rent and renovation (PV3). */
+function Immobilien({ p }: { p: NonNullable<NonNullable<Person["assets"]>["property"]> }) {
+  const { los, antwort } = useAktion("immobilien");
+  const [hypothek, setHypothek] = useState("60");
+  const [miete, setMiete] = useState("100");
+  const senden = (action: Geldanlage) => void los([{ Invest: { action } }]);
+  const anteil = Math.min(1 - p.equity_min, Math.max(0, (zahlLesen(hypothek) ?? 0) / 100));
+  const faktor = (zahlLesen(miete) ?? 100) / 100;
+  return (
+    <section className="karte" aria-label={t("person.immobilien")}>
+      <h2>{t("person.immobilien")}</h2>
+      <p className="feld-hilfe">
+        {t("person.immobilien_hilfe", {
+          eigenkapital: formatProzent(p.equity_min),
+          zins: formatProzent(p.mortgage_rate),
+          nebenkosten: formatProzent(p.costs),
+          band_von: formatProzent(p.rent_band[0]),
+          band_bis: formatProzent(p.rent_band[1]),
+        })}
+      </p>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("person.hypothek_anteil")}
+          einheit="%"
+          wert={hypothek}
+          onWert={setHypothek}
+        />
+        <ZahlFeld name={t("person.miete_anteil")} einheit="%" wert={miete} onWert={setMiete} />
+      </div>
+      <h3>{t("person.immobilien_bestand")}</h3>
+      {p.owned.length === 0 ? (
+        <p className="gedaempft">{t("person.immobilien_keine")}</p>
+      ) : (
+        <ul className="liste">
+          {p.owned.map((o, i) => (
+            <li key={`${o.kind}-${o.country}-${i}`}>
+              {t("person.immobilie_zeile", {
+                art: t(`person.immobilie_${o.kind}`),
+                land: landName(o.country),
+                wert: formatGeld(o.value_usd),
+                schulden: formatGeld(o.debt_usd),
+                miete: formatGeld(o.market_rent_usd * o.rent_factor),
+                leerstand: formatProzent(o.vacancy),
+                zustand: formatZahl(o.condition),
+              })}
+              {o.renovating_until
+                ? ` – ${t("person.saniert_bis", { datum: formatDatum(o.renovating_until) })}`
+                : ""}{" "}
+              <button
+                type="button"
+                onClick={() => senden({ SetRent: { index: i, factor: faktor } })}
+              >
+                {t("person.miete_setzen")}
+              </button>{" "}
+              {o.kind !== "grundstueck" && (
+                <button type="button" onClick={() => senden({ Renovate: { index: i } })}>
+                  {t("person.sanieren", { kosten: formatProzent(p.renovation_cost) })}
+                </button>
+              )}{" "}
+              <button type="button" onClick={() => senden({ SellProperty: { index: i } })}>
+                {t("person.verkaufen")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>{t("person.immobilien_angebote")}</h3>
+      <table className="tabelle" aria-label={t("person.immobilien_angebote")}>
+        <tbody>
+          {p.offers.map((o) => (
+            <tr key={o.id}>
+              <th scope="row">
+                {t(`person.immobilie_${o.kind}`)} · {landName(o.country)}
+              </th>
+              <td className="zahl">{formatGeld(o.price_usd)}</td>
+              <td className="zahl">
+                {t("person.angebot_miete", { miete: formatGeld(o.market_rent_usd) })}
+              </td>
+              <td className="zahl">
+                {t("person.angebot_zustand", { zustand: formatZahl(o.condition) })}
+              </td>
+              <td>
+                <button
+                  type="button"
+                  onClick={() => senden({ BuyProperty: { offer: o.id, mortgage: anteil } })}
+                >
+                  {t("person.immobilie_kaufen")}
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Background, time budget and health (PV1b). */
 function Wohlbefinden({ w }: { w: NonNullable<Person["wellbeing"]> }) {
   const { los, antwort } = useAktion("zeit");
@@ -1026,6 +1124,7 @@ export function PersonAnsicht({
       {g && <Lebensstil g={g} />}
       {daten.wellbeing && <Wohlbefinden w={daten.wellbeing} />}
       {daten.assets && <Anlagen a={daten.assets} />}
+      {daten.assets?.property && <Immobilien p={daten.assets.property} />}
       <Rollen p={daten} g={g} />
       {g &&
         daten.holdings

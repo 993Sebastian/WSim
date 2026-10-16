@@ -200,6 +200,7 @@ pub fn wealth(catalog: &Catalog, state: &GameState) -> WealthPoint {
         safe: crate::savings::safe_value(catalog, state),
         gold: crate::savings::gold_value(state),
         funds: crate::savings::funds_value(state),
+        property: crate::property::equity(catalog, state),
     }
 }
 
@@ -333,6 +334,19 @@ pub fn education(catalog: &Catalog, person: &Person, born: Date, card: Date) -> 
 /// A booking of the savings module (PV2).
 pub(crate) fn book_flow(state: &mut GameState, flow: PrivateFlow, amount: Money) {
     book(&mut state.person, flow, amount);
+}
+
+/// A booking that may take the account below zero in a forced sale: the account is held
+/// at zero (the rest is a loss of the person).
+pub(crate) fn book_flow_floor(state: &mut GameState, flow: PrivateFlow, amount: Money) {
+    let a = &mut state.person.account;
+    let applied = if a.balance + amount < Money::ZERO {
+        -a.balance
+    } else {
+        amount
+    };
+    a.balance += applied;
+    *a.month.entry(flow).or_default() += applied;
 }
 
 /// Shows part of a purchase as a fee: the cash stays as it is, the flows tell the cost.
@@ -1049,7 +1063,7 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) ->
             .sum::<Money>()
             .max(Money::ZERO)
     };
-    let earned = of(&[PrivateFlow::Salary, PrivateFlow::Bonus]);
+    let earned = of(&[PrivateFlow::Salary, PrivateFlow::Bonus, PrivateFlow::Rent]);
     let capital = of(&[PrivateFlow::Interest, PrivateFlow::LoanInterest]);
     // The month's earnings stand for a twelfth of a year at the progressive rates.
     let tax = (Money::from_units(earned_tax(catalog, state, earned.scale(12.0)).units() / 12)

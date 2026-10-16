@@ -81,6 +81,9 @@ pub struct Portfolio {
     pub funds: [FundPosition; 2],
     #[serde(default)]
     pub plan: Option<SavingsPlan>,
+    /// Real estate (PV3).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub properties: Vec<crate::property::Property>,
 }
 
 impl Portfolio {
@@ -100,6 +103,11 @@ pub struct AssetMarket {
     pub nav: [f64; 2],
     /// The stock index the funds last followed.
     pub last_index: f64,
+    /// Properties for sale (PV3).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub offers: Vec<crate::property::PropertyOffer>,
+    #[serde(default)]
+    pub next_offer: u32,
 }
 
 impl AssetMarket {
@@ -143,6 +151,22 @@ pub enum Investment {
     SetPlan {
         fund: FundKind,
         amount: Money,
+    },
+    /// Buys an offer with a mortgage of the given share of the price (PV3).
+    BuyProperty {
+        offer: u32,
+        mortgage: f64,
+    },
+    SellProperty {
+        index: u32,
+    },
+    /// The rent as a multiple of the market rent.
+    SetRent {
+        index: u32,
+        factor: f64,
+    },
+    Renovate {
+        index: u32,
     },
 }
 
@@ -353,6 +377,10 @@ pub(crate) fn apply(
             p.cost -= basis;
             receive(state, catalog, proceeds, basis);
         }
+        Investment::BuyProperty { .. }
+        | Investment::SellProperty { .. }
+        | Investment::SetRent { .. }
+        | Investment::Renovate { .. } => crate::property::apply(state, catalog, action)?,
         Investment::SetPlan { fund, amount } => {
             state.person.portfolio.plan =
                 (amount > Money::ZERO).then_some(SavingsPlan { fund, amount });
@@ -472,6 +500,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             crate::private::book_flow(state, PrivateFlow::GainTax, -tax);
         }
     }
+    news.extend(crate::property::month_start(state, catalog, date));
     // The plan.
     if let Some(plan) = state.person.portfolio.plan
         && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()

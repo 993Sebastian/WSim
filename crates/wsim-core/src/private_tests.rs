@@ -529,7 +529,7 @@ fn the_wealth_classes_add_up_to_the_net_worth() {
     let view = views::person(&game).money.expect("money");
     let shown: f64 = view.classes.iter().map(|(_, v)| *v).sum();
     assert!((shown - view.wealth_usd).abs() < 0.01);
-    assert_eq!(view.classes.len(), 7);
+    assert_eq!(view.classes.len(), 8);
 }
 
 fn wellbeing_model() -> crate::catalog::WellbeingModel {
@@ -726,6 +726,7 @@ fn asset_model() -> crate::catalog::AssetModel {
         gold_reversion: 0.1,
         gold_spread: 0.01,
         gold_fee: 0.005,
+        property: None,
         funds: [
             FundTerms {
                 from: 1900,
@@ -965,6 +966,270 @@ fn the_investments_replay_from_the_journal() {
     )
     .unwrap();
     months(&mut game, 6);
+    let settings = game.state().settings.clone();
+    let again = Game::replay(game.catalog().clone(), settings, game.journal()).unwrap();
+    assert_eq!(again.state_hash(), game.state_hash());
+}
+
+fn property_model() -> crate::catalog::PropertyModel {
+    use crate::catalog::{PropertyModel, PropertyTerms};
+    let t = |years, rent_yield, vacancy, upkeep, decay| PropertyTerms {
+        price_years: years,
+        rent_yield,
+        vacancy,
+        upkeep,
+        decay,
+    };
+    PropertyModel {
+        kinds: [
+            t(5.0, 0.045, 0.04, 0.012, 2.0),
+            t(25.0, 0.05, 0.05, 0.014, 2.0),
+            t(30.0, 0.055, 0.08, 0.015, 2.5),
+            t(20.0, 0.06, 0.06, 0.012, 2.0),
+            t(8.0, 0.01, 0.0, 0.002, 0.0),
+        ],
+        costs: 0.09,
+        equity_min: 0.2,
+        mortgage_premium: 0.015,
+        repay_year: 0.03,
+        rent_band: [0.8, 1.2],
+        vacancy_slope: 1.5,
+        damage_chance: 0.0,
+        damage_cost: 0.02,
+        damage_points: 8.0,
+        reno_cost: 0.12,
+        reno_points: 40.0,
+        reno_months: 3,
+        site_effect: 0.02,
+        site_effect_max: 0.08,
+        sale_discount: 0.03,
+        distress_discount: 0.15,
+        condition_weight: 0.3,
+        offer_months: 3,
+        offer_spread: [0.0, 0.0],
+        offer_quality: [1.0, 1.0],
+        offer_condition: [80.0, 80.0],
+        offer_countries: 5,
+    }
+}
+
+fn property_game() -> Game {
+    let mut c = catalog();
+    let mut a = asset_model();
+    a.property = Some(property_model());
+    c.person.assets = Some(a);
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, false, 5_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    // The market opens in the first quarter month.
+    for _ in 0..3 {
+        to_next_month(&mut game);
+        if !game.state().assets.offers.is_empty() {
+            break;
+        }
+    }
+    game
+}
+
+fn offer_of(game: &Game, kind: crate::property::PropertyKind) -> u32 {
+    game.state()
+        .assets
+        .offers
+        .iter()
+        .find(|o| o.kind == kind)
+        .expect("offer")
+        .id
+}
+
+#[test]
+fn a_property_is_bought_with_a_mortgage_earns_rent_and_adds_to_the_wealth() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game();
+    assert_eq!(game.state().assets.offers.len(), 5);
+    let id = offer_of(&game, PropertyKind::Apartment);
+    // Too little equity is refused.
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::BuyProperty {
+                offer: id,
+                mortgage: 0.95
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    let before = private::wealth(game.catalog(), game.state()).total();
+    invest(
+        &mut game,
+        Investment::BuyProperty {
+            offer: id,
+            mortgage: 0.8,
+        },
+    )
+    .unwrap();
+    let p = game.state().person.portfolio.properties[0].clone();
+    assert!(p.mortgage.is_some());
+    // The wealth falls by the costs of buying only.
+    let after = private::wealth(game.catalog(), game.state());
+    let costs = p.paid.scale(0.09);
+    // (The offer was priced a day earlier, so the wage may differ a little.)
+    assert!(
+        (before - after.total() - costs).abs() < p.paid.scale(0.002),
+        "{before:?} {:?}",
+        after.total()
+    );
+    let sum: Money = after.classes().iter().map(|(_, v)| *v).sum();
+    assert_eq!(sum, after.total());
+    // A month later: rent comes in, interest and repayment go out.
+    months(&mut game, 1);
+    let flows = |k: PrivateFlow| {
+        game.state()
+            .person
+            .account
+            .months
+            .last()
+            .and_then(|m| m.flows.get(&k).copied())
+            .unwrap_or(Money::ZERO)
+    };
+    assert!(flows(PrivateFlow::Rent) > Money::ZERO);
+    assert!(flows(PrivateFlow::MortgageInterest) < Money::ZERO);
+    assert!(flows(PrivateFlow::MortgageRepay) < Money::ZERO);
+    let p = &game.state().person.portfolio.properties[0];
+    assert!(p.mortgage.unwrap().balance < p.paid.scale(0.8));
+    // The sale repays the mortgage.
+    invest(&mut game, Investment::SellProperty { index: 0 }).unwrap();
+    assert!(game.state().person.portfolio.properties.is_empty());
+}
+
+#[test]
+fn a_higher_rent_brings_more_vacancy_and_the_band_is_kept() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game();
+    let id = offer_of(&game, PropertyKind::Office);
+    invest(
+        &mut game,
+        Investment::BuyProperty {
+            offer: id,
+            mortgage: 0.0,
+        },
+    )
+    .unwrap();
+    let m = property_model();
+    let base = crate::property::vacancy(&m, &game.state().person.portfolio.properties[0]);
+    assert_eq!(
+        invest(
+            &mut game,
+            Investment::SetRent {
+                index: 0,
+                factor: 1.5
+            }
+        ),
+        Err(CommandError::NotPossible)
+    );
+    invest(
+        &mut game,
+        Investment::SetRent {
+            index: 0,
+            factor: 1.2,
+        },
+    )
+    .unwrap();
+    let high = crate::property::vacancy(&m, &game.state().person.portfolio.properties[0]);
+    assert!((high - base - 0.3).abs() < 1e-9, "{base} {high}");
+}
+
+#[test]
+fn a_renovation_lifts_the_condition_and_stops_the_rent_for_a_while() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game();
+    let id = offer_of(&game, PropertyKind::Apartment);
+    invest(
+        &mut game,
+        Investment::BuyProperty {
+            offer: id,
+            mortgage: 0.0,
+        },
+    )
+    .unwrap();
+    let c0 = game.state().person.portfolio.properties[0].condition;
+    invest(&mut game, Investment::Renovate { index: 0 }).unwrap();
+    let p = &game.state().person.portfolio.properties[0];
+    assert!(p.condition > c0 && p.renovating_until.is_some());
+    assert_eq!(
+        invest(&mut game, Investment::Renovate { index: 0 }),
+        Err(CommandError::NotPossible)
+    );
+    months(&mut game, 1);
+    let rent = game
+        .state()
+        .person
+        .account
+        .months
+        .last()
+        .and_then(|m| m.flows.get(&PrivateFlow::Rent).copied())
+        .unwrap_or(Money::ZERO);
+    assert_eq!(rent, Money::ZERO);
+    months(&mut game, 4);
+    assert!(
+        game.state().person.portfolio.properties[0]
+            .renovating_until
+            .is_none()
+    );
+}
+
+#[test]
+fn what_the_account_cannot_pay_forces_a_sale() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game();
+    let id = offer_of(&game, PropertyKind::Multi);
+    invest(
+        &mut game,
+        Investment::BuyProperty {
+            offer: id,
+            mortgage: 0.8,
+        },
+    )
+    .unwrap();
+    // Empty the account but for a rest.
+    let rest = balance(&game);
+    game.state_mut().person.account.balance = usd(1.0);
+    let _ = rest;
+    let keys = to_next_month(&mut game);
+    assert!(
+        keys.iter().any(|k| k == keys::PROPERTY_DISTRESS),
+        "{keys:?}"
+    );
+    assert!(game.state().person.portfolio.properties.is_empty());
+    assert!(!game.state().person.account.balance.is_negative());
+}
+
+#[test]
+fn the_properties_replay_from_the_journal() {
+    use crate::property::PropertyKind;
+    use crate::savings::Investment;
+    let mut game = property_game();
+    let id = offer_of(&game, PropertyKind::Hall);
+    invest(
+        &mut game,
+        Investment::BuyProperty {
+            offer: id,
+            mortgage: 0.5,
+        },
+    )
+    .unwrap();
+    invest(
+        &mut game,
+        Investment::SetRent {
+            index: 0,
+            factor: 1.1,
+        },
+    )
+    .unwrap();
+    months(&mut game, 7);
     let settings = game.state().settings.clone();
     let again = Game::replay(game.catalog().clone(), settings, game.journal()).unwrap();
     assert_eq!(again.state_hash(), game.state_hash());
