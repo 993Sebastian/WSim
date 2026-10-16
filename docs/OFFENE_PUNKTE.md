@@ -2895,3 +2895,9 @@ Vorgabe: `docs/PRIVATLEBEN_VERMOEGEN.md` (Auftraggeber, 15.10.2026). Abgleich mi
 - Ein eigenes „Meldungsfach“ gibt es noch nicht; „n weitere Meldungen“ öffnet die Auswertungen im Bericht. Vorschlag: Meldungsfach mit RB4 oder später als eigene Ansicht.
 - Wettbewerbs-/Weltmeldungen gelten als relevant, wenn ein Parameter auf ein eigenes Produkt der Runde zeigt; Branchenbezug ohne Produkt (z. B. „neuer Wettbewerber in der eigenen Branche“) fehlt noch.
 - Nicht aufgenommen: Liquidität, Lager voll/leer, Vertrag gefährdet, Managerkündigung – sie kommen weiter über `hints()` bzw. die Anliegen.
+
+### Leistung der Weltläufe (16.10.2026, Befund vor E2E)
+
+- Der Weltlauf 1900–2027 mit 30 KI-Firmen und Monatsrunden lief nach 7 Stunden noch ohne Ergebnis und wurde abgebrochen. Messwerte (Release, ein Kern): 30 KI 1900–1903 in 1:39 min, 1900–1906 in 3:30 min; 100 KI 1900–1906 in 5:10 min; 10 KI ein Jahr in 22 s. Zum Vergleich ältere Messung: 100 KI 1900–1915 in 3:23 min (FORTSCHRITT, Benchmark). Die Rechenzeit je Spieljahr ist damit mehrfach höher als früher.
+- Profil (10 KI, 1900-01 bis 1900-02, callgrind): `market::clear` 33 %, `PeriodResult::add` 10,6 % und das Buchen je Kostenstelle (`BTreeMap<CostCenter, …>::entry`) 6,7 %, danach `round`, `market::trade`, `pow`. Später im Lauf kommen vermutlich Entwicklung, Manager und Personen hinzu (nicht gemessen).
+- Leistungsoptimierung gehört zu Stufe 6 (erst auf Wunsch). Vorschlag: vor dem Gesamtlauf bis 2100 (ZP1) und für lange Kalibrierläufe gezielt `market::clear` und die Buchführung beschleunigen; bis dahin Auswertungen mit 10 KI-Firmen oder kürzeren Zeiträumen fahren.
