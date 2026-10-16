@@ -2360,6 +2360,12 @@ pub struct GameState {
     /// The player as a person (PE2); older saves get a standard person when loaded.
     #[serde(default)]
     pub person: Person,
+    /// The owners of the AI companies as persons with private wealth (PV8).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ai_persons: Vec<crate::ai_persons::AiPerson>,
+    /// While an AI person's data stands in `person` (PV8): the player's holdings do not count.
+    #[serde(skip)]
+    pub person_swapped: bool,
 }
 
 /// The player as a person (PE2, docs/PERSON.md §5).

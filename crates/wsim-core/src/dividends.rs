@@ -149,6 +149,9 @@ fn shares(catalog: &Catalog, state: &GameState, company: CompanyId, amount: Mone
             let withheld = match s.holder {
                 Holder::Company(_) if s.share > group => Money::ZERO,
                 Holder::Player | Holder::Company(_) => gross.scale(tax),
+                Holder::Private if crate::ai_persons::index_of(state, company).is_some() => {
+                    gross.scale(tax)
+                }
                 Holder::Private | Holder::Investors => Money::ZERO,
             };
             Part {
@@ -226,7 +229,12 @@ fn pay(
                     paid.to_main += net;
                 }
             }
-            Holder::Private | Holder::Investors => {}
+            Holder::Private => {
+                if let Some(i) = crate::ai_persons::index_of(state, company) {
+                    crate::ai_persons::receive_dividend(state, i, p.gross, p.tax);
+                }
+            }
+            Holder::Investors => {}
         }
     }
     if paid.person_gross > Money::ZERO {

@@ -6859,6 +6859,62 @@ fn spekulation_wird_geprueft() {
     }
 }
 
+const KI_UNTERNEHMER: &str = "  ki_unternehmer:
+    startvermoegen_jahreslohn: {von: 8, bis: 80}
+    alter: {von: 30, bis: 65}
+    profile: {vorsichtig: 0.4, ausgewogen: 0.4, riskant: 0.2}
+    budget: 0.2
+    nachfolger_alter: {von: 28, bis: 48}
+    nachfolger_anteil: 0.7
+";
+
+#[test]
+fn ki_unternehmer_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        let mit = PERSON.replacen(
+            "  wohlbefinden:",
+            &format!("{KI_UNTERNEHMER}  wohlbefinden:"),
+            1,
+        );
+        Daten::neu()
+            .datei(datei, &mit.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    assert!(
+        gut.data
+            .as_ref()
+            .unwrap()
+            .catalog
+            .person
+            .ai_persons
+            .is_some()
+    );
+    for (alt, neu, pfad) in [
+        ("budget: 0.2", "budget: 2", "person.ki_unternehmer.budget"),
+        (
+            "nachfolger_anteil: 0.7",
+            "nachfolger_anteil: -0.1",
+            "person.ki_unternehmer.nachfolger_anteil",
+        ),
+        (
+            "alter: {von: 30, bis: 65}",
+            "alter: {von: 70, bis: 65}",
+            "person.ki_unternehmer.alter",
+        ),
+    ] {
+        let r = lauf(alt, neu);
+        let f = r
+            .report
+            .findings()
+            .first()
+            .unwrap_or_else(|| panic!("{alt} → {neu}: kein Befund"));
+        assert_eq!(f.path.to_string(), pfad, "{alt} → {neu}: {}", f.message);
+    }
+}
+
 const PERSOENLICHES: &str = "  persoenliches:
     chance_faktor: 1.0
     frist_tage: 60

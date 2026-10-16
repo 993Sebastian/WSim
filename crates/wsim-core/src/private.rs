@@ -166,7 +166,8 @@ pub fn wealth(catalog: &Catalog, state: &GameState) -> WealthPoint {
     let mut shares = Money::ZERO;
     let mut loans = Money::ZERO;
     for (i, c) in state.companies.iter().enumerate() {
-        if c.bankrupt {
+        // An AI person's data stands in the person: the player's holdings are not its own.
+        if c.bankrupt || state.person_swapped {
             continue;
         }
         // Few companies; the cast is exact.
@@ -185,7 +186,7 @@ pub fn wealth(catalog: &Catalog, state: &GameState) -> WealthPoint {
     let ventures: Money = state
         .ventures
         .iter()
-        .filter(|v| v.status == crate::state::VentureStatus::Active)
+        .filter(|v| !state.person_swapped && v.status == crate::state::VentureStatus::Active)
         .map(|v| {
             crate::ventures::value(&catalog.ventures, v).scale(crate::ventures::person_share(v))
                 + v.person_pledge
@@ -1059,6 +1060,18 @@ pub(crate) fn pay_salary(state: &mut GameState, last: Date) {
 pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) -> Vec<Message> {
     let mut news = Vec::new();
     family_month(state, catalog, last, &mut news);
+    account_month(state, catalog, last, &mut news);
+    news
+}
+
+/// The money of the person at the month end: interest, tax, lifestyle and what the account
+/// cannot pay. Shared with the AI persons (PV8).
+pub(crate) fn account_month(
+    state: &mut GameState,
+    catalog: &Catalog,
+    last: Date,
+    news: &mut Vec<Message>,
+) {
     let rate = catalog
         .person
         .savings_rate
@@ -1133,7 +1146,6 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) ->
     } else {
         state.person.short_since = None;
     }
-    news
 }
 
 /// First day of a month: the last month's movements are closed, the wealth recorded.

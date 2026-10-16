@@ -561,6 +561,29 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     if state.person.name.is_empty() {
         return news;
     }
+    holdings_step(state, catalog, date);
+    news.extend(crate::property::month_start(state, catalog, date));
+    news.extend(crate::services::month_start(state, catalog, date));
+    news.extend(crate::standing::month_start(state, catalog, date));
+    news.extend(crate::personal::month_start(state, catalog, date));
+    news.extend(crate::trust::month_start(state, catalog, date));
+    news.extend(crate::speculation::month_start(state, catalog, date));
+    // The plan.
+    if let Some(plan) = state.person.portfolio.plan
+        && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()
+    {
+        state.person.portfolio.plan = None;
+        news.push(
+            Message::new(MessageKind::Warning, keys::SAVINGS_PLAN_ENDED)
+                .with("betrag", Param::Money(plan.amount)),
+        );
+    }
+    news
+}
+
+/// Interest and maturities of deposits and bonds; the tax on a bond's gain. Shared with the
+/// AI persons (PV8).
+pub(crate) fn holdings_step(state: &mut GameState, catalog: &Catalog, date: Date) {
     // Interest and maturities. The interest counts like the account's (taxed at month end).
     let mut interest = Money::ZERO;
     let mut back = Money::ZERO;
@@ -602,21 +625,4 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             crate::private::book_flow(state, PrivateFlow::GainTax, -tax);
         }
     }
-    news.extend(crate::property::month_start(state, catalog, date));
-    news.extend(crate::services::month_start(state, catalog, date));
-    news.extend(crate::standing::month_start(state, catalog, date));
-    news.extend(crate::personal::month_start(state, catalog, date));
-    news.extend(crate::trust::month_start(state, catalog, date));
-    news.extend(crate::speculation::month_start(state, catalog, date));
-    // The plan.
-    if let Some(plan) = state.person.portfolio.plan
-        && buy_fund(state, catalog, &m, plan.fund, plan.amount).is_err()
-    {
-        state.person.portfolio.plan = None;
-        news.push(
-            Message::new(MessageKind::Warning, keys::SAVINGS_PLAN_ENDED)
-                .with("betrag", Param::Money(plan.amount)),
-        );
-    }
-    news
 }

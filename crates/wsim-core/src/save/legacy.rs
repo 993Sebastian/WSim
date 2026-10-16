@@ -220,6 +220,8 @@ pub(super) fn decode_v2(
         assets: Default::default(),
         main_company: Some(s.player),
         game_over: s.game_over,
+        ai_persons: Vec::new(),
+        person_swapped: false,
         person: Default::default(),
     };
     // Old saves listed only countries; report them as changed data unless identical.

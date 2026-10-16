@@ -417,6 +417,49 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             .personal
             .as_ref()
             .map(|p| personal(ctx, p, &l.field("persoenliches"))),
+        ai_persons: v.ai_persons.as_ref().map(|a| {
+            let al = l.field("ki_unternehmer");
+            let span =
+                |ctx: &mut Ctx, s: &crate::raw::RawFloatSpan, hi: f64, at: Loc| -> [f64; 2] {
+                    let lo = non_negative(ctx, s.min, &at.field("von"));
+                    let up = non_negative(ctx, s.max, &at.field("bis"));
+                    if lo > up {
+                        ctx.error(&at, messages::range_inverted("von", "bis"));
+                    }
+                    [lo.min(hi), up.min(hi)]
+                };
+            wsim_core::catalog::AiPersonModel {
+                start_wealth: span(
+                    ctx,
+                    &a.start_wealth,
+                    10_000.0,
+                    al.field("startvermoegen_jahreslohn"),
+                ),
+                age: span(ctx, &a.age, 100.0, al.field("alter")),
+                profile_weights: [
+                    non_negative(
+                        ctx,
+                        a.profiles.cautious,
+                        &al.field("profile").field("vorsichtig"),
+                    ),
+                    non_negative(
+                        ctx,
+                        a.profiles.balanced,
+                        &al.field("profile").field("ausgewogen"),
+                    ),
+                    non_negative(ctx, a.profiles.risky, &al.field("profile").field("riskant")),
+                ],
+                budget: in_range(ctx, a.budget, 0.0, 1.0, &al.field("budget")),
+                successor_age: span(ctx, &a.successor_age, 100.0, al.field("nachfolger_alter")),
+                successor_share: in_range(
+                    ctx,
+                    a.successor_share,
+                    0.0,
+                    1.0,
+                    &al.field("nachfolger_anteil"),
+                ),
+            }
+        }),
         speculation: v.speculation.as_ref().map(|s| {
             let sl = l.field("spekulation");
             let ll = sl.field("wertpapierkredit");

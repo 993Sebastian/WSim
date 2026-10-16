@@ -3253,6 +3253,8 @@ pub struct RawPerson {
     pub trust: Option<RawTrust>,
     #[serde(default, rename = "spekulation")]
     pub speculation: Option<RawSpeculation>,
+    #[serde(default, rename = "ki_unternehmer")]
+    pub ai_persons: Option<RawAiPersons>,
     #[serde(default, rename = "anlagen")]
     pub assets: Option<RawAssets>,
     #[serde(default, rename = "nachwuchs")]
@@ -3649,6 +3651,35 @@ pub struct RawFundTerms {
 }
 
 /// Background, time budget and health of the person (PV1b).
+/// The owners of the AI companies as persons (PV8).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAiPersons {
+    #[serde(rename = "startvermoegen_jahreslohn")]
+    pub start_wealth: RawFloatSpan,
+    #[serde(rename = "alter")]
+    pub age: RawFloatSpan,
+    #[serde(rename = "profile")]
+    pub profiles: RawAiProfiles,
+    #[serde(rename = "budget")]
+    pub budget: f64,
+    #[serde(rename = "nachfolger_alter")]
+    pub successor_age: RawFloatSpan,
+    #[serde(rename = "nachfolger_anteil")]
+    pub successor_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAiProfiles {
+    #[serde(rename = "vorsichtig")]
+    pub cautious: f64,
+    #[serde(rename = "ausgewogen")]
+    pub balanced: f64,
+    #[serde(rename = "riskant")]
+    pub risky: f64,
+}
+
 /// Securities loan and collectors' market (PV7).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

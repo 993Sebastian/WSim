@@ -2132,3 +2132,100 @@ fn a_development_project_turns_land_into_a_building_after_its_time() {
     assert!(p.development.is_none());
     assert!(p.condition > 80.0, "{}", p.condition);
 }
+
+fn ai_person_game() -> Game {
+    let mut c = catalog();
+    let mut a = asset_model();
+    a.services = Some(service_model());
+    c.person.assets = Some(a);
+    c.person.ai_persons = Some(crate::catalog::AiPersonModel {
+        start_wealth: [40.0, 40.0],
+        age: [40.0, 40.0],
+        profile_weights: [0.0, 1.0, 0.0],
+        budget: 0.5,
+        successor_age: [30.0, 30.0],
+        successor_share: 0.7,
+    });
+    let catalog = Arc::new(c);
+    let s = settings(&catalog, true, 5_000_000.0);
+    let mut game = Game::new(catalog, s).unwrap();
+    let state = game.state_mut();
+    let mut rival = state.companies[0].clone();
+    "Rivale AG".clone_into(&mut rival.name);
+    rival.owners = crate::state::Stake::sole(crate::state::Holder::Private);
+    rival.ai = Some(crate::state::AiState {
+        competence: 0.5,
+        aggressiveness: 0.5,
+        real: None,
+        next_operations: Date::new(2100, 1, 1).unwrap(),
+        staff: 0.0,
+    });
+    state.companies.push(rival);
+    game
+}
+
+#[test]
+fn the_owner_of_an_ai_company_is_a_person_who_invests_like_the_player() {
+    let mut game = ai_person_game();
+    game.advance(RoundLength::Month, |_| {});
+    game.advance(RoundLength::Month, |_| {});
+    assert_eq!(game.state().ai_persons.len(), 1);
+    let p = &game.state().ai_persons[0];
+    assert!(!p.person.name.is_empty());
+    // The free money went into deposits, bonds and funds by the weights of the profile.
+    let pf = &p.person.portfolio;
+    assert!(
+        !pf.deposits.is_empty() || !pf.bonds.is_empty() || pf.funds.iter().any(|f| f.units > 0.0),
+        "{pf:?}"
+    );
+    assert!(!game.state().person_swapped);
+    // The player's holdings never count for the AI person.
+    let catalog = game.catalog().clone();
+    let w = crate::ai_persons::with_person(game.state_mut(), 0, |s| {
+        crate::private::wealth(&catalog, s)
+    });
+    assert_eq!(w.shares, Money::ZERO);
+}
+
+#[test]
+fn an_ai_person_and_the_player_get_the_same_result_for_the_same_action() {
+    use crate::savings::{FundKind, Investment};
+    let mut game = ai_person_game();
+    game.advance(RoundLength::Month, |_| {});
+    let catalog = game.catalog().clone();
+    // The same account and portfolio, the same purchase, through the same function.
+    let ai = game.state().ai_persons[0].person.clone();
+    game.state_mut().person.account = ai.account;
+    game.state_mut().person.portfolio = ai.portfolio;
+    let action = Investment::BuyFund {
+        fund: FundKind::Managed,
+        amount: usd(10_000.0),
+    };
+    crate::savings::apply(game.state_mut(), &catalog, action).unwrap();
+    crate::ai_persons::with_person(game.state_mut(), 0, |s| {
+        crate::savings::apply(s, &catalog, action).unwrap();
+    });
+    let a = &game.state().person;
+    let b = &game.state().ai_persons[0].person;
+    assert_eq!(a.account.balance, b.account.balance);
+    assert_eq!(a.portfolio.funds, b.portfolio.funds);
+}
+
+#[test]
+fn an_ai_person_dies_pays_tax_and_a_successor_goes_on() {
+    let mut game = ai_person_game();
+    game.advance(RoundLength::Month, |_| {});
+    let catalog = game.catalog().clone();
+    let m = catalog.person.ai_persons.clone().unwrap();
+    let before = game.state().ai_persons[0].person.name.clone();
+    let wealth = crate::ai_persons::with_person(game.state_mut(), 0, |s| {
+        crate::private::wealth(&catalog, s).total()
+    });
+    assert!(wealth > Money::ZERO);
+    let mut rng = crate::rng::SimRng::for_stream(1, crate::rng::Stream::PersonStart);
+    crate::ai_persons::succeed_for_test(game.state_mut(), &catalog, &m, 0, &mut rng);
+    let p = &game.state().ai_persons[0].person;
+    assert_ne!(p.name, before);
+    assert!(p.account.balance > Money::ZERO && p.account.balance <= wealth);
+    assert!(p.portfolio.is_empty());
+}

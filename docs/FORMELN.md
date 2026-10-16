@@ -6923,3 +6923,20 @@ zwei Trefferquoten (Spürsinn), Abwehrvorschlag aus der Konkurrenzmeldung, Gebot
   Art des Gebäudes, Zustand 100.
 - **Werk in gemieteter Halle (PV7c):** Nur `bauanteil` der Standortkosten, jährliche Miete
   `miete_anteil · Standortkosten` (monatlich als Mietaufwand des Standorts); kein Grundstück.
+
+## PV8 – KI-Unternehmer als Personen
+
+- **Person:** Jede KI-Firma mit privaten Eigentümern (`Holder::Private`) bekommt eine `AiPerson` (Firma, Profil, `Person`).
+  Name aus dem Namensschatz der Managerkarten, Alter `alter.von…bis` bei Start, Privatvermögen
+  `startvermoegen_jahreslohn` akademische Jahreslöhne; Profil (vorsichtig/ausgewogen/riskant) nach `profile`.
+- **Gleiche Logik:** Für die Rechnungen steht die Person der KI an der Stelle von `state.person` (Tausch; während
+  dessen zählen die Firmenanteile des Spielers nicht, `person_swapped`). So laufen dieselben Funktionen wie beim
+  Spieler: Zinsen und Fälligkeiten (`holdings_step`), Anlage nach Strategie wie ein Vermögensverwalter (`services::invest`,
+  Anteil `budget` des freien Geldes, Gewichte der Strategie), Steuern und Lebensführung am Monatsende
+  (`account_month`), Kauf und Verkauf über `savings::apply`.
+- **Dividenden:** Die Dividende an die privaten Eigentümer einer KI-Firma geht brutto an deren Person; Quellensteuer wie beim Spieler.
+- **Tod:** Sterbechance wie beim Spieler (`heirs::death_chance`). Beim Tod werden die Anlagen verkauft, die Erbschaftsteuer
+  (`heirs::tax_due`) gezahlt; der Nachfolger (Alter `nachfolger_alter`) erbt `nachfolger_anteil` des Rests, der Rest
+  verlässt die Simulation (Miterben).
+- **Balance §15:** Der Kalibrierlauf (`wsim kalibrierung`) misst den Welt-ETF; der Gleichstellungstest prüft, dass
+  Spieler und KI dieselbe Anlageregel bei gleichem Zustand gleich behandeln.

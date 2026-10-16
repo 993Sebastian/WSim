@@ -5,6 +5,7 @@
 
 pub mod aging;
 pub mod ai;
+pub mod ai_persons;
 pub mod bank;
 pub mod bonds;
 pub mod branch_skill;

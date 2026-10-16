@@ -179,7 +179,12 @@ fn pay_fee(state: &mut GameState, fee: Money) {
 
 /// The manager's monthly investment: a share of what the account holds above the reserve,
 /// by the weights of his strategy.
-fn invest(state: &mut GameState, catalog: &Catalog, m: &ServiceModel, manager: AssetManager) {
+pub(crate) fn invest(
+    state: &mut GameState,
+    catalog: &Catalog,
+    m: &ServiceModel,
+    manager: AssetManager,
+) {
     let level = crate::private::lifestyle_at(catalog, &state.person, state.date);
     let reserve =
         crate::private::lifestyle_cost(catalog, state, level).scale(f64::from(m.reserve_months));

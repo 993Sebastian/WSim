@@ -258,6 +258,8 @@ impl Game {
             main_company: None,
             game_over: false,
             person: Default::default(),
+            ai_persons: Vec::new(),
+            person_swapped: false,
         };
         state.refresh_countries(&catalog);
         let found_at_start = state.settings.found_at_start;
@@ -687,6 +689,7 @@ impl Game {
                 next,
             ));
             crate::private::month_start(&mut self.state, &self.catalog, next);
+            crate::ai_persons::month_start(&mut self.state, &self.catalog, next);
             report.messages.extend(crate::regulation::month_start(
                 &mut self.state,
                 &self.catalog,

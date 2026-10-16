@@ -2924,6 +2924,8 @@ pub struct PersonModel {
     pub trust: Option<TrustModel>,
     /// Securities loan, collectors' market, development, rented halls (PV7).
     pub speculation: Option<SpeculationModel>,
+    /// The owners of the AI companies as persons (PV8).
+    pub ai_persons: Option<AiPersonModel>,
     /// Safe investments, gold and funds (PV2); `None` without the section.
     pub assets: Option<AssetModel>,
     /// Children, education and succession (PV4); `None` without the section.
@@ -3091,6 +3093,22 @@ pub struct BackgroundEffect {
     /// Standing and contacts at the start (from PV6).
     pub standing: f64,
     pub network: f64,
+}
+
+/// The owners of the AI companies as persons (PV8, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct AiPersonModel {
+    /// Private wealth at the start in academic yearly wages: from … to.
+    pub start_wealth: [f64; 2],
+    /// Age at the start, years: from … to.
+    pub age: [f64; 2],
+    /// Weights of the profiles cautious, balanced, risky.
+    pub profile_weights: [f64; 3],
+    /// Share of the free money invested each month.
+    pub budget: f64,
+    /// Age of the successor and the share of the estate (after tax) that stays with him.
+    pub successor_age: [f64; 2],
+    pub successor_share: f64,
 }
 
 /// Securities loan and collectors' market (PV7, docs/FORMELN.md).
@@ -3386,6 +3404,7 @@ impl Default for PersonModel {
             personal: None,
             trust: None,
             speculation: None,
+            ai_persons: None,
             assets: None,
             legacy: None,
             provenance: Provenance::default(),
